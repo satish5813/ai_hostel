@@ -35,6 +35,8 @@ import { HealthModule } from './health/health.module.js';
 import { RoomChangeModule } from './room-change/room-change.module.js';
 import { CautionModule } from './caution/caution.module.js';
 import { OpsModule } from './ops/ops.module.js';
+import { MessOpsModule } from './messops/messops.module.js';
+import { CareModule } from './care/care.module.js';
 import { DeanModule } from './dean/dean.module.js';
 
 @Module({
@@ -62,6 +64,8 @@ import { DeanModule } from './dean/dean.module.js';
     RoomChangeModule,
     CautionModule,
     OpsModule,
+    MessOpsModule,
+    CareModule,
     DeanModule,
     MeterModule,
     TrackingModule,

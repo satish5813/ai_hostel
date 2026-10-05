@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { useLocation, useNavigate } from 'react-router';
-import { ArrowLeftRight, Bell, ShieldCheck, BedDouble, ChefHat, ChevronsLeft, ChevronsRight, DoorOpen, GraduationCap, HeartPulse, Home, LogOut, Menu, Receipt, Star, UserRound, Utensils, Wrench, X, Zap, type LucideIcon } from 'lucide-react';
+import { ArrowLeftRight, Bell, MessageSquareWarning, ShieldCheck, BedDouble, ChefHat, ChevronsLeft, ChevronsRight, DoorOpen, GraduationCap, HeartPulse, Home, LogOut, Menu, Receipt, Star, UserRound, Utensils, Wrench, X, Zap, type LucideIcon } from 'lucide-react';
 import { setSession } from '@/lib/api';
 import { useApi, useProfile, useSession } from '@/lib/ui';
 import { Logo } from '@/ui/kit';
@@ -20,6 +20,7 @@ const ITEM: Record<string, { label: string; icon: LucideIcon; group: string }> =
   '/rate-meals': { label: 'Rate my meals', icon: Star, group: 'Mess' },
   '/outings': { label: 'Outings', icon: DoorOpen, group: 'Daily life' },
   '/sick-leave': { label: 'Sick leave', icon: HeartPulse, group: 'Daily life' },
+  '/complaints': { label: 'Complaints', icon: MessageSquareWarning, group: 'Daily life' },
   '/academics': { label: 'Academic record', icon: GraduationCap, group: 'Me' },
   '/my-health': { label: 'My health', icon: HeartPulse, group: 'Me' },
   '/notifications': { label: 'Notifications', icon: Bell, group: 'Me' },

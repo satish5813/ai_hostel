@@ -1,0 +1,4 @@
+student_id,fee_head,instalment,amount_due,amount_paid,due_date,paid_on,payment_mode,reference
+2600040011,Hostel,1,72000,72000,10-08-2026,05-08-2026,NEFT,UTR2026080512345
+2600040011,Hostel,2,48000,0,15-12-2026,,,
+2600040011,Mess,1,48000,48000,10-08-2026,05-08-2026,UPI,UPI-4471200981

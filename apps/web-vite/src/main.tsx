@@ -19,6 +19,7 @@ import './styles/profile.css';
 import './styles/health.css';
 import './styles/roomchange.css';
 import './styles/deposit.css';
+import './styles/mops.css';
 import { App } from './App';
 
 createRoot(document.getElementById('root')!).render(

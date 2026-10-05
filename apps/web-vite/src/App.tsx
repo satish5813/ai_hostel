@@ -73,6 +73,14 @@ import ChangeRoom from './pages/rooms/ChangeRoom';
 import RoomChanges from './pages/rooms/RoomChanges';
 import CautionDeposits from './pages/deposit/CautionDeposits';
 import MyDeposit from './pages/deposit/MyDeposit';
+import GrievanceDesk from './pages/messops/GrievanceDesk';
+import MealScan from './pages/messops/MealScan';
+import MessStore from './pages/messops/MessStore';
+import DailyRecord from './pages/messops/DailyRecord';
+import MonthlyReport from './pages/messops/MonthlyReport';
+import Checklists from './pages/care/Checklists';
+import Grievances from './pages/care/Grievances';
+import Complaints from './pages/care/Complaints';
 import MyTickets from './pages/student/MyTickets';
 import RepairDesk from './pages/maintenance/RepairDesk';
 import ElectricityBills from './pages/maintenance/ElectricityBills';
@@ -160,7 +168,15 @@ export function App() {
         <Route path="/room-changes" element={<RoomChanges />} />          {/* RCH-01 room change requests: approve, move, settle */}
         <Route path="/change-room" element={<ChangeRoom />} />
         <Route path="/caution-deposits" element={<CautionDeposits />} />  {/* CDP-01 caution deposits: deductions, dues, refunds */}
-        <Route path="/my-deposit" element={<MyDeposit />} />              {/* CDP-02 student's own caution deposit */}            {/* RCH-02 student asks for another room */}               {/* HLT-03 student's own health */}
+        <Route path="/my-deposit" element={<MyDeposit />} />
+        <Route path="/mess-grievances" element={<GrievanceDesk />} />     {/* MES-03 */}
+        <Route path="/meal-scan" element={<MealScan />} />                {/* MES-04 */}
+        <Route path="/mess-store" element={<MessStore />} />              {/* MES-05 */}
+        <Route path="/mess-daily" element={<DailyRecord />} />            {/* MES-06 */}
+        <Route path="/mess-monthly" element={<MonthlyReport />} />        {/* MES-07 */}
+        <Route path="/checklists" element={<Checklists />} />             {/* TKT-05 */}
+        <Route path="/grievances" element={<Grievances />} />             {/* TKT-06 */}
+        <Route path="/complaints" element={<Complaints />} />             {/* TKT-07 student */}              {/* CDP-02 student's own caution deposit */}            {/* RCH-02 student asks for another room */}               {/* HLT-03 student's own health */}
         <Route path="/career-tracker" element={<CareerTracker />} />      {/* CAR-01 second-year progress, final-year outcomes */}
         <Route path="/exec" element={<ExecDashboard />} />                {/* EXE-01 executive dashboard (no menu) */}
         <Route path="/exec/:facilityId" element={<ExecDashboard />} />    {/* EXE-01 one building */}            {/* MES-02 student rates the dishes eaten */}

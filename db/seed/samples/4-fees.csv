@@ -1,4 +1,4 @@
-hostel_code,room_type,academic_year,registration_fee,hostel_fee,instalment_1_pct,instalment_2_due_date
-BH2,3-sharing AC,2026-27,5000,105000,60,15-12-2026
-BH2,2-sharing AC,2026-27,5000,120000,60,15-12-2026
-GH2,2-sharing AC,2026-27,5000,120000,60,15-12-2026
+hostel_code,room_type,academic_year,registration_fee,hostel_fee,instalment_1_pct,instalment_2_due_date,caution_deposit,elec_caution_deposit,meter_charge
+BH2,3-sharing AC,2026-27,5000,105000,60,15-12-2026,10000,2000,500
+BH2,2-sharing AC,2026-27,5000,120000,60,15-12-2026,10000,2000,500
+GH2,2-sharing AC,2026-27,5000,120000,60,15-12-2026,10000,2000,500

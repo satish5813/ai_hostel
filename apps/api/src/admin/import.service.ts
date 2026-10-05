@@ -23,6 +23,7 @@ type Ctx = {
   hostels: Map<string, string>; types: Map<string, { id: number; sharing: number; is_ac: boolean }>; spaces: Set<string>; zones: Set<string>;
   staff: Set<string>; years: Set<string>; roles: Map<string, string>; metered: Map<string, string>; user: AuthUser;
   beds: Map<string, string>; students: Set<string>; housed: Set<string>; currentYear: string; genders: Map<string, string>; hostelFor: Map<string, string>;
+  messes: Map<string, number>; meterIds: Map<string, number>;
 };
 type Kind = {
   kind: string; order: number; title: string; target: string; source: string; note: string; count: string; needs: (keyof Ctx)[];
@@ -71,7 +72,7 @@ const staffTypeFrom = (designation: string) => {
 };
 const RELATION: Record<string, string> = { self: 'Self', father: 'Father', mother: 'Mother', guardian: 'Guardian', husband: 'Spouse', wife: 'Spouse', spouse: 'Spouse', brother: 'Brother', sister: 'Sister', communication: 'Communication' };
 
-/* ---------- the nine masters, in set-up order ---------- */
+/* ---------- the masters in set-up order, then the opening balances for going live ---------- */
 const KINDS: Kind[] = [
   {
     kind: 'hostels', order: 1, title: 'Hostel buildings', target: 'infra.facility, hostel.hostel_profile, infra.zone', source: 'Hostel_Building', needs: [],
@@ -165,6 +166,9 @@ const KINDS: Kind[] = [
       { key: 'hostel_fee', label: 'Hostel fee a year', required: true, sample: '105000', aliases: ['annual fee', 'hostel fee a year'] },
       { key: 'instalment_1_pct', label: 'First instalment %', required: true, sample: '60', aliases: ['first instalment', 'instalment 1'] },
       { key: 'instalment_2_due_date', label: 'Second instalment due', required: true, hint: 'DD-MM-YYYY', sample: '15-12-2026', aliases: ['second instalment due', 'instalment 2 due'] },
+      { key: 'caution_deposit', label: 'Caution deposit', hint: 'Refundable, on joining only; empty keeps 10000', sample: '10000', aliases: ['caution deposit', 'security deposit'] },
+      { key: 'elec_caution_deposit', label: 'Electricity deposit', hint: 'Refundable, on joining only; empty keeps 2000', sample: '2000', aliases: ['electricity caution deposit', 'electricity deposit'] },
+      { key: 'meter_charge', label: 'Meter charge a year', hint: 'Every year, also on renewal; empty keeps 500', sample: '500', aliases: ['meter charge', 'electricity meter charge'] },
     ],
     key: (c) => `${c.facility_id}|${c.room_type_id}|${c.academic_year}`,
     validate: (r, ctx) => {
@@ -172,13 +176,23 @@ const KINDS: Kind[] = [
       const t = ctx.types.get(norm(need(r.room_type, 'Room type'))); if (!t) throw new Error('Room type is not in Room types');
       const year = need(r.academic_year, 'Academic year'); if (!ctx.years.has(year)) throw new Error('Academic year is not defined; add it under Masters first');
       return { facility_id: fid, room_type_id: t.id, academic_year: year, registration_fee: amount(r.registration_fee, 'Registration fee'), hostel_fee: amount(r.hostel_fee, 'Hostel fee a year'),
-        instalment_1_pct: whole(r.instalment_1_pct, 'First instalment %', 1, 100), instalment_2_due_date: isoDate(r.instalment_2_due_date, 'Second instalment due', true) };
+        instalment_1_pct: whole(r.instalment_1_pct, 'First instalment %', 1, 100), instalment_2_due_date: isoDate(r.instalment_2_due_date, 'Second instalment due', true),
+        caution_deposit: r.caution_deposit ? amount(r.caution_deposit, 'Caution deposit') : null, elec_caution_deposit: r.elec_caution_deposit ? amount(r.elec_caution_deposit, 'Electricity deposit') : null,
+        meter_charge: r.meter_charge ? amount(r.meter_charge, 'Meter charge a year') : null };
     },
     load: async (tx, rows) => {
-      await tx.execute(sql`insert into hostel.room_type_fee (room_type_id, facility_id, academic_year, registration_fee, hostel_fee, instalment_1_pct, instalment_2_due_date)
-        select x.room_type_id, x.facility_id, x.academic_year, x.registration_fee, x.hostel_fee, x.instalment_1_pct, x.instalment_2_due_date
-        from jsonb_to_recordset(${json(rows)}) as x(room_type_id int, facility_id text, academic_year text, registration_fee numeric, hostel_fee numeric, instalment_1_pct numeric, instalment_2_due_date date)
-        on conflict (room_type_id, facility_id, academic_year) do update set registration_fee = excluded.registration_fee, hostel_fee = excluded.hostel_fee, instalment_1_pct = excluded.instalment_1_pct, instalment_2_due_date = excluded.instalment_2_due_date`);
+      await tx.execute(sql`insert into hostel.room_type_fee (room_type_id, facility_id, academic_year, registration_fee, hostel_fee, instalment_1_pct, instalment_2_due_date, caution_deposit, elec_caution_deposit, meter_charge)
+        select x.room_type_id, x.facility_id, x.academic_year, x.registration_fee, x.hostel_fee, x.instalment_1_pct, x.instalment_2_due_date,
+               coalesce(x.caution_deposit, 10000), coalesce(x.elec_caution_deposit, 2000), coalesce(x.meter_charge, 500)
+        from jsonb_to_recordset(${json(rows)}) as x(room_type_id int, facility_id text, academic_year text, registration_fee numeric, hostel_fee numeric, instalment_1_pct numeric, instalment_2_due_date date,
+             caution_deposit numeric, elec_caution_deposit numeric, meter_charge numeric)
+        on conflict (room_type_id, facility_id, academic_year) do update set registration_fee = excluded.registration_fee, hostel_fee = excluded.hostel_fee, instalment_1_pct = excluded.instalment_1_pct,
+          instalment_2_due_date = excluded.instalment_2_due_date`);
+      // the deposits and meter charge change only where the file gives them
+      await tx.execute(sql`update hostel.room_type_fee f set caution_deposit = coalesce(x.caution_deposit, f.caution_deposit),
+          elec_caution_deposit = coalesce(x.elec_caution_deposit, f.elec_caution_deposit), meter_charge = coalesce(x.meter_charge, f.meter_charge)
+        from jsonb_to_recordset(${json(rows)}) as x(room_type_id int, facility_id text, academic_year text, caution_deposit numeric, elec_caution_deposit numeric, meter_charge numeric)
+        where f.room_type_id = x.room_type_id and f.facility_id = x.facility_id and f.academic_year = x.academic_year`);
     },
   },
   {
@@ -426,10 +440,133 @@ const KINDS: Kind[] = [
         from jsonb_to_recordset(${json(rows)}) as x(student_id text, subspace_id text, key_no text, check_in_date date, academic_year text)`);
     },
   },
+  {
+    kind: 'opening_fees', order: 11, title: 'Fees already due and paid', target: 'hostel.fee_demand, hostel.fee_receipt', source: 'Opening_Fee', needs: ['students', 'years'],
+    note: 'For going live: what each student owed and paid this year before the system. Each row makes one due and, when something was paid, one receipt. Deposits go in their own upload. Loading the same row again changes nothing.',
+    count: "select count(*)::int as n from hostel.fee_demand where reference_type = 'opening_balance'",
+    columns: [
+      { key: 'student_id', label: 'University ID', required: true, sample: '2600040011', aliases: ['university id', 'id'] },
+      { key: 'fee_head', label: 'Fee', required: true, hint: 'Hostel, Mess, Registration, Electricity, Meter charge, Damage, Fine', sample: 'Hostel', aliases: ['fee head', 'head'] },
+      { key: 'instalment', label: 'Instalment', hint: '1 or 2 for the hostel fee; empty means 1', sample: '1', aliases: ['instalment no'] },
+      { key: 'amount_due', label: 'Amount due', required: true, sample: '63000', aliases: ['due', 'amount'] },
+      { key: 'amount_paid', label: 'Amount paid', hint: 'Empty means nothing paid yet', sample: '63000', aliases: ['paid'] },
+      { key: 'due_date', label: 'Due date', required: true, hint: 'DD-MM-YYYY', sample: '10-08-2026' },
+      { key: 'paid_on', label: 'Paid on', hint: 'DD-MM-YYYY', sample: '05-08-2026', aliases: ['payment date'] },
+      { key: 'payment_mode', label: 'Paid by', hint: 'NEFT, RTGS, UPI, Card, Net banking, Cheque, DD, Cash', sample: 'NEFT', aliases: ['mode', 'payment mode'] },
+      { key: 'reference', label: 'Reference', hint: 'UTR, transaction or cheque number; needed for UPI, card and net banking', sample: 'UTR2026080512345', aliases: ['utr', 'transaction id', 'receipt no'] },
+    ],
+    key: (c) => `${c.student_id}|${c.fee_head}|${c.instalment_no}|${c.due_date}`,
+    validate: (r, ctx) => {
+      const id = need(r.student_id, 'University ID'); if (!ctx.students.has(id)) throw new Error('University ID is not in Students; upload the students first');
+      if (/deposit/i.test(r.fee_head ?? '')) throw new Error('Deposits go in the "Deposits already held" upload');
+      const head = oneOf(r.fee_head, 'Fee', ['Hostel', 'Mess', 'Registration', 'Electricity', 'Meter_Charge', 'Damage', 'Fine'], { metercharge: 'Meter_Charge', meter: 'Meter_Charge', hostelfee: 'Hostel', messfee: 'Mess' });
+      const inst = r.instalment ? whole(r.instalment, 'Instalment', 1, 2) : 1; if (inst === 2 && head !== 'Hostel') throw new Error('Only the hostel fee has a second instalment');
+      const due = amount(r.amount_due, 'Amount due'), paid = r.amount_paid ? amount(r.amount_paid, 'Amount paid') : 0;
+      if (paid > due) throw new Error('Amount paid is more than the amount due');
+      const mode = paid > 0 ? oneOf(r.payment_mode, 'Paid by', ['NEFT', 'RTGS', 'UPI', 'Card', 'Net_Banking', 'Cheque', 'DD', 'Cash'], { netbanking: 'Net_Banking', bank: 'NEFT', imps: 'NEFT', online: 'Net_Banking' }) : null;
+      if (mode && ['UPI', 'Card', 'Net_Banking'].includes(mode) && !r.reference) throw new Error('Reference is needed for UPI, card and net banking');
+      return { student_id: id, fee_head: head, instalment_no: inst, amount_due: due, amount_paid: paid, due_date: isoDate(r.due_date, 'Due date', true),
+        paid_on: paid > 0 ? (isoDate(r.paid_on, 'Paid on') ?? new Date().toISOString().slice(0, 10)) : null, payment_mode: mode, reference: cut(r.reference, 80) };
+    },
+    load: async (tx, rows, ctx) => {
+      await tx.execute(sql`with x as (select * from jsonb_to_recordset(${json(rows)}) as x(student_id text, fee_head text, instalment_no int, amount_due numeric, amount_paid numeric, due_date date, paid_on date, payment_mode text, reference text)),
+        d as (insert into hostel.fee_demand (student_id, fee_head, instalment_no, amount_due, due_date, reference_type, created_by)
+              select x.student_id, x.fee_head::hostel.fee_head, x.instalment_no, x.amount_due, x.due_date, 'opening_balance', ${ctx.user.id} from x
+              where not exists (select 1 from hostel.fee_demand e where e.student_id = x.student_id and e.fee_head::text = x.fee_head and e.instalment_no = x.instalment_no
+                                  and e.due_date = x.due_date and e.reference_type = 'opening_balance')
+              returning demand_id, student_id, fee_head::text as fee_head, instalment_no, due_date)
+        insert into hostel.fee_receipt (demand_id, amount, paid_on, payment_mode, gateway_ref, gateway_status, collected_by, created_by)
+        select d.demand_id, x.amount_paid, x.paid_on::timestamptz, x.payment_mode::hostel.payment_mode,
+               case when x.payment_mode in ('UPI', 'Card', 'Net_Banking') then x.reference end, 'Success',
+               case when x.payment_mode = 'Cash' then ${ctx.user.kind === 'staff' ? ctx.user.id : null} end, ${ctx.user.id}
+        from d join x on x.student_id = d.student_id and x.fee_head = d.fee_head and x.instalment_no = d.instalment_no and x.due_date = d.due_date
+        where x.amount_paid > 0`);
+    },
+  },
+  {
+    kind: 'opening_deposits', order: 12, title: 'Deposits already held', target: 'hostel.caution_entry', source: 'Opening_Deposit', needs: ['students'],
+    note: 'For going live: the caution and electricity deposits the university already holds for each student. One line per student and deposit; a deposit already recorded is not added again.',
+    count: "select count(*)::int as n from hostel.caution_entry where entry_type = 'Opening'",
+    columns: [
+      { key: 'student_id', label: 'University ID', required: true, sample: '2600040011', aliases: ['university id', 'id'] },
+      { key: 'deposit', label: 'Deposit', hint: 'Caution or Electricity; empty means Caution', sample: 'Caution', aliases: ['deposit type', 'kind'] },
+      { key: 'amount', label: 'Amount held', required: true, sample: '10000', aliases: ['amount', 'held'] },
+      { key: 'paid_on', label: 'Paid on', hint: 'DD-MM-YYYY', sample: '01-08-2024', aliases: ['date', 'held since'] },
+      { key: 'reference', label: 'Old receipt or ledger reference', sample: 'CD/2024/1123', aliases: ['receipt no', 'reference'] },
+    ],
+    key: (c) => `${c.student_id}|${c.kind}`,
+    validate: (r, ctx) => {
+      const id = need(r.student_id, 'University ID'); if (!ctx.students.has(id)) throw new Error('University ID is not in Students; upload the students first');
+      const kind = oneOf(r.deposit, 'Deposit', ['Hostel', 'Electricity'], { caution: 'Hostel', cautiondeposit: 'Hostel', security: 'Hostel', electricitydeposit: 'Electricity', elec: 'Electricity' }, 'Hostel');
+      const amt = amount(r.amount, 'Amount held'); if (amt <= 0) throw new Error('Amount held must be more than zero');
+      const on = isoDate(r.paid_on, 'Paid on');
+      return { student_id: id, kind, amount: amt, reason: `Held before the system${on ? ` since ${on}` : ''}${r.reference ? `, ref ${r.reference.slice(0, 40)}` : ''}` };
+    },
+    load: async (tx, rows, ctx) => {
+      await tx.execute(sql`insert into hostel.caution_entry (student_id, entry_type, deposit_kind, amount, reason, created_by)
+        select x.student_id, 'Opening', x.kind, x.amount, x.reason, ${ctx.user.id} from jsonb_to_recordset(${json(rows)}) as x(student_id text, kind text, amount numeric, reason text)
+        where not exists (select 1 from hostel.caution_entry e where e.student_id = x.student_id and e.deposit_kind = x.kind and e.entry_type in ('Opening', 'Collected'))`);
+    },
+  },
+  {
+    kind: 'meter_readings', order: 13, title: 'Meter readings', target: 'hostel.meter_reading', source: 'Meter_Reading', needs: ['hostels', 'spaces', 'meterIds'],
+    note: 'Each room meter\'s reading on the day the system starts (and any later manual readings). A reading lower than an earlier one of the same meter is refused.',
+    count: 'select count(*)::int as n from hostel.meter_reading',
+    columns: [
+      { key: 'hostel_code', label: 'Hostel code', required: true, sample: 'BH2', aliases: ['hostel'] },
+      { key: 'room_no', label: 'Room number', required: true, sample: '101', aliases: ['room'] },
+      { key: 'reading_kwh', label: 'Reading (kWh)', required: true, sample: '1523.4', aliases: ['reading', 'kwh', 'units'] },
+      { key: 'reading_date', label: 'Read on', required: true, hint: 'DD-MM-YYYY', sample: '01-11-2026', aliases: ['date', 'reading date'] },
+    ],
+    key: (c) => `${c.meter_id}|${c.reading_at}`,
+    validate: (r, ctx) => {
+      const code = need(r.hostel_code, 'Hostel code').toUpperCase(); if (!ctx.hostels.has(code)) throw new Error('Hostel code is not in Hostel buildings');
+      const space = `${code}-${need(r.room_no, 'Room number')}`; if (!ctx.spaces.has(space)) throw new Error('Room is not in Rooms and beds');
+      const meter = ctx.meterIds.get(space); if (!meter) throw new Error('This room has no meter; upload it in Room meters first');
+      return { meter_id: meter, reading_kwh: amount(r.reading_kwh, 'Reading (kWh)'), reading_at: `${isoDate(r.reading_date, 'Read on', true)}T09:00:00+05:30` };
+    },
+    load: async (tx, rows, ctx) => {
+      await tx.execute(sql`insert into hostel.meter_reading (meter_id, reading_at, reading_kwh, source, read_by, created_by)
+        select x.meter_id, x.reading_at, x.reading_kwh, 'Manual', ${ctx.user.kind === 'staff' ? ctx.user.id : null}, ${ctx.user.id}
+        from jsonb_to_recordset(${json(rows)}) as x(meter_id bigint, reading_at timestamptz, reading_kwh numeric)
+        where not exists (select 1 from hostel.meter_reading m where m.meter_id = x.meter_id and m.reading_at = x.reading_at)
+        order by x.reading_at`);
+    },
+  },
+  {
+    kind: 'mess_subscriptions', order: 14, title: 'Mess for each student', target: 'hostel.mess_subscription', source: 'Mess_Subscription', needs: ['students', 'messes', 'years'],
+    note: 'Which mess each resident eats in, and their food: south or north Indian, veg or non-veg. Loading a student again moves them to the mess and food in the file. The mess fee itself goes in "Fees already due and paid".',
+    count: "select count(*)::int as n from hostel.mess_subscription where status = 'Active'",
+    columns: [
+      { key: 'student_id', label: 'University ID', required: true, sample: '2600040011', aliases: ['university id', 'id'] },
+      { key: 'mess', label: 'Mess', required: true, hint: 'Mess name as in Masters', sample: 'BH1 Mess', aliases: ['mess name'] },
+      { key: 'region', label: 'South or North', hint: 'South or North; empty means South', sample: 'South', aliases: ['cuisine', 'food style'] },
+      { key: 'diet', label: 'Veg or non-veg', hint: 'Veg or Non-veg; empty means Veg', sample: 'Non-veg', aliases: ['food', 'veg'] },
+      { key: 'from_date', label: 'From', hint: 'DD-MM-YYYY; empty means today', sample: '01-08-2026', aliases: ['from date', 'start date'] },
+      { key: 'academic_year', label: 'Academic year', hint: 'Empty means the current year', sample: '', aliases: ['year'] },
+    ],
+    key: (c) => `${c.student_id}|${c.academic_year}`,
+    validate: (r, ctx) => {
+      const id = need(r.student_id, 'University ID'); if (!ctx.students.has(id)) throw new Error('University ID is not in Students; upload the students first');
+      const mess = ctx.messes.get(norm(need(r.mess, 'Mess'))); if (!mess) throw new Error('Mess is not in Masters');
+      const region = oneOf(r.region, 'South or North', ['South', 'North'], { southindian: 'South', northindian: 'North' }, 'South');
+      const diet = oneOf(r.diet, 'Veg or non-veg', ['Veg', 'Non_Veg'], { nonveg: 'Non_Veg', vegetarian: 'Veg', nonvegetarian: 'Non_Veg' }, 'Veg');
+      const year = r.academic_year ?? ctx.currentYear; if (!ctx.years.has(year)) throw new Error('Academic year is not in the master');
+      return { student_id: id, mess_id: mess, region, diet, cuisine: region === 'North' ? 'North_Indian' : 'South_Indian', from_date: isoDate(r.from_date, 'From'), academic_year: year };
+    },
+    load: async (tx, rows, ctx) => {
+      const x = sql`jsonb_to_recordset(${json(rows)}) as x(student_id text, mess_id bigint, region text, diet text, cuisine text, from_date date, academic_year text)`;
+      await tx.execute(sql`update hostel.mess_subscription s set mess_id = x.mess_id, region = x.region, diet = x.diet, cuisine = x.cuisine::hostel.cuisine, updated_by = ${ctx.user.id}
+        from ${x} where s.student_id = x.student_id and s.academic_year = x.academic_year and s.status = 'Active'`);
+      await tx.execute(sql`insert into hostel.mess_subscription (student_id, mess_id, academic_year, cuisine, region, diet, from_date, created_by)
+        select x.student_id, x.mess_id, x.academic_year, x.cuisine::hostel.cuisine, x.region, x.diet, coalesce(x.from_date, current_date), ${ctx.user.id} from ${x}
+        where not exists (select 1 from hostel.mess_subscription s where s.student_id = x.student_id and s.academic_year = x.academic_year and s.status = 'Active')`);
+    },
+  },
 ];
 /** What to call a refused row in the report: an identifier, never personal data. */
 const TAG: Record<string, (r: Row) => string | undefined> = {
-  rooms: (r) => `${r.hostel_code ?? ''}-${r.room_no ?? ''}`, assets: (r) => r.asset_id, meters: (r) => r.meter_no, fees: (r) => `${r.hostel_code ?? ''} ${r.room_type ?? ''}`, room_types: (r) => r.type_name,
+  rooms: (r) => `${r.hostel_code ?? ''}-${r.room_no ?? ''}`, meter_readings: (r) => `${r.hostel_code ?? ''}-${r.room_no ?? ''}`, assets: (r) => r.asset_id, meters: (r) => r.meter_no, fees: (r) => `${r.hostel_code ?? ''} ${r.room_type ?? ''}`, room_types: (r) => r.type_name,
 };
 const STUDENT_LEVELS: Record<string, string> = { phd: 'PhD', graduatediploma: 'Graduate_Diploma', pgdiploma: 'PG_Diploma', srf: 'SRF', jrf: 'JRF', pdf: 'PDF' };
 
@@ -456,7 +593,7 @@ export class ImportService {
   }
 
   private async ctx(k: Kind, user: AuthUser): Promise<Ctx> {
-    const c: Ctx = { hostels: new Map(), types: new Map(), spaces: new Set(), zones: new Set(), staff: new Set(), years: new Set(), roles: new Map(), metered: new Map(), user, beds: new Map(), students: new Set(), housed: new Set(), currentYear: '', genders: new Map(), hostelFor: new Map() };
+    const c: Ctx = { hostels: new Map(), types: new Map(), spaces: new Set(), zones: new Set(), staff: new Set(), years: new Set(), roles: new Map(), metered: new Map(), user, beds: new Map(), students: new Set(), housed: new Set(), currentYear: '', genders: new Map(), hostelFor: new Map(), messes: new Map(), meterIds: new Map() };
     const has = (n: keyof Ctx) => k.needs.includes(n);
     if (has('hostels')) (await this.dbs.rows<{ hostel_code: string; facility_id: string }>(sql`select hostel_code, facility_id from hostel.hostel_profile`)).forEach((r) => c.hostels.set(r.hostel_code, r.facility_id));
     if (has('types')) (await this.dbs.rows<{ room_type_id: number; type_name: string; sharing_count: number; is_ac: boolean }>(sql`select room_type_id, type_name, sharing_count, is_ac from hostel.room_type`)).forEach((r) => c.types.set(norm(r.type_name), { id: r.room_type_id, sharing: r.sharing_count, is_ac: r.is_ac }));
@@ -473,6 +610,9 @@ export class ImportService {
       (await this.dbs.rows<{ student_id: string }>(sql`select student_id from hostel.hostel_allocation where status = 'Active' and student_id is not null`)).forEach((r) => c.housed.add(r.student_id));
       c.currentYear = (await this.dbs.rows<{ y: string }>(sql`select academic_year as y from hostel.academic_year where is_current limit 1`))[0]?.y ?? '';
     }
+    if (has('messes')) (await this.dbs.rows<{ mess_id: number; mess_name: string }>(sql`select mess_id::int as mess_id, mess_name from hostel.mess_master`)).forEach((r) => { c.messes.set(norm(r.mess_name), r.mess_id); c.messes.set(String(r.mess_id), r.mess_id); });
+    if (has('meterIds')) (await this.dbs.rows<{ space_id: string; meter_id: number }>(sql`select space_id, meter_id::int as meter_id from hostel.room_meter where status = 'Active'`)).forEach((r) => c.meterIds.set(r.space_id, r.meter_id));
+    if ((has('students') || has('messes')) && !c.currentYear) c.currentYear = (await this.dbs.rows<{ y: string }>(sql`select academic_year as y from hostel.academic_year where is_current limit 1`))[0]?.y ?? '';
     return c;
   }
 

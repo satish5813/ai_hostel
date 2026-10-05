@@ -87,6 +87,11 @@ OTP for contact verification in development is `000000`; payments run in DEV mod
   electricity caution deposit, hostel fee, mess fee and the yearly electricity meter charge (`room_type_fee.elec_caution_deposit`,
   `meter_charge`); renewal = hostel fee, mess fee and meter charge only (registration is a waived ₹0 line, no deposits). The two
   deposits are kept apart in `hostel.caution_entry.deposit_kind`.
+* **Mess operations and checklists** (`db/migrations/119_mess_operations_and_checklists.sql`, `apps/api/src/messops`, `apps/api/src/care`):
+  complaints desk with significant meals (5 students or 10% of the mess), meal scan at the counter, mess store (goods received,
+  issues acknowledged by the supervisor, never more than in stock, re-order under four days of use), daily record, monthly report;
+  checklists filled by role and signed by the reviewer (a failed item opens a repair ticket); grievances that are not repairs,
+  ragging and safety always confidential. Demo data: `db/seed/mess_ops_demo.sql` (login `S-MK`, Mess Storekeeper).
 * **Student health** (`db/migrations/114_student_health.sql`, `apps/api/src/health`, `/health`, `/my-health`): 13
   panels / 76 tests with units, LOINC codes and male/female reference ranges; the database flags each result L/H/LL/HH.
   The gym equipment posts JSON to `POST /api/health/reports`, or the Gym Manager uploads the CSV template

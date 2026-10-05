@@ -1,0 +1,380 @@
+<title>KL Hostels Application Map</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column; diagrams and tables scroll inside their own frames; teal from the app's own brand */
+:root {
+  --bg: #F6F8F8; --surface: #FFFFFF; --ink: #12201F; --ink-2: #4A5A59; --ink-3: #6F7F7E; --line: #DCE5E4;
+  --brand: #0B7A71; --brand-tint: #E3F2EF;
+  --live: #0F7B3E; --live-bg: #E6F4EA; --part: #9A5B00; --part-bg: #FFF4DE; --plan: #5B6472; --plan-bg: #EEF1F4; --must: #B42318; --must-bg: #FDECEA;
+  --font-body: "Plus Jakarta Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0F1716; --surface: #16211F; --ink: #E6EEED; --ink-2: #A9B9B7; --ink-3: #82918F; --line: #263432;
+  --brand: #3DBFAF; --brand-tint: #17312D;
+  --live: #6DD69A; --live-bg: #16301F; --part: #F2B84B; --part-bg: #33270F; --plan: #A9B3C1; --plan-bg: #222A33; --must: #FF8A80; --must-bg: #3A1C1A; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0F1716; --surface: #16211F; --ink: #E6EEED; --ink-2: #A9B9B7; --ink-3: #82918F; --line: #263432;
+  --brand: #3DBFAF; --brand-tint: #17312D;
+  --live: #6DD69A; --live-bg: #16301F; --part: #F2B84B; --part-bg: #33270F; --plan: #A9B3C1; --plan-bg: #222A33; --must: #FF8A80; --must-bg: #3A1C1A; color-scheme: dark }
+
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.6; }
+.wrap { max-width: 1040px; margin: 0 auto; padding-inline: 20px; padding-block: 32px 64px; display: flex; flex-direction: column; gap: 44px; }
+h1, h2, h3 { text-wrap: balance; line-height: 1.2; margin: 0; }
+h1 { font-size: 34px; font-weight: 800; letter-spacing: -0.01em; }
+h2 { font-size: 22px; font-weight: 800; }
+h3 { font-size: 16px; font-weight: 700; }
+p { margin: 0; max-width: 68ch; color: var(--ink-2); }
+.eyebrow { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: var(--brand); }
+section { display: flex; flex-direction: column; gap: 14px; }
+code, .mono { font-family: var(--font-mono); font-size: 13px; }
+
+header.top { display: flex; flex-direction: column; gap: 12px; }
+.facts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 6px; }
+.facts div { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+.facts b { display: block; font-size: 26px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.facts span { font-size: 13px; color: var(--ink-3); }
+
+.frame { background: var(--surface); border: 1px solid var(--line); border-radius: 14px; padding: 16px; overflow-x: auto; }
+.frame pre.mermaid { margin: 0; background: transparent; text-align: center; min-width: 640px; }
+.note { font-size: 13px; color: var(--ink-3); }
+
+.legend { display: flex; flex-wrap: wrap; gap: 8px; }
+.pill { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
+.pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.live { color: var(--live); background: var(--live-bg); } .part { color: var(--part); background: var(--part-bg); } .plan { color: var(--plan); background: var(--plan-bg); }
+.must { color: var(--must); background: var(--must-bg); }
+
+.wf { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.wf article { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.wf .hd { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.wf .letter { font-family: var(--font-mono); font-weight: 500; font-size: 13px; color: var(--brand); background: var(--brand-tint); border-radius: 6px; padding: 1px 7px; }
+.wf h3 { flex: 1; min-width: 0; }
+.wf .count { font-size: 12px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.wf p { font-size: 14px; }
+.bar { height: 4px; border-radius: 4px; background: var(--line); overflow: hidden; }
+.bar i { display: block; height: 100%; background: var(--brand); }
+
+.tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+.tabs button { font: inherit; font-size: 13px; font-weight: 600; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--surface); color: var(--ink-2); cursor: pointer; }
+.tabs button[aria-selected="true"] { background: var(--brand); border-color: var(--brand); color: var(--surface); }
+.tabs button:focus-visible, summary:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th { text-align: left; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; color: var(--ink-3); font-weight: 700; padding: 8px 10px; border-bottom: 1px solid var(--line); }
+td { padding: 9px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+tr:last-child td { border-bottom: 0; }
+td.when { font-family: var(--font-mono); font-size: 13px; white-space: nowrap; color: var(--ink-2); }
+
+.todo { display: flex; flex-direction: column; gap: 10px; }
+.todo details { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px 16px; }
+.todo summary { cursor: pointer; display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; font-weight: 700; list-style: none; }
+.todo summary::-webkit-details-marker { display: none; }
+.todo summary .t { flex: 1; min-width: 12ch; }
+.todo details p { margin-top: 8px; font-size: 14px; }
+.who { font-size: 12px; color: var(--ink-3); font-weight: 500; }
+
+@media (max-width: 720px) {
+  .facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .wf { grid-template-columns: 1fr; }
+  h1 { font-size: 28px; }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto; } }
+</style>
+
+<div class="wrap">
+
+<header class="top">
+  <span class="eyebrow">KL University · Hostel ERP · 5 Oct 2026</span>
+  <h1>How the hostel application works</h1>
+  <p>Everything built so far, how a student moves through it from joining to leaving, how each workflow runs, and what to fine-tune before the university server goes live on Wednesday.</p>
+  <div class="facts">
+    <div><b>14</b><span>workflows (A to N)</span></div>
+    <div><b>84 / 122</b><span>screens built</span></div>
+    <div><b>31</b><span>roles</span></div>
+    <div><b>119</b><span>database migrations</span></div>
+  </div>
+</header>
+
+<section id="system">
+  <span class="eyebrow">The system</span>
+  <h2>Who connects to what</h2>
+  <p>People use one web app. Every rule (approval order, fees, who may act) is enforced in the database, so a screen can never skip a step. Devices and outside services plug in at the edges.</p>
+  <div class="frame"><pre class="mermaid">
+flowchart LR
+  subgraph People
+    S[Students]
+    P[Parents<br/>SMS link only]
+    W[Wardens and office]
+    M[Mess, maintenance,<br/>gym, accounts]
+    X[President, VP,<br/>Pro-VC, Dean]
+  end
+  subgraph App["KL Hostels app"]
+    WEB[Web app<br/>phone and desktop]
+    API[API<br/>NestJS]
+    JOBS[Scheduled jobs<br/>every minute to monthly]
+    DB[(PostgreSQL<br/>rules and records)]
+  end
+  subgraph Outside["Devices and services"]
+    GATE[Gate QR scanners]
+    MTR[Smart room meters]
+    GYM[Gym health equipment]
+    PAY[Razorpay<br/>online fees]
+    SMS[SMS / WhatsApp<br/>not connected yet]
+    SSO[University sign-in<br/>Keycloak]
+  end
+  S & W & M & X --> WEB --> API --> DB
+  P -. link .-> API
+  JOBS --> DB
+  GATE & MTR & GYM --> API
+  API <--> PAY
+  API -. queued messages .-> SMS
+  WEB -. sign-in .-> SSO
+  </pre></div>
+</section>
+
+<section id="journey">
+  <span class="eyebrow">A resident's year</span>
+  <h2>From joining to leaving</h2>
+  <p>The path every student takes. The money steps follow the joining and renewal rules: deposits and registration are paid once, the hostel fee, mess fee and meter charge every year.</p>
+  <div class="frame"><pre class="mermaid">
+flowchart TD
+  A1[Register: hostel and room type] --> A2[Pay registration fee]
+  A2 --> A3[Room offered or chosen]
+  A3 --> A4[Accept; choose fee plan and mess]
+  A4 --> A5[Pay: hostel fee, mess fee, meter charge,<br/>caution deposit, electricity deposit]
+  A5 --> A6[Warden checks fees; Chief Warden approves]
+  A6 --> A7[Check-in: key, room handover, meter reading]
+  A7 --> D{{Daily life}}
+  D --> D1[Choose and rate meals]
+  D --> D2[Outings with gate QR]
+  D --> D3[Sick leave, meals to room]
+  D --> D4[Repair tickets]
+  D --> D5[Electricity bill share]
+  D --> D6[Health reports]
+  D --> D7[Room change]
+  D --> R{Next year?}
+  R -->|Renew| R1[Hostel, mess, meter charge only<br/>no registration fee, no deposits]
+  R1 --> D
+  R -->|Leave| V1[Apply to vacate: 4 approvals]
+  V1 --> V2[Check-out inspection, no-dues]
+  V2 --> V3[Deposits refunded,<br/>less approved deductions]
+  </pre></div>
+</section>
+
+<section id="workflows">
+  <span class="eyebrow">Workflows</span>
+  <h2>The fourteen workflows and how far each is built</h2>
+  <div class="legend"><span class="pill live">Live: all screens built</span><span class="pill part">Partly built</span><span class="pill plan">Database only, screens to build</span></div>
+  <div class="wf">
+    <article><div class="hd"><span class="letter">A</span><h3>Registration, fees and rooms</h3><span class="pill live">Live</span></div><div class="bar"><i style="width:100%"></i></div><span class="count">18 of 18 screens</span><p>Registration, room offers, fee plans, fee check, Chief Warden approval, check-in, renewals, room change, caution deposits.</p></article>
+    <article><div class="hd"><span class="letter">B</span><h3>Rooms, beds and staff mapping</h3><span class="pill live">Live</span></div><div class="bar"><i style="width:100%"></i></div><span class="count">8 of 8 screens</span><p>Rooms and beds, QR labels, staff duties and attendance, duty roster that covers every floor.</p></article>
+    <article><div class="hd"><span class="letter">C</span><h3>Electricity</h3><span class="pill live">Live</span></div><div class="bar"><i style="width:100%"></i></div><span class="count">4 of 4 screens</span><p>Meters and readings, tariffs, monthly room bills split by days among roommates.</p></article>
+    <article><div class="hd"><span class="letter">D</span><h3>Tracking and gate</h3><span class="pill live">Live</span></div><div class="bar"><i style="width:100%"></i></div><span class="count">9 of 9 screens</span><p>Gate scans, status board, alerts, roll call, attendance, consent and look-up log.</p></article>
+    <article><div class="hd"><span class="letter">E</span><h3>Outings</h3><span class="pill live">Live</span></div><div class="bar"><i style="width:100%"></i></div><span class="count">3 of 3 screens</span><p>Parent by link, Floor Warden, Chief Warden, Dean for a day or more; QR gate pass.</p></article>
+    <article><div class="hd"><span class="letter">F</span><h3>Sick leave</h3><span class="pill live">Live</span></div><div class="bar"><i style="width:100%"></i></div><span class="count">3 of 3 screens</span><p>Floor Warden visits, Chief Warden approves, meals go to the room.</p></article>
+    <article><div class="hd"><span class="letter">G</span><h3>Mess</h3><span class="pill live">Live</span></div><div class="bar"><i style="width:100%"></i></div><span class="count">10 of 10 screens</span><p>Weekly menu, choices, ratings, sentiment, complaints desk, meal scan, store with stock alerts, daily record and monthly report.</p></article>
+    <article><div class="hd"><span class="letter">H</span><h3>Repairs, checklists and grievances</h3><span class="pill live">Live</span></div><div class="bar"><i style="width:100%"></i></div><span class="count">7 of 7 screens</span><p>Tickets, warden check, repair desk, floor rounds, checklists that open repair tickets, and grievances with confidential handling.</p></article>
+    <article><div class="hd"><span class="letter">I</span><h3>Indents and purchase</h3><span class="pill plan">To build</span></div><div class="bar"><i style="width:0%"></i></div><span class="count">0 of 12 screens</span><p>Indent, stock, quotations, purchase orders, receipt, assets, invoices and budget.</p></article>
+    <article><div class="hd"><span class="letter">J</span><h3>Facilities</h3><span class="pill plan">To build</span></div><div class="bar"><i style="width:0%"></i></div><span class="count">0 of 3 screens</span><p>Gym, reading room and other facility entry and day registers.</p></article>
+    <article><div class="hd"><span class="letter">K</span><h3>Convention centre</h3><span class="pill plan">To build</span></div><div class="bar"><i style="width:0%"></i></div><span class="count">0 of 5 screens</span><p>Bookings, approval, guest check-in, event report and food orders.</p></article>
+    <article><div class="hd"><span class="letter">L</span><h3>Academics, careers and health</h3><span class="pill part">Partly</span></div><div class="bar"><i style="width:86%"></i></div><span class="count">6 of 7 screens</span><p>Academic page, career guidance and tracker, health records are live. The import monitor is to build.</p></article>
+    <article><div class="hd"><span class="letter">M</span><h3>Discipline</h3><span class="pill plan">Mostly to build</span></div><div class="bar"><i style="width:14%"></i></div><span class="count">1 of 7 screens</span><p>Only the register is live. Recording, verification, punishment and ratification screens are to build.</p></article>
+    <article><div class="hd"><span class="letter">N</span><h3>Vacating</h3><span class="pill plan">To build</span></div><div class="bar"><i style="width:0%"></i></div><span class="count">0 of 4 screens</span><p>Apply to vacate, four approvals, check-out inspection and no-dues. Deposit refunds wait on this.</p></article>
+  </div>
+  <p class="note">The other 22 screens are shared: home pages, profiles, approvals inbox, executive dashboard, data administration and reports (7 reports still to build).</p>
+</section>
+
+<section id="flows">
+  <span class="eyebrow">Step by step</span>
+  <h2>Key flows</h2>
+
+  <h3 id="f-reg">Registration</h3>
+  <div class="frame"><pre class="mermaid">
+sequenceDiagram
+  actor St as Student
+  participant Of as Hostel office
+  participant Wa as Warden
+  participant CW as Chief Warden
+  St->>Of: Apply for hostel and room type
+  St->>St: Pay registration fee (once)
+  Of->>St: Offer a bed (held 48 hours)
+  St->>Of: Accept, choose fee plan and mess
+  St->>St: Pay hostel, mess, meter charge, both deposits
+  Wa->>Wa: Verify fees
+  CW->>CW: Approve allotment
+  Of->>St: Check-in, key, room handover, meter reading
+  Note over St,CW: Renewal: no registration fee and no deposits; keep the bed or ask for another
+  </pre></div>
+
+  <h3 id="f-out">Outing</h3>
+  <div class="frame"><pre class="mermaid">
+sequenceDiagram
+  actor St as Student
+  participant Pa as Parent
+  participant FW as Floor Warden
+  participant CW as Chief Warden
+  participant Dn as Dean
+  participant Gt as Gate
+  St->>Pa: Outing request sends an SMS link
+  Pa->>FW: Recommends
+  FW->>CW: Approves
+  alt Back the same day
+    CW->>St: Approves; QR pass in My outings
+  else A day or more
+    CW->>Dn: Approves; Dean gets a link
+    Dn->>St: Approves; QR pass in My outings
+  end
+  St->>Gt: Shows QR going out and coming back
+  Gt-->>FW: Late return raises an alert
+  </pre></div>
+
+  <h3 id="f-rc">Room change</h3>
+  <div class="frame"><pre class="mermaid">
+flowchart TD
+  S[Student asks: another room type<br/>or another room, same type] --> FW{Floor Warden}
+  CWD[Chief Warden moves a student<br/>directly, no request] --> AP
+  FW -->|approves| CW{Chief Warden<br/>gives or changes the bed}
+  FW -->|refuses with reason| X[Closed]
+  CW -->|approves| AP[Approved: bed held]
+  CW -->|refuses| X
+  AP --> MV[Move day: meter read, key handed over]
+  MV --> F1[Hostel fee re-worked by days:<br/>difference added or credited]
+  MV --> F2[Electricity up to the move billed now;<br/>month-end bill counts it as paid]
+  </pre></div>
+
+  <h3 id="f-cd">Caution deposit</h3>
+  <div class="frame"><pre class="mermaid">
+flowchart LR
+  P[Paid on joining<br/>or held from before] --> H[(Deposit account<br/>caution and electricity)]
+  W[Warden proposes a deduction<br/>with a written reason] --> C{Chief Warden}
+  C -->|approves| H
+  C -->|refuses| N[No change]
+  AC[Accounts pays unpaid dues<br/>from the deposit] --> H
+  H --> V{Student leaves?<br/>vacating approved}
+  V -->|yes| R[Accounts refunds the balance<br/>with the bank reference]
+  </pre></div>
+
+  <h3 id="f-tk">Repair ticket</h3>
+  <div class="frame"><pre class="mermaid">
+flowchart LR
+  T[Student reports: room, mess<br/>or common facility] --> V{Warden or mess in-charge<br/>checks it is genuine}
+  V -->|not genuine| X[Closed with reason]
+  V -->|genuine| R[Maintenance repairs<br/>within the trade's time]
+  R --> D[Closure report]
+  D --> S{Student confirms}
+  S -->|fixed| C[Closed]
+  S -->|not fixed| R
+  </pre></div>
+
+  <h3 id="f-el">Monthly electricity bill</h3>
+  <div class="frame"><pre class="mermaid">
+flowchart LR
+  M[Room meter readings] --> U[1st of the month:<br/>units used per room]
+  U --> B[Bill: units beyond the included<br/>and recharged ones x tariff]
+  B --> SH[Split among roommates<br/>by days lived in the room]
+  SH --> F[Each share is an Electricity due<br/>in the student's fees]
+  F --> E[Cumulative totals for President,<br/>VP and Pro-VC]
+  </pre></div>
+
+  <h3 id="f-ml">Weekly meals</h3>
+  <div class="frame"><pre class="mermaid">
+flowchart LR
+  CH[Mess in-charge or chef<br/>sets next week's menu] --> ST[Students choose options<br/>before Friday]
+  CC[Chief Chef enters choices<br/>for students who did not] --> ST
+  ST --> K[Kitchen counts per item;<br/>live items made only when chosen]
+  K --> RT[Students rate each meal]
+  RT --> SE[Sentiment dashboard:<br/>item, day, boys and girls]
+  </pre></div>
+</section>
+
+<section id="roles">
+  <span class="eyebrow">People</span>
+  <h2>Who uses what</h2>
+  <div class="frame">
+    <table>
+      <thead><tr><th>Role</th><th>Main work in the app</th></tr></thead>
+      <tbody>
+        <tr><td>Student</td><td>Registration and fees, meals, outings, sick leave, repairs, electricity, health, room change, deposit</td></tr>
+        <tr><td>Parent</td><td>Recommends outings through an SMS link; no login</td></tr>
+        <tr><td>Floor Warden</td><td>First approval for outings and room changes, roll call, floor rounds, ticket checks, deduction proposals</td></tr>
+        <tr><td>Warden / Chief Warden</td><td>Allotment approvals, exceptions, room changes with full control of the building, deposits, duty roster</td></tr>
+        <tr><td>Hostel office</td><td>Offers, check-in, renewals, rooms and staff mapping</td></tr>
+        <tr><td>Accounts</td><td>Dues and collections, electricity bills, deposit dues and refunds</td></tr>
+        <tr><td>Mess team and Chief Chef</td><td>Weekly menu, choices, sick meals, sentiment</td></tr>
+        <tr><td>Maintenance</td><td>Repair desk, closure reports</td></tr>
+        <tr><td>Gym Manager</td><td>Health capture from the gym equipment</td></tr>
+        <tr><td>Dean, Students Affairs</td><td>Outings of a day or more, health, career guidance</td></tr>
+        <tr><td>President, VP, Pro-VC</td><td>Executive dashboard: buildings, academics, mess, fees, discipline, careers, electricity</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="jobs">
+  <span class="eyebrow">Running by itself</span>
+  <h2>Scheduled jobs</h2>
+  <div class="frame">
+    <table>
+      <thead><tr><th>When</th><th>What happens</th></tr></thead>
+      <tbody>
+        <tr><td class="when">Every minute</td><td>Send queued notifications (needs the SMS provider)</td></tr>
+        <tr><td class="when">Every 5 minutes</td><td>Mark overdue and expired outings</td></tr>
+        <tr><td class="when">Every hour</td><td>Mark overdue fees; close weekly menus at their deadline</td></tr>
+        <tr><td class="when">07:00 12:00 16:30 19:00</td><td>Sick-meal lists to the mess</td></tr>
+        <tr><td class="when">Wed and Thu 10:00</td><td>Remind students to choose next week's meals</td></tr>
+        <tr><td class="when">Fri 10:00</td><td>Menu reminders</td></tr>
+        <tr><td class="when">Mon 00:05 · 06:00</td><td>Apply meal choices · weekly floor reports</td></tr>
+        <tr><td class="when">Daily 02:00 · 02:30</td><td>Not-seen alerts · purge old movement records</td></tr>
+        <tr><td class="when">1st of month</td><td>Meter roll-up, then electricity bills and shares</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="tuning">
+  <span class="eyebrow">Fine-tuning</span>
+  <h2>What to do before and after Wednesday</h2>
+  <p>Ordered by what blocks going live. Open an item for the detail.</p>
+
+  <h3>Before the server goes live</h3>
+  <div class="todo">
+    <details open><summary><span class="pill must">Must</span><span class="t">SMS and WhatsApp are not sent</span><span class="who">Developer + IT</span></summary>
+      <p>The sender marks messages as sent without contacting any provider, so parents never get outing links and students never get reminders. Connect a provider (for example MSG91 or the university's gateway) and record failures instead of hiding them.</p></details>
+    <details><summary><span class="pill must">Must</span><span class="t">University sign-in</span><span class="who">IT</span></summary>
+      <p>The Keycloak address and app registration for the server. Without it the API will not start in production, by design. Demo logins stay off.</p></details>
+    <details><summary><span class="pill must">Must</span><span class="t">Start production from a clean database</span><span class="who">Developer</span></summary>
+      <p>Build the server database from the migrations, not from this demo copy, so no demo students, deposits, tickets or health reports go live. Then load the real hostels, rooms, students, staff and duties through Data administration.</p></details>
+    <details><summary><span class="pill must">Must</span><span class="t">Fees for 2026-27 and 2027-28</span><span class="who">Accounts</span></summary>
+      <p>Confirm every room type's registration fee, hostel fee, both deposits, meter charge and mess fee. Enter the deposits students already paid as opening balances.</p></details>
+    <details><summary><span class="pill must">Must</span><span class="t">Online payments</span><span class="who">Accounts + IT</span></summary>
+      <p>Razorpay live keys and the webhook address on the server. Until then fees are recorded only as cash or bank receipts at the counter.</p></details>
+    <details><summary><span class="pill must">Must</span><span class="t">Code on GitHub and the server runner</span><span class="who">You + IT</span></summary>
+      <p>Push the saved version to the private repository, protect the main branch, add the production approver, and install the runner on the server (scripts/deploy/SERVER-SETUP.md).</p></details>
+    <details><summary><span class="pill must">Must</span><span class="t">A tested restore</span><span class="who">IT</span></summary>
+      <p>The deploy takes a backup each time. Restore one once on a spare database to prove it works.</p></details>
+  </div>
+
+  <h3>This week, alongside go-live</h3>
+  <div class="todo">
+    <details><summary><span class="pill part">Should</span><span class="t">Vacating screens (workflow N)</span><span class="who">Developer</span></summary>
+      <p>The rules are in the database, but there are no screens. Deposit refunds require an approved vacate, so this is the next build.</p></details>
+    <details><summary><span class="pill part">Should</span><span class="t">Floor Wardens for every floor</span><span class="who">Hostel office</span></summary>
+      <p>Girls Hostel 1 has no Floor Warden assigned, so its outings and room changes fall back to the Chief Warden. Assign duties for every hostel.</p></details>
+    <details><summary><span class="pill part">Should</span><span class="t">Automatic tests for the newest modules</span><span class="who">Developer</span></summary>
+      <p>Room change, deposits, health records and the joining/renewal fees were tested by hand. Add them to the automatic checks so later changes cannot break them.</p></details>
+    <details><summary><span class="pill part">Should</span><span class="t">Discipline screens (workflow M)</span><span class="who">Developer</span></summary>
+      <p>Record, verify, punish and ratify. The executive dashboard already reads discipline data.</p></details>
+  </div>
+
+  <h3>After launch</h3>
+  <div class="todo">
+        <details><summary><span class="pill plan">Later</span><span class="t">Indents and purchase, facilities, convention centre</span><span class="who">Developer</span></summary><p>Workflows I, J and K: 20 screens on top of tables that already exist.</p></details>
+    <details><summary><span class="pill plan">Later</span><span class="t">Remaining reports</span><span class="who">Developer</span></summary><p>Seven summary reports for management.</p></details>
+  </div>
+</section>
+
+</div>
+

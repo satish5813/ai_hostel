@@ -1,0 +1,203 @@
+<title>KL Hostels Go-Live Checklist</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one column of grouped tick rows, owner filter on top, progress per team; teal from the app's brand */
+:root {
+  --bg: #F6F8F8; --surface: #FFFFFF; --ink: #12201F; --ink-2: #4A5A59; --ink-3: #6F7F7E; --line: #DCE5E4;
+  --brand: #0B7A71; --brand-tint: #E3F2EF; --done: #0F7B3E; --done-bg: #E8F5EC; --must: #B42318; --must-bg: #FDECEA;
+  --font-body: "Plus Jakarta Sans", "Segoe UI", system-ui, sans-serif; --font-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0F1716; --surface: #16211F; --ink: #E6EEED; --ink-2: #A9B9B7; --ink-3: #82918F; --line: #263432;
+  --brand: #3DBFAF; --brand-tint: #17312D; --done: #6DD69A; --done-bg: #16301F; --must: #FF8A80; --must-bg: #3A1C1A; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #0F1716; --surface: #16211F; --ink: #E6EEED; --ink-2: #A9B9B7; --ink-3: #82918F; --line: #263432;
+  --brand: #3DBFAF; --brand-tint: #17312D; --done: #6DD69A; --done-bg: #16301F; --must: #FF8A80; --must-bg: #3A1C1A; color-scheme: dark }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.55; }
+.wrap { max-width: 980px; margin: 0 auto; padding-inline: 18px; padding-block: 28px 64px; display: flex; flex-direction: column; gap: 28px; }
+h1, h2 { margin: 0; text-wrap: balance; line-height: 1.2; }
+h1 { font-size: 30px; font-weight: 800; } h2 { font-size: 19px; font-weight: 800; }
+p { margin: 0; max-width: 68ch; color: var(--ink-2); }
+.eyebrow { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--brand); }
+code, .mono { font-family: var(--font-mono); font-size: 12.5px; }
+header { display: flex; flex-direction: column; gap: 10px; }
+.status { font-size: 13px; color: var(--ink-3); }
+
+.progress { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px; }
+.progress button { font: inherit; text-align: left; cursor: pointer; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; color: var(--ink); display: flex; flex-direction: column; gap: 6px; }
+.progress button[aria-pressed="true"] { border-color: var(--brand); box-shadow: 0 0 0 2px var(--brand-tint); }
+.progress button:focus-visible, .item input:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+.progress b { font-size: 14px; } .progress small { font-size: 12px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.bar { height: 5px; border-radius: 5px; background: var(--line); overflow: hidden; } .bar i { display: block; height: 100%; background: var(--brand); width: 0; transition: width .3s; }
+
+section { display: flex; flex-direction: column; gap: 10px; }
+.sec-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.sec-head span { font-size: 13px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.list { display: flex; flex-direction: column; gap: 8px; }
+.item { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; }
+.item.done { background: var(--done-bg); border-color: transparent; }
+.item input { width: 20px; height: 20px; margin: 2px 0 0; accent-color: var(--brand); cursor: pointer; }
+.item input:disabled { cursor: default; }
+.item .t { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 10px; min-width: 0; }
+.item .t b { font-size: 15px; }
+.item.done .t b { text-decoration: line-through; text-decoration-color: var(--ink-3); }
+.chip { font-size: 11.5px; font-weight: 700; padding: 1px 8px; border-radius: 999px; background: var(--brand-tint); color: var(--brand); white-space: nowrap; }
+.chip.must { background: var(--must-bg); color: var(--must); }
+.item .d { grid-column: 2; font-size: 13.5px; color: var(--ink-2); min-width: 0; overflow-wrap: anywhere; }
+.item .by { grid-column: 2; font-size: 12px; color: var(--done); font-weight: 600; }
+.note { font-size: 13px; color: var(--ink-3); }
+@media (max-width: 560px) { h1 { font-size: 25px; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="eyebrow">KL University Hostels · production test</span>
+    <h1>Go-live checklist</h1>
+    <p>Everything the server and the system need before the first test run with real students. Tick an item when it is done; everyone with this page sees it at once, with who ticked it and when.</p>
+    <p class="note">Uploads are made in Data administration → Upload, in the order shown: each one needs the ones above it. Sample files with the exact columns are in <code>db/seed/samples</code>.</p>
+    <span class="status" id="status">Loading shared progress…</span>
+  </header>
+
+  <div class="progress" id="teams" role="group" aria-label="Show items for"></div>
+  <div id="sections"></div>
+</div>
+
+<script>
+const OWNERS = ['All', 'University IT', 'Accounts', 'Hostel office', 'HR', 'Academic ERP', 'Estate and electrical', 'Mess', 'Developer'];
+const SECTIONS = [
+  { id: 'it', title: '1. Server and services', items: [
+    ['it-server', 'Server access for the deploy runner', 'University IT', 'Windows Server with PostgreSQL 18, Node 22, IIS (URL Rewrite + ARR), NSSM; the GitHub runner installed as in scripts/deploy/SERVER-SETUP.md.', true],
+    ['it-db', 'Production database and app account', 'University IT', 'Database klu_hostel and a role klu_app with its own password, kept only in C:\\klu-hostel\\config\\api.env.', true],
+    ['it-sso', 'University sign-in (Keycloak)', 'University IT', 'Login server address (OIDC issuer) and an app registered as "klu-hostel". Without it the API does not start in production.', true],
+    ['it-ssl', 'Website address and SSL certificate', 'University IT', 'The hostel site name (for example hostels.kluniversity.in) and its certificate on IIS.', true],
+    ['it-sms', 'SMS gateway', 'University IT', 'Provider, API key and sender ID, so parents receive outing links and students get reminders.', true],
+    ['it-pay', 'Razorpay live keys and webhook secret', 'Accounts', 'For online fee payment; the webhook address is https://<site>/api/payments/razorpay/webhook.', false],
+    ['it-backup', 'One tested restore', 'University IT', 'Restore one deploy backup onto a spare database to prove backups work.', true],
+  ] },
+  { id: 'master', title: '2. Master data uploads, in this order', items: [
+    ['up-1', 'Upload 1: Hostel buildings', 'Hostel office', 'hostel code, name, boys/girls, floors, gate-closing time.', true],
+    ['up-2', 'Upload 2: Room types', 'Hostel office', 'name, beds per room, AC, attached bath.', true],
+    ['up-3', 'Upload 3: Rooms and beds', 'Estate and electrical', 'hostel, floor, room no., room type, kind (room, toilet, store…), reserved for, accessible.', true],
+    ['up-4', 'Upload 4: Fees by room type', 'Accounts', 'hostel, room type, year, registration fee, hostel fee, first instalment %, second due date, caution deposit, electricity deposit, meter charge a year. For 2026-27 and 2027-28.', true],
+    ['up-5', 'Upload 5: Room assets', 'Estate and electrical', 'room, asset ID, name (cot, fan…), make, serial, cost, warranty, condition.', false],
+    ['up-6', 'Upload 6: Room meters', 'Estate and electrical', 'room, meter no., smart or manual, device ID, installed date.', true],
+    ['up-7', 'Upload 7: Staff and wardens', 'HR', 'staff ID, name, gender, department, designation, mobile, official email.', true],
+    ['up-8', 'Upload 8: Warden duties', 'Hostel office', 'staff ID, role (Chief Warden, Warden, Floor Warden…), hostel, floor, shift. Every floor needs a Floor Warden.', true],
+    ['up-9', 'Upload 9: Students', 'Academic ERP', 'student ID, name, gender, programme, date of birth, email, parents\' names and mobiles.', true],
+    ['up-10', 'Upload 10: Students in beds', 'Hostel office', 'student ID, hostel, room, bed, key no., check-in date, year.', true],
+  ] },
+  { id: 'opening', title: '3. What already exists: opening balances', items: [
+    ['up-11', 'Upload 11: Fees already due and paid', 'Accounts', 'student ID, fee (hostel, mess, registration…), instalment, amount due, amount paid, due date, paid on, paid by (NEFT, UPI, cheque, cash…), reference.', true],
+    ['up-12', 'Upload 12: Deposits already held', 'Accounts', 'student ID, deposit (caution or electricity), amount held, paid on, old receipt reference.', true],
+    ['up-13', 'Upload 13: Meter readings on the start date', 'Estate and electrical', 'hostel, room, reading in kWh, date read. Every metered room on day one.', true],
+    ['up-14', 'Upload 14: Mess for each student', 'Mess', 'student ID, mess, south or north, veg or non-veg, from date.', true],
+  ] },
+  { id: 'settings', title: '4. Settings on screens', items: [
+    ['set-years', 'Academic years with registration and renewal dates', 'Hostel office', 'Masters → Academic years: 2026-27 and 2027-28.', true],
+    ['set-mess', 'Messes, their in-charges and yearly mess fee', 'Mess', 'Masters → Messes; which hostel each mess serves.', true],
+    ['set-tariff', 'Electricity tariff for each room type', 'Accounts', 'Rate per unit and units included each month; approved by the Pro-VC Finance.', true],
+    ['set-prov', 'Mess provisions and re-order levels', 'Mess', 'Check the 26 starter items in Mess store; add the mess\'s own.', false],
+    ['set-check', 'Checklist items', 'Hostel office', 'Check the daily floor check, kitchen hygiene and store checklists.', false],
+    ['set-logins', 'Who signs in with which role', 'University IT', 'Each warden, office, accounts and mess login mapped to their role in Keycloak; demo logins stay off.', true],
+  ] },
+  { id: 'pilot', title: '5. First test run', items: [
+    ['pilot-scope', 'Pick the pilot', 'Hostel office', 'One boys\' hostel and one girls\' hostel, 20 to 30 real students, their wardens and one mess.', true],
+    ['pilot-cycle', 'Walk the whole cycle with them', 'Hostel office', 'Fees and receipts, an outing with the parent\'s SMS link, a sick leave, meal choice and scan, a repair ticket, a room change.', true],
+    ['pilot-sign', 'Sign off and load everyone', 'Hostel office', 'Chief Warden and Accounts agree the pilot is right; then load all hostels.', true],
+    ['dev-fixes', 'Fixes from the pilot deployed', 'Developer', 'Each fix goes through the automatic checks and an approved deploy.', false],
+  ] },
+];
+const ITEMS = SECTIONS.flatMap((s) => s.items.map(([id, title, owner, detail, must]) => ({ id, title, owner, detail, must, section: s.id })));
+
+let filter = 'All';
+try { filter = localStorage.getItem('golive.filter') || 'All'; } catch (e) { /* storage blocked */ }
+let ticks = {};          // item id -> { done, by, at }
+let db = null, user = null, canWrite = null, names = {};
+
+const $ = (id) => document.getElementById(id);
+const when = (iso) => new Date(iso).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' });
+
+function renderTeams() {
+  const box = $('teams'); box.textContent = '';
+  for (const o of OWNERS) {
+    const mine = o === 'All' ? ITEMS : ITEMS.filter((i) => i.owner === o);
+    if (!mine.length) continue;
+    const done = mine.filter((i) => ticks[i.id]?.done).length;
+    const b = document.createElement('button'); b.type = 'button'; b.setAttribute('aria-pressed', String(filter === o));
+    const t = document.createElement('b'); t.textContent = o === 'All' ? 'Everything' : o;
+    const s = document.createElement('small'); s.textContent = `${done} of ${mine.length} done`;
+    const bar = document.createElement('div'); bar.className = 'bar'; const fill = document.createElement('i'); fill.style.width = `${(100 * done) / mine.length}%`; bar.append(fill);
+    b.append(t, s, bar);
+    b.onclick = () => { filter = o; try { localStorage.setItem('golive.filter', o); } catch (e) { /* storage blocked */ } render(); };
+    box.append(b);
+  }
+}
+
+function renderSections() {
+  const root = $('sections'); root.textContent = '';
+  for (const s of SECTIONS) {
+    const items = ITEMS.filter((i) => i.section === s.id && (filter === 'All' || i.owner === filter));
+    if (!items.length) continue;
+    const sec = document.createElement('section');
+    const head = document.createElement('div'); head.className = 'sec-head';
+    const h = document.createElement('h2'); h.textContent = s.title;
+    const c = document.createElement('span'); c.textContent = `${items.filter((i) => ticks[i.id]?.done).length} of ${items.length}`;
+    head.append(h, c);
+    const list = document.createElement('div'); list.className = 'list';
+    for (const i of items) {
+      const t = ticks[i.id];
+      const row = document.createElement('div'); row.className = 'item' + (t?.done ? ' done' : '');
+      const cb = document.createElement('input'); cb.type = 'checkbox'; cb.id = 'cb-' + i.id; cb.checked = !!t?.done;
+      cb.disabled = !db || canWrite === false; cb.setAttribute('aria-label', i.title);
+      cb.onchange = () => toggle(i.id, cb.checked, cb);
+      const title = document.createElement('label'); title.className = 't'; title.htmlFor = cb.id;
+      const b = document.createElement('b'); b.textContent = i.title;
+      const own = document.createElement('span'); own.className = 'chip'; own.textContent = i.owner;
+      title.append(b, own);
+      if (i.must) { const m = document.createElement('span'); m.className = 'chip must'; m.textContent = 'Needed for the test'; title.append(m); }
+      const d = document.createElement('div'); d.className = 'd'; d.textContent = i.detail;
+      row.append(cb, title, d);
+      if (t?.done) { const by = document.createElement('div'); by.className = 'by'; by.textContent = `Done by ${names[t.by] || 'someone'} · ${when(t.at)}`; row.append(by); }
+      list.append(row);
+    }
+    sec.append(head, list); root.append(sec);
+  }
+}
+
+async function resolveNames() {
+  if (!user) return;
+  const ids = [...new Set(Object.values(ticks).map((t) => t.by).filter(Boolean))];
+  if (!ids.length) return;
+  const ps = await user.profiles(ids);
+  for (const id of ids) names[id] = ps[id]?.name || (ps[id]?.isMe ? 'you' : 'someone');
+}
+
+function render() { renderTeams(); renderSections(); }
+
+async function toggle(id, done, cb) {
+  cb.disabled = true;
+  try {
+    const me = user ? await user.id() : null;
+    await db.collection('ticks').doc(id).set({ done, by: me, at: new Date().toISOString() });
+  } catch (e) {
+    cb.checked = !done;
+    if (e && e.code === 'invalid_argument') { canWrite = false; $('status').textContent = 'You can see progress but not tick items. Ask the owner for Contributor access.'; render(); }
+    else $('status').textContent = 'That tick was not saved. Try again in a moment.';
+  } finally { if (canWrite !== false) cb.disabled = false; }
+}
+
+render();
+(async () => {
+  [db, user] = await Promise.all([window.claude?.use?.('db') ?? null, window.claude?.use?.('user') ?? null]);
+  if (!db) { $('status').textContent = 'Shared progress is not available in this view; the list still shows what to do.'; render(); return; }
+  canWrite = user ? await user.can('data.write') : null;
+  $('status').textContent = canWrite === false ? 'You can see progress. Ask the owner for Contributor access to tick items.' : 'Tick an item when it is done; everyone sees it at once.';
+  db.collection('ticks').onSnapshot(async (snap) => {
+    const next = {};
+    for (const d of snap.docs) { const v = d.data(); if (v && typeof v.done === 'boolean') next[d.id] = { done: v.done, by: typeof v.by === 'string' ? v.by : null, at: typeof v.at === 'string' ? v.at : new Date().toISOString() }; }
+    ticks = next; await resolveNames(); render();
+  }, () => { $('status').textContent = 'Shared progress stopped updating; reload the page.'; });
+})();
+</script>

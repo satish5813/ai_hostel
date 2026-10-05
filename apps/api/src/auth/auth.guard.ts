@@ -10,7 +10,7 @@ import type { AuthUser } from './auth.types.js';
  *  Everyone else acts through links or devices. */
 export const LOGIN_ROLES = new Set(['admin', 'Chief_Warden', 'Director_Hostels', 'Room_Allotment', 'Office_Staff', 'Dean_Students_Affairs', 'Student', 'system',
   'Mess_Incharge', 'Mess_Manager', 'Cook', 'Pro_VC_Finance', 'Chief_Chef', 'Mess_Supervisor', 'President', 'Vice_President', 'Pro_VC', 'Pro_VC_Academics', 'Vice_Chancellor', 'Accounts_Section',
-  'Floor_Warden', 'Warden', 'Maintenance_Supervisor', 'Technician', 'Electrician', 'Gym_Manager']);
+  'Floor_Warden', 'Warden', 'Maintenance_Supervisor', 'Technician', 'Electrician', 'Gym_Manager', 'Mess_Storekeeper']);
 /** The Room Allotment login is the hostel office: it also carries Office_Staff. */
 export const expandRoles = (roles: string[]) => (roles.includes('Room_Allotment') && !roles.includes('Office_Staff') ? [...roles, 'Office_Staff'] : roles);
 
