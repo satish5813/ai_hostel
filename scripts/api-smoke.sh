@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# End-to-end HTTP walk through Workflows A–F (outing: parent, Floor Warden, Chief Warden; sick leave: Floor Warden visits, Chief Warden approves) against a running API (dev auth) and the dev fixtures.
+# End-to-end HTTP walk through Workflows A–F (outing: parent, Floor Warden, Chief Warden; sick leave: Floor Warden visits and sets the diet, building in-charge approves) against a running API (dev auth) and the dev fixtures.
 # Usage: API=http://localhost:4000 DATABASE_URL=postgresql://... bash scripts/api-smoke.sh   (the database is read for the parent's SMS link)
 set -euo pipefail
 API=${API:-http://localhost:4000}
@@ -67,10 +67,14 @@ call $CW Chief_Warden GET "/gate/verify?token=$TOKEN" | grep -q "$S" && pass "ga
 call $S Student GET /outpasses/$OPID/qr | grep -q "data:image/png" && pass "student gets QR image"
 echo "== F: sick leave"
 SL=$(call $S Student POST /sick-leaves "{\"illness_details\":\"Fever\",\"from_date\":\"$(date +%F)\",\"to_date\":\"$(date +%F)\"}"); SLID=$(echo "$SL" | j "['sick_leave_id']")
-call $FW Floor_Warden POST /sick-leaves/$SLID/visit '{"visit_remarks":"Fever confirmed"}' >/dev/null
-S2=$(call $CW Chief_Warden GET /approvals/inbox | python3 -c "import sys,json; print([s['step_id'] for s in json.load(sys.stdin) if s['request_type']=='Sick_Leave' and str(s['request_id'])=='$SLID'][0])"); call $CW Chief_Warden POST /approvals/$S2/decide '{"decision":"Approved"}' >/dev/null
+call $FW Floor_Warden POST /sick-leaves/$SLID/visit '{"visit_remarks":"Fever confirmed","diet":"Liquid","diet_note":"No spice"}' >/dev/null
+step_of() { call $1 $2 GET /approvals/inbox | python3 -c "import sys,json; print(next((s['step_id'] for s in json.load(sys.stdin) if s['request_type']=='Sick_Leave' and str(s['request_id'])=='$SLID'), ''))"; }
+S1=$(step_of $FW Floor_Warden); call $FW Floor_Warden POST /approvals/$S1/decide '{"decision":"Approved"}' >/dev/null
+[ "$(call $S Student GET /sick-leaves/$SLID | j "['status']")" = "Recommended" ] && pass "Floor Warden visited, chose liquid food and approved"
+# the building in-charge: the Warden, or the Chief Warden where the hostel has none
+S2=$(step_of S-WD Warden); if [ -n "$S2" ]; then call S-WD Warden POST /approvals/$S2/decide '{"decision":"Approved"}' >/dev/null; else S2=$(step_of $CW Chief_Warden); call $CW Chief_Warden POST /approvals/$S2/decide '{"decision":"Approved"}' >/dev/null; fi
 [ "$(call $S Student GET /sick-leaves/$SLID | j "['status']")" = "Approved" ] && pass "sick leave approved"
-call $MS Mess_Incharge GET "/mess/sick-list?date=$(date +%F)" | grep -q "$S" && pass "student on today's mess sick list"
+call $MS Mess_Incharge GET "/mess/sick-list?date=$(date +%F)" | grep -q '"diet":"Liquid"' && pass "student on today's mess sick list with liquid food"
 call $MS Mess_Incharge POST "/sick-leaves/$SLID/deliveries/$(date +%F)/Lunch" '{"status":"Delivered"}' | grep -q Delivered && pass "lunch delivered to the room"
 echo "== B: QR page (public)"
 QT=$(curl -s -H "x-dev-user: $OF" -H "x-dev-role: Office_Staff" "$API/api/spaces/BH1-101/qr/label" | j "['url'].split('/')[-1]")

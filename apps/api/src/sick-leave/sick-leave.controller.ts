@@ -7,7 +7,9 @@ import { zod } from '../common/zod.pipe.js';
 import type { AuthUser } from '../auth/auth.types.js';
 
 const MESS = ['Mess_Incharge', 'Mess_Manager', 'Mess_Supervisor', 'Catering', 'Cook'];
-const VisitDto = z.object({ visit_remarks: z.string().min(3).max(1000), visited_by: z.string().max(20).optional(), visited_at: z.string().datetime({ offset: true }).optional() });
+const Diet = z.enum(['Light', 'Liquid', 'Normal']);
+const VisitDto = z.object({ visit_remarks: z.string().min(3).max(1000), visited_by: z.string().max(20).optional(), visited_at: z.string().datetime({ offset: true }).optional(),
+  diet: Diet.optional(), diet_note: z.string().trim().max(200).nullable().optional() });
 const ApplyDto = z.object({ illness_details: z.string().min(3).max(1000), from_date: z.string().date(), to_date: z.string().date(), medical_doc_id: z.string().uuid().optional(), extended_from_id: z.number().int().optional() });
 
 @ApiTags('F · sick leave')
@@ -22,6 +24,10 @@ export class SickLeaveController {
   @Get('sick-leaves/:id') get(@Param('id', ParseIntPipe) id: number, @CurrentUser() u: AuthUser) { return this.svc.get(id, u); }
   @Roles('Chief_Warden', 'Director_Hostels', 'Floor_Warden')
   @Post('sick-leaves/:id/visit') visit(@Param('id', ParseIntPipe) id: number, @Body(zod(VisitDto)) b: z.infer<typeof VisitDto>, @CurrentUser() u: AuthUser) { return this.svc.visit(u, id, b); }
+  @Roles('Floor_Warden', 'Warden', 'Hostel_Incharge', 'Chief_Warden', 'Director_Hostels')
+  @Post('sick-leaves/:id/diet') diet(@Param('id', ParseIntPipe) id: number, @Body(zod(z.object({ diet: Diet, diet_note: z.string().trim().max(200).nullable().optional() }))) b: { diet: 'Light' | 'Liquid' | 'Normal'; diet_note?: string | null }, @CurrentUser() u: AuthUser) {
+    return this.svc.setDiet(u, id, b);
+  }
   @Post('sick-leaves/:id/close') close(@Param('id', ParseIntPipe) id: number, @Body(zod(z.object({ closed_on: z.string().date().optional() }))) b: { closed_on?: string }, @CurrentUser() u: AuthUser) { return this.svc.close(u, id, b.closed_on); }
   @Roles(...MESS, ...WARDENS)
   @Get('mess/sick-list') sickList(@Query('date') date?: string, @Query('facility_id') f?: string) { return this.svc.sickList(date, f); }

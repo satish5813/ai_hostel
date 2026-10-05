@@ -213,23 +213,36 @@ DO $$ BEGIN
   RAISE EXCEPTION 'FAIL: outpass while banned';
 EXCEPTION WHEN check_violation THEN RAISE NOTICE 'PASS E: a student with a punishment that bars outings cannot apply'; END $$;
 
--- ---------- F: sick leave (decision D4): one level; the Chief Warden records the visit and approves ----------
+-- ---------- F: sick leave (121): Floor Warden visits, sets the diet and approves; then the building in-charge ----------
 INSERT INTO hostel.sick_leave (student_id, illness_details, from_date, to_date) VALUES ('2600040010','Fever','2026-10-14','2026-10-15');
-DO $$ DECLARE n int; BEGIN SELECT count(*) INTO n FROM shared.approval_step WHERE request_type='Sick_Leave';
-  IF n=1 THEN RAISE NOTICE 'PASS F: one approval level (Chief Warden)'; ELSE RAISE EXCEPTION 'FAIL: % sick-leave steps', n; END IF; END $$;
-DO $$ BEGIN
-  UPDATE shared.approval_step SET decision='Approved', acted_by='S-CW' WHERE request_type='Sick_Leave' AND level=1;
-  RAISE EXCEPTION 'FAIL: approved without visit';
-EXCEPTION WHEN check_violation THEN RAISE NOTICE 'PASS F: Sick_Leave cannot be approved without Visited_By, Visited_At and Visit_Remarks'; END $$;
-UPDATE hostel.sick_leave SET visited_by='S-FW', visited_at=now(), visit_remarks='Student has fever, needs rest';
+DO $$ DECLARE n int; r text; BEGIN SELECT count(*), string_agg(approver_role, '>' ORDER BY level) INTO n, r FROM shared.approval_step WHERE request_type='Sick_Leave';
+  IF n=2 AND r LIKE 'Floor_Warden>%' THEN RAISE NOTICE 'PASS F: two levels (%)', r; ELSE RAISE EXCEPTION 'FAIL: % sick-leave steps (%)', n, r; END IF; END $$;
 DO $$ BEGIN
   UPDATE shared.approval_step SET decision='Approved', acted_by='S-FW' WHERE request_type='Sick_Leave' AND level=1;
-  RAISE EXCEPTION 'FAIL: floor warden approved sick leave';
-EXCEPTION WHEN check_violation THEN RAISE NOTICE 'PASS F: only the Chief Warden can approve'; END $$;
-UPDATE shared.approval_step SET decision='Approved', acted_by='S-CW' WHERE request_type='Sick_Leave' AND level=1;
-DO $$ DECLARE s hostel.sick_leave%ROWTYPE; n int; cs hostel.current_status; BEGIN SELECT * INTO s FROM hostel.sick_leave; SELECT count(*) INTO n FROM hostel.sick_meal_delivery; SELECT current_status INTO cs FROM hostel.student_current_status WHERE student_id='2600040010';
-  IF s.status='Approved' AND s.room_meals_required AND n=8 AND cs='On_Sick_Leave' THEN RAISE NOTICE 'PASS F: approved by Chief Warden, Room_Meals_Required, 2 days x 4 slots = % delivery rows, status On_Sick_Leave', n;
-  ELSE RAISE EXCEPTION 'FAIL: status=% meals=% rows=% cs=%', s.status, s.room_meals_required, n, cs; END IF; END $$;
+  RAISE EXCEPTION 'FAIL: approved without visit';
+EXCEPTION WHEN check_violation THEN RAISE NOTICE 'PASS F: Sick_Leave cannot be recommended without Visited_By, Visited_At and Visit_Remarks'; END $$;
+UPDATE hostel.sick_leave SET visited_by='S-FW', visited_at=now(), visit_remarks='Student has fever, needs rest', diet='Liquid', diet_note='No spice';
+DO $$ BEGIN
+  UPDATE shared.approval_step SET decision='Approved', acted_by='S-CW' WHERE request_type='Sick_Leave' AND level=2;
+  RAISE EXCEPTION 'FAIL: building in-charge approved before the Floor Warden';
+EXCEPTION WHEN check_violation THEN RAISE NOTICE 'PASS F: the building in-charge approves only after the Floor Warden'; END $$;
+UPDATE shared.approval_step SET decision='Approved', acted_by='S-FW' WHERE request_type='Sick_Leave' AND level=1;
+DO $$ DECLARE st text; BEGIN SELECT status INTO st FROM hostel.sick_leave;
+  IF st='Recommended' THEN RAISE NOTICE 'PASS F: Floor Warden approval recommends; no room meals yet'; ELSE RAISE EXCEPTION 'FAIL: status % after the Floor Warden', st; END IF; END $$;
+UPDATE shared.approval_step s SET decision='Approved',
+  acted_by = CASE s.approver_role WHEN 'Chief_Warden' THEN 'S-CW'
+             ELSE (SELECT a.staff_id FROM hostel.staff_space_assignment a WHERE a.hostel_role IN ('Warden','Hostel_Incharge') AND a.status='Active' AND a.facility_id='H-BH1' LIMIT 1) END
+ WHERE s.request_type='Sick_Leave' AND s.level=2;
+DO $$ DECLARE s hostel.sick_leave%ROWTYPE; n int; liq int; cs hostel.current_status; BEGIN SELECT * INTO s FROM hostel.sick_leave; SELECT count(*), count(*) FILTER (WHERE diet='Liquid') INTO n, liq FROM hostel.sick_meal_delivery; SELECT current_status INTO cs FROM hostel.student_current_status WHERE student_id='2600040010';
+  IF s.status='Approved' AND s.room_meals_required AND n=8 AND liq=8 AND cs='On_Sick_Leave' THEN RAISE NOTICE 'PASS F: approved by the building in-charge, 2 days x 4 slots = % liquid-diet room meals, status On_Sick_Leave', n;
+  ELSE RAISE EXCEPTION 'FAIL: status=% meals=% rows=% liquid=% cs=%', s.status, s.room_meals_required, n, liq, cs; END IF; END $$;
+DO $$ BEGIN
+  INSERT INTO hostel.sick_leave (student_id, illness_details, from_date, to_date) VALUES ('2600040010','Same fever again','2026-10-15','2026-10-16');
+  RAISE EXCEPTION 'FAIL: overlapping sick leave accepted';
+EXCEPTION WHEN check_violation THEN RAISE NOTICE 'PASS F: a second sick leave may not overlap an open one'; END $$;
+UPDATE hostel.sick_leave SET diet='Light';
+DO $$ DECLARE l int; BEGIN SELECT count(*) INTO l FROM hostel.sick_meal_delivery WHERE diet='Light' AND status='Pending';
+  IF l=8 THEN RAISE NOTICE 'PASS F: a new diet reaches every meal not yet served'; ELSE RAISE EXCEPTION 'FAIL: % light meals', l; END IF; END $$;
 
 -- ---------- B: QR page and floors-without-warden report ----------
 DO $$ DECLARE n int; BEGIN SELECT count(*) INTO n FROM hostel.v_space_qr_page WHERE space_id='BH1-101'; IF n=2 THEN RAISE NOTICE 'PASS B: QR page for room 101 shows 2 responsible people (Chief Warden, Floor Warden)'; ELSE RAISE EXCEPTION 'FAIL qr page rows %', n; END IF; END $$;
