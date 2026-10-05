@@ -1,0 +1,960 @@
+{
+  "name": "KL University Hostels",
+  "version": 1,
+  "color": {
+    "themes": [
+      {
+        "id": "light",
+        "name": "Light"
+      },
+      {
+        "id": "dark",
+        "name": "Dark"
+      }
+    ],
+    "tokens": [
+      {
+        "name": "surface-0",
+        "value": {
+          "light": "#f4f6fb",
+          "dark": "#0b1015"
+        },
+        "usage": "Page background behind cards and tables."
+      },
+      {
+        "name": "surface-1",
+        "value": {
+          "light": "#ffffff",
+          "dark": "#121a21"
+        },
+        "usage": "Cards, tables, drawers, dialogs, sidebar, top bar."
+      },
+      {
+        "name": "surface-2",
+        "value": {
+          "light": "#eef1f7",
+          "dark": "#1a242d"
+        },
+        "usage": "Table header row, hover rows, read-only fields, skeletons, segmented track."
+      },
+      {
+        "name": "border",
+        "value": {
+          "light": "#e3e7f0",
+          "dark": "#25313c"
+        },
+        "usage": "Hairline dividers and card outlines. Decorative only."
+      },
+      {
+        "name": "border-control",
+        "value": {
+          "light": "#7b8496",
+          "dark": "#6c7888"
+        },
+        "usage": "Input, checkbox, radio and switch borders; 3:1 on surface-1."
+      },
+      {
+        "name": "ink",
+        "value": {
+          "light": "#101828",
+          "dark": "#eef2f6"
+        },
+        "usage": "Primary text on surface-0, surface-1 and surface-2."
+      },
+      {
+        "name": "ink-muted",
+        "value": {
+          "light": "#4b5565",
+          "dark": "#a6b0bd"
+        },
+        "usage": "Secondary text, table meta, captions on surface-0/1/2."
+      },
+      {
+        "name": "ink-subtle",
+        "value": {
+          "light": "#626b7c",
+          "dark": "#8e99a7"
+        },
+        "usage": "Placeholders and helper hints on surface-1 only."
+      },
+      {
+        "name": "primary",
+        "value": {
+          "light": "#0b7a71",
+          "dark": "#2dd4bf"
+        },
+        "usage": "Campus teal, the brand colour. Primary buttons, links, selected states, active tabs, chart series 1."
+      },
+      {
+        "name": "primary-hover",
+        "value": {
+          "light": "#0a6259",
+          "dark": "#5eead4"
+        },
+        "usage": "Hover and pressed state of primary fills."
+      },
+      {
+        "name": "brand-vivid",
+        "value": {
+          "light": "#0b7a71",
+          "dark": "#0b7a71"
+        },
+        "usage": "Teal gradient start for vivid KPI cards and solid brand tiles; same in both themes so white text holds."
+      },
+      {
+        "name": "brand-vivid-2",
+        "value": {
+          "light": "#0a5f6e",
+          "dark": "#0a5f6e"
+        },
+        "usage": "Teal gradient end for vivid cards and solid tiles."
+      },
+      {
+        "name": "primary-2",
+        "value": {
+          "light": "#0a5f6e",
+          "dark": "#14b8a6"
+        },
+        "usage": "Second stop of the brand gradient (teal to deep cyan): active nav pill, hero, brand mark."
+      },
+      {
+        "name": "on-primary",
+        "value": {
+          "light": "#ffffff",
+          "dark": "#03201c"
+        },
+        "usage": "Text and icons on a primary fill or the brand gradient."
+      },
+      {
+        "name": "primary-subtle",
+        "value": {
+          "light": "#e0f5f1",
+          "dark": "#0c2f2b"
+        },
+        "usage": "Selected rows, progress chips, brand icon tiles."
+      },
+      {
+        "name": "primary-ink",
+        "value": {
+          "light": "#08665e",
+          "dark": "#7ee8d6"
+        },
+        "usage": "Text and icons on primary-subtle."
+      },
+      {
+        "name": "accent",
+        "value": {
+          "light": "#ff7a45",
+          "dark": "#ff8f5e"
+        },
+        "usage": "Sunset coral. The single hero call-to-action, highlights, current step, chart highlight. Dark text only."
+      },
+      {
+        "name": "accent-hover",
+        "value": {
+          "light": "#ff6a2e",
+          "dark": "#ffa57d"
+        },
+        "usage": "Hover state of accent fills."
+      },
+      {
+        "name": "on-accent",
+        "value": {
+          "light": "#2a0e03",
+          "dark": "#2a0e03"
+        },
+        "usage": "Text and icons on an accent fill."
+      },
+      {
+        "name": "accent-subtle",
+        "value": {
+          "light": "#fff0e8",
+          "dark": "#3a1a0d"
+        },
+        "usage": "Coral icon tiles and highlight grounds; Auto tag."
+      },
+      {
+        "name": "accent-ink",
+        "value": {
+          "light": "#b23d0c",
+          "dark": "#ffb08a"
+        },
+        "usage": "Text and icons on accent-subtle."
+      },
+      {
+        "name": "hero",
+        "value": {
+          "light": "#09605a",
+          "dark": "#0b4f4a"
+        },
+        "usage": "Hero header gradient start (with hero-2); idle kiosk; pass card header."
+      },
+      {
+        "name": "hero-2",
+        "value": {
+          "light": "#0b4f66",
+          "dark": "#0a3a4c"
+        },
+        "usage": "Hero header gradient end."
+      },
+      {
+        "name": "hero-raised",
+        "value": {
+          "light": "#13665f",
+          "dark": "#135c57"
+        },
+        "usage": "Glass tiles and raised rows on the hero."
+      },
+      {
+        "name": "hero-ink",
+        "value": {
+          "light": "#ffffff",
+          "dark": "#ffffff"
+        },
+        "usage": "Text on hero, hero-2 and hero-raised."
+      },
+      {
+        "name": "hero-muted",
+        "value": {
+          "light": "#d6f3ef",
+          "dark": "#c6e8e4"
+        },
+        "usage": "Secondary text on the hero."
+      },
+      {
+        "name": "hero-accent",
+        "value": {
+          "light": "#ffd166",
+          "dark": "#ffd166"
+        },
+        "usage": "Sunny yellow numbers and eyebrows on the hero."
+      },
+      {
+        "name": "focus",
+        "value": {
+          "light": "#2463c7",
+          "dark": "#7fb0ff"
+        },
+        "usage": "2px solid focus ring with 2px offset on every interactive element."
+      },
+      {
+        "name": "violet",
+        "value": {
+          "light": "#7048e8",
+          "dark": "#7048e8"
+        },
+        "usage": "Vivid violet: gradient start for violet KPI cards and solid tiles; chart series 2."
+      },
+      {
+        "name": "violet-2",
+        "value": {
+          "light": "#5932d1",
+          "dark": "#5932d1"
+        },
+        "usage": "Violet gradient end."
+      },
+      {
+        "name": "violet-bg",
+        "value": {
+          "light": "#f1ecff",
+          "dark": "#241a4a"
+        },
+        "usage": "Violet icon tiles (Outing approvals, Academics)."
+      },
+      {
+        "name": "violet-fg",
+        "value": {
+          "light": "#5f3dc4",
+          "dark": "#bba8ff"
+        },
+        "usage": "Icons and text on violet-bg."
+      },
+      {
+        "name": "orange",
+        "value": {
+          "light": "#c2410c",
+          "dark": "#c2410c"
+        },
+        "usage": "Deep orange: gradient start for orange KPI cards and solid tiles."
+      },
+      {
+        "name": "orange-2",
+        "value": {
+          "light": "#9a3412",
+          "dark": "#9a3412"
+        },
+        "usage": "Orange gradient end."
+      },
+      {
+        "name": "orange-bg",
+        "value": {
+          "light": "#fff1e7",
+          "dark": "#3a1d0c"
+        },
+        "usage": "Orange icon tiles (Fees, Inventory)."
+      },
+      {
+        "name": "orange-fg",
+        "value": {
+          "light": "#b4410f",
+          "dark": "#ffad7a"
+        },
+        "usage": "Icons and text on orange-bg."
+      },
+      {
+        "name": "rose",
+        "value": {
+          "light": "#c2255c",
+          "dark": "#c2255c"
+        },
+        "usage": "Vivid rose: gradient start for rose KPI cards; chart series 5."
+      },
+      {
+        "name": "rose-2",
+        "value": {
+          "light": "#a61e4d",
+          "dark": "#a61e4d"
+        },
+        "usage": "Rose gradient end."
+      },
+      {
+        "name": "rose-bg",
+        "value": {
+          "light": "#ffe9f0",
+          "dark": "#3d1222"
+        },
+        "usage": "Rose icon tiles (Sick leave, Discipline)."
+      },
+      {
+        "name": "rose-fg",
+        "value": {
+          "light": "#b8215a",
+          "dark": "#ff9cbd"
+        },
+        "usage": "Icons and text on rose-bg."
+      },
+      {
+        "name": "sky",
+        "value": {
+          "light": "#1971c2",
+          "dark": "#1971c2"
+        },
+        "usage": "Vivid sky: gradient start for sky KPI cards; chart series 4."
+      },
+      {
+        "name": "sky-2",
+        "value": {
+          "light": "#1557a0",
+          "dark": "#1557a0"
+        },
+        "usage": "Sky gradient end."
+      },
+      {
+        "name": "sky-bg",
+        "value": {
+          "light": "#e7f3ff",
+          "dark": "#0d2a42"
+        },
+        "usage": "Sky icon tiles (Tracking, Gate)."
+      },
+      {
+        "name": "sky-fg",
+        "value": {
+          "light": "#1864ab",
+          "dark": "#86c8ff"
+        },
+        "usage": "Icons and text on sky-bg."
+      },
+      {
+        "name": "indigo",
+        "value": {
+          "light": "#4263eb",
+          "dark": "#4263eb"
+        },
+        "usage": "Indigo: gradient start for indigo KPI cards and solid tiles."
+      },
+      {
+        "name": "indigo-2",
+        "value": {
+          "light": "#364fc7",
+          "dark": "#364fc7"
+        },
+        "usage": "Indigo gradient end."
+      },
+      {
+        "name": "indigo-bg",
+        "value": {
+          "light": "#ecf0ff",
+          "dark": "#1b2250"
+        },
+        "usage": "Indigo icon tiles (Rooms, Allotment)."
+      },
+      {
+        "name": "indigo-fg",
+        "value": {
+          "light": "#3b5bdb",
+          "dark": "#aab8ff"
+        },
+        "usage": "Icons and text on indigo-bg."
+      },
+      {
+        "name": "emerald",
+        "value": {
+          "light": "#237a37",
+          "dark": "#237a37"
+        },
+        "usage": "Emerald: gradient start for green KPI cards."
+      },
+      {
+        "name": "emerald-2",
+        "value": {
+          "light": "#1b5e2b",
+          "dark": "#1b5e2b"
+        },
+        "usage": "Emerald gradient end."
+      },
+      {
+        "name": "amber-bg",
+        "value": {
+          "light": "#fff6d6",
+          "dark": "#352a0a"
+        },
+        "usage": "Amber icon tiles (Electricity)."
+      },
+      {
+        "name": "amber-fg",
+        "value": {
+          "light": "#8f5c00",
+          "dark": "#ffd166"
+        },
+        "usage": "Icons and text on amber-bg."
+      },
+      {
+        "name": "cyan-bg",
+        "value": {
+          "light": "#ddf6fa",
+          "dark": "#0b2d33"
+        },
+        "usage": "Cyan icon tiles (Mess, Facilities)."
+      },
+      {
+        "name": "cyan-fg",
+        "value": {
+          "light": "#0b7285",
+          "dark": "#66d9e8"
+        },
+        "usage": "Icons and text on cyan-bg."
+      },
+      {
+        "name": "success-solid",
+        "value": {
+          "light": "#1a7f4b",
+          "dark": "#3fb874"
+        },
+        "usage": "Success icons, Vacant bed edge, positive trends."
+      },
+      {
+        "name": "success-bg",
+        "value": {
+          "light": "#e3f5ea",
+          "dark": "#12301f"
+        },
+        "usage": "Ground of success chips, toasts, banners and green tiles."
+      },
+      {
+        "name": "success-fg",
+        "value": {
+          "light": "#14683c",
+          "dark": "#7ad9a4"
+        },
+        "usage": "Text on success-bg."
+      },
+      {
+        "name": "warning-solid",
+        "value": {
+          "light": "#b86e00",
+          "dark": "#e5a03a"
+        },
+        "usage": "Warning icons, countdowns under 6 hours."
+      },
+      {
+        "name": "warning-bg",
+        "value": {
+          "light": "#fdf0dc",
+          "dark": "#33240d"
+        },
+        "usage": "Ground of warning chips, toasts and banners."
+      },
+      {
+        "name": "warning-fg",
+        "value": {
+          "light": "#874600",
+          "dark": "#f2bb6e"
+        },
+        "usage": "Text on warning-bg."
+      },
+      {
+        "name": "critical-solid",
+        "value": {
+          "light": "#c4302b",
+          "dark": "#ef5a52"
+        },
+        "usage": "Critical icons, Overdue counts, destructive buttons, notification badges."
+      },
+      {
+        "name": "critical-bg",
+        "value": {
+          "light": "#fce8e6",
+          "dark": "#3a1715"
+        },
+        "usage": "Ground of critical chips, toasts and banners."
+      },
+      {
+        "name": "critical-fg",
+        "value": {
+          "light": "#a8211b",
+          "dark": "#ff9a92"
+        },
+        "usage": "Text on critical-bg."
+      },
+      {
+        "name": "on-critical",
+        "value": {
+          "light": "#ffffff",
+          "dark": "#2a0705"
+        },
+        "usage": "Text on a critical-solid fill."
+      },
+      {
+        "name": "info-solid",
+        "value": {
+          "light": "#1670cc",
+          "dark": "#4ea3f0"
+        },
+        "usage": "Info icons and links inside banners."
+      },
+      {
+        "name": "info-bg",
+        "value": {
+          "light": "#e3effb",
+          "dark": "#10283f"
+        },
+        "usage": "Ground of info chips, toasts and banners."
+      },
+      {
+        "name": "info-fg",
+        "value": {
+          "light": "#0b58a6",
+          "dark": "#86c4ff"
+        },
+        "usage": "Text on info-bg."
+      },
+      {
+        "name": "neutral-bg",
+        "value": {
+          "light": "#eceef3",
+          "dark": "#262d36"
+        },
+        "usage": "Ground of neutral chips (Cancelled, Closed, Vacated, Replaced)."
+      },
+      {
+        "name": "neutral-fg",
+        "value": {
+          "light": "#4a5262",
+          "dark": "#b8bfcc"
+        },
+        "usage": "Text on neutral-bg."
+      },
+      {
+        "name": "chart-3",
+        "value": {
+          "light": "#ff7a45",
+          "dark": "#ff8f5e"
+        },
+        "usage": "Chart series 3 (coral)."
+      },
+      {
+        "name": "chart-5",
+        "value": {
+          "light": "#8a94a6",
+          "dark": "#7c879c"
+        },
+        "usage": "Chart 'other' buckets and Under Maintenance."
+      },
+      {
+        "name": "chart-grid",
+        "value": {
+          "light": "#e8ecf3",
+          "dark": "#222d37"
+        },
+        "usage": "Chart gridlines and the track of rings and meters."
+      },
+      {
+        "name": "overlay",
+        "value": {
+          "light": "rgba(10, 20, 30, 0.5)",
+          "dark": "rgba(0, 0, 0, 0.64)"
+        },
+        "usage": "Scrim behind dialogs and drawers."
+      },
+      {
+        "name": "gate-valid",
+        "value": {
+          "light": "#0f7a41",
+          "dark": "#0f7a41"
+        },
+        "usage": "Full-screen gate kiosk background for a valid pass. White text only."
+      },
+      {
+        "name": "gate-invalid",
+        "value": {
+          "light": "#b3261e",
+          "dark": "#b3261e"
+        },
+        "usage": "Full-screen gate kiosk background for an invalid, expired or missing pass. White text only."
+      },
+      {
+        "name": "gate-ink",
+        "value": {
+          "light": "#ffffff",
+          "dark": "#ffffff"
+        },
+        "usage": "Text on gate-valid and gate-invalid."
+      }
+    ]
+  },
+  "type": {
+    "fonts": [],
+    "families": {
+      "sans": "\"Plus Jakarta Sans\", \"Segoe UI\", system-ui, -apple-system, Roboto, sans-serif",
+      "mono": "\"JetBrains Mono\", ui-monospace, Menlo, Consolas, monospace"
+    },
+    "groups": [
+      {
+        "name": "Headings",
+        "family": "sans",
+        "styles": [
+          {
+            "name": "display",
+            "fontSize": "36px",
+            "lineHeight": "44px",
+            "fontWeight": 800,
+            "letterSpacing": "-0.01em",
+            "sample": "Good morning, Ananya",
+            "usage": "Hero greeting on dashboards; on the hero ground in hero-ink."
+          },
+          {
+            "name": "page-title",
+            "fontSize": "26px",
+            "lineHeight": "34px",
+            "fontWeight": 700,
+            "sample": "Allotment workspace",
+            "usage": "One per page, under the breadcrumb."
+          },
+          {
+            "name": "section-title",
+            "fontSize": "18px",
+            "lineHeight": "26px",
+            "fontWeight": 700,
+            "sample": "Pending Level 1 approvals",
+            "usage": "Card and section headings, drawer titles."
+          },
+          {
+            "name": "subhead",
+            "fontSize": "15px",
+            "lineHeight": "22px",
+            "fontWeight": 700,
+            "sample": "Approval trail",
+            "usage": "Group labels inside drawers and forms."
+          }
+        ]
+      },
+      {
+        "name": "Text",
+        "family": "sans",
+        "styles": [
+          {
+            "name": "body",
+            "fontSize": "14px",
+            "lineHeight": "20px",
+            "fontWeight": 400,
+            "sample": "Room offer is available only after the registration fee is paid.",
+            "usage": "Base size on staff screens: tables, forms, drawers."
+          },
+          {
+            "name": "body-lg",
+            "fontSize": "16px",
+            "lineHeight": "24px",
+            "fontWeight": 400,
+            "sample": "Your room A-204 is held until 05 Oct, 6:00 pm.",
+            "usage": "Base size on student and parent screens."
+          },
+          {
+            "name": "label",
+            "fontSize": "13px",
+            "lineHeight": "18px",
+            "fontWeight": 600,
+            "sample": "Return By",
+            "usage": "Form labels, table header cells, chip text."
+          },
+          {
+            "name": "overline",
+            "fontSize": "11px",
+            "lineHeight": "16px",
+            "fontWeight": 700,
+            "letterSpacing": "0.08em",
+            "sample": "E OUTING",
+            "usage": "Sidebar group headings and hero eyebrows, uppercase."
+          },
+          {
+            "name": "caption",
+            "fontSize": "12px",
+            "lineHeight": "16px",
+            "fontWeight": 400,
+            "sample": "Updated 2 min ago",
+            "usage": "Timestamps, helper text, footnotes."
+          },
+          {
+            "name": "figure",
+            "fontSize": "30px",
+            "lineHeight": "36px",
+            "fontWeight": 800,
+            "sample": "₹4,82,500",
+            "usage": "Stat card values. Always tabular numerals."
+          },
+          {
+            "name": "code",
+            "family": "mono",
+            "fontSize": "13px",
+            "lineHeight": "18px",
+            "fontWeight": 500,
+            "sample": "HR-2026-00412",
+            "usage": "Registration, receipt, outpass and meter numbers."
+          }
+        ]
+      },
+      {
+        "name": "Kiosk",
+        "family": "sans",
+        "styles": [
+          {
+            "name": "kiosk-title",
+            "fontSize": "56px",
+            "lineHeight": "64px",
+            "fontWeight": 700,
+            "sample": "VALID PASS",
+            "usage": "Gate scan verdict, one line."
+          },
+          {
+            "name": "kiosk-body",
+            "fontSize": "28px",
+            "lineHeight": "36px",
+            "fontWeight": 500,
+            "sample": "Rahul Varma · OP-2026-1187",
+            "usage": "Student name, pass number and times on the gate screen."
+          }
+        ]
+      }
+    ]
+  },
+  "spacing": {
+    "tokens": [
+      {
+        "name": "space-1",
+        "value": "4px",
+        "usage": "Icon to text gap, chip padding-y."
+      },
+      {
+        "name": "space-2",
+        "value": "8px",
+        "usage": "Gap between inline controls, chip padding-x."
+      },
+      {
+        "name": "space-3",
+        "value": "12px",
+        "usage": "Table cell padding-y, field label to input."
+      },
+      {
+        "name": "space-4",
+        "value": "16px",
+        "usage": "Card padding on phones; side gutter at 360px; table cell padding-x."
+      },
+      {
+        "name": "space-5",
+        "value": "20px",
+        "usage": "Gap between form fields."
+      },
+      {
+        "name": "space-6",
+        "value": "24px",
+        "usage": "Card padding on desktop, gap between cards."
+      },
+      {
+        "name": "space-8",
+        "value": "32px",
+        "usage": "Between page sections."
+      },
+      {
+        "name": "space-10",
+        "value": "40px",
+        "usage": "Kiosk inner padding on tablets."
+      },
+      {
+        "name": "space-12",
+        "value": "48px",
+        "usage": "Empty state vertical padding."
+      },
+      {
+        "name": "space-16",
+        "value": "64px",
+        "usage": "Kiosk inner padding on large screens."
+      }
+    ]
+  },
+  "radius": {
+    "tokens": [
+      {
+        "name": "radius-sm",
+        "value": "6px",
+        "usage": "Checkboxes, bed cells, skeleton bars, tooltips."
+      },
+      {
+        "name": "radius-md",
+        "value": "10px",
+        "usage": "Buttons, inputs, selects, OTP boxes, menu items, icon tiles."
+      },
+      {
+        "name": "radius-lg",
+        "value": "16px",
+        "usage": "Cards, dialogs, toasts, drawers' panels, pass card."
+      },
+      {
+        "name": "radius-xl",
+        "value": "24px",
+        "usage": "Hero headers and kiosk panels."
+      },
+      {
+        "name": "radius-pill",
+        "value": "999px",
+        "usage": "Status chips, badges, switches, segmented controls, filter chips."
+      }
+    ]
+  },
+  "shadow": {
+    "tokens": [
+      {
+        "name": "shadow-card",
+        "value": {
+          "light": "0 1px 2px rgba(16, 24, 40, 0.04), 0 4px 14px rgba(16, 24, 40, 0.06)",
+          "dark": "0 1px 2px rgba(0, 0, 0, 0.5)"
+        },
+        "usage": "Resting cards on surface-0."
+      },
+      {
+        "name": "shadow-raised",
+        "value": {
+          "light": "0 2px 4px rgba(16, 24, 40, 0.06), 0 12px 28px rgba(16, 24, 40, 0.12)",
+          "dark": "0 12px 28px rgba(0, 0, 0, 0.55)"
+        },
+        "usage": "Hover lift of interactive cards and quick-action tiles."
+      },
+      {
+        "name": "shadow-overlay",
+        "value": {
+          "light": "0 20px 48px rgba(16, 24, 40, 0.20)",
+          "dark": "0 20px 48px rgba(0, 0, 0, 0.7)"
+        },
+        "usage": "Drawers, dialogs, menus, date picker, toasts."
+      },
+      {
+        "name": "shadow-primary",
+        "value": {
+          "light": "0 6px 16px rgba(11, 122, 113, 0.32)",
+          "dark": "0 6px 16px rgba(0, 0, 0, 0.4)"
+        },
+        "usage": "Primary button glow."
+      },
+      {
+        "name": "shadow-vivid",
+        "value": {
+          "light": "0 10px 24px rgba(16, 24, 40, 0.18)",
+          "dark": "0 10px 24px rgba(0, 0, 0, 0.5)"
+        },
+        "usage": "Vivid gradient KPI cards and solid module tiles."
+      },
+      {
+        "name": "shadow-accent",
+        "value": {
+          "light": "0 6px 16px rgba(255, 122, 69, 0.38)",
+          "dark": "0 6px 16px rgba(0, 0, 0, 0.4)"
+        },
+        "usage": "Accent (gold) button glow."
+      }
+    ]
+  },
+  "size": {
+    "note": "Fixed layout dimensions.",
+    "tokens": [
+      {
+        "name": "sidebar-width",
+        "value": "264px",
+        "usage": "Staff left sidebar; collapses to a 64px rail below 1024px and a sheet below 768px."
+      },
+      {
+        "name": "topbar-height",
+        "value": "64px",
+        "usage": "Staff top bar."
+      },
+      {
+        "name": "bottomnav-height",
+        "value": "64px",
+        "usage": "Student and parent bottom navigation on phones."
+      },
+      {
+        "name": "control-height",
+        "value": "40px",
+        "usage": "Buttons and inputs on staff screens."
+      },
+      {
+        "name": "control-height-lg",
+        "value": "44px",
+        "usage": "Buttons and inputs on student, parent and delivery screens (touch target)."
+      },
+      {
+        "name": "drawer-width",
+        "value": "480px",
+        "usage": "Right-side detail drawer on desktop; full width below 768px."
+      },
+      {
+        "name": "content-max",
+        "value": "1280px",
+        "usage": "Max width of staff content area."
+      }
+    ]
+  },
+  "breakpoint": {
+    "note": "Design at each width.",
+    "tokens": [
+      {
+        "name": "bp-phone",
+        "value": "360px",
+        "usage": "Smallest phone. 16px gutters, single column."
+      },
+      {
+        "name": "bp-tablet",
+        "value": "768px",
+        "usage": "Sidebar becomes a rail; drawers go full width below this."
+      },
+      {
+        "name": "bp-desktop",
+        "value": "1024px",
+        "usage": "Full sidebar; tables show all columns."
+      },
+      {
+        "name": "bp-wide",
+        "value": "1440px",
+        "usage": "Dashboards switch to four-column card grids."
+      }
+    ]
+  }
+}

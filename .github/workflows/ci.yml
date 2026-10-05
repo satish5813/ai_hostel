@@ -1,0 +1,53 @@
+# Every change pushed or proposed to main is checked here before it can be deployed (scripts/ci/check.sh):
+# types, lint, both builds, a database built from all migrations with its rule tests, and the API walked end to end.
+name: Checks
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: checks-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:18
+        env:
+          POSTGRES_PASSWORD: ci
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      PG_BASE: postgresql://postgres:ci@localhost:5432
+      DB: klu_ci
+      OIDC_ISSUER: ''
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - name: PostgreSQL 18 client
+        run: |
+          sudo apt-get install -y postgresql-common >/dev/null
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y >/dev/null
+          sudo apt-get install -y postgresql-client-18 >/dev/null
+          echo "/usr/lib/postgresql/18/bin" >> "$GITHUB_PATH"
+      - run: pnpm install --frozen-lockfile
+      - name: All checks
+        run: bash scripts/ci/check.sh
+      - name: Keep the API log when something failed
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-log
+          path: logs/
+          retention-days: 7

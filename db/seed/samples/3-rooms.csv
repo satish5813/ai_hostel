@@ -1,0 +1,57 @@
+hostel_code,floor_no,room_no,room_type,category,reserved_for,accessible
+BH2,1,101,3-sharing AC,Hostel_Room,None,Yes
+BH2,1,102,3-sharing AC,Hostel_Room,None,No
+BH2,1,103,3-sharing AC,Hostel_Room,None,No
+BH2,1,104,3-sharing AC,Hostel_Room,None,No
+BH2,1,105,3-sharing AC,Hostel_Room,None,No
+BH2,1,106,3-sharing AC,Hostel_Room,None,No
+BH2,1,107,2-sharing AC,Hostel_Room,None,No
+BH2,1,108,2-sharing AC,Hostel_Room,None,No
+BH2,1,T1,,Toilet_Block,,
+BH2,2,201,3-sharing AC,Hostel_Room,None,No
+BH2,2,202,3-sharing AC,Hostel_Room,None,No
+BH2,2,203,3-sharing AC,Hostel_Room,None,No
+BH2,2,204,3-sharing AC,Hostel_Room,None,No
+BH2,2,205,3-sharing AC,Hostel_Room,None,No
+BH2,2,206,3-sharing AC,Hostel_Room,None,No
+BH2,2,207,2-sharing AC,Hostel_Room,None,No
+BH2,2,208,2-sharing AC,Hostel_Room,None,No
+BH2,2,T2,,Toilet_Block,,
+BH2,3,301,3-sharing AC,Hostel_Room,None,No
+BH2,3,302,3-sharing AC,Hostel_Room,None,No
+BH2,3,303,3-sharing AC,Hostel_Room,None,No
+BH2,3,304,3-sharing AC,Hostel_Room,None,No
+BH2,3,305,3-sharing AC,Hostel_Room,None,No
+BH2,3,306,3-sharing AC,Hostel_Room,None,No
+BH2,3,307,2-sharing AC,Hostel_Room,None,No
+BH2,3,308,2-sharing AC,Hostel_Room,None,No
+BH2,3,T3,,Toilet_Block,,
+BH2,4,401,3-sharing AC,Hostel_Room,None,No
+BH2,4,402,3-sharing AC,Hostel_Room,None,No
+BH2,4,403,3-sharing AC,Hostel_Room,None,No
+BH2,4,404,3-sharing AC,Hostel_Room,None,No
+BH2,4,405,3-sharing AC,Hostel_Room,None,No
+BH2,4,406,3-sharing AC,Hostel_Room,None,No
+BH2,4,407,2-sharing AC,Hostel_Room,None,No
+BH2,4,408,2-sharing AC,Hostel_Room,None,No
+BH2,4,T4,,Toilet_Block,,
+GH2,1,101,2-sharing AC,Hostel_Room,None,No
+GH2,1,102,2-sharing AC,Hostel_Room,None,No
+GH2,1,103,2-sharing AC,Hostel_Room,None,No
+GH2,1,104,2-sharing AC,Hostel_Room,None,No
+GH2,1,105,2-sharing AC,Hostel_Room,None,No
+GH2,1,106,2-sharing AC,Hostel_Room,Staff,No
+GH2,2,201,2-sharing AC,Hostel_Room,None,No
+GH2,2,202,2-sharing AC,Hostel_Room,None,No
+GH2,2,203,2-sharing AC,Hostel_Room,None,No
+GH2,2,204,2-sharing AC,Hostel_Room,None,No
+GH2,2,205,2-sharing AC,Hostel_Room,None,No
+GH2,2,206,2-sharing AC,Hostel_Room,None,No
+GH2,3,301,2-sharing AC,Hostel_Room,None,No
+GH2,3,302,2-sharing AC,Hostel_Room,None,No
+GH2,3,303,2-sharing AC,Hostel_Room,None,No
+GH2,3,304,2-sharing AC,Hostel_Room,None,No
+GH2,3,305,2-sharing AC,Hostel_Room,None,No
+GH2,3,306,2-sharing AC,Hostel_Room,None,No
+XX9,1,101,2-sharing AC,Hostel_Room,None,No
+BH2,1,109,9-sharing AC,Hostel_Room,None,No

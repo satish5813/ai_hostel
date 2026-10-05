@@ -1,0 +1,30 @@
+# Debugging without signing in to the server: the runner collects the service state, health, recent API errors,
+# migration state and disk space, and attaches them to the run. Nothing on the server is changed.
+name: Diagnose server
+on:
+  workflow_dispatch:
+    inputs:
+      lines:
+        description: How many log lines to collect
+        default: '300'
+
+jobs:
+  diagnose:
+    runs-on: [self-hosted, windows, klu-hostel]
+    timeout-minutes: 10
+    steps:
+      - name: Collect
+        shell: powershell
+        run: |
+          $out = "$env:RUNNER_TEMP\diagnose"; New-Item -ItemType Directory -Force $out | Out-Null
+          Get-Service KLU-Hostel-API | Format-List * | Out-File "$out\service.txt"
+          try { Invoke-RestMethod http://localhost:4100/api/healthz | ConvertTo-Json | Out-File "$out\health.json" } catch { $_ | Out-File "$out\health.json" }
+          (Get-Item C:\klu-hostel\current).Target | Out-File "$out\current-release.txt"
+          foreach ($f in "api.out.log", "api.err.log") { if (Test-Path "C:\klu-hostel\logs\$f") { Get-Content "C:\klu-hostel\logs\$f" -Tail ${{ github.event.inputs.lines }} | Out-File "$out\$f" } }
+          Get-PSDrive C | Format-List Used, Free | Out-File "$out\disk.txt"
+          Get-ChildItem C:\klu-hostel\backups -Filter *.dump | Sort-Object LastWriteTime -Descending | Select-Object -First 10 Name, Length, LastWriteTime | Out-File "$out\backups.txt"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: server-diagnosis
+          path: ${{ runner.temp }}/diagnose
+          retention-days: 7

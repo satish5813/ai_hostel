@@ -1,0 +1,76 @@
+/* Student frame (app/student-shell.tsx): side menu on desktop, bottom bar + drawer on phones. Brand teal marks the current page. */
+.sn { --sn-w: 256px; --sn-fold: 72px; --sn-ink: #1D2939; --sn-ink-2: #475467; --sn-ink-3: #667085; --sn-line: #E8ECF2; --sn-brand: #0B7A71; --sn-tint: #E6F4F1;
+  min-height: 100vh; background: #F4F6FA; }
+/* only the frame's own buttons; buttons inside the pages keep their styles */
+.sn-side button, .sn-bar button, .sn-bottom button { font: inherit; color: inherit; }
+.sn-side { position: fixed; inset: 0 auto 0 0; z-index: 40; width: var(--sn-w); display: flex; flex-direction: column; gap: 10px; padding: 14px 12px;
+  background: #FFF; border-right: 1px solid var(--sn-line); transition: width .18s ease, transform .2s ease; overflow: hidden; }
+.sn-top { display: flex; align-items: center; justify-content: space-between; padding: 2px 4px 6px; }
+.sn-brand { all: unset; cursor: pointer; display: flex; align-items: center; gap: 10px; min-width: 0; }
+.sn-brand span { display: flex; flex-direction: column; line-height: 1.15; }
+.sn-brand b { font-size: 15px; font-weight: 800; color: var(--sn-ink); }
+.sn-brand small { font-size: 11px; font-weight: 700; color: var(--sn-brand); text-transform: uppercase; letter-spacing: .06em; }
+.sn-me { all: unset; box-sizing: border-box; cursor: pointer; display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 14px; background: linear-gradient(135deg, #0B7A71, #0A5F6E); color: #FFF; }
+.sn-me:hover { filter: brightness(1.05); }
+.sn-avatar { flex: none; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; background: rgba(255,255,255,.18); font-weight: 800; font-size: 14px; overflow: hidden;
+  box-shadow: 0 0 0 2px rgba(255,255,255,.55); }
+.sn-avatar img { width: 100%; height: 100%; object-fit: cover; display: block; }
+/* the card is teal: its text is white (the frame's button reset would otherwise make it dark) */
+.sn-side button.sn-me, .sn-side button.sn-me b { color: #FFF; }
+.sn-side button.sn-me small { color: rgba(255,255,255,.82); }
+.sn-me .sn-label { display: flex; flex-direction: column; min-width: 0; }
+.sn-me b { font-size: 13.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sn-me small { font-size: 11.5px; opacity: .85; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sn-nav { flex: 1; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; gap: 10px; margin: 0 -4px; padding: 0 4px; }
+.sn-group { display: flex; flex-direction: column; gap: 2px; }
+.sn-head { padding: 6px 10px 4px; font-size: 10.5px; font-weight: 800; color: var(--sn-ink-3); text-transform: uppercase; letter-spacing: .08em; white-space: nowrap; }
+.sn-item { all: unset; box-sizing: border-box; cursor: pointer; position: relative; display: flex; align-items: center; gap: 12px; min-height: 40px; padding: 8px 10px; border-radius: 10px;
+  font-size: 13.5px; font-weight: 600; color: var(--sn-ink-2); white-space: nowrap; }
+.sn-item svg { flex: none; color: var(--sn-ink-3); }
+.sn-item:hover { background: #F2F4F7; color: var(--sn-ink); }
+.sn-item[aria-current="page"] { background: var(--sn-tint); color: var(--sn-brand); font-weight: 700; }
+.sn-item[aria-current="page"] svg { color: var(--sn-brand); }
+.sn-item[aria-current="page"]::before { content: ''; position: absolute; left: -12px; top: 8px; bottom: 8px; width: 3px; border-radius: 0 3px 3px 0; background: var(--sn-brand); }
+.sn-item:focus-visible, .sn-me:focus-visible, .sn-brand:focus-visible, .sn-icon:focus-visible, .sn-bottom button:focus-visible { outline: 2px solid var(--sn-brand); outline-offset: 2px; }
+.sn-badge { margin-left: auto; min-width: 20px; padding: 1px 6px; border-radius: 999px; background: #D92D20; color: #FFF; font-size: 11px; font-weight: 800; text-align: center; }
+.sn-foot { display: flex; flex-direction: column; gap: 2px; padding-top: 8px; border-top: 1px solid var(--sn-line); }
+.sn-body { margin-left: var(--sn-w); transition: margin-left .18s ease; min-width: 0; }
+.sn-main { padding-bottom: 32px; }
+
+/* folded to icons (desktop) */
+.sn-folded .sn-side { width: var(--sn-fold); }
+.sn-folded .sn-body { margin-left: var(--sn-fold); }
+.sn-folded .sn-label, .sn-folded .sn-head { display: none; }
+.sn-folded .sn-group + .sn-group { border-top: 1px solid var(--sn-line); padding-top: 8px; }
+.sn-folded .sn-item { justify-content: center; padding: 8px 0; }
+.sn-folded .sn-me { justify-content: center; padding: 8px 0; }
+.sn-folded .sn-badge { position: absolute; top: 2px; right: 6px; min-width: 16px; padding: 0 4px; font-size: 10px; }
+.sn-folded .sn-top { display: none; }   /* the logo does not fit the icon rail; the initials stay at the top */
+
+.sn-only-phone { display: none !important; }
+.sn-icon { all: unset; cursor: pointer; position: relative; display: grid; place-items: center; width: 40px; height: 40px; border-radius: 12px; color: var(--sn-ink-2); }
+.sn-icon:hover { background: #F2F4F7; }
+.sn-bell i { position: absolute; top: 9px; right: 10px; width: 8px; height: 8px; border-radius: 50%; background: #D92D20; box-shadow: 0 0 0 2px #FFF; }
+
+/* tablets and phones: top bar, bottom bar, the menu slides in */
+@media (max-width: 1023px) {
+  .sn-only-phone { display: flex !important; }
+  .sn-only-desk { display: none !important; }
+  .sn-side { width: min(300px, 86vw) !important; transform: translateX(-102%); box-shadow: 0 20px 50px rgba(16,24,40,.25); }
+  .sn-open .sn-side { transform: none; }
+  .sn-folded .sn-label, .sn-folded .sn-head { display: revert; }
+  .sn-folded .sn-item { justify-content: flex-start; padding: 8px 10px; }
+  .sn-folded .sn-me { justify-content: flex-start; padding: 10px; }
+  .sn-folded .sn-top { display: flex; }
+  .sn-body, .sn-folded .sn-body { margin-left: 0; }
+  .sn-scrim { position: fixed; inset: 0; z-index: 35; background: rgba(16,24,40,.45); }
+  .sn-bar { position: sticky; top: 0; z-index: 30; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 10px; background: #FFFFFFEE; backdrop-filter: blur(8px); border-bottom: 1px solid var(--sn-line); }
+  .sn-bar .sn-brand { gap: 8px; } .sn-bar .sn-brand b { font-size: 15px; }
+  .sn-main { padding-bottom: calc(76px + env(safe-area-inset-bottom)); }
+  .sn-bottom { position: fixed; left: 0; right: 0; bottom: 0; z-index: 30; justify-content: space-around; padding: 6px 4px calc(6px + env(safe-area-inset-bottom)); background: #FFF; border-top: 1px solid var(--sn-line); box-shadow: 0 -4px 16px rgba(16,24,40,.06); }
+  .sn-bottom button { all: unset; cursor: pointer; position: relative; flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 6px 0; border-radius: 12px; font-size: 11px; font-weight: 700; color: var(--sn-ink-3); }
+  .sn-bottom button[aria-current="page"] { color: var(--sn-brand); }
+  .sn-bottom button[aria-current="page"] svg { background: var(--sn-tint); border-radius: 999px; padding: 3px 12px; box-sizing: content-box; }
+  .sn-dot { position: absolute; top: 4px; left: calc(50% + 8px); width: 8px; height: 8px; border-radius: 50%; background: #D92D20; }
+}
+@media print { .sn-side, .sn-bar, .sn-bottom { display: none !important; } .sn-body { margin-left: 0 !important; } }

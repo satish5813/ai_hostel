@@ -1,0 +1,31 @@
+# Puts a checked version live on the university server. The runner on the server pulls the job (no incoming access).
+# Starts only after the Checks workflow passed on main, and waits for the approver set on the "production" environment.
+name: Deploy
+on:
+  workflow_run:
+    workflows: [Checks]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Commit to deploy (default: latest on main, which must have passed Checks)
+        required: false
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: [self-hosted, windows, klu-hostel]
+    environment: production
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.ref || github.event.workflow_run.head_sha || github.sha }}
+      - name: Deploy
+        shell: powershell
+        run: .\scripts\deploy\deploy.ps1 -Source "$env:GITHUB_WORKSPACE" -Version (git rev-parse HEAD)

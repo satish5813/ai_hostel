@@ -1,0 +1,117 @@
+/* RCH room change: student page (rc-*), wardens' desk (rc-card, rc-det), money statement (rc-st-*). Brand teal; amber/green for more/less to pay with words. */
+.rc, .rc-desk, .rc-det, .rc-st { --ink: #101828; --ink-2: #475467; --ink-3: #667085; --line: #E4E8EF; --brand: #0B7A71; --tint: #E6F4F1; --up: #B54708; --up-bg: #FFFAEB; --down: #067647; --down-bg: #ECFDF3; }
+.rc small, .rc-desk small, .rc-det small, .rc-st small { display: block; font-size: 12px; color: var(--ink-3); font-weight: 400; }
+.rc-up { color: var(--up) !important; } .rc-down { color: var(--down) !important; }
+
+/* choices */
+.rc-kinds { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.rc-kinds button, .rc-types button { all: unset; box-sizing: border-box; cursor: pointer; display: flex; flex-direction: column; gap: 4px; padding: 16px; border-radius: 16px; border: 1.5px solid var(--line); background: #FFF; }
+.rc-kinds button svg { color: var(--brand); margin-bottom: 4px; }
+.rc-kinds b, .rc-types b { font-size: 15.5px; color: var(--ink); }
+.rc-kinds button:hover:not(:disabled), .rc-types button:hover:not(:disabled) { border-color: var(--brand); }
+.rc-kinds button[aria-pressed="true"], .rc-types button[aria-pressed="true"] { border-color: var(--brand); background: var(--tint); box-shadow: 0 0 0 3px rgba(11,122,113,.15); }
+.rc-kinds button:disabled, .rc-types button:disabled { opacity: .5; cursor: not-allowed; }
+.rc-kinds button:focus-visible, .rc-types button:focus-visible, .rc-beds button:focus-visible, .rc-card:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+.rc-types { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+.rc-type-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 12px; font-size: 13px; color: var(--ink-2); }
+.rc-type-meta > span { display: inline-flex; align-items: center; gap: 5px; white-space: nowrap; }
+.rc-type-meta svg { color: var(--brand); }
+.rc-fee { font-size: 22px; font-weight: 800; color: var(--ink); font-variant-numeric: tabular-nums; margin-top: 4px; }
+.rc-fee small { display: inline !important; font-size: 13px; }
+.rc-opt { display: inline !important; font-size: 13px; font-weight: 500; margin-left: 6px; }
+.rc-floors { display: flex; flex-direction: column; gap: 14px; max-height: 420px; overflow: auto; padding-right: 4px; }
+.rc-floor h4 { margin: 0 0 6px; font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-3); }
+.rc-rooms { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; }
+.rc-room { display: flex; flex-direction: column; gap: 8px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; background: #FBFCFD; }
+.rc-room-n { font-weight: 700; font-size: 14px; }
+.rc-beds { display: flex; flex-wrap: wrap; gap: 6px; }
+.rc-beds button { all: unset; cursor: pointer; padding: 5px 12px; border-radius: 999px; border: 1px solid #D0D5DD; background: #FFF; font-size: 13px; font-weight: 600; }
+.rc-beds button:hover { border-color: var(--brand); }
+.rc-beds button[aria-pressed="true"] { background: var(--brand); border-color: var(--brand); color: #FFF; }
+.rc-hint { display: flex; gap: 8px; align-items: flex-start; margin: 12px 0 0; padding: 10px 12px; border-radius: 12px; background: var(--tint); color: var(--ink); font-size: 14px; }
+.rc-hint svg { flex: none; color: var(--brand); margin-top: 2px; }
+.rc-why { width: 100%; box-sizing: border-box; padding: 10px 12px; border-radius: 12px; border: 1px solid #D0D5DD; font: inherit; font-size: 15px; resize: vertical; }
+.rc-why:focus { outline: 2px solid var(--brand); border-color: transparent; }
+.rc-h3 { margin: 18px 0 10px; font-size: 15px; color: var(--ink); }
+.rc-acts { display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px; }
+.rc-small { margin: 8px 0 0; font-size: 12.5px; color: var(--ink-3); }
+
+/* open request and timeline */
+.rc-open-h { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.rc-open-h b { display: flex; align-items: center; gap: 8px; font-size: 19px; margin: 2px 0; }
+.rc-reason { margin: 12px 0; padding: 10px 14px; border-left: 3px solid var(--brand); background: #F8FAFC; border-radius: 0 10px 10px 0; color: var(--ink-2); font-style: italic; }
+.rc-time { list-style: none; margin: 8px 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.rc-time li { display: flex; gap: 8px; align-items: flex-start; padding: 10px 12px; border-radius: 12px; border: 1px solid var(--line); color: var(--ink-3); }
+.rc-time li svg { flex: none; margin-top: 1px; }
+.rc-time li b { color: var(--ink); font-size: 14px; }
+.rc-time li.rc-done { border-color: #ABEFC6; background: var(--down-bg); } .rc-time li.rc-done svg { color: var(--down); }
+.rc-time li.rc-bad { border-color: #FECDCA; background: #FEF3F2; } .rc-time li.rc-bad svg { color: #B42318; }
+.rc-past { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.rc-past details { border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; }
+.rc-past summary { cursor: pointer; display: flex; justify-content: space-between; gap: 10px; align-items: center; }
+.rc-past summary > span:first-child { min-width: 0; }
+.rc-past summary svg { display: inline-block; vertical-align: -1px; }
+.rc-past .rc-time, .rc-past .rc-st { margin-top: 12px; }
+
+/* statement */
+.rc-st { display: flex; flex-direction: column; gap: 12px; }
+.rc-st-note { display: flex; gap: 8px; align-items: flex-start; margin: 0; font-size: 13px; color: var(--ink-2); }
+.rc-st-note svg { flex: none; margin-top: 2px; color: var(--brand); }
+.rc-st-box { border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; background: #FFF; }
+.rc-st-box h4 { margin: 0 0 6px; display: flex; gap: 8px; align-items: center; font-size: 15px; color: var(--ink); }
+.rc-st-box h4 svg { color: var(--brand); }
+.rc-st-t { width: 100%; border-collapse: collapse; font-size: 14px; font-variant-numeric: tabular-nums; }
+.rc-st-t td { padding: 8px 0; border-bottom: 1px solid var(--line); vertical-align: top; color: var(--ink); }
+.rc-st-t td small svg, .rc-open-h small svg { display: inline-block; vertical-align: -1px; }
+.rc-st-t td.r { text-align: right; white-space: nowrap; padding-left: 12px; font-weight: 600; }
+.rc-st-t tr:last-child td { border-bottom: 0; }
+.rc-st-sum td { font-weight: 700; }
+.rc-st-adj td { font-weight: 800; font-size: 15px; }
+.rc-st-adj.rc-up td { color: var(--up); } .rc-st-adj.rc-down td { color: var(--down); }
+.rc-st-adj.rc-up { background: var(--up-bg); } .rc-st-adj.rc-down { background: var(--down-bg); }
+.rc-st-adj td:first-child { padding-left: 8px; border-radius: 8px 0 0 8px; } .rc-st-adj td:last-child { padding-right: 8px; border-radius: 0 8px 8px 0; }
+.rc-st-small { margin: 8px 0 0; font-size: 12.5px; color: var(--ink-3); }
+.rc-st-total { display: flex; flex-wrap: wrap; gap: 12px 28px; align-items: center; padding: 14px 16px; border-radius: 14px; color: #FFF; background: linear-gradient(135deg, #0B7A71, #0A4F5C); }
+.rc-st-total b { font-size: 24px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.rc-st-total small { color: rgba(255,255,255,.85) !important; }
+.rc-st-refund { padding-left: 20px; border-left: 1px solid rgba(255,255,255,.3); }
+
+/* wardens' desk */
+.rc-list { display: flex; flex-direction: column; gap: 10px; }
+.rc-card { all: unset; box-sizing: border-box; cursor: pointer; display: grid; grid-template-columns: minmax(160px, 1fr) minmax(200px, 1.2fr) minmax(0, 2fr) 170px; gap: 14px; align-items: center; padding: 14px 16px !important; }
+.rc-card:hover { box-shadow: 0 0 0 1.5px var(--brand); }
+.rc-move b { display: flex; align-items: center; gap: 6px; }
+.rc-why-s { color: var(--ink-2); font-size: 14px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.rc-why-s small { margin-top: 2px; }
+.rc-state { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; text-align: right; }
+.rc-det { display: flex; flex-direction: column; gap: 14px; }
+.rc-det-move { display: flex; align-items: center; gap: 14px; }
+.rc-det-move > span { flex: 1; padding: 12px; border-radius: 12px; background: #F8FAFC; border: 1px solid var(--line); }
+.rc-det-move > span:last-child { background: var(--tint); border-color: #BFE3DD; }
+.rc-det-move b { display: block; font-size: 17px; margin: 2px 0; }
+.rc-det-move > svg { color: var(--brand); flex: none; }
+.rc-det .rc-time { grid-template-columns: 1fr 1fr; }
+.rc-handover { padding: 12px 14px; border-radius: 14px; border: 1.5px dashed var(--brand); background: #FBFEFD; }
+.rc-handover h4 { margin: 0 0 8px; }
+.rc-handover-f { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+@media (max-width: 900px) {
+  .rc-card { grid-template-columns: minmax(0, 1fr) auto; }
+  .rc-move, .rc-why-s { grid-column: 1 / -1; }
+  .rc-state { grid-column: 2; grid-row: 1; }
+}
+@media (max-width: 560px) {
+  .rc-kinds, .rc-handover-f, .rc-det .rc-time { grid-template-columns: 1fr; }
+  .rc-open-h { flex-direction: column; }
+  .rc-det-move { flex-direction: column; align-items: stretch; } .rc-det-move > svg { transform: rotate(90deg); align-self: center; }
+  .rc-st-refund { padding-left: 0; border-left: 0; }
+}
+
+/* the Chief Warden moves a student */
+.rc-find { display: flex; align-items: center; gap: 8px; } .rc-find svg { color: var(--ink-3); flex: none; } .rc-find > :last-child { flex: 1; }
+.rc-people { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; max-height: 420px; overflow: auto; }
+.rc-people button { all: unset; box-sizing: border-box; width: 100%; cursor: pointer; display: flex; flex-direction: column; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); }
+.rc-people button:hover { border-color: var(--brand); background: var(--tint); }
+.rc-people button:focus-visible { outline: 2px solid var(--brand); outline-offset: 1px; }
+.rc-check { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 14px; cursor: pointer; }
+.rc-check input { width: 18px; height: 18px; accent-color: var(--brand); }

@@ -1,0 +1,26 @@
+[
+ {
+  "id": "./KL%20Hostels%20ERP.dc.html",
+  "uuid": "82a13ff9-907a-460a-bacd-07b6e058e42d"
+ },
+ {
+  "id": "https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap",
+  "uuid": "4d0597b8-5008-44e4-9dd1-358e5d10a5c1"
+ },
+ {
+  "id": "https://unpkg.com/lucide-static@0.460.0/font/lucide.css",
+  "uuid": "e4a294e9-1754-49e8-b547-2268e9d0b3dc"
+ },
+ {
+  "id": "./Room%20Allotment.dc.html",
+  "uuid": "a3d18de4-6bd0-4f7c-b0b2-d066aadd12e4"
+ },
+ {
+  "id": "https://unpkg.com/react@18.3.1/umd/react.production.min.js",
+  "uuid": "44815860-170d-4ad9-9bf3-46655afac748"
+ },
+ {
+  "id": "https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js",
+  "uuid": "eb361575-611c-4486-8b99-7670e5e23f84"
+ }
+]
