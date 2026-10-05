@@ -1,20 +1,27 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart' show DateFormat;
 import '../core/api.dart';
 import '../core/theme.dart';
 import '../core/widgets.dart';
 import '../shell.dart';
 
-num _n(dynamic v) => num.tryParse('${v ?? 0}') ?? 0;
-String _pct(dynamic v) => v == null ? '—' : '${_n(v).round()}%';
-String _round(dynamic v) => v == null ? '—' : '${_n(v).round()}';
-String _two(dynamic v) => v == null ? '—' : _n(v).toStringAsFixed(2);
-
 const _tabs = ['Overview', 'Academics', 'CRT', 'Skills', 'Activities', 'Hostel'];
-const _violet = K.violet;
-const _coral = K.ember;
+const _line = Color(0xCCE3E7F0);   // --ui-line
+const _muted = Color(0xFF4B5565);  // --ink-muted
+const _surface2 = Color(0xFFEEF1F7);
+const _grid = Color(0xFFE8ECF3);   // --chart-grid
+const _violet = Color(0xFF7048E8), _sky = Color(0xFF1971C2), _coral = Color(0xFFFF7A45), _green = Color(0xFF1A7F4B);
+num _n(dynamic v) => num.tryParse('${v ?? 0}') ?? 0;
+String _num(dynamic n) => n == null ? '—' : '${_n(n).round()}';
+String _pct(dynamic n) => n == null ? '—' : '${_n(n).round()}%';
+/// A number as JavaScript prints it (8.7, 9, 9.45).
+String _js(num v) => v == v.roundToDouble() ? '${v.round()}' : '$v';
+String _initials(String? name) => (name ?? '').split(RegExp(r'\s+')).where((w) => w.isNotEmpty).take(2).map((w) => w[0].toUpperCase()).join();
+List<Map> _list(dynamic v) => ((v as List?) ?? []).cast<Map>();
 
-/// My academic page, as the whole student: results, CRT, certifications, activities, achievements and the hostel
-/// record. Certificates and achievements I add are verified by a Warden before they count.
+/// ACA-01 Student academic page as the student sees it (pages/general/Student360.tsx): results, CRT, certifications,
+/// activities, achievements and the hostel record; the student adds certificates and achievements for verification.
 class AcademicsScreen extends StatefulWidget {
   const AcademicsScreen({super.key});
   @override
@@ -27,325 +34,516 @@ class _AcademicsScreenState extends State<AcademicsScreen> {
   @override
   Widget build(BuildContext context) => ApiView(path: '/students/$me/360', builder: (context, data, reload) {
         final d = data as Map;
-        final st = (d['student'] as Map?) ?? {};
-        final h = (d['hostel'] as Map?) ?? {};
-        final terms = ((d['terms'] as List?) ?? []).cast<Map>();
-        final crt = (d['crt'] as Map?) ?? {};
-        final att = ((crt['attendance'] as List?) ?? []).cast<Map>();
-        final tests = ((crt['tests'] as List?) ?? []).cast<Map>();
-        final certs = ((d['certs'] as List?) ?? []).cast<Map>();
-        final activities = ((d['activities'] as List?) ?? []).cast<Map>();
-        final achievements = ((d['achievements'] as List?) ?? []).cast<Map>();
-        final last = terms.isEmpty ? null : terms.last;
+        final st = d['student'] as Map;
+        final h = d['hostel'] as Map;
+        final terms = _list(d['terms']);
+        final crt = d['crt'] as Map;
+        final att = _list(crt['attendance']), tests = _list(crt['tests']);
+        final certs = _list(d['certs']), activities = _list(d['activities']), achievements = _list(d['achievements']);
+        final last = terms.lastOrNull;
         final held = att.fold<num>(0, (a, m) => a + _n(m['held'])), got = att.fold<num>(0, (a, m) => a + _n(m['attended']));
         final crtPct = held > 0 ? 100 * got / held : null;
-        final crtAvg = tests.isEmpty ? null : tests.fold<num>(0, (a, t) => a + 100 * _n(t['score']) / (_n(t['max_score']) == 0 ? 100 : _n(t['max_score']))) / tests.length;
+        final crtAvg = tests.isEmpty ? null : tests.fold<num>(0, (a, t) => a + 100 * _n(t['score']) / _n(t['max_score'])) / tests.length;
 
-        Widget body;
-        switch (tab) {
-          case 'Academics':
-            body = KCard(title: 'Semester results', icon: Icons.school_rounded, child: terms.isEmpty
-                ? const Text('No results loaded yet.', style: TextStyle(color: K.ink3))
-                : Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-                    _Bars(values: [for (final t in terms) (label: 'S${t['semester_no']}', value: _n(t['sgpa']), text: _two(t['sgpa']), hi: t == last)], max: 10, color: _violet),
-                    const SizedBox(height: 12),
-                    for (final t in terms) Container(
-                      padding: const EdgeInsets.symmetric(vertical: 10),
-                      decoration: const BoxDecoration(border: Border(top: BorderSide(color: K.line))),
-                      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                        Row(children: [
-                          Expanded(child: Text('Semester ${t['semester_no']} · ${t['term_label']}', style: const TextStyle(fontWeight: FontWeight.w700))),
-                          Pill(_pct(t['attendance_pct']), tone: _n(t['attendance_pct']) < 75 ? Tone.bad : Tone.good),
-                        ]),
-                        const SizedBox(height: 4),
-                        Text('SGPA ${_two(t['sgpa'])} · CGPA ${_two(t['cgpa'])} · ${t['credits']} credits · ${_n(t['backlogs']) > 0 ? '${t['backlogs']} backlogs' : 'no backlogs'}',
-                            style: const TextStyle(color: K.ink2, fontSize: 13)),
-                      ]),
-                    ),
-                  ]));
-          case 'CRT':
-            body = Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-              KCard(title: 'Training sessions', icon: Icons.event_available_rounded, trailing: Pill('${got.round()} of ${held.round()}', tone: Tone.muted), child: att.isEmpty
-                  ? const Text('No sessions recorded.', style: TextStyle(color: K.ink3))
-                  : _Bars(values: [for (final m in att) (label: _month('${m['month']}'), value: 100 * _n(m['attended']) / (_n(m['held']) == 0 ? 1 : _n(m['held'])),
-                        text: '${(100 * _n(m['attended']) / (_n(m['held']) == 0 ? 1 : _n(m['held']))).round()}%', hi: false)], max: 100, color: _coral)),
-              const SizedBox(height: 14),
-              KCard(title: 'Tests', icon: Icons.quiz_rounded, child: tests.isEmpty ? const Text('No CRT records', style: TextStyle(color: K.ink3)) : Column(children: [
-                for (final t in tests.reversed) Padding(padding: const EdgeInsets.symmetric(vertical: 8), child: Row(children: [
-                  Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                    Text('${t['test_name']}', style: const TextStyle(fontWeight: FontWeight.w600)),
-                    Text('${words(t['category'])} · ${day(t['test_date'])} · better than ${t['percentile']}% of the batch', style: const TextStyle(color: K.ink3, fontSize: 12)),
-                    const SizedBox(height: 6),
-                    ClipRRect(borderRadius: BorderRadius.circular(99), child: LinearProgressIndicator(minHeight: 6, color: _coral, backgroundColor: K.line,
-                        value: (_n(t['score']) / (_n(t['max_score']) == 0 ? 100 : _n(t['max_score']))).clamp(0, 1).toDouble())),
-                  ])),
-                  const SizedBox(width: 12),
-                  Text.rich(TextSpan(children: [
-                    TextSpan(text: '${t['score']}', style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
-                    TextSpan(text: '/${t['max_score']}', style: const TextStyle(color: K.ink3, fontSize: 12)),
-                  ])),
-                ])),
-              ])),
-            ]);
-          case 'Skills':
-            body = KCard(title: 'Certifications', icon: Icons.workspace_premium_rounded,
-                trailing: TextButton.icon(onPressed: () => _add(context, 'cert', reload), icon: const Icon(Icons.add), label: const Text('Add a certificate')),
-                child: certs.isEmpty ? const Text('No certifications yet.', style: TextStyle(color: K.ink3)) : Column(children: [
-                  for (final c in certs) Container(
-                    width: double.infinity, margin: const EdgeInsets.only(bottom: 8), padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(border: Border.all(color: K.line), borderRadius: BorderRadius.circular(14)),
-                    child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                      Pill(words(c['category']), tone: Tone.muted), const SizedBox(height: 6),
-                      Text('${c['title']}', style: const TextStyle(fontWeight: FontWeight.w700)),
-                      Text('${c['provider']} · ${day(c['issued_on'])}', style: const TextStyle(color: K.ink2, fontSize: 13)),
-                      if (c['credential_ref'] != null) Text('${c['credential_ref']}', style: const TextStyle(color: K.ink3, fontSize: 12, fontFamily: 'monospace')),
-                      const SizedBox(height: 6),
-                      c['verified'] == true ? const Pill('Verified', tone: Tone.good) : const Pill('Waiting to be verified', tone: Tone.warn),
+        Widget body() => switch (tab) {
+              'Overview' => Column(children: [
+                  for (final (i, t) in <Widget>[
+                    _Tile('Latest semester', () => setState(() => tab = 'Academics'), last == null ? [const _TileLine('No results yet')] : [
+                      _Big(_n(last['sgpa']).toStringAsFixed(2)),
+                      _TileLine('SGPA, semester ${last['semester_no']} · ${_n(last['backlogs']) > 0 ? '${last['backlogs']} backlog' : 'no backlogs'}'),
+                      _Spark([for (final t in terms) _n(t['sgpa']).toDouble()], _violet, const Color(0xFFF1ECFF)),
                     ]),
-                  ),
-                ]));
-          case 'Activities':
-            body = Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-              KCard(title: 'Achievements', icon: Icons.emoji_events_rounded,
-                  trailing: TextButton.icon(onPressed: () => _add(context, 'ach', reload), icon: const Icon(Icons.add), label: const Text('Add')),
-                  child: achievements.isEmpty ? const Text('No achievements yet.', style: TextStyle(color: K.ink3)) : Column(children: [
-                    for (final a in achievements) _Line(
-                      tag: Pill('${a['level']}', tone: ['International', 'National'].contains(a['level']) ? Tone.good : a['level'] == 'State' ? Tone.warn : Tone.muted),
-                      title: '${a['title']}', sub: '${a['award'] != null ? '${a['award']} · ' : ''}${day(a['achieved_on'])}',
-                      trailing: a['verified'] == true ? null : const Pill('To verify', tone: Tone.warn),
-                    ),
+                    _Tile('CRT', () => setState(() => tab = 'CRT'), tests.isEmpty ? [const _TileLine('No CRT records')] : [
+                      _Big('${crtAvg!.round()}', small: '/100'),
+                      _TileLine('average over ${tests.length} tests · ${_pct(crtPct)} sessions attended'),
+                      _Spark([for (final t in tests) (100 * _n(t['score']) / _n(t['max_score'])).toDouble()], _coral, const Color(0xFFFFF0E8)),
+                    ]),
+                    _Tile('Certifications', () => setState(() => tab = 'Skills'), [_Big('${certs.length}'), for (final c in certs.take(3)) _TileLine('${c['title']} · ${c['provider']}')]),
+                    _Tile('Achievements', () => setState(() => tab = 'Activities'), [_Big('${achievements.length}'),
+                      for (final a in achievements.take(3)) _TileLine('${a['award'] != null ? '${a['award']}, ' : ''}${a['title']}')]),
+                    _Tile('Activities', () => setState(() => tab = 'Activities'), [_Big('${activities.length}'),
+                      _TileLine('${_js(activities.fold<num>(0, (a, x) => a + _n(x['hours'])))} hours in clubs, sports, service and internships')]),
+                    _Tile('Hostel', () => setState(() => tab = 'Hostel'), [_Big(_pct(h['night_pct'])),
+                      _TileLine('night roll call, last 30 days · ${h['outings']} outings · ${h['late_returns']} late')]),
+                  ].indexed) Padding(padding: EdgeInsets.only(top: i == 0 ? 0 : 10), child: t),
+                ]),
+              'Academics' => _Box(head: [const _H2('Semester results')], children: [
+                  Padding(padding: const EdgeInsets.fromLTRB(14, 12, 14, 12), child: terms.isEmpty
+                      ? const Text('No results loaded yet.', style: TextStyle(fontSize: 14, color: _muted))
+                      : _BarChart([for (final t in terms) (label: 'S${t['semester_no']}', value: _n(t['sgpa']), hi: t == last)], height: 160)),
+                  for (final t in terms) Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8), decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: _line))),
+                    child: Column(children: [
+                      Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        Expanded(child: _Cell('Semester', Text('${t['semester_no']} · ${t['term_label']}'))),
+                        Expanded(child: _Cell('SGPA', Text(_n(t['sgpa']).toStringAsFixed(2), style: const TextStyle(fontWeight: FontWeight.w700)))),
+                      ]),
+                      Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        Expanded(child: _Cell('CGPA', Text(_n(t['cgpa']).toStringAsFixed(2)))),
+                        Expanded(child: _Cell('Credits', Text('${t['credits']}'))),
+                      ]),
+                      Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        Expanded(child: _Cell('Attendance', Align(alignment: Alignment.centerLeft, child: _Tag(_pct(t['attendance_pct']), tone: _n(t['attendance_pct']) < 75 ? 'bad' : 'ok')))),
+                        Expanded(child: _Cell('Backlogs', Text(_n(t['backlogs']) > 0 ? '${t['backlogs']}' : '—'))),
+                      ]),
+                    ])),
+                ]),
+              'CRT' => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                  _Box(head: [const _H2('Training sessions'), const Spacer(), _Tag('${_js(got)} of ${_js(held)}')], children: [
+                    Padding(padding: const EdgeInsets.fromLTRB(14, 12, 14, 12), child: att.isEmpty
+                        ? const Text('No sessions recorded.', style: TextStyle(fontSize: 14, color: _muted))
+                        : _BarChart([for (final m in att) (label: _month('${m['month']}'), value: (100 * _n(m['attended']) / math.max(1, _n(m['held']))).round(), hi: false)], height: 150)),
+                  ]),
+                  const SizedBox(height: 12),
+                  _Box(head: [const _H2('Tests')], children: [
+                    for (final (i, t) in tests.reversed.indexed) _BedRow(last: i == tests.length - 1, children: [
+                      Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        Text('${t['test_name']}', style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600)),
+                        Text('${words(t['category'])} · ${day(t['test_date'])} · better than ${t['percentile']}% of the batch', style: const TextStyle(fontSize: 12, color: _muted)),
+                        Container(height: 5, margin: const EdgeInsets.only(top: 6), decoration: BoxDecoration(color: _surface2, borderRadius: BorderRadius.circular(999)),
+                            child: FractionallySizedBox(alignment: Alignment.centerLeft, widthFactor: (_n(t['score']) / _n(t['max_score'])).clamp(0, 1).toDouble(),
+                                child: Container(decoration: BoxDecoration(color: _coral, borderRadius: BorderRadius.circular(999))))),
+                      ])),
+                      Text.rich(TextSpan(children: [
+                        TextSpan(text: '${t['score']}'),
+                        TextSpan(text: '/${t['max_score']}', style: const TextStyle(fontSize: 12, color: _muted)),
+                      ]), style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700)),
+                    ]),
+                  ]),
+                ]),
+              'Skills' => _Box(head: [const _H2('Certifications'), const Spacer(), KButton('Add a certificate', small: true, icon: LucideIcons.plus, onPressed: () => _add('cert', reload))], children: [
+                  Padding(padding: const EdgeInsets.fromLTRB(14, 12, 14, 14), child: certs.isEmpty
+                      ? const Padding(padding: EdgeInsets.all(14), child: Text('No certifications yet.', style: TextStyle(fontSize: 14, color: _muted)))
+                      : Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                          for (final (i, c) in certs.indexed) Container(
+                            margin: EdgeInsets.only(top: i == 0 ? 0 : 8), padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(borderRadius: BorderRadius.circular(14), border: Border.all(color: _line)),
+                            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                              _Tag(words(c['category'])), const SizedBox(height: 5),
+                              Text('${c['title']}', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)), const SizedBox(height: 5),
+                              Text('${c['provider']} · ${day(c['issued_on'])}', style: const TextStyle(fontSize: 12.5, color: _muted)),
+                              if (c['credential_ref'] != null) ...[const SizedBox(height: 5), Text('${c['credential_ref']}', style: K.mono(size: 13).copyWith(letterSpacing: -.13))],
+                              const SizedBox(height: 5),
+                              c['verified'] == true ? const _Tag('Verified', tone: 'ok', icon: LucideIcons.check) : const _Tag('Waiting to be verified', tone: 'warn'),
+                            ])),
+                        ])),
+                ]),
+              'Activities' => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                  _Box(head: [const _H2('Achievements'), const Spacer(), KButton('Add', small: true, icon: LucideIcons.plus, onPressed: () => _add('ach', reload))], children: [
+                    for (final (i, a) in achievements.indexed) _BedRow(last: i == achievements.length - 1, children: [
+                      SizedBox(width: 92, child: _Tag('${a['level']}', tone: const {'International': 'ok', 'National': 'ok', 'State': 'warn'}[a['level']], center: true)),
+                      Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        Text('${a['title']}', style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600)),
+                        Text('${a['award'] ?? ''}${a['award'] != null ? ' · ' : ''}${day(a['achieved_on'])}', style: const TextStyle(fontSize: 12, color: _muted)),
+                      ])),
+                      if (a['verified'] != true) const _Tag('To verify', tone: 'warn'),
+                    ]),
+                    if (achievements.isEmpty) const _BedRow(last: true, children: [Text('No achievements yet.', style: TextStyle(fontSize: 12, color: _muted))]),
+                  ]),
+                  const SizedBox(height: 12),
+                  _Box(head: [const _H2('Activities')], children: [
+                    for (final (i, a) in activities.indexed) _BedRow(last: i == activities.length - 1, children: [
+                      SizedBox(width: 92, child: _Tag(words(a['type']).replaceAll('NSS NCC', 'NSS / NCC'), center: true)),
+                      Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        Text('${a['title']}', style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600)),
+                        Text('${a['role'] ?? ''}${a['role'] != null ? ' · ' : ''}${day(a['from_date'])}${a['to_date'] != null ? ' to ${day(a['to_date'])}' : ', ongoing'}${_n(a['hours']) > 0 ? ' · ${a['hours']} h' : ''}',
+                            style: const TextStyle(fontSize: 12, color: _muted)),
+                      ])),
+                    ]),
+                    if (activities.isEmpty) const _BedRow(last: true, children: [Text('No activities yet.', style: TextStyle(fontSize: 12, color: _muted))]),
+                  ]),
+                ]),
+              _ => _Box(children: [
+                  Padding(padding: const EdgeInsets.fromLTRB(14, 12, 14, 12), child: _Facts([
+                    ('Room', st['room_code'] != null ? '${st['hostel_code']} ${st['room_code']}' : '—'), ('Floor Warden', st['floor_warden'] != null ? titleCase(st['floor_warden']) : '—'),
+                    ('Night roll call', _pct(h['night_pct'])), ('All sessions', _pct(h['session_pct'])), ('Nights missed', '${h['nights_missed']}'),
+                    ('Outings', '${h['outings']}'), ('Late returns', '${h['late_returns']}'), ('Sick days', '${h['sick_days']}'), ('Alerts', '${h['alerts']}'),
+                    ('Dues', inr(h['dues'])),
                   ])),
-              const SizedBox(height: 14),
-              KCard(title: 'Activities', icon: Icons.groups_rounded, child: activities.isEmpty ? const Text('No activities yet.', style: TextStyle(color: K.ink3)) : Column(children: [
-                for (final a in activities) _Line(
-                  tag: Pill(words(a['type']).replaceAll('NSS NCC', 'NSS / NCC'), tone: Tone.muted),
-                  title: '${a['title']}',
-                  sub: '${a['role'] != null ? '${a['role']} · ' : ''}${day(a['from_date'])}${a['to_date'] != null ? ' to ${day(a['to_date'])}' : ', ongoing'}${_n(a['hours']) > 0 ? ' · ${a['hours']} h' : ''}',
-                ),
-              ])),
-            ]);
-          case 'Hostel':
-            body = KCard(title: 'Hostel record', icon: Icons.apartment_rounded, child: Column(children: [
-              InfoRow('Room', st['room_code'] != null ? '${st['hostel_code']} ${st['room_code']}' : '—'),
-              InfoRow('Floor Warden', st['floor_warden'] != null ? titleCase('${st['floor_warden']}') : '—'),
-              InfoRow('Night roll call', _pct(h['night_pct'])),
-              InfoRow('All sessions', _pct(h['session_pct'])),
-              InfoRow('Nights missed', '${h['nights_missed'] ?? 0}'),
-              InfoRow('Outings', '${h['outings'] ?? 0}'),
-              InfoRow('Late returns', '${h['late_returns'] ?? 0}'),
-              InfoRow('Sick days', '${h['sick_days'] ?? 0}'),
-              InfoRow('Alerts', '${h['alerts'] ?? 0}'),
-              InfoRow('Dues', inr(h['dues'])),
-            ]));
-          default:
-            final hours = activities.fold<num>(0, (a, x) => a + _n(x['hours']));
-            body = Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-              _Tile('Latest semester', () => setState(() => tab = 'Academics'), last == null ? [const Text('No results yet', style: TextStyle(color: K.ink3))] : [
-                _big(_two(last['sgpa'])),
-                _sub('SGPA, semester ${last['semester_no']} · ${_n(last['backlogs']) > 0 ? '${last['backlogs']} backlog' : 'no backlogs'}'),
-              ]),
-              _Tile('CRT', () => setState(() => tab = 'CRT'), tests.isEmpty ? [const Text('No CRT records', style: TextStyle(color: K.ink3))] : [
-                _big('${crtAvg!.round()}', small: '/100'),
-                _sub('average over ${tests.length} tests · ${_pct(crtPct)} sessions attended'),
-              ]),
-              _Tile('Certifications', () => setState(() => tab = 'Skills'), [_big('${certs.length}'), for (final c in certs.take(3)) _sub('${c['title']} · ${c['provider']}')]),
-              _Tile('Achievements', () => setState(() => tab = 'Activities'), [_big('${achievements.length}'), for (final a in achievements.take(3)) _sub('${a['award'] != null ? '${a['award']}, ' : ''}${a['title']}')]),
-              _Tile('Activities', () => setState(() => tab = 'Activities'), [_big('${activities.length}'), _sub('${hours.round()} hours in clubs, sports, service and internships')]),
-              _Tile('Hostel', () => setState(() => tab = 'Hostel'), [_big(_pct(h['night_pct'])), _sub('night roll call, last 30 days · ${h['outings'] ?? 0} outings · ${h['late_returns'] ?? 0} late')]),
-            ]);
-        }
+                ]),
+            };
 
-        return PageList(children: [
-          Container(
-            padding: const EdgeInsets.all(18),
-            decoration: BoxDecoration(gradient: K.heroGradient, borderRadius: BorderRadius.circular(22)),
-            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Row(children: [
-                CircleAvatar(radius: 26, backgroundColor: Colors.white24, child: Text(_initials('${st['full_name'] ?? ''}'), style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 18))),
-                const SizedBox(width: 12),
-                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text(titleCase('${st['full_name'] ?? ''}'), style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w800)),
-                  Text('${st['student_id']} · ${st['programme']} · ${st['dept_name'] ?? st['dept_code'] ?? st['level'] ?? ''}', style: const TextStyle(color: Colors.white70, fontSize: 13)),
-                ])),
-              ]),
-              const SizedBox(height: 10),
-              Wrap(spacing: 8, runSpacing: 6, children: [
-                _HeroTag(st['room_code'] != null ? '${st['hostel_code']} ${st['room_code']}, ${st['floor_name']}' : 'Day scholar', Icons.bed_rounded),
-                if (st['current_status'] != null) _HeroTag(words(st['current_status']), Icons.circle),
-              ]),
-              const SizedBox(height: 16),
-              Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-                _Ring(v: _n(last?['cgpa']), max: 10, label: _two(last?['cgpa']), sub: 'CGPA', color: const Color(0xFFB9A6FF)),
-                _Ring(v: _n(last?['attendance_pct']), max: 100, label: _round(last?['attendance_pct']), sub: 'Class %', color: const Color(0xFF7CD4FD)),
-                _Ring(v: crtPct ?? 0, max: 100, label: _round(crtPct), sub: 'CRT %', color: const Color(0xFFFFB38A)),
-                _Ring(v: _n(h['night_pct']), max: 100, label: _round(h['night_pct']), sub: 'Hostel %', color: const Color(0xFF75E0A7)),
-              ]),
-            ]),
-          ),
-          SingleChildScrollView(scrollDirection: Axis.horizontal, child: Row(children: [
-            for (final t in _tabs) Padding(padding: const EdgeInsets.only(right: 8), child: ChoiceChip(
-              label: Text(t), selected: tab == t, showCheckmark: false,
-              labelStyle: TextStyle(color: tab == t ? Colors.white : K.ink, fontWeight: FontWeight.w700),
-              onSelected: (_) => setState(() => tab = t),
-            )),
-          ])),
-          body,
+        return CustomScrollView(physics: const AlwaysScrollableScrollPhysics(), slivers: [
+          SliverPadding(padding: const EdgeInsets.fromLTRB(16, 16, 16, 14), sliver: SliverToBoxAdapter(child: _Hero(st: st, last: last, crtPct: crtPct, nightPct: h['night_pct']))),
+          SliverPersistentHeader(pinned: true, delegate: _TabsBar(tab, (t) => setState(() => tab = t))),
+          SliverPadding(padding: const EdgeInsets.fromLTRB(16, 14, 16, 90), sliver: SliverToBoxAdapter(child: body())),
         ]);
       });
 
-  Widget _big(String v, {String? small}) => Text.rich(TextSpan(children: [
-        TextSpan(text: v, style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: K.ink)),
-        if (small != null) TextSpan(text: small, style: const TextStyle(fontSize: 13, color: K.ink3)),
-      ]));
-  Widget _sub(String s) => Padding(padding: const EdgeInsets.only(top: 2), child: Text(s, style: const TextStyle(color: K.ink2, fontSize: 13)));
+  static String _month(String m) { final d = DateTime.parse('$m-01'); return d.month == 9 ? 'Sept' : DateFormat('MMM').format(d); }
 
-  Future<void> _add(BuildContext context, String kind, Future<void> Function() reload) async {
-    final done = await showModalBottomSheet<bool>(context: context, isScrollControlled: true, showDragHandle: true, builder: (_) => _AddSheet(kind: kind));
-    if (done == true) await reload();
+  void _add(String kind, Future<void> Function() reload) {
+    final cert = kind == 'cert';
+    final f = <String, String>{if (cert) 'category': 'Technical' else 'level': 'University'};
+    var busy = false;
+    showKSheet(context, mod: Mod.sky, icon: LucideIcons.graduationCap, title: cert ? 'Add a certificate' : 'Add an achievement', sub: 'A Warden verifies it before it counts on your record',
+        body: (ctx, set) => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          _Field('Title', required: true, child: _input(f, 'title', set, hint: cert ? 'AWS Cloud Practitioner' : 'Smart India Hackathon')),
+          if (cert) ...[
+            _Field('Given by', required: true, child: _input(f, 'provider', set, hint: 'Coursera, NPTEL, AWS…')),
+            _Field('Kind', child: _select(f, 'category', set, const ['Technical', 'Cloud', 'Programming', 'Language', 'Soft_Skill', 'Sports', 'Other'])),
+            _Field('Issued on', required: true, child: _date(ctx, f, 'issued_on', set)),
+            _Field('Credential ID or link', child: _input(f, 'credential_ref', set)),
+          ] else ...[
+            _Field('Level', child: _select(f, 'level', set, const ['Hostel', 'University', 'State', 'National', 'International'])),
+            _Field('Award', child: _input(f, 'award', set, hint: 'First prize, Finalist…')),
+            _Field('Date', required: true, child: _date(ctx, f, 'achieved_on', set)),
+          ],
+        ]),
+        footer: (ctx, set) {
+          final missing = (cert ? ['title', 'provider', 'issued_on'] : ['title', 'achieved_on']).where((k) => (f[k] ?? '').isEmpty).isNotEmpty;
+          return Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            KButton('Add', block: true, busy: busy, onPressed: missing ? null : () async {
+              set(() => busy = true);
+              final body = {for (final e in f.entries) if (e.value.isNotEmpty) e.key: e.value};
+              if (await act(context, () => Api.instance.post(cert ? '/me/certifications' : '/me/achievements', body), 'Added; waiting to be verified')) {
+                if (ctx.mounted) Navigator.pop(ctx);
+                reload();
+              }
+              if (ctx.mounted) set(() => busy = false);
+            }),
+            if (missing) const Padding(padding: EdgeInsets.only(top: 6), child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Padding(padding: EdgeInsets.only(top: 1), child: Icon(LucideIcons.lock, size: 14, color: _muted)), SizedBox(width: 4),
+              Expanded(child: Text('Fill the starred fields.', style: TextStyle(fontSize: 12, height: 16 / 12, color: _muted))),
+            ])),
+          ]);
+        });
+  }
+
+  static Widget _input(Map<String, String> f, String k, StateSetter set, {String? hint}) => TextFormField(
+      initialValue: f[k], onChanged: (v) => set(() => f[k] = v), style: const TextStyle(fontSize: 16),
+      decoration: InputDecoration(hintText: hint, hintStyle: const TextStyle(fontSize: 16, color: Color(0xFF626B7C)), contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12)));
+
+  static Widget _select(Map<String, String> f, String k, StateSetter set, List<String> options) => DropdownButtonFormField<String>(
+      initialValue: f[k], isExpanded: true, onChanged: (v) => set(() => f[k] = v ?? f[k]!),
+      items: [for (final o in options) DropdownMenuItem(value: o, child: Text(words(o), style: const TextStyle(fontSize: 16)))],
+      decoration: const InputDecoration(contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 10)));
+
+  static Widget _date(BuildContext ctx, Map<String, String> f, String k, StateSetter set) => InkWell(
+      borderRadius: BorderRadius.circular(10),
+      onTap: () async {
+        final now = DateTime.now();
+        final d = await showDatePicker(context: ctx, firstDate: DateTime(now.year - 10), lastDate: DateTime(now.year + 1), initialDate: now);
+        if (d != null) set(() => f[k] = isoDay(d));
+      },
+      child: InputDecorator(decoration: const InputDecoration(contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12), suffixIcon: Icon(LucideIcons.calendar, size: 18, color: K.ink2)),
+          child: Text(f[k] == null ? 'dd-mm-yyyy' : DateFormat('dd-MM-yyyy').format(DateTime.parse(f[k]!)), style: TextStyle(fontSize: 16, color: f[k] == null ? const Color(0xFF626B7C) : K.ink))));
+}
+
+/* ------------------------------------------------------------ the head */
+
+class _Hero extends StatelessWidget {
+  final Map st;
+  final Map? last;
+  final num? crtPct;
+  final dynamic nightPct;
+  const _Hero({required this.st, required this.last, required this.crtPct, required this.nightPct});
+  @override
+  Widget build(BuildContext context) => Container(
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: _line)),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          Row(children: [
+            Container(width: 56, height: 56, alignment: Alignment.center, decoration: BoxDecoration(color: K.brand, borderRadius: BorderRadius.circular(18)),
+                child: Text(_initials(st['full_name']), style: const TextStyle(fontSize: 19, fontWeight: FontWeight.w700, color: Colors.white))),
+            const SizedBox(width: 16),
+            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text(titleCase(st['full_name']), style: const TextStyle(fontSize: 19, height: 28 / 19, fontWeight: FontWeight.w600, letterSpacing: -.19)),
+              Padding(padding: const EdgeInsets.only(top: 2, bottom: 8), child: Text('${st['student_id']} · ${st['programme']} · ${st['dept_name'] ?? st['dept_code'] ?? st['level']}',
+                  style: const TextStyle(fontSize: 13, color: _muted))),
+              Wrap(spacing: 6, runSpacing: 6, crossAxisAlignment: WrapCrossAlignment.center, children: [
+                st['room_code'] != null ? _Tag('${st['hostel_code']} ${st['room_code']}, ${st['floor_name']}', icon: LucideIcons.bedDouble, iconSize: 12) : const _Tag('Day scholar'),
+                if (st['current_status'] != null) Pill.status(st['current_status']),
+              ]),
+            ])),
+          ]),
+          const SizedBox(height: 16),
+          Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+            _Ring(_n(last?['cgpa']).toDouble(), 10, last != null ? _n(last!['cgpa']).toStringAsFixed(2) : '—', 'CGPA', _violet),
+            _Ring(_n(last?['attendance_pct']).toDouble(), 100, _num(last?['attendance_pct']), 'Class %', _sky),
+            _Ring((crtPct ?? 0).toDouble(), 100, _num(crtPct), 'CRT %', _coral),
+            _Ring(_n(nightPct).toDouble(), 100, _num(nightPct), 'Hostel %', _green),
+          ]),
+        ]),
+      );
+}
+
+/// KLH ProgressRing, 68 px with a 7 px stroke, the figure inside and the name under it.
+class _Ring extends StatelessWidget {
+  final double v, max;
+  final String label, sub;
+  final Color color;
+  const _Ring(this.v, this.max, this.label, this.sub, this.color);
+  @override
+  Widget build(BuildContext context) => Semantics(label: '$sub $label', child: Column(mainAxisSize: MainAxisSize.min, children: [
+        SizedBox(width: 68, height: 68, child: CustomPaint(painter: _RingPaint((v / max).clamp(0, 1).toDouble(), color),
+            child: Center(child: Text(label, style: const TextStyle(fontSize: 22, height: 26 / 22, fontWeight: FontWeight.w800, color: K.ink))))),
+        const SizedBox(height: 4),
+        Text(sub, style: const TextStyle(fontSize: 11.5, color: _muted)),
+      ]));
+}
+
+class _RingPaint extends CustomPainter {
+  final double pct;
+  final Color color;
+  const _RingPaint(this.pct, this.color);
+  @override
+  void paint(Canvas canvas, Size size) {
+    const sw = 7.0;
+    final r = (size.width - sw) / 2;
+    final c = size.center(Offset.zero);
+    canvas.drawCircle(c, r, Paint()..style = PaintingStyle.stroke..strokeWidth = sw..color = _grid);
+    if (pct > 0) canvas.drawArc(Rect.fromCircle(center: c, radius: r), -math.pi / 2, 2 * math.pi * pct, false, Paint()..style = PaintingStyle.stroke..strokeWidth = sw..strokeCap = StrokeCap.round..color = color);
+  }
+  @override
+  bool shouldRepaint(_RingPaint o) => o.pct != pct || o.color != color;
+}
+
+/// The tab strip (s360-tabs), pinned under the top bar as the web keeps it sticky.
+class _TabsBar extends SliverPersistentHeaderDelegate {
+  final String tab;
+  final ValueChanged<String> onTab;
+  _TabsBar(this.tab, this.onTab);
+  @override
+  double get minExtent => 42;
+  @override
+  double get maxExtent => 42;
+  @override
+  bool shouldRebuild(_TabsBar o) => o.tab != tab;
+  @override
+  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) => Container(
+        color: K.ground, margin: const EdgeInsets.symmetric(horizontal: 16),
+        child: Stack(children: [
+          const Positioned(left: 0, right: 0, bottom: 0, child: Divider(height: 1, thickness: 1, color: _line)),
+          SingleChildScrollView(scrollDirection: Axis.horizontal, child: Row(children: [
+            for (final (i, t) in _tabs.indexed) Padding(padding: EdgeInsets.only(left: i == 0 ? 0 : 4), child: Semantics(selected: tab == t, button: true, child: InkWell(onTap: () => onTab(t), child: Container(
+              height: 42, padding: const EdgeInsets.fromLTRB(12, 10, 12, 9), alignment: Alignment.center,
+              decoration: BoxDecoration(border: Border(bottom: BorderSide(color: tab == t ? K.brand : Colors.transparent, width: 2))),
+              child: Text(t, style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w500, color: tab == t ? K.brandInk : _muted)))))),
+          ])),
+        ]),
+      );
+}
+
+/* ------------------------------------------------------------ pieces */
+
+/// A tag (.tag): small grey pill, or the success / warning / critical tints.
+class _Tag extends StatelessWidget {
+  final String text;
+  final String? tone;
+  final IconData? icon;
+  final double iconSize;
+  final bool center;
+  const _Tag(this.text, {this.tone, this.icon, this.iconSize = 11, this.center = false});
+  @override
+  Widget build(BuildContext context) {
+    final (bg, fg) = switch (tone) { 'ok' => (K.goodBg, K.good), 'warn' => (K.warnBg, K.warn), 'bad' => (K.badBg, K.bad), _ => (_surface2, _muted) };
+    return Container(padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2), decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(999)),
+        child: Row(mainAxisSize: center ? MainAxisSize.max : MainAxisSize.min, mainAxisAlignment: MainAxisAlignment.center, children: [
+          if (icon != null) ...[Icon(icon, size: iconSize, color: fg), const SizedBox(width: 4)],
+          Flexible(child: Text(text, maxLines: 1, softWrap: false, overflow: TextOverflow.visible, style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w500, color: fg))),
+        ]));
   }
 }
 
-String _initials(String name) => name.trim().split(RegExp(r'\s+')).where((w) => w.isNotEmpty).map((w) => w[0]).take(2).join().toUpperCase();
-const _months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-String _month(String m) { final i = int.tryParse(m.split('-').elementAtOrNull(1) ?? ''); return i == null || i < 1 || i > 12 ? m : _months[i - 1]; }
-
-class _HeroTag extends StatelessWidget {
-  final String label;
-  final IconData icon;
-  const _HeroTag(this.label, this.icon);
+/// A box (.box) with its head (.box-head) and body.
+class _Box extends StatelessWidget {
+  final List<Widget>? head;
+  final List<Widget> children;
+  const _Box({this.head, required this.children});
   @override
   Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5), decoration: BoxDecoration(color: Colors.white.withValues(alpha: .16), borderRadius: BorderRadius.circular(999)),
-        child: Row(mainAxisSize: MainAxisSize.min, children: [
-          Icon(icon, size: icon == Icons.circle ? 8 : 13, color: Colors.white), const SizedBox(width: 5),
-          Text(label, style: const TextStyle(color: Colors.white, fontSize: 12, fontWeight: FontWeight.w600)),
+        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(16), border: Border.all(color: _line)),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          if (head != null) Container(constraints: const BoxConstraints(minHeight: 42), padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: _line))), child: Row(children: [
+                for (final (i, w) in head!.indexed) ...[if (i > 0) const SizedBox(width: 8), w],
+              ])),
+          ...children,
         ]));
 }
 
-class _Ring extends StatelessWidget {
-  final num v, max;
-  final String label, sub;
-  final Color color;
-  const _Ring({required this.v, required this.max, required this.label, required this.sub, required this.color});
+class _H2 extends StatelessWidget {
+  final String text;
+  const _H2(this.text);
   @override
-  Widget build(BuildContext context) => Column(children: [
-        SizedBox(width: 62, height: 62, child: Stack(alignment: Alignment.center, children: [
-          SizedBox.expand(child: CircularProgressIndicator(value: max == 0 ? 0 : (v / max).clamp(0, 1).toDouble(), strokeWidth: 6, color: color, backgroundColor: Colors.white24)),
-          Text(label, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 14)),
-        ])),
-        const SizedBox(height: 6),
-        Text(sub, style: const TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w600)),
-      ]);
+  Widget build(BuildContext context) => Text(text, style: const TextStyle(fontSize: 15, height: 22 / 15, fontWeight: FontWeight.w600));
 }
 
+/// A row of a .bedlist: 9 x 12 padding, a hairline under all but the last.
+class _BedRow extends StatelessWidget {
+  final List<Widget> children;
+  final bool last;
+  const _BedRow({required this.children, this.last = false});
+  @override
+  Widget build(BuildContext context) => Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+        decoration: BoxDecoration(border: last ? null : const Border(bottom: BorderSide(color: _line))),
+        child: DefaultTextStyle.merge(style: const TextStyle(fontSize: 13.5), child: Row(children: [
+          for (final (i, w) in children.indexed) ...[if (i > 0) const SizedBox(width: 10), w],
+        ])));
+}
+
+/// A table cell on a phone: its column name small above the value.
+class _Cell extends StatelessWidget {
+  final String label;
+  final Widget child;
+  const _Cell(this.label, this.child);
+  @override
+  Widget build(BuildContext context) => Padding(padding: const EdgeInsets.symmetric(vertical: 2), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(label, style: const TextStyle(fontSize: 11, color: _muted)),
+        DefaultTextStyle.merge(style: const TextStyle(fontSize: 13.5, color: K.ink), child: child),
+      ]));
+}
+
+/// An overview tile (s360-tile): the head with a chevron, then its lines; opens a tab.
 class _Tile extends StatelessWidget {
   final String title;
-  final VoidCallback onTap;
+  final VoidCallback go;
   final List<Widget> children;
-  const _Tile(this.title, this.onTap, this.children);
+  const _Tile(this.title, this.go, this.children);
   @override
-  Widget build(BuildContext context) => Padding(padding: const EdgeInsets.only(bottom: 10), child: KCard(onTap: onTap, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(children: [Expanded(child: Text(title, style: const TextStyle(color: K.ink3, fontWeight: FontWeight.w700, fontSize: 13))), const Icon(Icons.chevron_right_rounded, size: 18, color: K.ink3)]),
-        const SizedBox(height: 4),
-        ...children,
-      ])));
+  Widget build(BuildContext context) => Material(color: Colors.white, borderRadius: BorderRadius.circular(16), child: InkWell(onTap: go, borderRadius: BorderRadius.circular(16), child: Container(
+        width: double.infinity, constraints: const BoxConstraints(minHeight: 130), padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), border: Border.all(color: _line)),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Row(children: [
+            Expanded(child: Text(title, style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w600, color: _muted))),
+            const Icon(LucideIcons.chevronRight, size: 13, color: _muted),
+          ]),
+          for (final c in children) Padding(padding: const EdgeInsets.only(top: 4), child: c),
+        ]))));
 }
 
-class _Line extends StatelessWidget {
-  final Widget tag;
-  final String title, sub;
-  final Widget? trailing;
-  const _Line({required this.tag, required this.title, required this.sub, this.trailing});
+class _Big extends StatelessWidget {
+  final String text;
+  final String? small;
+  const _Big(this.text, {this.small});
   @override
-  Widget build(BuildContext context) => Padding(padding: const EdgeInsets.symmetric(vertical: 8), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(children: [tag, const Spacer(), ?trailing]),
-        const SizedBox(height: 4),
-        Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
-        Text(sub, style: const TextStyle(color: K.ink3, fontSize: 12.5)),
-      ]));
+  Widget build(BuildContext context) => Text.rich(TextSpan(children: [
+        TextSpan(text: text),
+        if (small != null) TextSpan(text: small, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: _muted)),
+      ]), style: const TextStyle(fontSize: 28, height: 34 / 28, fontWeight: FontWeight.w600, color: K.ink));
 }
 
-/// A small bar chart: one bar per value, its figure on top.
-class _Bars extends StatelessWidget {
-  final List<({String label, num value, String text, bool hi})> values;
-  final num max;
-  final Color color;
-  const _Bars({required this.values, required this.max, required this.color});
+class _TileLine extends StatelessWidget {
+  final String text;
+  const _TileLine(this.text);
   @override
-  Widget build(BuildContext context) => SizedBox(height: 160, child: Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
-        for (final v in values) Expanded(child: Padding(padding: const EdgeInsets.symmetric(horizontal: 6), child: Column(mainAxisAlignment: MainAxisAlignment.end, children: [
-          Text(v.text, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, color: K.ink2)),
-          const SizedBox(height: 4),
-          Container(height: 110 * (max == 0 ? 0 : (v.value / max).clamp(0, 1)).toDouble(), decoration: BoxDecoration(
-              color: v.hi ? color : color.withValues(alpha: .45), borderRadius: const BorderRadius.vertical(top: Radius.circular(6)))),
-          const SizedBox(height: 6),
-          Text(v.label, style: const TextStyle(fontSize: 12, color: K.ink3)),
-        ]))),
-      ]));
+  Widget build(BuildContext context) => Text(text, maxLines: 1, overflow: TextOverflow.ellipsis, softWrap: false, style: const TextStyle(fontSize: 12.5, color: _muted));
 }
 
-class _AddSheet extends StatefulWidget {
-  final String kind;
-  const _AddSheet({required this.kind});
+/// KLH Sparkline, 160 x 34: the line, a soft area under it and an open dot on the last point.
+class _Spark extends StatelessWidget {
+  final List<double> data;
+  final Color line, area;
+  const _Spark(this.data, this.line, this.area);
   @override
-  State<_AddSheet> createState() => _AddSheetState();
+  Widget build(BuildContext context) => data.length < 2 ? const SizedBox.shrink() : SizedBox(width: 160, height: 34, child: CustomPaint(painter: _SparkPaint(data, line, area)));
 }
 
-class _AddSheetState extends State<_AddSheet> {
-  late final Map<String, String> f = widget.kind == 'cert' ? {'category': 'Technical'} : {'level': 'University'};
-  bool busy = false;
-  bool get cert => widget.kind == 'cert';
-  List<String> get missing => (cert ? ['title', 'provider', 'issued_on'] : ['title', 'achieved_on']).where((k) => (f[k] ?? '').trim().isEmpty).toList();
-
-  Widget _field(String key, String label, {String? hint, bool required = false}) => Padding(padding: const EdgeInsets.only(bottom: 12), child: TextField(
-        onChanged: (v) => setState(() => f[key] = v), decoration: InputDecoration(labelText: required ? '$label *' : label, hintText: hint)));
-
-  Widget _date(String key, String label) => Padding(padding: const EdgeInsets.only(bottom: 12), child: InkWell(
-        borderRadius: BorderRadius.circular(12),
-        onTap: () async {
-          final now = DateTime.now();
-          final d = await showDatePicker(context: context, firstDate: DateTime(now.year - 10), lastDate: now, initialDate: now);
-          if (d != null) setState(() => f[key] = isoDay(d));
-        },
-        child: InputDecorator(decoration: InputDecoration(labelText: '$label *', suffixIcon: const Icon(Icons.calendar_today_rounded, size: 18)),
-            child: Text(f[key] == null ? 'Choose a date' : day(f[key]), style: TextStyle(color: f[key] == null ? K.ink3 : K.ink))),
-      ));
-
-  Widget _select(String key, String label, List<String> options) => Padding(padding: const EdgeInsets.only(bottom: 12), child: DropdownButtonFormField<String>(
-        initialValue: f[key], decoration: InputDecoration(labelText: label),
-        items: [for (final o in options) DropdownMenuItem(value: o, child: Text(words(o)))],
-        onChanged: (v) => setState(() => f[key] = v ?? f[key]!),
-      ));
-
-  Future<void> submit() async {
-    setState(() => busy = true);
-    final body = {for (final e in f.entries) if (e.value.trim().isNotEmpty) e.key: e.value.trim()};
-    final ok = await act(context, () => Api.instance.post(cert ? '/me/certifications' : '/me/achievements', body), 'Added; waiting to be verified');
-    if (!mounted) return;
-    setState(() => busy = false);
-    if (ok) Navigator.pop(context, true);
+class _SparkPaint extends CustomPainter {
+  final List<double> d;
+  final Color line, area;
+  const _SparkPaint(this.d, this.line, this.area);
+  @override
+  void paint(Canvas canvas, Size size) {
+    final w = size.width, ht = size.height;
+    final mn = d.reduce(math.min), mx = d.reduce(math.max), rg = mx - mn == 0 ? 1 : mx - mn;
+    final pts = [for (var i = 0; i < d.length; i++) Offset(i / (d.length - 1) * w, ht - 3 - (d[i] - mn) / rg * (ht - 6))];
+    final path = Path()..moveTo(pts[0].dx, pts[0].dy);
+    for (final p in pts.skip(1)) { path.lineTo(p.dx, p.dy); }
+    final fill = Path.from(path)..lineTo(w, ht)..lineTo(0, ht)..close();
+    canvas.drawPath(fill, Paint()..color = area.withValues(alpha: .7));
+    final stroke = Paint()..style = PaintingStyle.stroke..strokeWidth = 2..strokeCap = StrokeCap.round..strokeJoin = StrokeJoin.round..color = line;
+    canvas.drawPath(path, stroke);
+    canvas.drawCircle(pts.last, 3, Paint()..color = Colors.white);
+    canvas.drawCircle(pts.last, 3, stroke);
   }
-
   @override
-  Widget build(BuildContext context) => Padding(
-        padding: EdgeInsets.fromLTRB(20, 0, 20, 20 + MediaQuery.of(context).viewInsets.bottom),
-        child: SingleChildScrollView(child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          Text(cert ? 'Add a certificate' : 'Add an achievement', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800)),
-          const Text('A Warden verifies it before it counts on your record', style: TextStyle(color: K.ink3, fontSize: 13)),
-          const SizedBox(height: 16),
-          _field('title', 'Title', hint: cert ? 'AWS Cloud Practitioner' : 'Smart India Hackathon', required: true),
-          if (cert) ...[
-            _field('provider', 'Given by', hint: 'Coursera, NPTEL, AWS…', required: true),
-            _select('category', 'Kind', const ['Technical', 'Cloud', 'Programming', 'Language', 'Soft_Skill', 'Sports', 'Other']),
-            _date('issued_on', 'Issued on'),
-            _field('credential_ref', 'Credential ID or link'),
-          ] else ...[
-            _select('level', 'Level', const ['Hostel', 'University', 'State', 'National', 'International']),
-            _field('award', 'Award', hint: 'First prize, Finalist…'),
-            _date('achieved_on', 'Date'),
-          ],
-          if (missing.isNotEmpty) const Padding(padding: EdgeInsets.only(bottom: 10), child: Text('Fill the starred fields.', style: TextStyle(color: K.warn, fontSize: 12.5))),
-          Align(alignment: Alignment.centerLeft, child: ActionButton(label: 'Add', icon: Icons.add_rounded, busy: busy, onPressed: missing.isEmpty ? submit : null)),
-        ])),
-      );
+  bool shouldRepaint(_) => true;
+}
+
+/// KLH BarChart: a 560-wide drawing scaled to the box, four grid lines with figures, gradient bars, values on top.
+class _BarChart extends StatelessWidget {
+  final List<({String label, num value, bool hi})> data;
+  final double height;
+  const _BarChart(this.data, {required this.height});
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(builder: (context, box) => SizedBox(width: box.maxWidth, height: height * box.maxWidth / 560,
+      child: CustomPaint(painter: _BarPaint(data, height))));
+}
+
+class _BarPaint extends CustomPainter {
+  final List<({String label, num value, bool hi})> data;
+  final double hgt;
+  const _BarPaint(this.data, this.hgt);
+  void _text(Canvas c, String s, double x, double y, TextAlign align, {bool bold = false}) {
+    final tp = TextPainter(text: TextSpan(text: s, style: TextStyle(fontFamily: 'PlusJakartaSans', fontSize: 11, fontWeight: bold ? FontWeight.w700 : FontWeight.w500, color: bold ? K.ink : _muted)),
+        textDirection: TextDirection.ltr)..layout();
+    final dx = align == TextAlign.end ? x - tp.width : align == TextAlign.center ? x - tp.width / 2 : x;
+    tp.paint(c, Offset(dx, y - tp.height * .78)); // y is the text baseline, as in SVG
+  }
+  @override
+  void paint(Canvas canvas, Size size) {
+    const w = 560.0, pl = 36.0, pb = 26.0, pt = 18.0;
+    final h = hgt;
+    canvas.save();
+    canvas.scale(size.width / w);
+    final mx = (data.map((d) => d.value).fold<num>(0, math.max) * 1.15).toDouble();
+    final top = mx == 0 ? 1.0 : mx;
+    final step = (w - pl) / data.length, bw = math.min(36.0, step * .56);
+    for (var t = 0; t <= 4; t++) {
+      final y = pt + (h - pt - pb) * (1 - t / 4);
+      canvas.drawLine(Offset(pl, y), Offset(w, y), Paint()..color = _grid..strokeWidth = 1);
+      _text(canvas, '${(top * t / 4).round()}', pl - 8, y + 4, TextAlign.end);
+    }
+    for (var i = 0; i < data.length; i++) {
+      final d = data[i];
+      final bh = (h - pt - pb) * d.value / top, x = pl + i * step + (step - bw) / 2, y = h - pb - bh;
+      final rect = Rect.fromLTWH(x, y, bw, math.max(bh.toDouble(), 1));
+      final grad = d.hi ? const LinearGradient(colors: [K.sun, K.ember], begin: Alignment.topCenter, end: Alignment.bottomCenter)
+          : const LinearGradient(colors: [_sky, K.brand], begin: Alignment.topCenter, end: Alignment.bottomCenter);
+      canvas.drawRRect(RRect.fromRectAndRadius(rect, Radius.circular(math.min(8, bw / 3))), Paint()..shader = grad.createShader(rect));
+      _text(canvas, _js(d.value), x + bw / 2, y - 6, TextAlign.center, bold: true);
+      _text(canvas, d.label, x + bw / 2, h - 8, TextAlign.center);
+    }
+    canvas.restore();
+  }
+  @override
+  bool shouldRepaint(_) => true;
+}
+
+/// The hostel facts (.facts): two a row on a phone, hairline boxes, label over a 15 px value.
+class _Facts extends StatelessWidget {
+  final List<(String, String)> items;
+  const _Facts(this.items);
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(builder: (context, box) {
+        final cols = ((box.maxWidth + 8) / 118).floor().clamp(1, 10);
+        final cw = (box.maxWidth - 8 * (cols - 1)) / cols;
+        return Wrap(spacing: 8, runSpacing: 8, children: [
+          for (final (l, v) in items) Container(width: cw, padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), border: Border.all(color: _line)),
+              child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Text(l, style: const TextStyle(fontSize: 11.5, color: _muted)), const SizedBox(height: 2),
+                Text(v, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+              ])),
+        ]);
+      });
+}
+
+/// A KLH field: the 13 px label (a red star when required) over the control, 14 px under it.
+class _Field extends StatelessWidget {
+  final String label;
+  final bool required;
+  final Widget child;
+  const _Field(this.label, {this.required = false, required this.child});
+  @override
+  Widget build(BuildContext context) => Padding(padding: const EdgeInsets.only(bottom: 14), child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        Text.rich(TextSpan(children: [TextSpan(text: label), if (required) const TextSpan(text: ' *', style: TextStyle(color: K.bad))]),
+            style: const TextStyle(fontSize: 13, height: 18 / 13, fontWeight: FontWeight.w600, color: K.ink)),
+        const SizedBox(height: 6),
+        child,
+      ]));
 }

@@ -1,42 +1,34 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart' show DateFormat;
+import '../core/api.dart';
 import '../core/theme.dart';
 import '../core/widgets.dart';
+import 'mess_menu_screen.dart';
 
-const _low = Color(0xFF175CD3);
-const _lowBg = Color(0xFFEFF8FF);
-
+// health.css tokens
+const _ink2 = Color(0xFF475467), _ink3 = Color(0xFF667085), _line = Color(0xFFE4E8EF), _tint = Color(0xFFE6F4F1);
+const _bad = Color(0xFFB42318), _badBg = Color(0xFFFEF3F2), _badLine = Color(0xFFFECDCA);
+const _low = Color(0xFF1D4ED8), _lowBg = Color(0xFFEFF4FF), _lowLine = Color(0xFFC7D7FE);
 const _flag = {
   'L': ('Low', 'L', false, false), 'LL': ('Very low', 'LL', false, true), 'H': ('High', 'H', true, false),
   'HH': ('Very high', 'HH', true, true), 'A': ('Abnormal', '*', true, false),
 };
-
-num? _numOrNull(dynamic v) => v == null ? null : num.tryParse('$v');
-String _fmt(dynamic v, int d) { final n = _numOrNull(v); return n == null ? '' : n.toStringAsFixed(d); }
+String _mon(DateTime d) => d.month == 9 ? 'Sept' : DateFormat('MMM').format(d);
+/// en-IN date and time: "20 Sept 2026, 07:30 am".
+String _dt(dynamic s) { final d = parseDate(s); return d == null ? '—' : '${DateFormat('dd').format(d)} ${_mon(d)} ${d.year}, ${DateFormat('hh:mm a').format(d).toLowerCase()}'; }
+num? _num(dynamic v) => v == null ? null : num.tryParse('$v');
+String _fmt(dynamic v, int dec) { final n = _num(v); return n == null ? '' : n.toStringAsFixed(dec); }
 String _interval(Map r) {
-  final d = (r['decimals'] as num?)?.toInt() ?? 0;
+  final dec = (_num(r['decimals']) ?? 0).toInt();
   if (r['normal_text'] != null) return '${r['normal_text']}';
-  if (r['low'] != null && r['high'] != null) return '${_fmt(r['low'], d)} – ${_fmt(r['high'], d)}';
-  if (r['high'] != null) return '< ${_fmt(r['high'], d)}';
-  if (r['low'] != null) return '> ${_fmt(r['low'], d)}';
+  if (r['low'] != null && r['high'] != null) return '${_fmt(r['low'], dec)} – ${_fmt(r['high'], dec)}';
+  if (r['high'] != null) return '< ${_fmt(r['high'], dec)}';
+  if (r['low'] != null) return '> ${_fmt(r['low'], dec)}';
   return '—';
 }
 
-/// A photo given as a data: URL (or a web address).
-Widget? _photoOf(dynamic src, double size) {
-  final s = '${src ?? ''}';
-  if (s.isEmpty) return null;
-  try {
-    final img = s.startsWith('data:') ? Image.memory(base64Decode(s.substring(s.indexOf(',') + 1)), width: size, height: size, fit: BoxFit.cover)
-        : Image.network(s, width: size, height: size, fit: BoxFit.cover);
-    return ClipRRect(borderRadius: BorderRadius.circular(12), child: img);
-  } catch (_) {
-    return null;
-  }
-}
-
-/// My health: health reports from the gym's equipment and the laboratory, latest first, each laid out like a lab report
-/// with suggestions for food, activity and when to see a doctor.
+/// HLT-03 My health (pages/health/MyHealth.tsx): the student's health reports, latest first, each in the
+/// laboratory-report layout with suggestions.
 class HealthScreen extends StatefulWidget {
   const HealthScreen({super.key});
   @override
@@ -46,211 +38,265 @@ class HealthScreen extends StatefulWidget {
 class _HealthScreenState extends State<HealthScreen> {
   int? sel;
 
-  static const _intro = KCard(title: 'My health', icon: Icons.monitor_heart_rounded,
-      child: Text('From the gym\'s health equipment and the laboratory. Your Floor Warden, Warden, the Gym Manager and the Dean can see it.', style: TextStyle(color: K.ink3, fontSize: 13)));
-
   @override
   Widget build(BuildContext context) => ApiView(path: '/me/health', builder: (context, data, reload) {
         final list = ((data as List?) ?? []).cast<Map>();
-        if (list.isEmpty) {
-          return const PageList(children: [_intro, EmptyView(icon: Icons.monitor_heart_outlined, title: 'No health report yet', body: 'Your first check-up at the gym appears here.')]);
-        }
-        final id = list.any((x) => x['report_id'] == sel) ? sel! : list.first['report_id'];
-        return ApiView(path: '/health/reports/$id', builder: (context, rep, _) => PageList(children: [
-              _intro,
-              if (list.length > 1)
-                SingleChildScrollView(scrollDirection: Axis.horizontal, child: Row(children: [
-                  for (final x in list) Padding(padding: const EdgeInsets.only(right: 8), child: ChoiceChip(
-                    showCheckmark: false, selected: x['report_id'] == id, onSelected: (_) => setState(() => sel = x['report_id'] as int),
-                    label: Column(mainAxisSize: MainAxisSize.min, children: [
-                      Text(day(x['collected_at']), style: TextStyle(fontWeight: FontWeight.w700, color: x['report_id'] == id ? Colors.white : K.ink)),
-                      Text((x['out_of_range'] ?? 0) > 0 ? '${x['out_of_range']} to watch' : 'All in range', style: TextStyle(fontSize: 11, color: x['report_id'] == id ? Colors.white70 : K.ink3)),
-                    ]),
-                  )),
-                ])),
-              ..._report(rep as Map),
-            ]));
-      });
-
-  List<Widget> _report(Map d) {
-    final h = (d['report'] as Map?) ?? {};
-    final results = ((d['results'] as List?) ?? []).cast<Map>();
-    final advice = ((d['advice'] as List?) ?? []).cast<Map>();
-    final views = ((d['views'] as List?) ?? []).cast<Map>();
-    final panels = <String>[];
-    for (final r in results) { if (!panels.contains(r['panel_code'])) panels.add('${r['panel_code']}'); }
-    final flagged = results.where((x) => _flag.containsKey(x['flag'])).toList();
-    final doctor = advice.where((a) => a['area'] == 'Doctor').toList(), food = advice.where((a) => a['area'] == 'Food').toList(), act = advice.where((a) => a['area'] == 'Activity').toList();
-    final dob = parseDate(h['date_of_birth']);
-    final age = dob == null ? null : (DateTime.now().difference(dob).inDays / 365.25).floor();
-    final name = '${h['name'] ?? ''}';
-
-    return [
-      // header and the student
-      Card(child: Padding(padding: const EdgeInsets.all(16), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Row(children: [
-          Container(width: 40, height: 40, decoration: BoxDecoration(gradient: K.heroGradient, borderRadius: BorderRadius.circular(11)), child: const Icon(Icons.local_hospital_rounded, color: Colors.white)),
-          const SizedBox(width: 10),
-          const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('KL University Hostels', style: TextStyle(fontWeight: FontWeight.w800)),
-            Text('Student Health and Fitness Centre', style: TextStyle(color: K.ink3, fontSize: 12)),
-          ])),
-          Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-            const Text('Health report', style: TextStyle(fontWeight: FontWeight.w800, color: K.brand)),
-            Text('${h['report_no'] ?? ''}', style: const TextStyle(color: K.ink3, fontSize: 12, fontFamily: 'monospace')),
+        final id = sel ?? list.firstOrNull?['report_id'] as int?;
+        return MnPage(children: [
+          const MnHead(icon: LucideIcons.heartPulse, title: 'My health',
+              sub: "From the gym's health equipment and the laboratory. Your Floor Warden, Warden, the Gym Manager and the Dean can see it."),
+          if (list.isEmpty) const MnPanel(children: [MnEmpty('No health report yet. Your first check-up at the gym appears here.')]),
+          if (list.length > 1) Wrap(spacing: 8, runSpacing: 8, children: [
+            for (final x in list) Builder(builder: (_) {
+              final d = parseDate(x['collected_at'])!;
+              final out = (_num(x['out_of_range']) ?? 0).toInt();
+              return MnPreset('${d.day} ${_mon(d)} ${d.year}', x['report_id'] == id, () => setState(() => sel = x['report_id'] as int), sub: out > 0 ? '$out to watch' : 'All in range');
+            }),
           ]),
-        ]),
-        const Padding(padding: EdgeInsets.symmetric(vertical: 12), child: Divider()),
-        Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          _photoOf(h['photo'], 64) ?? Container(width: 64, height: 64, alignment: Alignment.center, decoration: BoxDecoration(color: K.brandTint, borderRadius: BorderRadius.circular(12)),
-              child: Text(name.split(' ').where((w) => w.isNotEmpty).map((w) => w[0]).take(2).join(), style: const TextStyle(color: K.brand, fontWeight: FontWeight.w800, fontSize: 20))),
-          const SizedBox(width: 12),
-          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(name, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16)),
-            Text('${h['student_id'] ?? ''}', style: const TextStyle(color: K.ink3, fontFamily: 'monospace', fontSize: 12.5)),
-          ])),
-        ]),
-        const SizedBox(height: 8),
-        InfoRow('Age / Gender', '${age ?? '—'} years / ${h['gender'] ?? '—'}'),
-        InfoRow('Blood group', '${h['blood_group'] ?? '—'}'),
-        InfoRow('Programme', '${h['programme'] ?? '—'}'),
-        InfoRow('Hostel / Room', '${h['hostel_name'] ?? '—'}${h['bed_label'] != null ? ' · ${h['bed_label']}' : ''}'),
-        InfoRow('Collected', dayTime(h['collected_at'])),
-        InfoRow('Reported', dayTime(h['reported_at'])),
-        InfoRow('Source', '${h['source'] == 'Device' ? 'Gym equipment' : h['source'] ?? '—'}${h['device_ref'] != null ? ' · ${h['device_ref']}' : ''}${h['lab_name'] != null ? ' · ${h['lab_name']}' : ''}'),
-      ]))),
+          if (id != null) _Report(key: ValueKey(id), id: id),
+        ]);
+      });
+}
 
-      // summary
-      Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(color: flagged.isEmpty ? K.goodBg : K.warnBg, borderRadius: BorderRadius.circular(16), border: Border.all(color: flagged.isEmpty ? K.good.withValues(alpha: .3) : K.warn.withValues(alpha: .3))),
-        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Icon(flagged.isEmpty ? Icons.monitor_heart_rounded : Icons.warning_amber_rounded, color: flagged.isEmpty ? K.good : K.warn),
-          const SizedBox(width: 10),
-          Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(flagged.isEmpty ? 'All results within the reference range' : '${flagged.length} result${flagged.length == 1 ? '' : 's'} outside the reference range',
-                style: TextStyle(fontWeight: FontWeight.w800, color: flagged.isEmpty ? K.good : K.warn)),
-            const SizedBox(height: 2),
-            Text(flagged.isEmpty ? 'Keep up the balanced diet and regular activity.' : flagged.map((x) => '${x['test_name']} (${_flag[x['flag']]!.$1.toLowerCase()})').join(' · '),
-                style: const TextStyle(color: K.ink2, fontSize: 12.5)),
-          ])),
-        ]),
-      ),
+/// HLT-02 health report (pages/health/HealthReport.tsx), the phone layout: unit and previous columns hidden.
+class _Report extends StatefulWidget {
+  final int id;
+  const _Report({super.key, required this.id});
+  @override
+  State<_Report> createState() => _ReportState();
+}
 
-      // panels
-      for (final p in panels) _Panel(rows: results.where((x) => x['panel_code'] == p).toList()),
+class _ReportState extends State<_Report> {
+  Map? data;
+  Object? error;
 
-      // suggestions
-      KCard(title: 'Suggestions', icon: Icons.tips_and_updates_rounded,
-          subtitle: "Based on this report, as general guidance for wellness. They are not a diagnosis: a doctor's advice comes first.",
-          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-            if (doctor.isNotEmpty) _AdviceBox(Icons.medical_services_rounded, 'See a doctor', K.bad, K.badBg, doctor, null),
-            _AdviceBox(Icons.restaurant_rounded, 'Food', K.good, K.goodBg, food,
-                'A balanced plate at every meal: half vegetables and salad, a quarter dal, paneer, egg or other protein, a quarter rice, roti or millet; curd daily; water through the day.'),
-            _AdviceBox(Icons.fitness_center_rounded, 'Physical activity', K.brand, K.brandTint, act,
-                'At least 150 minutes a week of brisk walking, sport, cycling or swimming, and strength training twice a week; 7-8 hours of sleep.'),
-          ])),
+  @override
+  void initState() {
+    super.initState();
+    Api.instance.get('/health/reports/${widget.id}').then((d) { if (mounted) setState(() => data = d as Map); }, onError: (e) { if (mounted) setState(() => error = e); });
+  }
 
-      if (h['device_notes'] != null)
-        KCard(title: "Equipment's own summary", icon: Icons.memory_rounded, child: Text('${h['device_notes']}', style: const TextStyle(color: K.ink2))),
+  @override
+  Widget build(BuildContext context) {
+    if (error != null || data == null) {
+      return Padding(padding: const EdgeInsets.symmetric(vertical: 40), child: Text(error?.toString() ?? 'Loading the report…', textAlign: TextAlign.center, style: const TextStyle(color: _ink3)));
+    }
+    final h = data!['report'] as Map;
+    final results = ((data!['results'] as List?) ?? []).cast<Map>();
+    final advice = ((data!['advice'] as List?) ?? []).cast<Map>();
+    final views = ((data!['views'] as List?) ?? []).cast<Map>();
+    final panels = <String>{for (final x in results) '${x['panel_code']}'}.toList();
+    final flagged = results.where((x) => _flag.containsKey(x['flag'])).toList();
+    List<Map> area(String a) => advice.where((x) => x['area'] == a).toList();
+    final doctor = area('Doctor'), food = area('Food'), act = area('Activity');
+    final dob = parseDate(h['date_of_birth']);
+    final age = dob == null ? '—' : '${(DateTime.now().difference(dob).inMilliseconds / (365.25 * 864e5)).floor()}';
+    final name = '${h['name']}';
+    final source = '${h['source'] == 'Device' ? 'Gym equipment' : h['source']}${h['device_ref'] != null ? ' · ${h['device_ref']}' : ''}${h['lab_name'] != null ? ' · ${h['lab_name']}' : ''}';
 
-      Padding(padding: const EdgeInsets.symmetric(horizontal: 4), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text("Entered by ${h['entered_by_name'] ?? 'the gym equipment'} · Reference intervals are for young adults and may differ from the laboratory's own.", style: const TextStyle(color: K.ink3, fontSize: 12)),
-        if (views.isNotEmpty) Padding(padding: const EdgeInsets.only(top: 6), child: Row(children: [
-          const Icon(Icons.visibility_outlined, size: 14, color: K.ink3), const SizedBox(width: 6),
-          Expanded(child: Text('Seen by ${views.map((v) => '${words(v['role_code'])} (${v['n']})').join(', ')}', style: const TextStyle(color: K.ink3, fontSize: 12))),
-        ])),
-        const Padding(padding: EdgeInsets.only(top: 8), child: Center(child: Text('End of report', style: TextStyle(color: K.ink3, fontSize: 12, fontWeight: FontWeight.w600)))),
+    return Semantics(label: 'Health report ${h['report_no']}', child: Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 18),
+      decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20), border: Border.all(color: _line),
+          boxShadow: const [BoxShadow(color: Color(0x0A101828), blurRadius: 2, offset: Offset(0, 1)), BoxShadow(color: Color(0x40101828), blurRadius: 30, spreadRadius: -22, offset: Offset(0, 10))]),
+      child: DefaultTextStyle.merge(style: const TextStyle(fontSize: 14, color: K.ink), child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        // head
+        Container(padding: const EdgeInsets.only(bottom: 14), decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: K.brand, width: 3))),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Row(children: [
+                const KlLogo(height: 40), const SizedBox(width: 12),
+                const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text('KL University Hostels', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: K.brand)),
+                  Text('Student Health and Fitness Centre', style: TextStyle(fontSize: 12, color: _ink3)),
+                ])),
+              ]),
+              const SizedBox(height: 16),
+              const Text('HEALTH REPORT', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700, letterSpacing: .4)),
+              Text('${h['report_no']}', style: K.mono(size: 13, weight: FontWeight.w500, color: _ink3)),
+            ])),
+        const SizedBox(height: 18),
+        // patient
+        Container(padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: const Color(0xFFF8FAFC), borderRadius: BorderRadius.circular(14), border: Border.all(color: _line)),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              ClipRRect(borderRadius: BorderRadius.circular(16), child: h['photo'] != null
+                  ? Image.network('${h['photo']}', width: 96, height: 96, fit: BoxFit.cover)
+                  : Container(width: 96, height: 96, alignment: Alignment.center, color: _tint,
+                      child: Text(name.split(' ').where((w) => w.isNotEmpty).map((w) => w[0]).take(2).join(), style: const TextStyle(fontSize: 30, fontWeight: FontWeight.w800, color: K.brand)))),
+              const SizedBox(height: 20),
+              LayoutBuilder(builder: (context, box) {
+                final cw = (box.maxWidth - 18) / 2;
+                Widget item(String dt, Widget dd) => SizedBox(width: cw, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text(dt.toUpperCase(), style: const TextStyle(fontSize: 11.5, fontWeight: FontWeight.w600, letterSpacing: .575, color: _ink3)),
+                  const SizedBox(height: 2), dd,
+                ]));
+                return Wrap(spacing: 18, runSpacing: 10, children: [
+                  item('Name', Text(name, style: const TextStyle(fontWeight: FontWeight.w700))),
+                  item('Student ID', Text('${h['student_id']}', style: K.mono(size: 14, weight: FontWeight.w700, color: K.ink))),
+                  item('Age / Gender', Text('$age years / ${h['gender']}')),
+                  item('Blood group', Text('${h['blood_group'] ?? '—'}')),
+                  item('Programme', Text('${h['programme']}')),
+                  item('Hostel / Room', Text('${h['hostel_name'] ?? '—'}${h['bed_label'] != null ? ' · ${h['bed_label']}' : ''}')),
+                  item('Collected', Text(_dt(h['collected_at']))),
+                  item('Reported', Text(_dt(h['reported_at']))),
+                  item('Source', Text(source)),
+                ]);
+              }),
+            ])),
+        const SizedBox(height: 18),
+        // summary
+        Builder(builder: (_) {
+          final ok = flagged.isEmpty;
+          final fg = ok ? const Color(0xFF067647) : _bad;
+          return Container(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(color: ok ? const Color(0xFFECFDF3) : _badBg, borderRadius: BorderRadius.circular(12), border: Border.all(color: ok ? const Color(0xFFABEFC6) : _badLine)),
+              child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                Padding(padding: const EdgeInsets.only(top: 2), child: Icon(ok ? LucideIcons.activity : LucideIcons.triangleAlert, size: 18, color: fg)),
+                const SizedBox(width: 12),
+                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  Text(ok ? 'All results within the reference range' : '${flagged.length} result${flagged.length == 1 ? '' : 's'} outside the reference range', style: const TextStyle(fontWeight: FontWeight.w700, color: K.ink)),
+                  Text(ok ? 'Keep up the balanced diet and regular activity.' : flagged.map((x) => '${x['test_name']} (${_flag[x['flag']]!.$1.toLowerCase()})').join(' · '),
+                      style: const TextStyle(fontSize: 12, color: _ink3)),
+                ])),
+              ]));
+        }),
+        // panels
+        for (final p in panels) ...[const SizedBox(height: 18), _Panel(rows: results.where((x) => '${x['panel_code']}' == p).toList())],
+        const SizedBox(height: 18),
+        // suggestions
+        const _Dashed(),
+        const SizedBox(height: 6),
+        const Text('SUGGESTIONS', style: TextStyle(fontSize: 14, fontWeight: FontWeight.w700, letterSpacing: .84, color: K.brand)),
+        const SizedBox(height: 8 + 12 - 6),
+        const Text("Based on this report, as general guidance for wellness. They are not a diagnosis: a doctor's advice comes first.", style: TextStyle(fontSize: 12.5, color: _ink3)),
+        if (doctor.isNotEmpty) ...[const SizedBox(height: 12), _AdviceBox(icon: LucideIcons.stethoscope, title: 'See a doctor', color: _bad, doc: true, items: doctor)],
+        const SizedBox(height: 12),
+        _AdviceBox(icon: LucideIcons.utensils, title: 'Food', color: const Color(0xFFB54708), items: food, tips: true,
+            empty: 'A balanced plate at every meal: half vegetables and salad, a quarter dal, paneer, egg or other protein, a quarter rice, roti or millet; curd daily; water through the day.'),
+        const SizedBox(height: 12),
+        _AdviceBox(icon: LucideIcons.dumbbell, title: 'Physical activity', color: K.brand, items: act,
+            empty: 'At least 150 minutes a week of brisk walking, sport, cycling or swimming, and strength training twice a week; 7-8 hours of sleep.'),
+        if (h['device_notes'] != null) ...[
+          const SizedBox(height: 18),
+          Container(padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              decoration: BoxDecoration(color: const Color(0xFFF8FAFC), borderRadius: BorderRadius.circular(12), border: Border.all(color: _line)),
+              child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                const Icon(LucideIcons.cpu, size: 16, color: _ink2), const SizedBox(width: 10),
+                Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                  const Text("Equipment's own summary", style: TextStyle(fontWeight: FontWeight.w700, color: K.ink)),
+                  Text('${h['device_notes']}', style: const TextStyle(fontSize: 12, color: _ink3)),
+                ])),
+              ])),
+        ],
+        const SizedBox(height: 18),
+        // foot
+        Container(padding: const EdgeInsets.only(top: 12), decoration: const BoxDecoration(border: Border(top: BorderSide(color: _line))),
+            child: DefaultTextStyle.merge(style: const TextStyle(fontSize: 12, color: _ink3), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Text('Entered by ${h['entered_by_name'] ?? 'the gym equipment'} · Reference intervals are for young adults and may differ from the laboratory\'s own.'),
+              if (views.isNotEmpty) ...[const SizedBox(height: 6), Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                const Padding(padding: EdgeInsets.only(top: 1), child: Icon(LucideIcons.eye, size: 13, color: _ink3)), const SizedBox(width: 5),
+                Expanded(child: Text('Seen by ${views.map((v) => '${'${v['role_code']}'.replaceAll('_', ' ')} (${v['n']})').join(', ')}')),
+              ])],
+              const SizedBox(height: 6),
+              const Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+                Icon(LucideIcons.arrowRightLeft, size: 12, color: _ink3), SizedBox(width: 6),
+                Text('END OF REPORT', style: TextStyle(fontWeight: FontWeight.w700, letterSpacing: 1.44)),
+              ]),
+            ]))),
       ])),
-    ];
+    ));
   }
 }
 
+/// One panel of results (hr-panel): its name and specimen, then Test / Result / Biological ref. interval.
 class _Panel extends StatelessWidget {
   final List<Map> rows;
   const _Panel({required this.rows});
   @override
-  Widget build(BuildContext context) => KCard(
-        title: '${rows.first['panel_name']}', subtitle: rows.first['specimen'] as String?, icon: Icons.science_rounded,
-        child: Column(children: [
-          const Padding(padding: EdgeInsets.only(bottom: 6), child: Row(children: [
-            Expanded(flex: 5, child: Text('Test', style: _head)),
-            Expanded(flex: 3, child: Text('Result', style: _head, textAlign: TextAlign.right)),
-            SizedBox(width: 10),
-            Expanded(flex: 4, child: Text('Ref. interval', style: _head)),
-          ])),
-          for (final x in rows) _row(x),
-        ]),
-      );
-
-  static const _head = TextStyle(color: K.ink3, fontSize: 11.5, fontWeight: FontWeight.w700);
-
-  Widget _row(Map x) {
-    final f = _flag[x['flag']];
-    final d = (x['decimals'] as num?)?.toInt() ?? 0;
-    final v = x['value_type'] == 'Text' ? '${x['value_text'] ?? ''}' : _fmt(x['value_num'], d);
-    final prev = _numOrNull(x['previous']);
-    final cur = _numOrNull(x['value_num']);
-    final ch = prev != null && cur != null ? cur - prev : null;
-    final color = f == null ? K.ink : f.$3 ? K.bad : _low;
-    final bg = f == null ? null : f.$4 ? (f.$3 ? K.badBg : _lowBg) : null;
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-      decoration: BoxDecoration(color: bg, border: const Border(top: BorderSide(color: K.line))),
-      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Expanded(flex: 5, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text('${x['test_name']}', style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13)),
-          if (x['method'] != null) Text('${x['method']}', style: const TextStyle(color: K.ink3, fontSize: 11)),
-          if (prev != null) Row(children: [
-            Text('Previous ${_fmt(prev, d)}', style: const TextStyle(color: K.ink3, fontSize: 11)),
-            if (ch != null && ch.abs() > 0.5 / _pow10(d)) Icon(ch > 0 ? Icons.north_east_rounded : Icons.south_east_rounded, size: 12, color: K.ink3),
+  Widget build(BuildContext context) {
+    const th = TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, letterSpacing: .46, color: _ink3);
+    Widget cell(Widget c, {bool right = false}) => Padding(padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 7), child: Align(alignment: right ? Alignment.topRight : Alignment.topLeft, child: c));
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      Padding(padding: const EdgeInsets.only(bottom: 8), child: Wrap(spacing: 10, crossAxisAlignment: WrapCrossAlignment.end, children: [
+        Text('${rows.first['panel_name']}'.toUpperCase(), style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700, letterSpacing: .84, color: K.brand)),
+        if (rows.first['specimen'] != null) Text('${rows.first['specimen']}', style: const TextStyle(fontSize: 12, color: _ink3)),
+      ])),
+      LayoutBuilder(builder: (context, box) => Table(
+        columnWidths: {0: FixedColumnWidth(box.maxWidth * .38), 1: const IntrinsicColumnWidth(), 2: const FlexColumnWidth()},
+        children: [
+          TableRow(decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: _ink2, width: 1.5))), children: [
+            cell(const Text('TEST', style: th)), cell(const Text('RESULT', style: th), right: true), cell(const Text('BIOLOGICAL REF. INTERVAL', style: th)),
           ]),
-        ])),
-        Expanded(flex: 3, child: Column(crossAxisAlignment: CrossAxisAlignment.end, children: [
-          Row(mainAxisAlignment: MainAxisAlignment.end, crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Flexible(child: Text(v, textAlign: TextAlign.right, style: TextStyle(fontWeight: FontWeight.w800, fontSize: 14, color: color))),
-            if (f != null) Padding(padding: const EdgeInsets.only(left: 3), child: Text(f.$2, style: TextStyle(color: color, fontSize: 10, fontWeight: FontWeight.w900))),
-          ]),
-          if (x['unit'] != null) Text('${x['unit']}', style: const TextStyle(color: K.ink3, fontSize: 11)),
-        ])),
-        const SizedBox(width: 10),
-        Expanded(flex: 4, child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(_interval(x), style: const TextStyle(color: K.ink2, fontSize: 12.5)),
-          if (x['note'] != null) Text('${x['note']}', style: const TextStyle(color: K.ink3, fontSize: 11)),
-        ])),
-      ]),
-    );
+          for (final x in rows) _row(x, cell),
+        ],
+      )),
+    ]);
   }
 
-  static num _pow10(int d) { num p = 1; for (var i = 0; i < d; i++) { p *= 10; } return p; }
+  TableRow _row(Map x, Widget Function(Widget, {bool right}) cell) {
+    final f = _flag[x['flag']];
+    final high = f?.$3 == true, sev = f?.$4 == true;
+    final c = f == null ? K.ink : high ? _bad : _low;
+    final dec = (_num(x['decimals']) ?? 0).toInt();
+    final v = x['value_type'] == 'Text' ? '${x['value_text'] ?? ''}' : _fmt(x['value_num'], dec);
+    const small = TextStyle(fontSize: 12, color: _ink3);
+    return TableRow(decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: _line))), children: [
+      TableCell(verticalAlignment: TableCellVerticalAlignment.fill, child: Container(
+        foregroundDecoration: sev ? BoxDecoration(border: Border(left: BorderSide(color: c, width: 3))) : null,
+        child: cell(Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text('${x['test_name']}', style: const TextStyle(fontWeight: FontWeight.w700, color: K.ink)),
+          if (x['method'] != null) Padding(padding: const EdgeInsets.only(top: 1), child: Text('${x['method']}', style: small)),
+        ])),
+      )),
+      cell(Row(mainAxisSize: MainAxisSize.min, children: [
+        Text(v, style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15, color: c)),
+        if (f != null) Container(margin: const EdgeInsets.only(left: 6), padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+            decoration: BoxDecoration(color: high ? _badBg : _lowBg, borderRadius: BorderRadius.circular(5), border: Border.all(color: high ? _badLine : _lowLine)),
+            child: Text(f.$2, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w800, color: c))),
+      ]), right: true),
+      cell(Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Text(_interval(x)),
+        if (x['note'] != null) Padding(padding: const EdgeInsets.only(top: 1), child: Text('${x['note']}', style: small)),
+      ])),
+    ]);
+  }
 }
 
+/// A suggestions box (hr-box): heading with its icon, then the findings as a list, or the general advice.
 class _AdviceBox extends StatelessWidget {
   final IconData icon;
   final String title;
-  final Color fg, bg;
+  final Color color;
   final List<Map> items;
-  final String? fallback;
-  const _AdviceBox(this.icon, this.title, this.fg, this.bg, this.items, this.fallback);
+  final String? empty;
+  final bool doc, tips;
+  const _AdviceBox({required this.icon, required this.title, required this.color, required this.items, this.empty, this.doc = false, this.tips = false});
   @override
   Widget build(BuildContext context) => Container(
-        margin: const EdgeInsets.only(bottom: 10), padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(14)),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Row(children: [Icon(icon, size: 18, color: fg), const SizedBox(width: 6), Text(title, style: TextStyle(fontWeight: FontWeight.w800, color: fg))]),
-          const SizedBox(height: 8),
-          if (items.isEmpty && fallback != null) Text(fallback!, style: const TextStyle(color: K.ink2, fontSize: 13)),
-          for (final a in items) Padding(padding: const EdgeInsets.only(bottom: 8), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text.rich(TextSpan(style: const TextStyle(color: K.ink2, fontSize: 13), children: [
-              TextSpan(text: '${a['finding']}. ', style: const TextStyle(fontWeight: FontWeight.w800, color: K.ink)),
-              TextSpan(text: '${a['advice']}'),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(color: doc ? _badBg : const Color(0xFFFBFCFD), borderRadius: BorderRadius.circular(14), border: Border.all(color: doc ? _badLine : _line)),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          Padding(padding: const EdgeInsets.only(bottom: 8), child: Row(children: [
+            Icon(icon, size: 17, color: color), const SizedBox(width: 8),
+            Text(title, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: color)),
+          ])),
+          if (items.isEmpty && empty != null) Text(empty!, style: const TextStyle(height: 1.45, color: _ink2))
+          else for (final (i, a) in items.indexed) Padding(padding: EdgeInsets.only(top: i == 0 ? 0 : 8), child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            const SizedBox(width: 18, child: Text('•', textAlign: TextAlign.center, style: TextStyle(height: 1.45))),
+            Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+              Text.rich(TextSpan(children: [TextSpan(text: '${a['finding']}.', style: const TextStyle(fontWeight: FontWeight.w700)), TextSpan(text: ' ${a['advice']}')]), style: const TextStyle(height: 1.45)),
+              if (tips && a['mess_tip'] != null) Container(margin: const EdgeInsets.only(top: 4), padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(color: const Color(0xFFFFF7ED), borderRadius: BorderRadius.circular(8)),
+                  child: Text('In the mess: ${a['mess_tip']}', style: const TextStyle(fontSize: 12.5, color: _ink2))),
             ])),
-            if (a['mess_tip'] != null) Container(
-              margin: const EdgeInsets.only(top: 4), padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-              decoration: BoxDecoration(color: Colors.white.withValues(alpha: .7), borderRadius: BorderRadius.circular(8)),
-              child: Text('In the mess: ${a['mess_tip']}', style: TextStyle(color: fg, fontSize: 12.5, fontWeight: FontWeight.w600)),
-            ),
           ])),
         ]),
       );
+}
+
+/// The dashed rule above the suggestions.
+class _Dashed extends StatelessWidget {
+  const _Dashed();
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(builder: (context, box) => Row(children: [
+        for (var i = 0; i < box.maxWidth ~/ 6; i++) Container(width: 3, height: 1, margin: const EdgeInsets.only(right: 3), color: _line),
+      ]));
 }
