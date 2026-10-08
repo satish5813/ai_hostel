@@ -1,0 +1,23 @@
+hostel_code,room_no,asset_id,asset_name,category,make_model,serial_no,purchase_date,cost,warranty_expiry,condition
+BH2,101,BH2-101-A1,Cot,Furniture,Steel cot,,01-06-2025,4500,,Good
+BH2,101,BH2-101-A2,Cot,Furniture,Steel cot,,01-06-2025,4500,,Good
+BH2,101,BH2-101-A3,Cot,Furniture,Steel cot,,01-06-2025,4500,,Good
+BH2,101,BH2-101-A4,Study table,Furniture,Teak finish,,01-06-2025,3200,,Good
+BH2,101,BH2-101-A5,Chair,Furniture,Moulded,,01-06-2025,900,,Good
+BH2,101,BH2-101-A6,Ceiling fan,Electrical,Crompton 1200 mm,,01-06-2025,2100,01-06-2027,Good
+BH2,101,BH2-101-A7,Air conditioner,Electrical,Voltas 1.5 ton,,01-06-2025,38000,01-06-2027,Good
+BH2,102,BH2-102-A1,Cot,Furniture,Steel cot,,01-06-2025,4500,,Good
+BH2,102,BH2-102-A2,Cot,Furniture,Steel cot,,01-06-2025,4500,,Good
+BH2,102,BH2-102-A3,Cot,Furniture,Steel cot,,01-06-2025,4500,,Good
+BH2,102,BH2-102-A4,Study table,Furniture,Teak finish,,01-06-2025,3200,,Good
+BH2,102,BH2-102-A5,Chair,Furniture,Moulded,,01-06-2025,900,,Good
+BH2,102,BH2-102-A6,Ceiling fan,Electrical,Crompton 1200 mm,,01-06-2025,2100,01-06-2027,Good
+BH2,102,BH2-102-A7,Air conditioner,Electrical,Voltas 1.5 ton,,01-06-2025,38000,01-06-2027,Good
+BH2,103,BH2-103-A1,Cot,Furniture,Steel cot,,01-06-2025,4500,,Good
+BH2,103,BH2-103-A2,Cot,Furniture,Steel cot,,01-06-2025,4500,,Good
+BH2,103,BH2-103-A3,Cot,Furniture,Steel cot,,01-06-2025,4500,,Good
+BH2,103,BH2-103-A4,Study table,Furniture,Teak finish,,01-06-2025,3200,,Good
+BH2,103,BH2-103-A5,Chair,Furniture,Moulded,,01-06-2025,900,,Good
+BH2,103,BH2-103-A6,Ceiling fan,Electrical,Crompton 1200 mm,,01-06-2025,2100,01-06-2027,Good
+BH2,103,BH2-103-A7,Air conditioner,Electrical,Voltas 1.5 ton,,01-06-2025,38000,01-06-2027,Good
+BH2,999,BH2-999-A1,Cot,Furniture,,,,,,

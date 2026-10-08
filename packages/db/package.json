@@ -1,0 +1,25 @@
+{
+  "name": "@klu/db",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Drizzle schema for klu_hostel, generated from the live PostgreSQL catalog (drizzle-kit pull)",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "pull": "drizzle-kit pull && node fix-schema.mjs",
+    "build": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "drizzle-orm": "^0.44.0",
+    "postgres": "^3.4.5"
+  },
+  "devDependencies": {
+    "drizzle-kit": "^0.31.0",
+    "typescript": "^5.8.0"
+  }
+}

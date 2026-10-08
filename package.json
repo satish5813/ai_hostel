@@ -1,0 +1,23 @@
+{
+  "name": "klu-hostel-erp",
+  "private": true,
+  "version": "0.1.0",
+  "description": "KL University Hostel ERP — PostgreSQL + NestJS API + React/Vite web (Workflows A–F)",
+  "packageManager": "pnpm@10.20.0",
+  "scripts": {
+    "dev": "pnpm -r --parallel --filter ./apps/* dev",
+    "build": "pnpm -r build",
+    "api": "pnpm --filter @klu/api start:dev",
+    "web": "pnpm --filter @klu/web-vite dev",
+    "db:pull": "pnpm --filter @klu/db pull",
+    "db:test": "powershell -ExecutionPolicy Bypass -File db/apply.ps1 -Test",
+    "mac:setup": "bash scripts/mac/setup.sh",
+    "mac:start": "bash scripts/mac/start.sh",
+    "mac:debug": "bash scripts/mac/start.sh --debug",
+    "db:migrate": "bash scripts/mac/migrate.sh",
+    "db:backup": "bash scripts/mac/backup.sh"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

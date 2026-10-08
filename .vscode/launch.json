@@ -1,0 +1,49 @@
+{
+  // Debugging on the Mac (or anywhere) with VS Code.
+  //   API:  start it with `bash scripts/mac/start.sh --debug`, then run "Attach to API"; or run "Launch API" directly.
+  //   Web:  start the web app (pnpm web), then run "Debug web in Chrome" to set breakpoints in the React code.
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Attach to API",
+      "type": "node",
+      "request": "attach",
+      "address": "127.0.0.1",
+      "port": 9229,
+      "restart": true,
+      "sourceMaps": true,
+      "outFiles": ["${workspaceFolder}/apps/api/dist/**/*.js"],
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"]
+    },
+    {
+      "name": "Launch API",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/apps/api",
+      "program": "${workspaceFolder}/apps/api/dist/main.js",
+      "runtimeArgs": ["--enable-source-maps"],
+      "preLaunchTask": "build api",
+      "sourceMaps": true,
+      "outFiles": ["${workspaceFolder}/apps/api/dist/**/*.js"],
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
+      "console": "integratedTerminal"
+    },
+    {
+      "name": "Debug web in Chrome",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:5173",
+      "webRoot": "${workspaceFolder}/apps/web-vite/src",
+      "sourceMaps": true
+    },
+    {
+      "name": "API tests (vitest)",
+      "type": "node",
+      "request": "launch",
+      "cwd": "${workspaceFolder}/apps/api",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["exec", "vitest", "run", "--no-file-parallelism"],
+      "console": "integratedTerminal"
+    }
+  ]
+}

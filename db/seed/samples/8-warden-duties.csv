@@ -1,0 +1,10 @@
+staff_id,hostel_role,hostel_code,floor_no,area,shift,show_on_qr,approval_ref
+E2001,Chief_Warden,BH2,,,General,Yes,HO/2026/ROLES/21
+E2002,Floor_Warden,BH2,1,,General,Yes,HO/2026/ROLES/21
+E2002,Floor_Warden,BH2,2,,General,Yes,HO/2026/ROLES/21
+E2003,Floor_Warden,BH2,3,,General,Yes,HO/2026/ROLES/21
+E2003,Floor_Warden,BH2,4,,General,Yes,HO/2026/ROLES/21
+E2004,Office_Staff,BH2,,,General,No,HO/2026/ROLES/21
+E2005,Security_Guard,BH2,,,Night,No,
+E2006,Chief_Warden,GH2,,,General,Yes,HO/2026/ROLES/22
+E9999,Floor_Warden,BH2,1,,General,Yes,

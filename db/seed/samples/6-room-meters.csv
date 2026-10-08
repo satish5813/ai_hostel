@@ -1,0 +1,6 @@
+hostel_code,room_no,meter_no,meter_type,device_ref,installed_on
+BH2,101,MTR-BH2-101,Manual,,01-06-2026
+BH2,102,MTR-BH2-102,Manual,,01-06-2026
+BH2,103,MTR-BH2-103,Manual,,01-06-2026
+BH2,104,MTR-BH2-104,Manual,,01-06-2026
+BH2,105,MTR-BH2-105,Smart_Prepaid,,01-06-2026

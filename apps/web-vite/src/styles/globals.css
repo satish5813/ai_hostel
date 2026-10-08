@@ -1,0 +1,63 @@
+/* KL University Hostels — the KLH design system (docs/design-system-klh.md) */
+@import "../vendor/klh-tokens.css";
+@import "../vendor/klh.css";
+@import "tailwindcss";
+
+/* Tailwind utilities read the KLH semantic tokens; no other colours exist in the app */
+@theme inline {
+  --color-surface-0: var(--surface-0);
+  --color-surface-1: var(--surface-1);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-primary: var(--primary);
+  --color-primary-subtle: var(--primary-subtle);
+  --color-accent: var(--accent);
+  --color-hero: var(--hero);
+  --font-sans: var(--font-sans);
+  --font-mono: var(--font-mono);
+}
+
+html, body, #root { height: 100%; }
+body { margin: 0; background: var(--ui-ground); color: var(--ink); font-family: var(--font-sans); }
+
+/* app-level layout helpers that the bundle does not provide */
+.klh-grid-2 { display: grid; gap: var(--space-6); grid-template-columns: 1fr; }
+.klh-grid-3 { display: grid; gap: var(--space-4); grid-template-columns: 1fr; }
+.klh-grid-4 { display: grid; gap: var(--space-4); grid-template-columns: 1fr 1fr; }
+@media (min-width: 768px) { .klh-grid-2 { grid-template-columns: 1fr 1fr; } .klh-grid-3 { grid-template-columns: repeat(3, 1fr); } .klh-grid-4 { grid-template-columns: repeat(4, 1fr); } }
+.klh-toasts { position: fixed; right: var(--space-6); bottom: var(--space-6); z-index: 60; display: flex; flex-direction: column; gap: var(--space-2); max-width: 420px; }
+@media (max-width: 767px) { .klh-toasts { left: var(--space-4); right: var(--space-4); bottom: calc(var(--bottomnav-height) + var(--space-3)); } }
+.klh-student { padding: var(--space-4); padding-bottom: calc(var(--bottomnav-height) + var(--space-6)); max-width: 1240px; margin: 0 auto; }
+@media (min-width: 768px) { .klh-student { padding: var(--space-8) var(--space-6); } }
+.klh-topnav { background: var(--surface-1); border-bottom: 1px solid var(--border); }
+.klh-topnav-inner { max-width: 1240px; margin: 0 auto; display: flex; align-items: center; gap: var(--space-6); padding: 0 var(--space-6); height: var(--topbar-height); }
+.klh-topnav .klh-brand-name { white-space: nowrap; }
+.klh-topnav a { white-space: nowrap; color: var(--ink-muted); text-decoration: none; font-weight: 600; font-size: 14px; padding: 6px 2px; border-bottom: 2px solid transparent; }
+.klh-topnav a[aria-current="page"] { color: var(--ink); border-bottom-color: var(--accent); }
+.klh-bottomnav-fixed { position: fixed; left: 0; right: 0; bottom: 0; z-index: 40; }
+@media print { .klh-side, .klh-topnav, .klh-bottomnav-fixed, .no-print { display: none !important; } }
+
+/* screen header: code chip + name + purpose + this role's access (Roles, Screens and Access Rights) */
+.klh-screen-head { display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-4); flex-wrap: wrap; }
+.klh-screen-code { display: inline-block; font-family: var(--font-mono); font-size: 11px; font-weight: 700; letter-spacing: 0.04em; padding: 2px 8px; border-radius: var(--radius-pill); margin-right: 6px; }
+.klh-screen-code.klh-tile-brand { background: var(--primary-subtle); color: var(--primary-ink); }
+.klh-screen-code.klh-tile-indigo { background: var(--indigo-bg); color: var(--indigo-fg); }
+.klh-screen-code.klh-tile-orange { background: var(--orange-bg); color: var(--orange-fg); }
+.klh-screen-code.klh-tile-amber { background: var(--amber-bg); color: var(--amber-fg); }
+.klh-screen-code.klh-tile-violet { background: var(--violet-bg); color: var(--violet-fg); }
+.klh-screen-code.klh-tile-rose { background: var(--rose-bg); color: var(--rose-fg); }
+.klh-screen-code.klh-tile-sky { background: var(--sky-bg); color: var(--sky-fg); }
+.klh-screen-code.klh-tile-cyan { background: var(--cyan-bg); color: var(--cyan-fg); }
+/* QR label print sheet (MAP-03) */
+.klh-print-sheet { display: none; }
+@media print {
+  body * { visibility: hidden; }
+  .klh-print-sheet, .klh-print-sheet *, .klh-label-print, .klh-label-print * { visibility: visible; }
+  .klh-print-sheet { display: grid; position: absolute; left: 0; top: 0; width: 100%; grid-template-columns: repeat(3, 1fr); gap: 12mm; padding: 10mm; }
+  .klh-print-label { text-align: center; border: 1px solid #000; border-radius: 8px; padding: 8mm 4mm; page-break-inside: avoid; }
+  .klh-print-label img { width: 42mm; height: 42mm; }
+  .klh-print-name { font-size: 20pt; font-weight: 800; margin-top: 4mm; }
+  .klh-print-sub { font-size: 9pt; color: #333; }
+}

@@ -1,0 +1,8 @@
+staff_id,salutation,first_name,last_name,gender,dept_code,designation,staff_type,mobile_no,official_email,joining_date
+E2001,Dr.,Suresh,Rao,Male,HOSTELS,"Chief Warden, Boys Hostel 2",,9000020001,cw.bh2@kluniversity.in,01-07-2019
+E2002,Mr.,Naveen,Kumar,Male,HOSTELS,Floor Warden,,9000020002,fw1.bh2@kluniversity.in,15-06-2022
+E2003,Mr.,Prakash,Reddy,Male,HOSTELS,Floor Warden,,9000020003,fw2.bh2@kluniversity.in,15-06-2023
+E2004,Ms.,Anitha,Devi,Female,HOSTELS,Hostel Office Assistant,,9000020004,office.bh2@kluniversity.in,01-08-2021
+E2005,Mr.,Ravi,Teja,Male,HOSTELS,Security Guard,,9000020005,,01-01-2024
+E2006,Ms.,Padma,Sri,Female,HOSTELS,"Chief Warden, Girls Hostel 2",,9000020006,cw.gh2@kluniversity.in,01-07-2018
+E2007,Mr.,No,Mobile,Male,HOSTELS,Floor Warden,,12345,,

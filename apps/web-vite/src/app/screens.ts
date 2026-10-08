@@ -1,0 +1,269 @@
+/**
+ * The screen and role registry, transcribed from "KL University Hostels — Roles, Screens and Access Rights"
+ * (1 Oct 2026): 27 roles, 87 screens, access codes V view · C create · E edit · A approve or reject · X set up.
+ * A person sees only the screens of the roles they hold (menu built from this file) and only the records in
+ * their scope (enforced by the API and the database). Screens without a `route` belong to Workflows G–N and
+ * are not in this release; they appear on the screen map only.
+ */
+import type { T } from '@/lib/klh';
+
+export type Access = string; // e.g. 'V', 'VC', 'VA', 'CE', 'X'
+export type Workflow = 'All' | 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' | 'J' | 'K' | 'L' | 'M' | 'N' | 'Reports' | 'Admin';
+export type Screen = { code: string; name: string; purpose: string; workflow: Workflow; route?: string; icon: T.IconName; menu?: boolean; /** not one of the document's 87 screens; added for this release */ extra?: boolean };
+
+/** Module colour, one per workflow (design-system README: "Colour names the module"). */
+export const MODULE: Record<Workflow, { label: string; color: T.TileColor; letter: string }> = {
+  All: { label: 'General', color: 'brand', letter: '' },
+  A: { label: 'A Registration', color: 'indigo', letter: 'A' },
+  B: { label: 'B Mapping', color: 'brand', letter: 'B' },
+  C: { label: 'C Electricity', color: 'amber', letter: 'C' },
+  D: { label: 'D Tracking', color: 'sky', letter: 'D' },
+  E: { label: 'E Outing', color: 'violet', letter: 'E' },
+  F: { label: 'F Sick leave', color: 'rose', letter: 'F' },
+  G: { label: 'G Mess', color: 'cyan', letter: 'G' },
+  H: { label: 'H Tickets', color: 'orange', letter: 'H' },
+  I: { label: 'I Indent and purchase', color: 'indigo', letter: 'I' },
+  J: { label: 'J Facilities', color: 'cyan', letter: 'J' },
+  K: { label: 'K Convention centre', color: 'violet', letter: 'K' },
+  L: { label: 'L Academics', color: 'sky', letter: 'L' },
+  M: { label: 'M Discipline', color: 'rose', letter: 'M' },
+  N: { label: 'N Vacating', color: 'brand', letter: 'N' },
+  Reports: { label: 'Reports', color: 'brand', letter: '' },
+  Admin: { label: 'Admin', color: 'brand', letter: '' },
+};
+
+export const SCREENS: Screen[] = [
+  { code: 'GEN-01', name: 'My profile and contacts', purpose: 'Own details and phone numbers', workflow: 'All', route: '/profile', icon: 'user' },
+  { code: 'GEN-02', name: 'Notifications', purpose: 'Messages, reminders and alerts addressed to the person', workflow: 'All', route: '/notifications', icon: 'bell' },
+  { code: 'GEN-03', name: 'My approvals', purpose: "Everything waiting for this person's decision", workflow: 'All', route: '/approvals', icon: 'inbox' },
+  { code: 'REG-01', name: 'Hostel registration', purpose: 'Choose hostel building and room type', workflow: 'A', route: '/registration', icon: 'bed' },
+  { code: 'REG-02', name: 'Fees and receipts', purpose: 'Pay online; see and download receipts', workflow: 'A', route: '/fees', icon: 'wallet' },
+  { code: 'REG-03', name: 'Room offer', purpose: 'Accept or decline the allotted room', workflow: 'A', route: '/registration', icon: 'key', menu: false },
+  { code: 'REG-04', name: 'Fee plan and mess choice', purpose: 'Single or two instalments; South, North or Continental', workflow: 'A', route: '/registration', icon: 'utensils', menu: false },
+  { code: 'REG-05', name: 'Allotment desk', purpose: 'Room offers, waiting list, room transfers', workflow: 'A', route: '/allotment', icon: 'users' },
+  { code: 'REG-06', name: 'Check-in and room handover', purpose: 'Key, furniture list, opening meter reading', workflow: 'A', route: '/check-in', icon: 'key' },
+  { code: 'REG-07', name: 'Dues and collections', purpose: 'Fee demands, receipts, overdue list', workflow: 'A', route: '/dues', icon: 'receipt' },
+  { code: 'REG-10', name: 'Room blocking', purpose: 'Block rooms before room selection opens; students see only the rest', workflow: 'A', route: '/room-blocking', icon: 'lock', extra: true },
+  { code: 'REG-11', name: 'Allotment approvals', purpose: 'L1 Room Allotment verifies fees, L2 Chief Warden approves the bed', workflow: 'A', route: '/allotment-approvals', icon: 'check', extra: true },
+  { code: 'REG-12', name: 'Hostel allotment', purpose: 'The whole hostel floor by floor: every bed with its student or faculty member, every floor with its staff', workflow: 'A', route: '/allotment-view', icon: 'bed', extra: true },
+  { code: 'REG-13', name: 'Exceptions', purpose: 'Beds outside the rules, moves and staff rooms: Room Allotment asks, the Chief Warden decides', workflow: 'A', route: '/exceptions', icon: 'inbox', extra: true },
+  { code: 'REG-14', name: 'Yearly renewals', purpose: 'Residents renewing for next year, leaving or undecided; continue the stay into the new year', workflow: 'A', route: '/renewals', icon: 'calendar', extra: true },
+  { code: 'CWP-01', name: 'Overview', purpose: 'Every hostel in the Chief Warden\'s charge and what waits for a decision', workflow: 'All', route: '/overview', icon: 'home', extra: true },
+  { code: 'DSA-01', name: 'Student affairs', purpose: 'Every hostel for the Dean: absence, discipline, outings, weekly reports, career guidance', workflow: 'All', route: '/dean', icon: 'gauge', extra: true },
+  { code: 'RPT-09', name: 'Absence report', purpose: 'Nights absent at roll call per student and floor; class attendance', workflow: 'Reports', route: '/absence-report', icon: 'calendar', extra: true },
+  { code: 'RPT-10', name: 'Weekly floor report', purpose: 'Last week per hostel and floor, sent by the Chief Warden to the Dean', workflow: 'Reports', route: '/weekly-reports', icon: 'file', extra: true },
+  { code: 'DIS-07', name: 'Discipline register', purpose: 'Record, inquire, send to the Dean; the Dean decides', workflow: 'M', route: '/discipline', icon: 'shield', extra: true },
+  { code: 'ACA-03', name: 'Career guidance', purpose: "Hostellers' records read against their career path, with reasons", workflow: 'L', route: '/career-guidance', icon: 'sparkle', extra: true },
+  { code: 'REG-09', name: 'Fee check', purpose: 'Warden checks the fees paid against the receipts before check-in', workflow: 'A', route: '/fee-checks', icon: 'receipt', extra: true },
+  { code: 'REG-08', name: 'Occupancy board', purpose: 'Beds vacant, held, occupied, under maintenance', workflow: 'A', route: '/occupancy', icon: 'building' },
+  { code: 'MAP-01', name: 'Rooms and beds', purpose: 'Buildings, floors, rooms, beds, room types', workflow: 'B', route: '/rooms', icon: 'building' },
+  { code: 'MAP-02', name: 'Staff mapping', purpose: 'Who is responsible for which hostel, floor or area', workflow: 'B', route: '/staff-mapping', icon: 'users' },
+  { code: 'MAP-03', name: 'QR labels', purpose: 'Generate and print the label for each room and area', workflow: 'B', route: '/qr-labels', icon: 'qr' },
+  { code: 'MAP-04', name: 'Room page', purpose: 'Opens when the room QR is scanned', workflow: 'B', route: '/qr/:token', icon: 'qr', menu: false },
+  { code: 'MAP-05', name: 'Staff room allotment', purpose: 'Rooms for resident faculty and staff', workflow: 'B', route: '/staff-rooms', icon: 'bed' },
+  { code: 'MAP-06', name: 'Staff attendance', purpose: 'Mark staff present each day; every floor and washroom gets a person', workflow: 'B', route: '/duty-roster', icon: 'calendar', extra: true },
+  { code: 'MAP-08', name: 'Room mapping', purpose: 'Each room with its students, Floor Warden, sweeper and scavenger', workflow: 'B', route: '/room-mapping', icon: 'building', extra: true },
+  { code: 'MAP-07', name: 'Mapping centre', purpose: 'Students to beds; wardens, sweepers, scavengers and guards to places', workflow: 'B', route: '/mapping', icon: 'users', extra: true },
+  { code: 'ELE-01', name: 'My electricity', purpose: 'Units used, balance, online recharge', workflow: 'C', route: '/electricity', icon: 'bolt' },
+  { code: 'ELE-02', name: 'Meters and readings', purpose: 'Meter register and readings', workflow: 'C', route: '/meters', icon: 'gauge' },
+  { code: 'ELE-03', name: 'Electricity tariff', purpose: 'Included units and rate per unit', workflow: 'C', route: '/tariff', icon: 'bolt' },
+  { code: 'TRK-01', name: 'Student status board', purpose: 'Current status of each hosteller', workflow: 'D', route: '/status-board', icon: 'pin' },
+  { code: 'TRK-02', name: 'Student look-up', purpose: 'Where one student is now; every look-up is logged', workflow: 'D', route: '/look-up', icon: 'search' },
+  { code: 'TRK-03', name: 'Alerts', purpose: 'No pass, overdue, not seen, missed register and others', workflow: 'D', route: '/alerts', icon: 'alert' },
+  { code: 'TRK-04', name: 'Gate scan', purpose: 'Scan students in and out; check the outing pass', workflow: 'D', route: '/gate', icon: 'door' },
+  { code: 'TRK-05', name: 'Capture points', purpose: 'Gates, card readers and cameras', workflow: 'D', route: '/capture-points', icon: 'settings' },
+  { code: 'TRK-06', name: 'Look-up log', purpose: 'Who looked up which student, and why', workflow: 'D', route: '/look-up-log', icon: 'shield' },
+  { code: 'TRK-08', name: 'Roll call', purpose: 'Morning, study hours and night: each resident in, not seen, on a pass or sick', workflow: 'D', route: '/roll-call', icon: 'check', extra: true },
+  { code: 'TRK-09', name: 'Access control', purpose: 'Who may pass each gate, floor and space, when, and with what proof', workflow: 'D', route: '/access', icon: 'lock', extra: true },
+  { code: 'TRK-07', name: 'Attendance register', purpose: 'Each resident against each day: outings, sick leave and the night roll call', workflow: 'D', route: '/attendance', icon: 'calendar', extra: true },
+  { code: 'OUT-01', name: 'My outings', purpose: 'Apply for an outing; show the QR pass', workflow: 'E', route: '/outings', icon: 'door' },
+  { code: 'OUT-02', name: 'Parent recommendation', purpose: "Recommend or decline the child's outing", workflow: 'E', route: '/parent-recommendation', icon: 'door' },
+  { code: 'OUT-03', name: 'Outing approvals', purpose: 'Level 1, 2 and 3 decisions', workflow: 'E', route: '/outing-approvals', icon: 'door' },
+  { code: 'SCK-01', name: 'My sick leave', purpose: 'Apply for sick leave or an extension', workflow: 'F', route: '/sick-leave', icon: 'heart' },
+  { code: 'SCK-02', name: 'Sick leave approvals', purpose: 'In-person verification and approval', workflow: 'F', route: '/sick-leave-approvals', icon: 'heart' },
+  { code: 'SCK-03', name: 'Mess sick list', purpose: 'Students to be served in their rooms; delivery ticks', workflow: 'F', route: '/mess-sick-list', icon: 'utensils' },
+  { code: 'MES-01', name: 'Routine menu', purpose: 'A week of meals per hostel (Boys, Girls), food style or country, Veg or Non-veg', workflow: 'G', route: '/mess-menu', icon: 'utensils', extra: true },
+  { code: 'MES-02', name: 'Mess feedback and grievance', purpose: 'Rate or complain about a meal, by date and slot', workflow: 'G', icon: 'utensils' },
+  { code: 'MES-03', name: 'Grievance desk', purpose: 'Reply to mess grievances and record action', workflow: 'G', icon: 'inbox' },
+  { code: 'MES-04', name: 'Meal scan', purpose: 'Scan student ID at the counter', workflow: 'G', icon: 'qr' },
+  { code: 'MES-05', name: 'Mess store', purpose: 'Receipts, daily issue, stock of provisions', workflow: 'G', icon: 'receipt' },
+  { code: 'MES-06', name: 'Mess daily record', purpose: 'Meals planned and served, wastage', workflow: 'G', icon: 'calendar' },
+  { code: 'MES-07', name: 'Mess monthly report', purpose: 'Consolidated monthly report', workflow: 'G', icon: 'file' },
+  { code: 'TKT-01', name: 'My tickets', purpose: 'Raise a maintenance ticket; confirm closure', workflow: 'H', icon: 'edit' },
+  { code: 'TKT-04', name: 'Floor rounds and repairs', purpose: 'Checklist for each room and washroom; faults become tickets', workflow: 'H', route: '/maintenance', icon: 'settings' },
+  { code: 'TKT-02', name: 'Ticket verification', purpose: 'Level 1 check that a ticket is genuine', workflow: 'H', route: '/maintenance', icon: 'check' },
+  { code: 'TKT-03', name: 'Maintenance board', purpose: 'Assign, repair, file the closure report', workflow: 'H', icon: 'settings' },
+  { code: 'TKT-05', name: 'Checklist review', purpose: 'Review and sign submitted checklists', workflow: 'H', icon: 'eye' },
+  { code: 'TKT-06', name: 'Grievances', purpose: 'Grievances that are not repairs', workflow: 'H', icon: 'inbox' },
+  { code: 'IND-01', name: 'Raise indent', purpose: 'Request an item for a room: type, sub-category, item', workflow: 'I', icon: 'plus' },
+  { code: 'IND-02', name: 'Indent approval', purpose: 'Approve the indent and the stock issue', workflow: 'I', icon: 'check' },
+  { code: 'IND-03', name: 'Stock check and issue', purpose: 'Check stock, reserve, issue, take back old item', workflow: 'I', icon: 'building' },
+  { code: 'IND-04', name: 'Quotations and vendor ranking', purpose: 'Call quotations; rank vendors', workflow: 'I', icon: 'sort' },
+  { code: 'IND-05', name: 'Purchase order', purpose: 'Prepare the order, terms and conditions', workflow: 'I', icon: 'file' },
+  { code: 'IND-06', name: 'Purchase order approval', purpose: 'Approve the order, by value', workflow: 'I', icon: 'check' },
+  { code: 'IND-07', name: 'Gate entry, receipt and inspection', purpose: 'Gate register, goods receipt, quality check, returns', workflow: 'I', icon: 'door' },
+  { code: 'IND-08', name: 'Installation and handover', purpose: 'Send out, install, test, hand over in the room', workflow: 'I', icon: 'key' },
+  { code: 'IND-09', name: 'Asset register', purpose: 'Tagged assets by room; warranty; transfers', workflow: 'I', icon: 'building' },
+  { code: 'IND-10', name: 'Invoice and payment', purpose: 'Vendor invoice, three-way match, payment', workflow: 'I', icon: 'receipt' },
+  { code: 'IND-11', name: 'Budget and ledger', purpose: 'Budget heads, commitments, journal entries', workflow: 'I', icon: 'wallet' },
+  { code: 'IND-12', name: 'Purchase order tracker', purpose: 'Conditions, alerts and payment status of each order', workflow: 'I', icon: 'clock' },
+  { code: 'FAC-01', name: 'Facility entry', purpose: "Record a student's use of a facility", workflow: 'J', icon: 'login' },
+  { code: 'FAC-02', name: 'Facility day register', purpose: "Confirm the day's usage", workflow: 'J', icon: 'calendar' },
+  { code: 'FAC-03', name: 'Facility setup', purpose: 'Facilities, timings, In-charge', workflow: 'J', icon: 'settings' },
+  { code: 'CON-01', name: 'Book convention centre', purpose: 'Slot, occasion, guest list, food and drinks', workflow: 'K', icon: 'calendar' },
+  { code: 'CON-02', name: 'Booking approval', purpose: 'Approve or reject a booking', workflow: 'K', icon: 'check' },
+  { code: 'CON-03', name: 'Guest check-in', purpose: 'Admit listed guests by ID scan', workflow: 'K', icon: 'qr' },
+  { code: 'CON-04', name: 'Event report', purpose: 'Report on a completed event', workflow: 'K', icon: 'file' },
+  { code: 'CON-05', name: 'Event food order', purpose: 'Food and soft drinks to prepare', workflow: 'K', icon: 'utensils' },
+  { code: 'ACA-01', name: 'Student academic page', purpose: 'Results, CRT, certifications, activities and achievements', workflow: 'L', route: '/academics', icon: 'file' },
+  { code: 'ACA-02', name: 'Import monitor', purpose: 'Files received from the academic system', workflow: 'L', icon: 'upload' },
+  { code: 'DIS-01', name: 'Record indiscipline', purpose: 'Record an incident', workflow: 'M', icon: 'alert' },
+  { code: 'DIS-02', name: 'Verify and recommend', purpose: 'Verify the case; recommend action', workflow: 'M', icon: 'eye' },
+  { code: 'DIS-03', name: 'Award punishment', purpose: 'Decide the punishment', workflow: 'M', icon: 'shield' },
+  { code: 'DIS-04', name: 'Ratify punishment', purpose: 'Ratify or return the punishment', workflow: 'M', icon: 'check' },
+  { code: 'DIS-05', name: 'My discipline record', purpose: "A student's own cases and statement", workflow: 'M', icon: 'shield' },
+  { code: 'DIS-06', name: 'Exam alarm', purpose: 'Punished students with an examination', workflow: 'M', icon: 'alert' },
+  { code: 'VAC-01', name: 'Apply to vacate', purpose: 'Reason and proof upload', workflow: 'N', icon: 'logout' },
+  { code: 'VAC-02', name: 'Vacating approvals', purpose: 'Level 1 to 4 decisions', workflow: 'N', icon: 'check' },
+  { code: 'VAC-03', name: 'Check-out inspection', purpose: 'Furniture, damages, final meter reading, key', workflow: 'N', icon: 'key' },
+  { code: 'VAC-04', name: 'No-dues clearance', purpose: 'Clear dues section by section; refund', workflow: 'N', icon: 'receipt' },
+  { code: 'RPT-01', name: 'Mess grievance summary', purpose: 'Significant grievances by date and slot', workflow: 'Reports', icon: 'file' },
+  { code: 'RPT-02', name: 'Tickets: work not done', purpose: 'Tickets auto-closed after 24 hours', workflow: 'Reports', icon: 'file' },
+  { code: 'RPT-03', name: 'Facility utilisation', purpose: 'Day-wise use of each facility', workflow: 'Reports', icon: 'file' },
+  { code: 'RPT-04', name: 'Convention centre utilisation', purpose: 'Use, food, issues reported', workflow: 'Reports', icon: 'file' },
+  { code: 'RPT-05', name: 'Academic cumulative report', purpose: 'Attendance, marks and status of hostellers', workflow: 'Reports', icon: 'file' },
+  { code: 'RPT-06', name: 'Discipline summary', purpose: 'Punishments, cumulative', workflow: 'Reports', icon: 'file' },
+  { code: 'RPT-07', name: 'Occupancy, fees and dues', purpose: 'Beds, collections, overdue', workflow: 'Reports', route: '/reports/occupancy-fees-dues', icon: 'gauge' },
+  { code: 'RPT-08', name: 'Purchase and payment status', purpose: 'Orders, deliveries, invoices, payments', workflow: 'Reports', icon: 'file' },
+  { code: 'ADM-04', name: 'Masters', purpose: 'Academic years, hostels, room types, fees, mess, staff and students', workflow: 'Admin', route: '/admin/masters', icon: 'building', extra: true },
+  { code: 'ADM-01', name: 'Users and roles', purpose: 'Give and remove roles', workflow: 'Admin', route: '/admin/users', icon: 'users' },
+  { code: 'ADM-02', name: 'Approval rules and settings', purpose: 'Approval levels, limits, report visibility', workflow: 'Admin', route: '/admin/settings', icon: 'settings' },
+  { code: 'ADM-03', name: 'Audit log', purpose: 'Every sign-in, approval and refusal', workflow: 'Admin', route: '/admin/audit-log', icon: 'shield' },
+];
+
+export type RoleDef = { code: string; name: string; scope: string; device: string; section: string; roles: string[]; sample: string; access: Record<string, Access>; cannot: string[] };
+
+/** Section 2 and the role tables of sections 4–11. `roles` are the portal.role codes a session may carry. */
+export const ROLES: RoleDef[] = [
+  { code: 'STU', name: 'Student', scope: 'Own record only', device: 'Mobile app', section: 'Students and parents', roles: ['Student'], sample: '2600040012',
+    access: { 'GEN-01': 'VE', 'GEN-02': 'V', 'REG-01': 'C', 'REG-02': 'VC', 'REG-03': 'E', 'REG-04': 'C', 'MAP-04': 'VC', 'ELE-01': 'VC', 'OUT-01': 'VC', 'SCK-01': 'VC', 'MES-01': 'V', 'MES-02': 'C', 'TKT-01': 'VCE', 'TKT-06': 'VC', 'FAC-01': 'C', 'CON-01': 'VCE', 'ACA-01': 'V', 'DIS-05': 'VC', 'VAC-01': 'VC' },
+    cannot: ["See another student's room, fees, location or records.", 'Change a fee amount, a due date or an allotment.', 'Edit a request after it has been approved at any level.'] },
+  { code: 'PAR', name: 'Parent or guardian', scope: 'Own child only', device: 'Mobile link or app', section: 'Students and parents', roles: ['Parent'], sample: 'contact:5',
+    access: { 'GEN-01': 'V', 'GEN-02': 'V', 'OUT-02': 'VA', 'REG-02': 'V' },
+    cannot: ["See the child's live location or movement history.", 'See tickets, grievances or mess feedback.', 'Approve on behalf of the hostel; the parent step is a recommendation only.'] },
+  { code: 'FW', name: 'Floor Warden (Floor In-charge)', scope: 'Students and rooms of own floor', device: 'Mobile app', section: 'Hostel staff', roles: ['Floor_Warden'], sample: 'S-FW',
+    access: { 'MAP-08': 'V', 'TRK-09': 'VA', 'TRK-08': 'VC', 'MAP-06': 'VC', 'GEN-01': 'V', 'GEN-02': 'V', 'GEN-03': 'VA', 'REG-06': 'C', 'REG-08': 'V', 'MAP-04': 'VC', 'TRK-01': 'V', 'TRK-02': 'V', 'TRK-03': 'VE', 'TRK-07': 'VC', 'OUT-03': 'A', 'SCK-02': 'CA', 'TKT-01': 'C', 'TKT-02': 'A', 'TKT-04': 'C', 'IND-01': 'C', 'ACA-01': 'V', 'DIS-01': 'C', 'VAC-02': 'A', 'VAC-03': 'C' },
+    cannot: ['See students or rooms of other floors.', 'Give the final approval for anything: every request goes on to the Chief Warden.', 'Change allotment, fees or dues.', 'Verify a ticket that the Floor Warden raised personally.'] },
+  { code: 'WDN', name: 'Warden (Hostel In-charge)', scope: 'Own hostel', device: 'Web and mobile', section: 'Hostel staff', roles: ['Warden', 'Assistant_Warden', 'Hostel_Incharge'], sample: 'S-WD',
+    access: { 'REG-10': 'V', 'REG-11': 'VA', 'MAP-08': 'V', 'TRK-09': 'VA', 'TRK-08': 'VC', 'REG-09': 'VA', 'MAP-06': 'CE', 'MAP-07': 'V', 'GEN-01': 'V', 'GEN-02': 'V', 'GEN-03': 'VA', 'REG-05': 'VA', 'REG-07': 'V', 'REG-08': 'V', 'MAP-02': 'VA', 'MAP-04': 'VC', 'TRK-01': 'V', 'TRK-02': 'V', 'TRK-03': 'VE', 'TRK-07': 'VC', 'TKT-03': 'V', 'TKT-04': 'C', 'TKT-05': 'A', 'TKT-06': 'VE', 'IND-01': 'C', 'IND-02': 'A', 'IND-08': 'A', 'IND-09': 'V', 'ACA-01': 'V', 'RPT-07': 'V' },
+    cannot: ['Approve outing, sick leave or vacating: those levels belong to the Floor Warden and the Chief Warden.', 'See other hostels.', 'Approve an indent the Warden raised personally; it goes to the Chief Warden.'] },
+  { code: 'CW', name: 'Chief Warden (Director, Hostels)', scope: 'Hostels given to this login', device: 'Web and mobile', section: 'Hostel staff', roles: ['Chief_Warden', 'Director_Hostels'], sample: 'S-CW',
+    access: { 'REG-10': 'VCE', 'REG-11': 'VA', 'REG-12': 'V', 'REG-13': 'VCA', 'REG-14': 'VCA', 'MES-01': 'VCEA', 'RPT-09': 'V', 'RPT-10': 'VC', 'DIS-07': 'VCE', 'CWP-01': 'V', 'MAP-08': 'V', 'TRK-09': 'VCEA', 'TKT-04': 'V', 'TRK-08': 'V', 'REG-09': 'VA', 'MAP-06': 'CE', 'MAP-07': 'CE', 'GEN-01': 'V', 'GEN-02': 'V', 'GEN-03': 'VA', 'REG-05': 'VA', 'REG-08': 'V', 'MAP-01': 'A', 'MAP-02': 'CE', 'TRK-01': 'V', 'TRK-02': 'V', 'TRK-03': 'VE', 'TRK-06': 'V', 'TRK-07': 'V', 'OUT-03': 'A', 'SCK-02': 'CA', 'SCK-03': 'V', 'TRK-04': 'C', 'TRK-05': 'V', 'MES-03': 'VE', 'MES-07': 'V', 'TKT-03': 'V', 'TKT-05': 'A', 'TKT-06': 'VA', 'FAC-02': 'V', 'FAC-03': 'X', 'CON-02': 'A', 'CON-04': 'C', 'ACA-01': 'V', 'DIS-02': 'A', 'VAC-02': 'A', 'RPT-01': 'V', 'RPT-02': 'V', 'RPT-03': 'V', 'RPT-04': 'V', 'RPT-07': 'V' },
+    cannot: ['Award a punishment: that is the Dean, Students Affairs.', 'Give the final approval for an outing of a day or more, or for vacating.', 'Change fee amounts.'] },
+  { code: 'OFF', name: 'Room Allotment (hostel office)', scope: 'Hostels given to this login', device: 'Web', section: 'Hostel staff', roles: ['Room_Allotment', 'Office_Staff'], sample: 'S-OF',
+    access: { 'REG-10': 'V', 'REG-11': 'VA', 'REG-12': 'V', 'REG-13': 'VC', 'REG-14': 'VC', 'MES-01': 'V', 'MAP-08': 'V', 'REG-09': 'VA', 'MAP-07': 'CE', 'GEN-01': 'V', 'GEN-02': 'V', 'REG-05': 'CE', 'REG-06': 'C', 'REG-07': 'VE', 'REG-08': 'VE', 'MAP-01': 'CE', 'MAP-03': 'C', 'MAP-05': 'C', 'TKT-01': 'C', 'TKT-04': 'C', 'TKT-06': 'CE', 'IND-01': 'C', 'IND-09': 'V', 'VAC-03': 'C', 'VAC-04': 'E' },
+    cannot: ['Approve any request.', 'See student location, academic record or discipline cases.', 'Collect money unless also given the Hostel Accounts role.'] },
+  { code: 'HAC', name: 'Hostel Accounts section', scope: 'All hostels', device: 'Web', section: 'Hostel staff', roles: ['Accounts_Section'], sample: 'S-AC',
+    access: { 'REG-11': 'V', 'REG-09': 'V', 'GEN-01': 'V', 'GEN-02': 'V', 'REG-02': 'V', 'REG-07': 'CE', 'ELE-02': 'V', 'ELE-03': 'X', 'VAC-04': 'E', 'RPT-07': 'V' },
+    cannot: ['Waive or reduce a fee: that needs the Pro-VC Finance.', 'Change an allotment.', 'See location, academic or discipline data.'] },
+  { code: 'SEC', name: 'Security (guard and Security Officer)', scope: 'Own gate or hostel', device: 'Handheld scanner or mobile', section: 'Hostel staff', roles: ['Security_Guard', 'Security_Officer'], sample: 'S-SG',
+    access: { 'TRK-09': 'VCE', 'MAP-06': 'V', 'GEN-01': 'V', 'GEN-02': 'V', 'TRK-04': 'C', 'TRK-03': 'VE', 'TRK-02': 'V', 'TRK-05': 'X', 'CON-03': 'C', 'IND-07': 'C' },
+    cannot: ["See why an outing was approved or refused, or the student's other records.", 'Let a student out on a pass that is not approved, or admit an unlisted guest.'] },
+  { code: 'FCI', name: 'Facility In-charge', scope: 'Own facility', device: 'Mobile or tablet', section: 'Hostel staff', roles: ['Facility_Incharge'], sample: 'S-FC',
+    access: { 'GEN-01': 'V', 'GEN-02': 'V', 'FAC-01': 'C', 'FAC-02': 'C', 'TKT-01': 'C' },
+    cannot: ['Edit a day register after confirming it.', 'See any other student record.'] },
+  { code: 'MIC', name: 'Mess In-charge', scope: 'Own mess', device: 'Web and mobile', section: 'Mess', roles: ['Mess_Incharge', 'Mess_Manager'], sample: 'S-MS',
+    access: { 'GEN-01': 'V', 'GEN-02': 'V', 'MES-01': 'CE', 'MES-03': 'E', 'SCK-03': 'V', 'MES-05': 'VA', 'MES-06': 'V', 'MES-07': 'C', 'CON-05': 'VE', 'TKT-05': 'A', 'RPT-01': 'V' },
+    cannot: ['See which student gave a feedback rating (ratings are shown without names); grievances show the name.', 'Change mess fees or subscriptions.'] },
+  { code: 'MSU', name: 'Mess Supervisor', scope: 'Own mess', device: 'Tablet or mobile', section: 'Mess', roles: ['Mess_Supervisor'], sample: 'S-MU',
+    access: { 'GEN-01': 'V', 'GEN-02': 'V', 'MES-04': 'C', 'MES-05': 'A', 'MES-06': 'C', 'SCK-03': 'E', 'TKT-04': 'C', 'MES-02': 'V' },
+    cannot: ['Change the menu.', 'Issue stock.'] },
+  { code: 'MSK', name: 'Storekeeper (Mess)', scope: 'Own mess store', device: 'Web', section: 'Mess', roles: ['Mess_Storekeeper'], sample: 'S-MK',
+    access: { 'GEN-01': 'V', 'GEN-02': 'V', 'MES-05': 'CE', 'IND-01': 'C', 'IND-07': 'C', 'TKT-04': 'C' },
+    cannot: ['Issue without an acknowledgement from the Mess Supervisor.', 'Change the stock balance directly; it changes only through receipts and issues.'] },
+  { code: 'MNT', name: 'Maintenance Supervisor', scope: 'Tickets of own trade and hostels', device: 'Web and mobile', section: 'Maintenance', roles: ['Maintenance_Supervisor'], sample: 'S-MT',
+    access: { 'GEN-01': 'V', 'GEN-02': 'V', 'TKT-03': 'CE', 'TKT-04': 'C', 'IND-01': 'C', 'IND-08': 'E', 'ELE-02': 'CE', 'REG-08': 'E', 'RPT-02': 'V' },
+    cannot: ["Reject a student's ticket: only the Floor Warden decides whether it is genuine.", 'Reopen or alter a ticket after it is auto-closed; a follow-up ticket is opened instead.'] },
+  { code: 'TEC', name: 'Technician', scope: 'Jobs assigned to self', device: 'Mobile app', section: 'Maintenance', roles: ['Technician', 'Electrician'], sample: 'S-TE',
+    access: { 'GEN-01': 'V', 'GEN-02': 'V', 'TKT-03': 'E', 'IND-08': 'E' },
+    cannot: ['See student details other than room number and the problem.', 'Close a ticket without a closure report.'] },
+  { code: 'INS', name: 'Maintenance Inspection Officer', scope: 'All hostels', device: 'Mobile app', section: 'Maintenance', roles: ['Inspection_Officer'], sample: 'S-IN',
+    access: { 'GEN-01': 'V', 'GEN-02': 'V', 'TKT-03': 'VA', 'TKT-04': 'C' },
+    cannot: ['Verify a repair the officer carried out personally.'] },
+  { code: 'STO', name: 'Storekeeper and Stores General Manager', scope: 'Own store; General Manager: all stores', device: 'Web', section: 'Stores, purchase and accounts', roles: ['storekeeper', 'stockentry'], sample: 'S-ST',
+    access: { 'GEN-01': 'V', 'GEN-02': 'V', 'IND-03': 'CE', 'IND-07': 'C', 'IND-08': 'C', 'IND-09': 'CE', 'IND-12': 'V', 'GEN-03': 'VA' },
+    cannot: ['Issue stock without an approved indent.', 'Edit a stock balance; it changes only through recorded movements.', 'Approve own stock check: the General Manager does.'] },
+  { code: 'PUR', name: 'Purchase section and Purchase General Manager', scope: 'All purchases', device: 'Web', section: 'Stores, purchase and accounts', roles: ['purchase', 'purchasegm'], sample: 'S-PU',
+    access: { 'GEN-01': 'V', 'GEN-02': 'V', 'IND-04': 'CE', 'IND-05': 'CE', 'IND-12': 'VE', 'IND-07': 'V', 'RPT-08': 'V' },
+    cannot: ['Approve a purchase order they prepared.', 'Select a vendor below rank 1 without a recorded reason and committee approval.', 'Record payments.'] },
+  { code: 'ACC', name: 'Accounts (Finance)', scope: 'All', device: 'Web', section: 'Stores, purchase and accounts', roles: ['accounts', 'approver'], sample: 'S-FA',
+    access: { 'GEN-01': 'V', 'GEN-02': 'V', 'IND-06': 'A', 'IND-10': 'CE', 'IND-11': 'CE', 'IND-09': 'E', 'IND-12': 'V', 'RPT-08': 'V' },
+    cannot: ['Pay an invoice that has not passed the three-way match.', 'Prepare and approve the same payment: the finance authority approves.', 'Change stock or orders.'] },
+  { code: 'DSA', name: 'Dean, Students Affairs', scope: 'University-wide', device: 'Web and mobile', section: 'Senior management', roles: ['Dean_Students_Affairs'], sample: 'S-DN',
+    access: { 'DSA-01': 'V', 'RPT-09': 'V', 'RPT-10': 'V', 'DIS-07': 'VA', 'ACA-03': 'V', 'GEN-01': 'V', 'GEN-02': 'V', 'GEN-03': 'VA', 'OUT-03': 'A', 'DIS-03': 'A', 'MAP-02': 'A', 'ACA-01': 'V', 'RPT-01': 'V', 'RPT-02': 'V', 'RPT-03': 'V', 'RPT-04': 'V', 'RPT-05': 'V', 'RPT-06': 'V' },
+    cannot: ['Ratify own punishment order: that is the Pro-VC Academics.', 'Approve vacating or purchases.'] },
+  { code: 'DSP', name: 'Dean, Students Progression', scope: 'University-wide', device: 'Web and mobile', section: 'Senior management', roles: ['Dean_Students_Progression'], sample: 'S-DP',
+    access: { 'GEN-01': 'V', 'GEN-02': 'V', 'GEN-03': 'VA', 'VAC-02': 'A', 'ACA-01': 'V', 'RPT-06': 'V' },
+    cannot: ['Give the final approval for vacating: that is the Pro-VC Finance.'] },
+  { code: 'PVF', name: 'Pro-VC Finance', scope: 'University-wide', device: 'Web and mobile', section: 'Senior management', roles: ['Pro_VC_Finance', 'authority'], sample: 'S-PV',
+    access: { 'GEN-01': 'V', 'GEN-02': 'V', 'GEN-03': 'VA', 'VAC-02': 'A', 'IND-02': 'A', 'IND-06': 'A', 'ELE-03': 'A', 'REG-07': 'A', 'RPT-01': 'V', 'RPT-02': 'V', 'RPT-03': 'V', 'RPT-04': 'V', 'RPT-07': 'V', 'RPT-08': 'V' },
+    cannot: ['Approve an order above the Rs 50,000 limit.', 'See academic or discipline reports, unless also given those roles.'] },
+  { code: 'PVA', name: 'Pro-VC Academics', scope: 'University-wide', device: 'Web and mobile', section: 'Senior management', roles: ['Pro_VC_Academics'], sample: 'S-PA',
+    access: { 'GEN-01': 'V', 'GEN-02': 'V', 'GEN-03': 'VA', 'DIS-04': 'A', 'RPT-05': 'V' },
+    cannot: ['Award or change a punishment directly; it can only be ratified or returned.'] },
+  { code: 'VC', name: 'Vice-Chancellor', scope: 'University-wide', device: 'Web', section: 'Senior management', roles: ['Vice_Chancellor'], sample: 'S-VC',
+    access: { 'GEN-01': 'V', 'GEN-02': 'V', 'RPT-05': 'V' },
+    cannot: ['Other hostel reports, unless the administration adds them in Report_Visibility.'] },
+  { code: 'VPP', name: 'Vice President and President', scope: 'University-wide', device: 'Web and mobile', section: 'Senior management', roles: ['Vice_President', 'President'], sample: 'S-VP',
+    access: { 'GEN-01': 'V', 'GEN-02': 'V', 'GEN-03': 'VA', 'IND-06': 'A', 'RPT-01': 'V', 'RPT-02': 'V', 'RPT-03': 'V', 'RPT-04': 'V', 'RPT-05': 'V', 'RPT-08': 'V' },
+    cannot: ['Edit any hostel record; these roles read and approve only.'] },
+  { code: 'ACD', name: 'Faculty Counsellor, HOD, Principal, Dean Academics', scope: 'Counsellor: own students. HOD: own department. Principal and Dean Academics: all.', device: 'Web', section: 'Academic and examination', roles: ['Faculty_Counsellor', 'HOD', 'Principal', 'Dean_Academics'], sample: 'S-HD',
+    access: { 'GEN-01': 'V', 'GEN-02': 'V', 'RPT-06': 'V' },
+    cannot: ["See the full case file, evidence or the student's statement.", 'See hostel location, fees or mess data.'] },
+  { code: 'EXM', name: 'Controller of Exams; Director, Examinations and Evaluations', scope: 'University-wide', device: 'Web', section: 'Academic and examination', roles: ['Controller_Exams', 'Director_Examinations'], sample: 'S-CE',
+    access: { 'GEN-01': 'V', 'GEN-02': 'V', 'DIS-06': 'VA', 'RPT-06': 'V' },
+    cannot: ['See case details beyond what the alarm shows.'] },
+  { code: 'ADM', name: 'Data Administrator', scope: 'System settings only', device: 'Web', section: 'System', roles: ['admin'], sample: 'S-AD',
+    access: { 'MAP-07': 'X', 'GEN-01': 'V', 'GEN-02': 'V', 'ADM-04': 'X', 'MAP-01': 'X', 'ADM-01': 'CE', 'ADM-02': 'X', 'ADM-03': 'V', 'ACA-02': 'VE' },
+    cannot: ['Approve any request or act in any workflow.', 'Change or delete audit log rows.', 'Give a role to self.'] },
+];
+
+/** Section 12: rules that apply to every role. */
+export const RULES: { rule: string; does: string }[] = [
+  { rule: 'Nobody approves their own request', does: 'A request raised by a person is routed to the next level above them, never back to themselves.' },
+  { rule: 'Levels in order', does: 'A screen shows the Approve button only when all earlier levels are done.' },
+  { rule: 'Verifier is not the doer', does: 'The person who repaired a fault cannot verify it; the person who prepared a payment or purchase order cannot approve it.' },
+  { rule: 'Acting arrangements', does: 'When an approver is on leave, an acting person is named with from and to dates; the acting role ends by itself.' },
+  { rule: 'Several roles, one person', does: 'A person can hold several roles; the menu shows the screens of all of them.' },
+  { rule: 'Sensitive data', does: 'Aadhaar numbers are never shown. Phone numbers of students and parents are shown only to wardens, Security and the hostel office. Confidential grievances are shown only to the Warden and Chief Warden.' },
+  { rule: 'Location look-ups', does: "Every look-up of a student's location asks for a purpose and is written to the look-up log, which the Chief Warden reviews." },
+  { rule: 'Reports are read-only', does: 'Management reports can be viewed and exported, never edited. Each opening of a report is logged.' },
+  { rule: 'Everything is logged', does: 'Every sign-in, creation, edit, approval and refusal is written to the audit log with name, role and time. Log rows cannot be changed.' },
+  { rule: 'Roles are given on approval', does: 'The Data Administrator gives a role only on written approval, and cannot give a role to self.' },
+  { rule: 'Role ends with the post', does: 'When a staff assignment ends or a student vacates, the related screens disappear the same day.' },
+];
+
+export const ACCESS_LABEL: Record<string, string> = { V: 'View', C: 'Create', E: 'Edit', A: 'Approve or reject', X: 'Set up' };
+
+/* ---------- helpers ---------- */
+export const screenByCode = (code: string) => SCREENS.find((s) => s.code === code);
+export const screenByRoute = (path: string) => SCREENS.find((s) => s.route === path);
+/** The document role a session role belongs to. */
+export const roleDef = (sessionRole: string) => ROLES.find((r) => r.roles.includes(sessionRole));
+export const accessOf = (sessionRole: string, code: string): Access | undefined => roleDef(sessionRole)?.access[code];
+export const can = (sessionRole: string, code: string, a: 'V' | 'C' | 'E' | 'A' | 'X') => (accessOf(sessionRole, code) ?? '').includes(a);
+
+/** Screens a role may open in this release, in document order, one entry per route. */
+export function screensFor(sessionRole: string): Screen[] {
+  const def = roleDef(sessionRole);
+  if (!def) return [];
+  const seen = new Set<string>();
+  return SCREENS.filter((s) => def.access[s.code] && s.route && s.menu !== false && !s.route.includes(':') && !seen.has(s.route) && seen.add(s.route));
+}
+/** Menu groups by workflow for the staff sidebar. */
+export function menuFor(sessionRole: string): { heading: string; workflow: Workflow; screens: Screen[] }[] {
+  const groups = new Map<Workflow, Screen[]>();
+  screensFor(sessionRole).forEach((s) => groups.set(s.workflow, [...(groups.get(s.workflow) ?? []), s]));
+  return [...groups.entries()].map(([w, screens]) => ({ heading: MODULE[w].label, workflow: w, screens }));
+}
+export const sectionOf = (code: string) => code.split('-')[0];
