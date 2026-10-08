@@ -1,0 +1,5 @@
+# shell scripts run on the Mac: always LF, whatever the checkout machine
+*.sh text eol=lf
+# database backups are binary
+*.dump binary
+*.sql.gz binary
