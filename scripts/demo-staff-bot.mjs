@@ -14,7 +14,7 @@
 //   STUDENTS=2600040011,2600040012 DELAY=5 API=http://localhost:4100 node scripts/demo-staff-bot.mjs
 const API = process.env.API ?? 'http://localhost:4100';
 const STUDENTS = (process.env.STUDENTS ?? '2600040011').split(',').map((s) => s.trim()).filter(Boolean);
-const DELAY = Number(process.env.DELAY ?? 6) * 1000, EVERY = 2000;
+const DELAY = Number(process.env.DELAY ?? 6) * 1000, EVERY = 3000;
 const ONCE = process.argv.includes('--once');
 
 async function call(user, role, method, path, body) {
@@ -25,7 +25,7 @@ async function call(user, role, method, path, body) {
     return { ok: r.ok, status: r.status, body: j };
   } catch (e) { return { ok: false, status: 0, body: { message: String(e.message ?? e) } }; }
 }
-const asStudent = async (s, path) => (await call(s, 'Student', 'GET', path)).body;
+const asStudent = async (s, path) => { const r = await call(s, 'Student', 'GET', path); return r.ok ? r.body : null; }; // a failed read (say, a rate limit) reads as nothing
 const log = (s, what) => console.log(`${new Date().toLocaleTimeString('en-IN')}  ${s}  ${what}`);
 
 // every staff sign-in the demo offers, grouped by what they may do; the first one the API accepts for a step is used

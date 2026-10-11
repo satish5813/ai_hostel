@@ -1,3 +1,4 @@
+import 'pay_all_sheet.dart';
 import 'renewal_sheet.dart';
 import 'dart:ui';
 import 'package:flutter/material.dart';
@@ -42,9 +43,9 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<dynamic> _try(String path) async { try { return await Api.instance.get(path); } catch (_) { return null; } }
 
   Future<void> load() async {
-    const keys = ['regs', 'dues', 'me', 'meter', 'passes', 'sick', 'room', 'renewal', 'menu', 'meals', 'tickets', 'goal'];
+    const keys = ['regs', 'dues', 'me', 'meter', 'passes', 'sick', 'room', 'renewal', 'menu', 'meals', 'tickets', 'goal', 'wallet'];
     final r = await Future.wait([_try('/registrations/mine'), _try('/students/$me/demands'), _try('/students/$me'), _try('/meters/mine'), _try('/outpasses/mine'),
-      _try('/sick-leaves/mine'), _try('/me/room'), _try('/me/renewal'), _try('/me/menu'), _try('/me/meal-choices'), _try('/me/tickets'), _try('/me/career-goal')]);
+      _try('/sick-leaves/mine'), _try('/me/room'), _try('/me/renewal'), _try('/me/menu'), _try('/me/meal-choices'), _try('/me/tickets'), _try('/me/career-goal'), _try('/me/wallet')]);
     if (!mounted) return;
     setState(() { d = {for (var i = 0; i < keys.length; i++) keys[i]: r[i]}; loading = false; });
   }
@@ -244,38 +245,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
   /* ------------------------------------------------------------ sheets */
 
-  Future<void> _pay(List<Map> list) async {
-    for (final x in list) {
-      final order = await api.post('/payments/orders', {'demand_id': x['demand_id']});
-      if (order['mode'] != 'dev') { if (mounted) toast(context, 'Payment order ${order['order_id']} created; the receipt arrives when the bank confirms.'); continue; }
-      await api.post('/payments/dev-confirm', {'demand_id': x['demand_id'], 'amount': _balance(x)});
-    }
+
+
+  /// Pay all: the same sheet as the Fees page (a receipt from the university portal, the wallet, or online).
+  void _fees(List<Map> open, List<Map> receipts) {
+    showPayAllSheet(context, demands: open, walletBalance: num.tryParse('${(d['wallet'] as Map?)?['balance'] ?? 0}') ?? 0, onDone: load);
   }
 
-  void _fees(List<Map> open, List<Map> receipts) {
-    num? paid;
-    var busy = 0;
-    final total = open.fold<num>(0, (a, x) => a + _balance(x));
-    Future<void> pay(List<Map> list, StateSetter set) async {
-      set(() => busy = list.length > 1 ? -1 : list.first['demand_id']);
-      try { await _pay(list); set(() => paid = list.fold<num>(0, (a, x) => a + _balance(x))); load(); }
-      catch (e) { if (mounted) toast(context, '$e', error: true); }
-      finally { set(() => busy = 0); }
-    }
-    showKSheet(context, mod: Mod.orange, icon: LucideIcons.wallet, title: 'Fees', sub: open.isNotEmpty ? '${open.length} to pay · ${inr(total)}' : 'Nothing is due',
-        body: (ctx, set) => paid != null ? DoneView(title: 'Paid ${inr(paid)}', body: 'Your receipt is issued and saved under Receipts.', onClose: () => Navigator.pop(ctx)) : Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          if (open.isEmpty) const _Empty('Nothing is due. Thank you.'),
-          for (final x in open) Padding(padding: const EdgeInsets.only(bottom: 14), child: LineItem(_headOf(x), boxed: true, alert: x['status'] == 'Overdue',
-              sub: 'Due ${day(x['due_date'])}${x['status'] == 'Overdue' ? ' · overdue' : ''}${_n(x['amount_paid']) > 0 ? ' · ${inr(x['amount_paid'])} paid' : ''}',
-              trailing: Row(mainAxisSize: MainAxisSize.min, children: [
-                Text(inr(_balance(x)), style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15)), const SizedBox(width: 12),
-                KButton('Pay', small: true, kind: BtnKind.secondary, busy: busy == x['demand_id'], onPressed: busy != 0 ? null : () => pay([x], set)),
-              ]))),
-          if (receipts.isNotEmpty) Padding(padding: const EdgeInsets.only(bottom: 14), child: KLink('${receipts.length} receipts', () { Navigator.pop(ctx); _receipts(receipts); }, icon: LucideIcons.receipt)),
-          const Note('Payments go through the university gateway. In this test system the payment is confirmed at once.'),
-        ]),
-        footer: open.length > 1 ? (ctx, set) => paid != null ? const SizedBox.shrink() : KButton('Pay all ${inr(total)}', block: true, busy: busy == -1, onPressed: busy != 0 ? null : () => pay(open, set)) : null);
-  }
 
   void _receipts(List<Map> receipts) => showKSheet(context, mod: Mod.orange, icon: LucideIcons.receipt, title: 'Receipts', sub: '${receipts.length} on record',
       body: (ctx, set) => receipts.isEmpty ? const _Empty('No receipts yet.') : Lines([

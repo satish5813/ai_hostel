@@ -87,11 +87,12 @@ export class OcrService {
       const ok = ref.length >= 4 && alnum.includes(ref);
       checks.push({ check: 'reference', expected: p.reference, found: ok ? p.reference : null, ok });
     }
-    // the student: the ID, or a word of the name
+    // the student: the ID, or the whole name (a surname alone is shared by many students)
     const idOk = alnum.includes(p.student_id.toUpperCase());
-    const nameWords = p.full_name.toUpperCase().split(/[^A-Z]+/).filter((w) => w.length >= 4);
-    const nameHit = nameWords.find((w) => text.includes(w)) ?? null;
-    checks.push({ check: 'student', expected: `${p.student_id} / ${p.full_name}`, found: idOk ? p.student_id : nameHit, ok: idOk || !!nameHit });
+    const nameWords = p.full_name.toUpperCase().split(/[^A-Z]+/).filter((w) => w.length >= 3);
+    const nameHits = nameWords.filter((w) => text.includes(w));
+    const nameOk = nameWords.length > 0 && nameHits.length === nameWords.length;
+    checks.push({ check: 'student', expected: `${p.student_id} / ${p.full_name}`, found: idOk ? p.student_id : nameHits.length ? nameHits.join(' ') + (nameOk ? '' : ' (only part of the name)') : null, ok: idOk || nameOk });
     // the issuer: informational
     const uni = /\bKL\b|KONERU|LAKSHMAIAH|KLEF|KL UNIVERSITY/.test(text);
     checks.push({ check: 'issuer', expected: 'KL University', found: uni ? 'KL University' : null, ok: uni ? true : null });

@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KL Hostels Demo Runbook</title>
+<style>
+/* Layout: one column, numbered acts; the presenter reads the left, taps what the right says */
+:root { --bg: #F3F7F6; --surface: #FFFFFF; --ink: #10201E; --ink-2: #4B5D5A; --line: #D9E4E2; --brand: #0B7A71; --tint: #E3F2EF; --gold: #B7791F; --warn-bg: #FDF3E7; --warn: #8A4B00;
+  --font: "Plus Jakarta Sans", "Segoe UI", system-ui, -apple-system, sans-serif; }
+@media (prefers-color-scheme: dark) { :root { --bg: #0E1716; --surface: #162220; --ink: #E8F0EE; --ink-2: #A5B7B4; --line: #2A3A37; --brand: #45C4B4; --tint: #17322E; --gold: #F0C461; --warn-bg: #3A2A12; --warn: #F0C461; color-scheme: dark; } }
+* { box-sizing: border-box; } body { margin: 0; background: var(--bg); color: var(--ink); font: 15.5px/1.55 var(--font); }
+.wrap { max-width: 900px; margin: 0 auto; padding-inline: 20px; padding-block: 28px 72px; display: flex; flex-direction: column; gap: 26px; }
+.eyebrow { font-size: 12px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--brand); }
+h1 { margin: 2px 0 0; font-size: clamp(26px, 4vw, 36px); line-height: 1.15; } h2 { margin: 0; font-size: 20px; } h3 { margin: 0; font-size: 16px; color: var(--brand); }
+p { margin: 0; color: var(--ink-2); max-width: 70ch; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 18px 20px; display: flex; flex-direction: column; gap: 12px; }
+.warn { background: var(--warn-bg); border-color: transparent; color: var(--warn); } .warn p, .warn li { color: inherit; }
+code, pre { font-family: "IBM Plex Mono", ui-monospace, Menlo, monospace; font-size: 13px; } pre { margin: 0; background: var(--tint); padding: 10px 12px; border-radius: 10px; overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; } th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; } th { font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-2); }
+ol.steps { margin: 0; padding-left: 22px; display: flex; flex-direction: column; gap: 8px; } ol.steps li::marker { font-weight: 800; color: var(--brand); }
+.say { color: var(--ink-2); font-style: italic; } .tap { font-weight: 700; }
+.pill { display: inline-block; font-size: 12px; font-weight: 800; padding: 2px 9px; border-radius: 999px; background: var(--tint); color: var(--brand); margin-right: 6px; }
+@media print { body { background: #fff; } .card { break-inside: avoid; } }
+</style></head>
+<body><div class="wrap">
+  <header><div class="eyebrow">KL University Hostels · demo for the President</div><h1>Demo runbook</h1><p>One student, one phone, every operation on the live system. About 20 minutes. The staff steps happen by themselves a few seconds after the student acts.</p></header>
+
+  <section class="card"><h2>Before the demo (10 minutes)</h2>
+    <ol class="steps">
+      <li>Start the API if it is not running (it answers at <code>http://localhost:4100/api/auth/demo-accounts</code>).</li>
+      <li>Put the demo back to its starting point: <pre>/Users/aasrithatechnologies/Desktop/hostel_automation/scripts/reset-demo.sh</pre></li>
+      <li>Start the assistant that plays the wardens, the office, the mess and maintenance, and leave it running in its own Terminal window. Its lines are good to show on a second screen: <pre>/Users/aasrithatechnologies/Desktop/hostel_automation/scripts/run-demo-assistant.sh</pre></li>
+      <li>Start the phones: <pre>/Users/aasrithatechnologies/Desktop/hostel_automation/scripts/run-mobile-demo.sh</pre></li>
+      <li>Open the web portal at <code>http://localhost:5180</code> in a browser and sign in as <b>Floor Warden, BH1</b> (S-FW) on <i>My approvals</i>, in case the President wants to see the warden's side.</li>
+      <li>Have the receipt image ready in the phone's gallery. On the simulator, drag <code>receipt5k.jpg</code> (a KL payment receipt for ₹5,000) onto the Simulator window to add it to Photos.</li>
+    </ol>
+  </section>
+
+  <section class="card"><h2>Logins</h2><p>Password for every demo account: <code>Demo@2026</code>. On the phone, tap the account instead of typing.</p>
+    <table><tr><th>Who</th><th>ID</th><th>Use it for</th></tr>
+      <tr><td><b>Meghana Reddy</b> (new student)</td><td><code>2600041011</code></td><td>The whole journey from "Apply for a room". Use her once; reset to use her again.</td></tr>
+      <tr><td><b>Priya</b> (paid, waiting for the office)</td><td><code>2600040011</code></td><td>Spare new student: the assistant checks her in a few seconds after it starts.</td></tr>
+      <tr><td><b>Arjun Reddy</b> (resident, BH1)</td><td><code>2600040012</code></td><td>A resident's day: outing, fees, repairs, mess. Has data already.</td></tr>
+      <tr><td><b>Nabin Shrestha</b> (resident, BH2)</td><td><code>2600042205</code></td><td>Renewal for next year.</td></tr>
+      <tr><td>Floor Warden, BH1 (portal)</td><td><code>S-FW</code></td><td>Sees receipts, outings, sick leave and room changes at level 1.</td></tr>
+      <tr><td>Chief Warden, Girls Hostel 1 (portal)</td><td><code>S-GW</code></td><td>Level 2 for Meghana's hostel.</td></tr>
+    </table></section>
+
+  <section class="card"><h2>Act 1 · A new student joins <span class="pill">Meghana</span> <span class="pill">6 min</span></h2>
+    <ol class="steps">
+      <li><span class="tap">Open the app.</span> <span class="say">The KL logo, then the hostel. Students sign in with their university ID.</span> Tap <b>New registration: Meghana Reddy</b>.</li>
+      <li>Home says she has not applied. Tap <span class="tap">Apply for a room</span>: choose <b>Girls Hostel 1</b>, a room type (fee and open beds shown), accept the rules, <span class="tap">Apply</span>.</li>
+      <li><span class="say">The registration fee is paid on the university payment portal; the receipt is uploaded here.</span> Tap <span class="tap">Pay all ₹5,000 → I paid on the university portal → From gallery</span>, pick the receipt, type the reference <code>TXN20261011B1021</code>, <span class="tap">Send the receipt</span>.</li>
+      <li>Pull down to refresh after a few seconds: <b>Receipt matches</b> (the system read the amount, date, reference and her ID), then <b>With the Chief Warden</b>, then <b>Approved</b>. <span class="say">Two levels of approval, same as every request in the hostel.</span> The portal shows the warden's view if asked.</li>
+      <li>Registration moves to <span class="tap">Choose your room</span>: tap an open bed, <span class="tap">Take this bed</span>. Then <span class="tap">Two instalments</span>, <span class="tap">South Indian</span>, <span class="tap">Confirm plan</span>.</li>
+      <li><span class="tap">Pay all ₹1,68,000 → Pay online now</span>. <span class="say">In production this is the university gateway.</span> Refresh: the office verifies the fees, the Chief Warden approves, the key is issued. Home now shows her room.</li>
+    </ol></section>
+
+  <section class="card"><h2>Act 2 · Daily life <span class="pill">Meghana, now a resident</span> <span class="pill">8 min</span></h2>
+    <ol class="steps">
+      <li><b>Outing.</b> Tap <span class="tap">Ask for outing</span>, fill reason, place, times, phone, <span class="tap">Submit</span>. Refresh: Floor Warden approved, Chief Warden approved, <span class="tap">Show pass</span>: the QR gate pass. <span class="say">Security scans this at the gate.</span></li>
+      <li><b>Sick leave.</b> Menu → Sick leave: what is wrong, from, until, <span class="tap">Report</span>. Refresh: the Floor Warden visited and chose a light diet; approved; <span class="say">meals now go to her room, the mess has her on its sick list.</span></li>
+      <li><b>Repairs.</b> Repairs → <span class="tap">My room → Fan</span>, describe, <span class="tap">Raise ticket</span>. Refresh: checked genuine, repair started, repaired. Tap <span class="tap">Yes, it is fixed</span>.</li>
+      <li><b>Mess.</b> Menu → Mess menu (this week's meals). Choose my meals → Next week → pick a dish. Rate my meals → stars. Complaints → A problem with a meal → send; refresh: the mess replied.</li>
+      <li><b>Electricity.</b> Menu → Electricity: units left; <span class="tap">₹200 → Pay</span>: units credited at once.</li>
+      <li><b>Wallet.</b> Fees page: the wallet card. <span class="say">Any amount paid beyond the dues sits here and pays the next fee in one tap.</span></li>
+    </ol></section>
+
+  <section class="card"><h2>Act 3 · Next year <span class="pill">Nabin or Meghana</span> <span class="pill">3 min</span></h2>
+    <ol class="steps">
+      <li>Home → <span class="tap">Renew my room</span>: keep the bed, move, or leave. Tap <span class="tap">Keep</span> → <span class="tap">Renew</span> → <span class="tap">Confirm my room</span> → fee plan → <span class="tap">Pay</span>. Refresh: fees verified, Chief Warden approved. <span class="say">No registration fee or deposits on renewal; the same bed and key carry on.</span></li>
+      <li>Menu → Change room: another room type, the fee difference shown before asking.</li>
+    </ol></section>
+
+  <section class="card warn"><h2>If something goes wrong</h2>
+    <ul>
+      <li><b>A staff step does not arrive:</b> look at the assistant's Terminal; it prints what it did or why it could not. Pull down to refresh on the phone.</li>
+      <li><b>The server is down:</b> install <code>demo/KL-Hostels-Student-Demo.apk</code> on the Android phone, or run <code>OFFLINE=1 scripts/run-mobile-demo.sh</code>. It is the same app with sample data and needs nothing.</li>
+      <li><b>To start the whole demo again:</b> <code>scripts/reset-demo.sh</code>, then sign out on the iPhone (Menu → Sign out).</li>
+      <li><b>The camera does not work in the simulators;</b> use From gallery. On a real phone both work.</li>
+    </ul></section>
+</div></body></html>

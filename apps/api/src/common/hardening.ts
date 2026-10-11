@@ -17,7 +17,7 @@ export function securityHeaders(req: Request, res: Response, next: NextFunction)
  * ponytail: per-process counters; move to Redis when the API runs on more than one machine.
  */
 const TIGHT = /^\/api\/(auth\/|contacts\/\d+\/verify|payments\/razorpay\/webhook|me\/payment-proofs$)/;
-const LIMITS = { general: Number(process.env.RATE_LIMIT_PER_MINUTE ?? 600), tight: Number(process.env.RATE_LIMIT_TIGHT_PER_MINUTE ?? 10) };
+const LIMITS = { general: Number(process.env.RATE_LIMIT_PER_MINUTE ?? 1500), tight: Number(process.env.RATE_LIMIT_TIGHT_PER_MINUTE ?? 10) };
 const hits = new Map<string, { n: number; until: number }>();
 setInterval(() => { const now = Date.now(); for (const [k, v] of hits) if (v.until <= now) hits.delete(k); }, 60_000).unref();
 
