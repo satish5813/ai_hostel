@@ -45,7 +45,7 @@ export class ApprovalsService {
         and (s.level = (select min(level) from shared.approval_step p where p.request_type = s.request_type and p.request_id = s.request_id and p.decision = 'Pending'))
         and (s.approver_role not in ('Floor_Warden','Chief_Warden','Warden','Assistant_Warden')
              or exists (select 1 from hostel.staff_space_assignment a where a.staff_id = ${user.id} and a.hostel_role = s.approver_role and a.status = 'Active'
-                         and a.facility_id = coalesce(st.facility_id, pp.facility_id) and (a.zone_id is null or a.zone_id = coalesce(st.zone_id, a.zone_id))))
+                         and (pp.proof_id is not null and pp.facility_id is null or a.facility_id = coalesce(st.facility_id, pp.facility_id)) and (a.zone_id is null or a.zone_id = coalesce(st.zone_id, a.zone_id))))
       order by s.created_at`);
   }
 
