@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import '../core/theme.dart';
 import '../core/widgets.dart';
+import 'pay_all_sheet.dart';
 import '../shell.dart';
 
 /// REG-01 Hostel registration, as pages/student/Registration.tsx (styles/allot.css): the head with the status, the six steps,
@@ -336,6 +337,11 @@ class _RoomScreenState extends State<RoomScreen> {
           Text(_inr(total), style: const TextStyle(fontSize: 26, height: 30 / 26, fontWeight: FontWeight.w600, fontFeatures: [FontFeature.tabularFigures()])),
           const SizedBox(height: 2),
           Text('${_inr(paid)} paid so far', style: small),
+          if (total > 0) ...[
+            const SizedBox(height: 10),
+            KButton('Pay all ${_inr(total)}', icon: LucideIcons.wallet, kind: BtnKind.accent, pill: true,
+                onPressed: () => showPayAllSheet(context, demands: demands.where((d) => _openSt.contains(d['status'])).toList().cast<Map>(), onDone: load)),
+          ],
         ])),
         for (var i = 0; i < demands.length; i++) () {
           final d = demands[i];

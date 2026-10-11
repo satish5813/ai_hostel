@@ -6,8 +6,8 @@ import { LIVE_PASS, PENDING_PASS, type Step } from './OutingSheet';
 const trailEntry = (st: Step) => ({ level: st.level === 0 ? 'P' : st.level, role: words(st.role), person: st.by, decision: st.decision, at: st.on, remarks: st.remarks });
 
 /**
- * OUT-01 My outings. Ask permission is always here; the request goes to the parent (link), then the Chief Warden, and
- * for a day or more also the Dean, Students Affairs. The QR gate pass appears only once the request is approved.
+ * OUT-01 My outings. Ask permission is always here; the Floor Warden approves, then the Chief Warden (no parent or
+ * Dean step since migration 122). The QR gate pass appears only once the request is approved.
  */
 export default function Outings() {
   const o = useOuting();
@@ -16,7 +16,7 @@ export default function Outings() {
   const past = list?.filter((x) => ['Returned', 'Rejected', 'Cancelled'].includes(x.status)) ?? [];
   return (
     <div className="klh-stack" style={{ gap: 20 }}>
-      <ScreenHeader code="OUT-01" compact subtitle="Write why you need to go. Your parent recommends, the Chief Warden approves (and the Dean for a day or more). Your QR gate pass appears only after approval." />
+      <ScreenHeader code="OUT-01" compact subtitle="Write why you need to go. Your Floor Warden approves, then the Chief Warden. Your QR gate pass appears only after approval." />
 
       <div className="st-ask-strip">
         <button type="button" className="st-cta st-cta-solid" onClick={o.ask}>Ask for outing permission</button>

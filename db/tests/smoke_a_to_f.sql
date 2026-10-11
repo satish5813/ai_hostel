@@ -156,23 +156,18 @@ DO $$ BEGIN
 EXCEPTION WHEN integrity_constraint_violation THEN RAISE NOTICE 'PASS D: Movement_Event rows cannot be changed'; END $$;
 INSERT INTO hostel.movement_event (student_id, point_id, direction, source) SELECT '2600040010', point_id, 'In', 'Scan' FROM hostel.capture_point WHERE point_type='Campus_Gate';
 
--- ---------- E: outpass (111): parent by link, Floor Warden, Chief Warden, and the Dean by link for a day or more ----------
+-- ---------- E: outpass (122): Floor Warden, then Chief Warden; no parent or Dean step, also for a day or more ----------
 INSERT INTO hostel.outpass (student_id, reason, destination, leave_from, return_by, contact_during_leave, created_by)
   VALUES ('2600040010','Family function','Guntur', '2026-10-10 08:00+05:30', '2026-10-12 20:00+05:30', '9440000001', '2600040010');
-DO $$ DECLARE o hostel.outpass%ROWTYPE; n int; l int; BEGIN
-  SELECT * INTO o FROM hostel.outpass; SELECT count(*) INTO n FROM shared.approval_step WHERE request_type='Outpass' AND request_id=o.outpass_id;
-  SELECT count(*) INTO l FROM shared.approval_link k JOIN shared.approval_step s ON s.step_id=k.step_id WHERE s.request_id=o.outpass_id AND s.level=0;
-  IF o.outing_category='Day_Or_More' AND n=4 AND l>=1 AND o.outpass_no LIKE 'OP-%' AND o.qr_token IS NULL THEN RAISE NOTICE 'PASS E: Day_Or_More -> parent, Floor Warden, Chief Warden, Dean; parent link sent; no QR yet';
-  ELSE RAISE EXCEPTION 'FAIL: cat=% levels=% steps=% links=% no=%', o.outing_category, o.levels_required, n, l, o.outpass_no; END IF; END $$;
+DO $$ DECLARE o hostel.outpass%ROWTYPE; r text; BEGIN
+  SELECT * INTO o FROM hostel.outpass;
+  SELECT string_agg(approver_role::text, ',' ORDER BY level) INTO r FROM shared.approval_step WHERE request_type='Outpass' AND request_id=o.outpass_id;
+  IF o.outing_category='Day_Or_More' AND r='Floor_Warden,Chief_Warden' AND o.levels_required=2 AND o.outpass_no LIKE 'OP-%' AND o.qr_token IS NULL THEN RAISE NOTICE 'PASS E: Day_Or_More -> Floor Warden, Chief Warden only; no QR yet';
+  ELSE RAISE EXCEPTION 'FAIL: cat=% levels=% steps=% no=%', o.outing_category, o.levels_required, r, o.outpass_no; END IF; END $$;
 DO $$ BEGIN
-  UPDATE shared.approval_step SET decision='Approved', acted_by='S-FW' WHERE request_type='Outpass' AND level=1;
-  RAISE EXCEPTION 'FAIL: level 1 taken before parent step';
+  UPDATE shared.approval_step SET decision='Approved', acted_by='S-CW' WHERE request_type='Outpass' AND level=2;
+  RAISE EXCEPTION 'FAIL: level 2 taken before level 1';
 EXCEPTION WHEN check_violation THEN RAISE NOTICE 'PASS E: levels are taken in order'; END $$;
-DO $$ BEGIN
-  UPDATE shared.approval_step SET decision='Approved', acted_by_contact=(SELECT contact_id FROM hostel.student_contact WHERE relation='Self') WHERE request_type='Outpass' AND level=0;
-  RAISE EXCEPTION 'FAIL: parent step by a non-approver contact';
-EXCEPTION WHEN check_violation THEN RAISE NOTICE 'PASS E: the parent step only by the verified contact marked Is_Outpass_Approver'; END $$;
-UPDATE shared.approval_step SET decision='Approved', acted_by_contact=(SELECT contact_id FROM hostel.student_contact WHERE relation='Father') WHERE request_type='Outpass' AND level=0;
 DO $$ BEGIN
   UPDATE shared.approval_step SET decision='Approved', acted_by='S-DN' WHERE request_type='Outpass' AND level=1;
   RAISE EXCEPTION 'FAIL: someone other than the Floor Warden took level 1';
@@ -183,13 +178,9 @@ DO $$ BEGIN
   RAISE EXCEPTION 'FAIL: floor warden acted as chief warden';
 EXCEPTION WHEN check_violation THEN RAISE NOTICE 'PASS E: level 2 must be the Chief Warden of the student''s hostel'; END $$;
 UPDATE shared.approval_step SET decision='Approved', acted_by='S-CW' WHERE request_type='Outpass' AND level=2;
-DO $$ DECLARE o hostel.outpass%ROWTYPE; l int; BEGIN SELECT * INTO o FROM hostel.outpass;
-  SELECT count(*) INTO l FROM shared.approval_link k JOIN shared.approval_step s ON s.step_id=k.step_id WHERE s.request_id=o.outpass_id AND s.level=3;
-  IF o.status='L2_Approved' AND o.qr_token IS NULL AND l>=1 THEN RAISE NOTICE 'PASS E: Day_Or_More: no QR until the Dean approves; Dean link sent'; ELSE RAISE EXCEPTION 'FAIL: status=% qr=% dean links=%', o.status, o.qr_token, l; END IF; END $$;
-UPDATE shared.approval_step SET decision='Approved', acted_by='S-DN' WHERE request_type='Outpass' AND level=3;
 DO $$ DECLARE o hostel.outpass%ROWTYPE; n int; BEGIN SELECT * INTO o FROM hostel.outpass;
   SELECT count(*) INTO n FROM shared.notification WHERE template_code='OUTPASS_ISSUED' AND related_id=o.outpass_id::text;
-  IF o.status='Approved' AND o.qr_token IS NOT NULL AND n>=2 THEN RAISE NOTICE 'PASS E: approved by the Dean, QR token issued, parent and student told'; ELSE RAISE EXCEPTION 'FAIL: status=% qr=% notif=%', o.status, o.qr_token, n; END IF; END $$;
+  IF o.status='Approved' AND o.qr_token IS NOT NULL AND n>=2 THEN RAISE NOTICE 'PASS E: approved by the Chief Warden (a day or more too), QR token issued, parent and student told'; ELSE RAISE EXCEPTION 'FAIL: status=% qr=% notif=%', o.status, o.qr_token, n; END IF; END $$;
 -- gate out and late return
 INSERT INTO hostel.movement_event (student_id, point_id, direction, source, event_at) SELECT '2600040010', point_id, 'Out', 'Scan', '2026-10-10 08:10+05:30' FROM hostel.capture_point WHERE point_type='Campus_Gate';
 INSERT INTO hostel.movement_event (student_id, point_id, direction, source, event_at) SELECT '2600040010', point_id, 'In',  'Scan', '2026-10-12 20:45+05:30' FROM hostel.capture_point WHERE point_type='Campus_Gate';
@@ -199,8 +190,8 @@ DO $$ DECLARE o hostel.outpass%ROWTYPE; a int; BEGIN SELECT * INTO o FROM hostel
 -- a refusal ends the request and closes the later levels
 INSERT INTO hostel.outpass (student_id, reason, destination, leave_from, return_by, contact_during_leave, created_by)
   VALUES ('2600040010','Shopping','Vijayawada', '2026-10-09 10:00+05:30', '2026-10-09 18:00+05:30', '9440000001', '2600040010');
-UPDATE shared.approval_step s SET decision='Rejected', acted_by_contact=(SELECT contact_id FROM hostel.student_contact WHERE relation='Father'), remarks='Not this week'
- WHERE s.request_type='Outpass' AND s.level=0 AND s.request_id=(SELECT max(outpass_id) FROM hostel.outpass);
+UPDATE shared.approval_step s SET decision='Rejected', acted_by='S-FW', remarks='Not this week'
+ WHERE s.request_type='Outpass' AND s.level=1 AND s.request_id=(SELECT max(outpass_id) FROM hostel.outpass);
 DO $$ DECLARE st text; sk text; BEGIN
   SELECT status INTO st FROM hostel.outpass WHERE outpass_id=(SELECT max(outpass_id) FROM hostel.outpass);
   SELECT string_agg(decision::text, ',' ORDER BY level) INTO sk FROM shared.approval_step WHERE request_type='Outpass' AND request_id=(SELECT max(outpass_id) FROM hostel.outpass);

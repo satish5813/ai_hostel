@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# End-to-end HTTP walk through Workflows A–F (outing: parent, Floor Warden, Chief Warden; sick leave: Floor Warden visits and sets the diet, building in-charge approves) against a running API (dev auth) and the dev fixtures.
-# Usage: API=http://localhost:4000 DATABASE_URL=postgresql://... bash scripts/api-smoke.sh   (the database is read for the parent's SMS link)
+# End-to-end HTTP walk through Workflows A–F (outing: Floor Warden, Chief Warden; sick leave: Floor Warden visits and sets the diet, building in-charge approves) against a running API (dev auth) and the dev fixtures.
+# Usage: API=http://localhost:4000 DATABASE_URL=postgresql://... bash scripts/api-smoke.sh   (the database is read to check the approval steps)
 set -euo pipefail
 API=${API:-http://localhost:4000}
 call() { # call <user> <role> <method> <path> [json]
@@ -55,10 +55,7 @@ echo "== E: outpass"
 FROM=$(date -u -d '+2 days 08:00' +%Y-%m-%dT%H:%M:%S+00:00 2>/dev/null || date -u -v+2d +%Y-%m-%dT08:00:00+00:00); TO=$(date -u -d '+2 days 18:00' +%Y-%m-%dT%H:%M:%S+00:00 2>/dev/null || date -u -v+2d +%Y-%m-%dT18:00:00+00:00)
 OP=$(call $S Student POST /outpasses "{\"reason\":\"Home visit\",\"destination\":\"Guntur\",\"leave_from\":\"$FROM\",\"return_by\":\"$TO\",\"contact_during_leave\":\"9440000003\"}"); OPID=$(echo "$OP" | j "['outpass_id']")
 pass "outpass $OPID applied ($(echo "$OP" | j "['outing_category']"), $(echo "$OP" | j "['levels_required']") levels)"
-# the parent acts through the link sent by SMS; the test reads the link from the database (needs DATABASE_URL)
-LINK=$(psql "$DATABASE_URL" -Atc "select k.token from shared.approval_link k join shared.approval_step s on s.step_id = k.step_id where s.request_type = 'Outpass' and s.request_id = $OPID and s.level = 0 and k.used_at is null limit 1")
-curl -s -X POST -H 'Content-Type: application/json' -d '{"decision":"Approved"}' "$API/api/links/$LINK" >/dev/null
-[ "$(psql "$DATABASE_URL" -Atc "select decision from shared.approval_step where request_type = 'Outpass' and request_id = $OPID and level = 0")" = "Recommended" ] && pass "parent recommended through the SMS link" || fail "parent step"
+[ "$(psql "$DATABASE_URL" -Atc "select string_agg(approver_role::text, ',' order by level) from shared.approval_step where request_type = 'Outpass' and request_id = $OPID")" = "Floor_Warden,Chief_Warden" ] && pass "outing goes to the Floor Warden, then the Chief Warden (no parent or Dean step)" || fail "outing steps"
 STEP1=$(call $FW Floor_Warden GET /approvals/inbox | python3 -c "import sys,json; print([s['step_id'] for s in json.load(sys.stdin) if str(s['request_id'])=='$OPID'][0])"); call $FW Floor_Warden POST /approvals/$STEP1/decide '{"decision":"Approved"}' >/dev/null
 STEP2=$(call $CW Chief_Warden GET /approvals/inbox | python3 -c "import sys,json; print([s['step_id'] for s in json.load(sys.stdin) if str(s['request_id'])=='$OPID'][0])"); call $CW Chief_Warden POST /approvals/$STEP2/decide '{"decision":"Approved"}' >/dev/null
 OPV=$(call $S Student GET /outpasses/$OPID); [ "$(echo "$OPV" | j "['status']")" = "Approved" ] && pass "approved by Chief Warden; QR token issued"

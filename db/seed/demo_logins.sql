@@ -29,10 +29,11 @@ SELECT v.u, crypt('Demo@2026', gen_salt('bf', 8)), v.r, v.u, v.n, v.d, v.g, v.o 
   ('S-PV',       'Pro_VC_Finance',        'Pro-VC Finance',                 'Weekly meal choices report: plates per dish', 'Pro-VC Finance', 44),
   ('2600040012', 'Student',               'Arjun Reddy, BH1',               'Approved gate pass with QR; a warning on record', 'Student', 50),
   ('2600042001', 'Student',               'Ananya Sharma, GH1',             'Outing waiting for the warden; renewing her room', 'Student', 51),
-  ('2600042205', 'Student',               'Nabin Shrestha, BH2 (Nepal)',    'Foreign student eating the Nepal menu', 'Student', 52),
+  ('2600042205', 'Student',               'Renewal: Nabin Shrestha, BH2',   'Renew for next year: keep the bed, move or leave; pay; office checks', 'Student', 49),
   ('2600042102', 'Student',               'Kiran Kumar, BH1',               'Two discipline cases; needs career guidance', 'Student', 53),
   ('2600042011', 'Student',               'Tejaswini Kumar, GH1',           'Room accepted, hostel fees still to pay', 'Student', 54),
-  ('2600040011', 'Student',               'New student',                    'Has not applied for a room yet', 'Student', 55)
+  ('2600041011', 'Student',               'New registration: Meghana Reddy', 'Fresh student: apply for a room, pay, choose a bed and fee plan, pay the fees', 'Student', 47),
+  ('2600040011', 'Student',               'New registration: new student',  'Apply for a room, pay, choose a bed and fee plan, pay the fees', 'Student', 48)
 ) AS v(u, r, n, d, g, o)
 ON CONFLICT (username) DO UPDATE SET role_code = excluded.role_code, user_ref = excluded.user_ref, display_name = excluded.display_name,
   description = excluded.description, group_name = excluded.group_name, sort_order = excluded.sort_order, active = true;

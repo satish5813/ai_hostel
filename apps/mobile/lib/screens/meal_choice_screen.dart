@@ -70,7 +70,7 @@ class _MealChoiceScreenState extends State<MealChoiceScreen> {
             if (weeks.length > 1) Row(children: [
               for (var i = 0; i < weeks.length; i++) ...[
                 if (i > 0) const SizedBox(width: 6),
-                Expanded(child: MnPreset(weeks[i]['is_open'] == true ? 'Next week' : 'This week', weeks[i]['week_id'] == w['week_id'],
+                Expanded(child: MnPreset(i == weeks.length - 1 ? 'Next week' : 'This week', weeks[i]['week_id'] == w['week_id'],
                     () => setState(() { weekId = weeks[i]['week_id'] as int; day = null; }), sub: _weekShort(weeks[i]['week_start']))),
               ],
             ]),

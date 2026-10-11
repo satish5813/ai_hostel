@@ -16,3 +16,10 @@ db/*.sql.gz
 *.dump
 # build output of the web app
 apps/web-vite/dist/
+
+# OS noise
+.DS_Store
+# built demo apps (APKs, single-file web app): rebuilt from source
+demo/
+# raw screenshots behind the storyboards and guides: retaken by the integration tests
+docs/mobile-screens/

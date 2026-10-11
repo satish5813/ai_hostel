@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import '../core/theme.dart';
 import '../core/widgets.dart';
+import 'pay_all_sheet.dart';
 import '../shell.dart';
 
 /// REG-02 Fees and receipts, as pages/student/Fees.tsx: three stat tiles, the fee demands with Pay, the receipts table
@@ -40,14 +41,17 @@ class _FeesScreenState extends State<FeesScreen> {
 
   Future<void> load() async {
     try {
-      final r = await Future.wait([api.get('/students/$me/demands'), api.get('/me/profile').catchError((_) => null)]);
+      final r = await Future.wait([api.get('/students/$me/demands'), api.get('/me/profile').catchError((_) => null), api.get('/me/wallet').catchError((_) => null), api.get('/me/payment-proofs').catchError((_) => null)]);
       if (!mounted) return;
       final p = r[1] as Map?;
-      setState(() { dues = r[0] as Map; name = p?['student_name'] ?? p?['full_name']; error = null; });
+      setState(() { dues = r[0] as Map; name = p?['student_name'] ?? p?['full_name']; wallet = r[2] as Map?; proofs = ((r[3] as List?) ?? []).cast<Map>(); error = null; });
     } catch (e) {
       if (mounted) setState(() => error = e);
     }
   }
+
+  Map? wallet;
+  List<Map> proofs = [];
 
   Future<void> _pay(Map d) async {
     final balance = _n(d['amount_due']) - _n(d['amount_paid']);
@@ -91,6 +95,15 @@ class _FeesScreenState extends State<FeesScreen> {
       const PageHead('REG-02'),
       const SizedBox(height: 16),
       _grid2(stats),
+      if (open.isNotEmpty) ...[
+        const SizedBox(height: 14),
+        KButton('Pay all ${_inr(openTotal)}', icon: LucideIcons.wallet, kind: BtnKind.accent, pill: true, large: true, block: true,
+            onPressed: () => showPayAllSheet(context, demands: open, walletBalance: _n(wallet?['balance']), onDone: load)),
+        const SizedBox(height: 6),
+        const Text('All open fees in one payment: a receipt from the university portal, the wallet, or online.', textAlign: TextAlign.center, style: TextStyle(fontSize: 12, color: _muted)),
+      ],
+      const SizedBox(height: 24),
+      WalletCard(wallet: wallet, onAddMoney: () => showPayAllSheet(context, demands: const [], walletBalance: _n(wallet?['balance']), onDone: load)),
       const SizedBox(height: 24),
       _Card(icon: LucideIcons.wallet, color: 'orange', title: 'Fee demands', subtitle: open.isNotEmpty ? '${open.length} to pay' : 'All paid',
           child: dues == null ? null : demands.isEmpty
@@ -98,6 +111,10 @@ class _FeesScreenState extends State<FeesScreen> {
               : Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
                   for (var i = 0; i < shown.length; i++) Padding(padding: EdgeInsets.only(top: i == 0 ? 0 : 12), child: _demandRow(shown[i])),
                 ])),
+      if (proofs.isNotEmpty) ...[
+        const SizedBox(height: 24),
+        _Card(icon: LucideIcons.fileCheck, color: 'brand', title: 'Uploaded receipts', subtitle: 'Checked by the Floor Warden, approved by the Chief Warden', child: ProofsList(proofs: proofs)),
+      ],
       const SizedBox(height: 24),
       _Card(icon: LucideIcons.receipt, color: 'orange', title: 'Receipts', subtitle: 'Receipts are never edited; a refund is a new entry', flush: true,
           child: _ReceiptsTable(rows: receipts, loading: dues == null, onRow: (r) => setState(() => receipt = r))),
@@ -241,7 +258,7 @@ class _CountdownState extends State<_Countdown> {
     final (bg, fg) = ms < 3600e3 ? (K.badBg, K.bad) : ms < 6 * 3600e3 ? (K.warnBg, K.warn) : (K.infoBg, K.info);
     final hh = ms ~/ 3600000, mm = ms % 3600000 ~/ 60000, ss = ms % 60000 ~/ 1000;
     String p(int v) => v.toString().padLeft(2, '0');
-    final txt = ms == 0 ? 'Expired' : hh >= 24 ? '${hh ~/ 24}d ${hh % 24}h ${p(mm)}m' : '${hh}h ${p(mm)}m ${p(ss)}s';
+    final txt = ms == 0 ? 'Overdue' : hh >= 24 ? '${hh ~/ 24}d ${hh % 24}h ${p(mm)}m' : '${hh}h ${p(mm)}m ${p(ss)}s';
     return Container(height: 32, padding: const EdgeInsets.symmetric(horizontal: 12), decoration: BoxDecoration(color: bg, borderRadius: BorderRadius.circular(999)),
         child: Row(mainAxisSize: MainAxisSize.min, children: [
           Icon(LucideIcons.clock, size: 16, color: fg), const SizedBox(width: 8),

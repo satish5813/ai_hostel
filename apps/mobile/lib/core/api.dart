@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'config.dart';
+import 'offline.dart';
 import 'session.dart';
 
 /// What went wrong, in the API's own words (it names the rule that was broken).
@@ -31,10 +32,13 @@ class Api {
 
   Uri _uri(String path) => Uri.parse('${Config.apiBase}/api$path');
 
-  Future<dynamic> get(String path) => _send(() => _client.get(_uri(path), headers: _headers()));
-  Future<dynamic> post(String path, [Object? body]) => _send(() => _client.post(_uri(path), headers: _headers(), body: jsonEncode(body ?? {})));
-  Future<dynamic> put(String path, [Object? body]) => _send(() => _client.put(_uri(path), headers: _headers(), body: jsonEncode(body ?? {})));
-  Future<dynamic> delete(String path) => _send(() => _client.delete(_uri(path), headers: _headers()));
+  Future<dynamic> get(String path) => Config.offline ? _offline('GET', path) : _send(() => _client.get(_uri(path), headers: _headers()));
+  Future<dynamic> post(String path, [Object? body]) => Config.offline ? _offline('POST', path, body) : _send(() => _client.post(_uri(path), headers: _headers(), body: jsonEncode(body ?? {})));
+  Future<dynamic> put(String path, [Object? body]) => Config.offline ? _offline('PUT', path, body) : _send(() => _client.put(_uri(path), headers: _headers(), body: jsonEncode(body ?? {})));
+  Future<dynamic> delete(String path) => Config.offline ? _offline('DELETE', path) : _send(() => _client.delete(_uri(path), headers: _headers()));
+
+  /// The demo build: the answer comes from the app itself. The body goes through JSON first, as it would on the wire.
+  Future<dynamic> _offline(String method, String path, [Object? body]) => Offline.instance.handle(method, path, body == null ? null : jsonDecode(jsonEncode(body)));
 
   Future<dynamic> _send(Future<http.Response> Function() call) async {
     http.Response r;

@@ -1,3 +1,4 @@
+import 'renewal_sheet.dart';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -160,7 +161,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
         room: _RoomCard(room: room, regStatus: reg?['status'], onTap: () => room != null ? _room(room) : openPlace(context, 'room')),
       ),
-      if (showRenewal) ...[const SizedBox(height: 18), _RenewalBanner(rn: rn!, onOpen: () => openPlace(context, 'room'))],
+      if (showRenewal) ...[const SizedBox(height: 18), _RenewalBanner(rn: rn!, onOpen: () => showRenewalSheet(context, rn, load))],
       const SizedBox(height: 18),
       _TaskGrid(cards),
       if (menuMe != null) ...[

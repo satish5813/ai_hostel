@@ -35,13 +35,13 @@ class SessionStore extends ChangeNotifier {
 
   Future<void> signIn(Session s) async {
     current = s;
-    await _storage.write(key: _key, value: jsonEncode(s.toJson()));
+    try { await _storage.write(key: _key, value: jsonEncode(s.toJson())); } catch (_) {/* no storage (a private browser window): signed in until the app closes */}
     notifyListeners();
   }
 
   Future<void> signOut() async {
     current = null;
-    await _storage.delete(key: _key);
+    try { await _storage.delete(key: _key); } catch (_) {/* nothing was stored */}
     notifyListeners();
   }
 }

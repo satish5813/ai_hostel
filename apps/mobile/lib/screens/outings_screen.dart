@@ -51,7 +51,7 @@ class _OutingsScreenState extends State<OutingsScreen> {
     final open = l?.where((x) => _livePass.contains(x['status']) || _pendingPass.contains(x['status'])).toList() ?? [];
     final past = l?.where((x) => ['Returned', 'Rejected', 'Cancelled'].contains(x['status'])).toList() ?? [];
     return RefreshIndicator(onRefresh: load, child: ListView(physics: const AlwaysScrollableScrollPhysics(), padding: const EdgeInsets.fromLTRB(16, 16, 16, 90), children: [
-      const PageHead('OUT-01', subtitle: 'Write why you need to go. Your parent recommends, the Chief Warden approves (and the Dean for a day or more). Your QR gate pass appears only after approval.'),
+      const PageHead('OUT-01', subtitle: 'Write why you need to go. Your Floor Warden approves, then the Chief Warden. Your QR gate pass appears only after approval.'),
       const SizedBox(height: 20),
       // st-ask-strip
       Container(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
@@ -135,17 +135,13 @@ class _OutingsScreenState extends State<OutingsScreen> {
     var busy = false;
     final steps = _steps(pending);
     Map? find(bool Function(Map) t) => steps.where(t).firstOrNull;
-    final parent = find((x) => x['level'] == 0);
     final floor = find((x) => x['role'] == 'Floor_Warden' && x['decision'] != 'Skipped');
     final warden = find((x) => x['role'] == 'Chief_Warden');
-    final dean = find((x) => x['role'] == 'Dean_Students_Affairs' && x['decision'] != 'Skipped');
-    final parentDone = parent != null && parent['decision'] != 'Pending';
     final flow = <(String, String, String?)>[
       ('Request sent', 'done', null),
-      ('Parent recommends', parentDone ? 'done' : 'now', parent?['by']),
-      if (floor != null) ('Floor Warden approves', floor['decision'] == 'Approved' ? 'done' : parentDone ? 'now' : 'next', floor['by']),
-      ('Chief Warden approves', warden != null && warden['decision'] == 'Approved' ? 'done' : (floor != null ? floor['decision'] == 'Approved' : parentDone) ? 'now' : 'next', warden?['by']),
-      if (dean != null) ('Dean approves', dean['decision'] == 'Approved' ? 'done' : warden?['decision'] == 'Approved' ? 'now' : 'next', null),
+      // level 1 Floor Warden, level 2 Chief Warden (no parent or Dean step)
+      if (floor != null) ('Floor Warden approves', floor['decision'] == 'Approved' ? 'done' : 'now', floor['by']),
+      ('Chief Warden approves', warden != null && warden['decision'] == 'Approved' ? 'done' : floor == null || floor['decision'] == 'Approved' ? 'now' : 'next', warden?['by']),
       ('QR gate pass', 'lock', null),
     ];
     showKSheet(context, mod: Mod.violet, icon: LucideIcons.doorOpen, title: 'Permission requested', sub: '${pending['outpass_no']} · waiting for approval',
@@ -159,7 +155,7 @@ class _OutingsScreenState extends State<OutingsScreen> {
               const Icon(LucideIcons.lock, size: 22, color: Color(0xFF5F3DC4)), const SizedBox(height: 4),
               const Text('No gate pass yet', textAlign: TextAlign.center, style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: K.ink)), const SizedBox(height: 4),
               ConstrainedBox(constraints: const BoxConstraints(maxWidth: 270), child: Text(
-                  'Your QR gate pass is made when the last approval is given${dean != null ? ' (the Dean, for an outing of a day or more)' : ' (the Chief Warden)'}. It will appear here and on the Outing card.',
+                  'Your QR gate pass is made when the Chief Warden approves. It will appear here and on the Outing card.',
                   textAlign: TextAlign.center, style: const TextStyle(fontSize: 12.5, color: K.ink2))),
             ]))),
           const SizedBox(height: 14),
@@ -187,11 +183,11 @@ class _OutingsScreenState extends State<OutingsScreen> {
       final v = DateTime(d.year, d.month, d.day, t.hour, t.minute);
       set(() => isFrom ? from = v : until = v);
     }
-    showKSheet(context, mod: Mod.violet, icon: LucideIcons.doorOpen, title: 'Ask for outing permission', sub: 'Write why you need to go. The QR gate pass is made only after the warden approves.',
+    showKSheet(context, mod: Mod.violet, icon: LucideIcons.doorOpen, title: 'Ask for outing permission', sub: 'Write why you need to go. The QR gate pass is made only after the Chief Warden approves.',
         body: (ctx, set) {
           if (sent) {
             return DoneView(title: 'Request submitted', onClose: () => Navigator.pop(ctx),
-                body: 'There is no gate pass yet. Your parent gets a link to recommend it, then the Floor Warden and the Chief Warden approve (and the Dean, for an outing of a day or more). Your QR gate pass appears on the Outing card once it is approved.');
+                body: 'There is no gate pass yet. Your Floor Warden approves it, then the Chief Warden. Your QR gate pass appears on the Outing card once it is approved.');
           }
           final live = _live, existing = _live ?? _pending;
           final outNow = live != null && live['status'] != 'Approved';
@@ -223,7 +219,7 @@ class _OutingsScreenState extends State<OutingsScreen> {
               gap(),
             ],
             Wrap(spacing: 6, runSpacing: 6, children: [
-              for (final (i, l) in ['Your request', 'Parent recommends', 'Warden approves', 'QR gate pass'].indexed) _MiniStep(i, l, i == 0 ? 'now' : i == 3 ? 'lock' : 'next'),
+              for (final (i, l) in ['Your request', 'Floor Warden', 'Chief Warden', 'QR gate pass'].indexed) _MiniStep(i, l, i == 0 ? 'now' : i == 3 ? 'lock' : 'next'),
             ]),
             gap(),
             _Field('Why do you need to go out?', required: true, child: _area(reason, "For example: sister's wedding, bank work, hospital visit", (_) => set(() {}))),
@@ -235,7 +231,7 @@ class _OutingsScreenState extends State<OutingsScreen> {
             _Field('Back by', required: true, error: bad ? 'Must be after leaving.' : null, child: _DateBox(until == null ? null : _dtFmt(until!), 'dd/mm/yyyy, --:--', () => pick(ctx, set, false), error: bad)),
             gap(),
             _Field('Phone while away', required: true, child: _input(phone, '98480 12345', (_) => set(() {}), keyboard: TextInputType.phone)),
-            if (from != null && until != null && !bad) ...[gap(), _Note(sameDay ? 'Same-day outing: your parent recommends, the warden approves.' : 'A day or more: your parent recommends, the warden approves, then the Dean, Students Affairs.')],
+            if (from != null && until != null && !bad) ...[gap(), _Note('${sameDay ? 'Same-day outing: ' : 'A day or more: '}your Floor Warden approves, then the Chief Warden.')],
           ]);
         },
         footer: (ctx, set) {

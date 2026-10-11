@@ -115,6 +115,8 @@ export class MastersService {
 
   /** OTP verification. Sending is the notification worker's job; in development the code 000000 is accepted. */
   async verifyContact(user: AuthUser, contactId: number, otp: string) {
+    // the SMS provider is not wired yet: in development 000000 is accepted; in production only an explicitly set code is
+    if (process.env.NODE_ENV === 'production' && !process.env.OTP_DEV_CODE) throw new ForbiddenException('OTP verification is not available yet: the SMS service is not connected');
     const accepted = process.env.OTP_DEV_CODE ? otp === process.env.OTP_DEV_CODE : otp === '000000';
     if (!accepted) throw new ForbiddenException('Wrong OTP');
     const [row] = await this.dbs.run(user, (tx) => tx.update(t.studentContact)

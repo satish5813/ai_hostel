@@ -414,7 +414,6 @@ class PageHead extends StatelessWidget {
     'violet': (Color(0xFFF1ECFF), Color(0xFF5F3DC4)), 'rose': (Color(0xFFFFE9F0), Color(0xFFB8215A)), 'cyan': (Color(0xFFDDF6FA), Color(0xFF0B7285)),
     'orange': (Color(0xFFFFF1E7), Color(0xFFB4410F)), 'sky': (Color(0xFFE7F3FF), Color(0xFF1864AB)),
   };
-  static const _access = {'V': ('View', Tone.muted), 'C': ('Create', Tone.info), 'E': ('Edit', Tone.warn), 'A': ('Approve or reject', Tone.progress)};
   /// code: (name, purpose, module, module colour, access)
   static const screens = {
     'GEN-01': ('My profile and contacts', 'Own details and phone numbers', 'General', 'brand', 'VE'),
@@ -436,22 +435,16 @@ class PageHead extends StatelessWidget {
   };
   @override
   Widget build(BuildContext context) {
-    final (name, purpose, module, colour, access) = screens[code] ?? (code, '', '', 'brand', '');
-    final (tbg, tfg) = _tiles[colour]!;
+    final (name, purpose, _, colour, _) = screens[code] ?? (code, '', '', 'brand', '');
+    final (_, fg) = _tiles[colour]!;
     return Padding(padding: const EdgeInsets.only(bottom: 8), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Row(children: [
-        Container(height: 20, padding: const EdgeInsets.symmetric(horizontal: 8), alignment: Alignment.center, decoration: BoxDecoration(color: tbg, borderRadius: BorderRadius.circular(999)),
-            child: Text(code, style: K.mono(size: 11, weight: FontWeight.w700, color: tfg).copyWith(letterSpacing: .44))),
-        const SizedBox(width: 6),
-        Text(module, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: K.ink2)),
+      Row(crossAxisAlignment: CrossAxisAlignment.center, children: [
+        Container(width: 4, height: 26, decoration: BoxDecoration(color: fg, borderRadius: BorderRadius.circular(2))),
+        const SizedBox(width: 10),
+        Expanded(child: Text(title ?? name, style: const TextStyle(fontSize: 24, height: 30 / 24, fontWeight: FontWeight.w800, letterSpacing: -.4))),
       ]),
-      const SizedBox(height: 4),
-      Text(title ?? name, style: const TextStyle(fontSize: 22, height: 30 / 22, fontWeight: FontWeight.w600)),
-      if ((subtitle ?? purpose).isNotEmpty) Padding(padding: const EdgeInsets.only(top: 4), child: Text(subtitle ?? purpose, style: const TextStyle(fontSize: 16, height: 1.5, color: K.ink2))),
-      if (access.isNotEmpty || action != null) Padding(padding: const EdgeInsets.only(top: 16), child: Wrap(spacing: 8, runSpacing: 8, crossAxisAlignment: WrapCrossAlignment.center, children: [
-        for (final a in access.split('')) Pill(_access[a]!.$1, tone: _access[a]!.$2),
-        ?action,
-      ])),
+      if ((subtitle ?? purpose).isNotEmpty) Padding(padding: const EdgeInsets.only(top: 6), child: Text(subtitle ?? purpose, style: const TextStyle(fontSize: 14.5, height: 1.5, color: K.ink2))),
+      if (action != null) Padding(padding: const EdgeInsets.only(top: 14), child: action!),
     ]));
   }
 }

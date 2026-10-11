@@ -239,7 +239,7 @@ class _Panel extends StatelessWidget {
     final v = x['value_type'] == 'Text' ? '${x['value_text'] ?? ''}' : _fmt(x['value_num'], dec);
     const small = TextStyle(fontSize: 12, color: _ink3);
     return TableRow(decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: _line))), children: [
-      TableCell(verticalAlignment: TableCellVerticalAlignment.fill, child: Container(
+      TableCell(verticalAlignment: TableCellVerticalAlignment.intrinsicHeight, child: Container(
         foregroundDecoration: sev ? BoxDecoration(border: Border(left: BorderSide(color: c, width: 3))) : null,
         child: cell(Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Text('${x['test_name']}', style: const TextStyle(fontWeight: FontWeight.w700, color: K.ink)),

@@ -38,6 +38,7 @@ import { OpsModule } from './ops/ops.module.js';
 import { MessOpsModule } from './messops/messops.module.js';
 import { CareModule } from './care/care.module.js';
 import { DeanModule } from './dean/dean.module.js';
+import { WalletModule } from './wallet/wallet.module.js';
 
 @Module({
   imports: [
@@ -73,6 +74,7 @@ import { DeanModule } from './dean/dean.module.js';
     OutpassModule,
     SickLeaveModule,
     JobsModule,
+    WalletModule,
     GeneralModule,
     AdminModule,
   ],

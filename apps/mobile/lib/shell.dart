@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'core/api.dart';
 import 'core/session.dart';
 import 'core/theme.dart';
@@ -111,7 +112,7 @@ class ShellState extends State<Shell> {
   Widget build(BuildContext context) {
     _tabPages.putIfAbsent(_tab, placeOf(_tab).page);
     final top = _stack.isEmpty ? null : _stack.last;
-    return PopScope(
+    return AnnotatedRegion<SystemUiOverlayStyle>(value: SystemUiOverlayStyle.dark, child: PopScope(
       canPop: _stack.isEmpty && _tab == 'home',
       onPopInvokedWithResult: (didPop, _) { if (!didPop) _back(); },
       child: Scaffold(
@@ -124,12 +125,13 @@ class ShellState extends State<Shell> {
           Expanded(child: Stack(children: [
             Offstage(offstage: top != null, child: IndexedStack(index: tabs.indexOf(_tab), children: [for (final t in tabs) _tabPages[t] ?? const SizedBox.shrink()])),
             if (top != null) KeyedSubtree(key: ValueKey(top), child: placeOf(top).page()),
+            const Positioned(left: 0, right: 0, bottom: 0, height: 22, child: IgnorePointer(child: DecoratedBox(decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter, colors: [Color(0x00F4F6FA), K.ground]))))),
             if (!['home', 'outings'].contains(current)) Positioned(right: 14, bottom: 16, child: _OutingFab(onTap: () => open('outings'))),
           ])),
         ]),
         bottomNavigationBar: _BottomBar(shell: this),
       ),
-    );
+    ));
   }
 }
 
@@ -172,27 +174,39 @@ class _BottomBar extends StatelessWidget {
   final ShellState shell;
   const _BottomBar({required this.shell});
   @override
-  Widget build(BuildContext context) => Container(
-        padding: EdgeInsets.fromLTRB(4, 6, 4, 6 + MediaQuery.of(context).padding.bottom),
-        decoration: const BoxDecoration(color: Colors.white, border: Border(top: BorderSide(color: Color(0xFFE8ECF2))),
-            boxShadow: [BoxShadow(color: Color(0x0F101828), blurRadius: 16, offset: Offset(0, -4))]),
+  Widget build(BuildContext context) {
+    final safe = MediaQuery.of(context).padding.bottom;
+    // a floating bar: a white capsule lifted off the page, clear of the screen edges and the home indicator
+    return Container(
+      color: K.ground,
+      padding: EdgeInsets.fromLTRB(14, 2, 14, safe > 0 ? safe - 6 : 12),
+      child: Container(
+        height: 66,
+        padding: const EdgeInsets.symmetric(horizontal: 6),
+        decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(26), border: Border.all(color: const Color(0xFFE6ECEB)),
+            boxShadow: const [BoxShadow(color: Color(0x29101828), blurRadius: 28, spreadRadius: -8, offset: Offset(0, 14)), BoxShadow(color: Color(0x0F101828), blurRadius: 6, offset: Offset(0, 2))]),
         child: Row(children: [
           for (final k in tabs) _item(placeOf(k).icon, k == 'fees' ? 'Fees' : placeOf(k).label, shell.current == k, () => shell.open(k)),
           _item(LucideIcons.menu, 'Menu', false, () => shell._scaffold.currentState?.openDrawer(), dot: shell.unread > 0),
         ]),
-      );
+      ),
+    );
+  }
 
   Widget _item(IconData icon, String label, bool on, VoidCallback tap, {bool dot = false}) => Expanded(child: Semantics(selected: on, button: true, child: InkWell(
-      onTap: tap, borderRadius: BorderRadius.circular(12),
-      child: Padding(padding: const EdgeInsets.symmetric(vertical: 6), child: Stack(clipBehavior: Clip.none, alignment: Alignment.topCenter, children: [
-        Column(mainAxisSize: MainAxisSize.min, children: [
-          Container(padding: EdgeInsets.symmetric(horizontal: on ? 12 : 0, vertical: on ? 3 : 0), decoration: BoxDecoration(color: on ? K.brandTint : null, borderRadius: BorderRadius.circular(999)),
-              child: Icon(icon, size: 20, color: on ? K.brand : K.ink3)),
-          SizedBox(height: on ? 0 : 3),
-          Text(label, style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: on ? K.brand : K.ink3)),
+      onTap: tap, borderRadius: BorderRadius.circular(20),
+      child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+        Stack(clipBehavior: Clip.none, alignment: Alignment.center, children: [
+          AnimatedContainer(duration: const Duration(milliseconds: 220), curve: Curves.easeOutCubic, width: on ? 52 : 32, height: 30, alignment: Alignment.center,
+              decoration: BoxDecoration(borderRadius: BorderRadius.circular(999),
+                  gradient: on ? const LinearGradient(colors: [Color(0xFF0E8F84), Color(0xFF0A5F6E)], begin: Alignment.topLeft, end: Alignment.bottomRight) : null,
+                  boxShadow: on ? const [BoxShadow(color: Color(0x520B7A71), blurRadius: 12, spreadRadius: -3, offset: Offset(0, 6))] : null),
+              child: Icon(icon, size: 19, color: on ? Colors.white : K.ink3)),
+          if (dot) Positioned(top: 2, right: 2, child: Container(width: 9, height: 9, decoration: BoxDecoration(color: K.red, shape: BoxShape.circle, border: Border.all(color: Colors.white, width: 1.5)))),
         ]),
-        if (dot) Positioned(top: -2, left: null, child: Transform.translate(offset: const Offset(12, 0), child: Container(width: 8, height: 8, decoration: const BoxDecoration(color: K.red, shape: BoxShape.circle)))),
-      ])))));
+        const SizedBox(height: 4),
+        Text(label, style: TextStyle(fontSize: 11, height: 1, fontWeight: on ? FontWeight.w800 : FontWeight.w600, color: on ? K.brand : K.ink3)),
+      ]))));
 }
 
 /// The side menu (sn-side): logo, the teal card with the student, groups of places, Sign out at the foot.

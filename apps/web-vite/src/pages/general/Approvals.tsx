@@ -18,13 +18,14 @@ export default function Approvals({ only }: { only?: string }) {
   const [type, setType] = useState(only ?? '');
   const [sel, setSel] = useState<Item | null>(null);
   const trail = useApi<Trail>(sel ? `/approvals/${sel.request_type}/${sel.request_id}` : null);
+  const proof = useApi<{ photo: string; mime: string; amount: number; paid_on: string; reference: string | null; dues: number | null; ocr_status: string; ocr_checks: { check: string; expected: string; found: string | null; ok: boolean | null }[] | null; demands: { fee_head: string; instalment_no: number | null; balance: number; status: string }[] }>(sel?.request_type === 'Payment_Proof' ? `/payment-proofs/${sel.request_id}` : null);
   const [reject, setReject] = useState<Item | null>(null);
   const { run, busy } = useAction();
   const decide = (i: Item, decision: 'Approved' | 'Rejected', remarks?: string) => run(() => api(`/approvals/${i.step_id}/decide`, { method: 'POST', json: { decision, remarks } }).then(() => { inbox.mutate(); setSel(null); }), `${words(i.request_type)} for ${titleCase(i.full_name)} ${decision.toLowerCase()}`);
   const rows = (inbox.data ?? []).filter((i) => !type || i.request_type === type);
   const types = [...new Set((inbox.data ?? []).map((i) => i.request_type))];
   const def = s ? roleDef(s.role) : undefined;
-  const levelNote = (i: Item) => i.request_type === 'Outpass' ? (i.level === 1 ? 'Level 1: Floor Warden' : i.level === 2 ? 'Level 2: Chief Warden (final for a same-day outing)' : 'Level 3: Dean, Students Affairs (outing of a day or more)') : i.request_type === 'Sick_Leave' ? (i.level === 1 ? 'Level 1: Floor Warden recommends after the in-person visit' : 'Level 2: Chief Warden cross-checks and approves') : `Level ${i.level}`;
+  const levelNote = (i: Item) => i.request_type === 'Payment_Proof' ? (i.level === 1 ? 'Level 1: Floor Warden checks the receipt against the portal' : 'Level 2: Chief Warden approves the payment (final: receipts are issued, the registration moves on)') : i.request_type === 'Outpass' ? (i.level === 1 ? 'Level 1: Floor Warden' : 'Level 2: Chief Warden (final: issues the QR pass)') : i.request_type === 'Sick_Leave' ? (i.level === 1 ? 'Level 1: Floor Warden recommends after the in-person visit' : 'Level 2: Chief Warden cross-checks and approves') : `Level ${i.level}`;
   return (
     <div className="klh-stack" style={{ gap: 24 }}>
       {!only && <ScreenHeader code="GEN-03" subtitle={`Requests waiting at your level. ${def?.code === 'FW' ? 'Every request goes on to the Chief Warden after you.' : def?.code === 'CW' ? 'Your decision is final for a same-day outing and for sick leave.' : ''}`} />}
@@ -50,6 +51,19 @@ export default function Approvals({ only }: { only?: string }) {
         {sel && (
           <div className="klh-stack" style={{ gap: 20 }}>
             <dl className="klh-dl"><dt>Details</dt><dd>{sel.summary}</dd><dt>From</dt><dd>{formatDateTime(sel.from_at)}</dd>{sel.to_at && <><dt>To</dt><dd>{formatDateTime(sel.to_at)}</dd></>}<dt>Applied</dt><dd>{formatDateTime(sel.created_at)}</dd><dt>Your level</dt><dd>{levelNote(sel)}</dd></dl>
+            {sel.request_type === 'Payment_Proof' && proof.data && (
+              <div className="klh-stack" style={{ gap: 12 }}>
+                <p className="klh-overline">The receipt</p>
+                {proof.data.mime === 'application/pdf'
+                  ? <><iframe title="Receipt PDF" src={proof.data.photo} style={{ width: '100%', height: 420, border: '1px solid var(--klh-line, #DCE5E4)', borderRadius: 12 }} /><a href={proof.data.photo} target="_blank" rel="noreferrer">Open the PDF in a new tab</a></>
+                  : <a href={proof.data.photo} target="_blank" rel="noreferrer"><img src={proof.data.photo} alt="Receipt uploaded by the student" style={{ maxWidth: '100%', maxHeight: 360, borderRadius: 12, border: '1px solid var(--klh-line, #DCE5E4)' }} /></a>}
+                <Notice tone={proof.data.ocr_status === 'Matched' ? 'success' : proof.data.ocr_status === 'Mismatch' ? 'danger' : 'info'} title={`System check: ${proof.data.ocr_status === 'Matched' ? 'the receipt matches what was claimed' : proof.data.ocr_status === 'Mismatch' ? 'something on the receipt differs' : proof.data.ocr_status === 'Unreadable' ? 'the receipt could not be read; check it by eye' : 'the receipt is being read'}`}>
+                  {proof.data.ocr_checks && <ul style={{ margin: '6px 0 0', paddingLeft: 18 }}>{proof.data.ocr_checks.map((c) => <li key={c.check}>{c.ok === true ? '✓' : c.ok === false ? '✗' : '·'} {c.check}: expected {c.expected}{c.ok === false ? ` — not found on the receipt` : c.found && c.found !== c.expected ? ` — found ${c.found}` : ''}</li>)}</ul>}
+                </Notice>
+                <dl className="klh-dl"><dt>Amount on receipt</dt><dd>₹{proof.data.amount.toLocaleString('en-IN')}</dd><dt>Paid on</dt><dd>{proof.data.paid_on}</dd><dt>Reference</dt><dd>{proof.data.reference ?? '—'}</dd>
+                  <dt>Fees it pays</dt><dd>{proof.data.demands.length ? proof.data.demands.map((d) => `${words(d.fee_head)}${d.instalment_no && d.fee_head === 'Hostel' ? ` part ${d.instalment_no}` : ''} ₹${d.balance.toLocaleString('en-IN')} (${words(d.status)})`).join(', ') : 'none: money for the wallet'}</dd>
+                  {proof.data.dues != null && <><dt>Dues on those fees</dt><dd>₹{proof.data.dues.toLocaleString('en-IN')}{proof.data.amount > proof.data.dues ? ` · ₹${(proof.data.amount - proof.data.dues).toLocaleString('en-IN')} would go to the wallet` : proof.data.amount < proof.data.dues ? ' · less than the dues: part payment' : ''}</dd></>}</dl>
+              </div>)}
             <div><p className="klh-overline">Approval trail</p>{trail.data && <ApprovalTrail entries={trail.data.map((t) => ({ level: t.level === 0 ? 'P' : t.level, role: words(t.approver_role), person: t.acted_by_name ?? t.acted_by_contact_name ?? undefined, decision: t.decision, at: t.decided_on ?? undefined, remarks: t.remarks ?? undefined }))} />}</div>
             <Notice tone="info" title="Levels in order">The Approve button shows only because every earlier level is done. A rejection ends the request; the student and parent are told.</Notice>
           </div>)}

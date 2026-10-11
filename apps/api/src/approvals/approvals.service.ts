@@ -30,7 +30,12 @@ export class ApprovalsService {
         select c.student_id, 'Room change ' || c.change_no || ' to ' || rt.type_name || coalesce(' (' || tb.bed_label || ')', '') || ': ' || c.reason, c.requested_at, null
           from hostel.room_change c join hostel.room_type rt on rt.room_type_id = c.to_room_type_id left join hostel.v_bed tb on tb.subspace_id = c.to_subspace_id
          where s.request_type = 'Room_Change' and c.change_id = s.request_id
+        union all
+        select p.student_id, 'Receipt ' || p.proof_no || ' for ₹' || to_char(p.amount, 'FM9,99,99,990') || coalesce(' (ref ' || p.reference || ')', '') || ': ' || to_char(p.paid_on, 'DD Mon YYYY'), p.created_at, null
+          from hostel.payment_proof p where s.request_type = 'Payment_Proof' and p.proof_id = s.request_id
       ) r on true
+      -- a receipt may come from a student with no room yet: its hostel is the one being paid for
+      left join hostel.payment_proof pp on s.request_type = 'Payment_Proof' and pp.proof_id = s.request_id
       join ref.student_master sm on sm.student_id = r.student_id
       left join hostel.fn_student_stay(r.student_id) st on true
       left join hostel.v_bed b on b.subspace_id = st.subspace_id
@@ -40,7 +45,7 @@ export class ApprovalsService {
         and (s.level = (select min(level) from shared.approval_step p where p.request_type = s.request_type and p.request_id = s.request_id and p.decision = 'Pending'))
         and (s.approver_role not in ('Floor_Warden','Chief_Warden','Warden','Assistant_Warden')
              or exists (select 1 from hostel.staff_space_assignment a where a.staff_id = ${user.id} and a.hostel_role = s.approver_role and a.status = 'Active'
-                         and a.facility_id = st.facility_id and (a.zone_id is null or a.zone_id = st.zone_id)))
+                         and a.facility_id = coalesce(st.facility_id, pp.facility_id) and (a.zone_id is null or a.zone_id = coalesce(st.zone_id, a.zone_id))))
       order by s.created_at`);
   }
 
