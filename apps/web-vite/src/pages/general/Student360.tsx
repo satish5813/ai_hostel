@@ -54,7 +54,7 @@ export default function Student360({ id: own }: { id?: string }) {
           <h1>{titleCase(st.full_name)}</h1>
           <p>{st.student_id} · {st.programme} · {st.dept_name ?? st.dept_code ?? st.level}</p>
           <div className="s360-chips">
-            {st.room_code ? <span className="tag"><Icon name="bed" size={12} />{st.hostel_code} {st.room_code}, {st.floor_name}</span> : <span className="tag">Day scholar</span>}
+            {st.room_code ? <span className="tag"><Icon name="bed" size={12} />{st.hostel_code} {st.room_code}, {st.floor_name}</span> : <span className="tag">{st.is_hosteller ? 'Hosteller' : 'Day scholar'}</span>}
             {st.current_status && <StatusChip status={st.current_status} label={words(st.current_status)} />}
           </div>
         </div>
@@ -116,7 +116,8 @@ export default function Student360({ id: own }: { id?: string }) {
               {!activities.length && <div><small>No activities yet.</small></div>}</div></section>
         </div>)}
 
-      {tab === 'Hostel' && (
+      {tab === 'Hostel' && (<>
+        <HostelRecord id={id} canEdit={['Chief_Warden', 'Director_Hostels', 'admin'].includes(s.role)} />
         <section className="box"><div className="box-body">
           <div className="facts">
             <div><span>Room</span><b>{st.room_code ? `${st.hostel_code} ${st.room_code}` : '—'}</b></div><div><span>Floor Warden</span><b>{st.floor_warden ? titleCase(st.floor_warden) : '—'}</b></div>
@@ -124,7 +125,7 @@ export default function Student360({ id: own }: { id?: string }) {
             <div><span>Outings</span><b>{h.outings}</b></div><div><span>Late returns</span><b>{h.late_returns}</b></div><div><span>Sick days</span><b>{h.sick_days}</b></div><div><span>Alerts</span><b>{h.alerts}</b></div>
             <div><span>Dues</span><b>{formatINR(h.dues)}</b></div>
           </div>
-        </div></section>)}
+        </div></section></>)}
 
       {add && <AddPanel kind={add} onClose={() => setAdd(null)} onDone={() => { setAdd(null); d.mutate(); }} />}
     </div>
@@ -160,5 +161,41 @@ function AddPanel({ kind, onClose, onDone }: { kind: 'cert' | 'ach'; onClose: ()
         </>}
       </div>
     </Drawer>
+  );
+}
+
+/* ---------- the hostel record (migration 126): what the student submitted once; the Chief Warden edits it ---------- */
+type Kyc = Record<string, string | null | boolean> & { locked: boolean; can_edit: boolean; submitted_on: string | null };
+const KYC_FIELDS: [string, string][] = [['aadhaar_no', 'Aadhaar number'], ['blood_group', 'Blood group'], ['hno', 'House number'], ['street', 'Street'], ['landmark', 'Landmark'], ['city', 'City or village'], ['district', 'District'], ['state', 'State'], ['pincode', 'PIN code'],
+  ['father_name', "Father's name"], ['father_mobile', "Father's mobile"], ['mother_name', "Mother's name"], ['mother_mobile', "Mother's mobile"], ['guardian_name', 'Local guardian'], ['guardian_relation', 'Guardian relation'], ['guardian_mobile', "Guardian's mobile"],
+  ['emergency_name', 'Emergency contact'], ['emergency_mobile', 'Emergency mobile'], ['medical_notes', 'Allergies or medicines']];
+function HostelRecord({ id, canEdit }: { id: string; canEdit: boolean }) {
+  const k = useApi<Kyc>(`/students/${id}/kyc`);
+  const [edit, setEdit] = useState<Record<string, string> | null>(null);
+  const { run, busy } = useAction();
+  if (!k.data) return null;
+  const d = k.data;
+  const text = (key: string) => (typeof d[key] === 'string' ? (d[key] as string) : '');
+  const save = () => run(async () => {
+    const body: Record<string, string | null> = {};
+    for (const [key] of KYC_FIELDS) { const v = (edit![key] ?? '').trim(); if (key === 'aadhaar_no' && (v === '' || v.startsWith('X'))) continue; body[key] = v || null; }
+    await api(`/students/${id}/kyc`, { method: 'PUT', json: body }); await k.mutate(); setEdit(null);
+  }, 'Hostel record updated');
+  return (
+    <section className="box"><div className="box-head"><h2>Hostel record</h2>
+      <span style={{ marginLeft: 'auto', display: 'flex', gap: 8, alignItems: 'center' }}>
+        {d.submitted_on ? <StatusChip status="Submitted" tone="success" label={`Submitted by the student · ${formatDate(d.submitted_on)}`} /> : <StatusChip status="Pending" label="Not submitted yet" />}
+        {canEdit && !edit && <Button variant="secondary" onClick={() => setEdit(Object.fromEntries(KYC_FIELDS.map(([key]) => [key, text(key)])))}>Edit</Button>}
+      </span></div>
+      <div className="box-body">
+        {!edit ? (<>
+          <div className="facts">{KYC_FIELDS.map(([key, label]) => <div key={key}><span>{label}</span><b>{text(key) || '—'}</b></div>)}</div>
+          {text('aadhaar_photo') && <a href={text('aadhaar_photo')} target="_blank" rel="noreferrer"><img src={text('aadhaar_photo')} alt="Aadhaar card" style={{ marginTop: 12, maxHeight: 220, borderRadius: 12, border: '1px solid var(--klh-line, #DCE5E4)' }} /></a>}
+          {!canEdit && <p className="muted" style={{ marginTop: 10 }}>Only the Chief Warden changes this record. The Aadhaar number is shown in part.</p>}
+        </>) : (<>
+          <div className="facts" style={{ gap: 12 }}>{KYC_FIELDS.map(([key, label]) => <Field key={key} label={label}><Input value={edit[key] ?? ''} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEdit({ ...edit, [key]: e.target.value })} /></Field>)}</div>
+          <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 12 }}><Button variant="secondary" onClick={() => setEdit(null)}>Cancel</Button><Button variant="primary" loading={busy} onClick={save}>Save</Button></div>
+        </>)}
+      </div></section>
   );
 }

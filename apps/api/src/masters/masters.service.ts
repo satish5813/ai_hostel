@@ -5,6 +5,11 @@ import { DbService } from '../db/db.service.js';
 import { assertScope, facWhere } from '../auth/scope.js';
 import type { AuthUser } from '../auth/auth.types.js';
 
+const KYC_FULL = ['Chief_Warden', 'Director_Hostels', 'admin'];
+export type KycDto = { aadhaar_no?: string | null; aadhaar_photo?: string | null; blood_group?: string | null; hno?: string | null; street?: string | null; landmark?: string | null; city?: string | null; district?: string | null; state?: string | null; pincode?: string | null;
+  father_name?: string | null; father_mobile?: string | null; mother_name?: string | null; mother_mobile?: string | null; guardian_name?: string | null; guardian_mobile?: string | null; guardian_relation?: string | null;
+  emergency_name?: string | null; emergency_mobile?: string | null; medical_notes?: string | null };
+
 @Injectable()
 export class MastersService {
   constructor(private dbs: DbService) {}
@@ -73,6 +78,44 @@ export class MastersService {
    * The student's own photo, as a small JPEG, PNG or WebP data URL (the browser shrinks it to 320 px first), kept in
    * hostel.student_photo and shown on the profile and in the menu instead of the ERP's photo. null removes it.
    */
+  /** The hostel record (migration 126). The full Aadhaar number only for the Chief Warden and admin; others see the last four digits. */
+  async kyc(studentId: string, user: AuthUser) {
+    if (user.kind === 'student' && user.id !== studentId) throw new ForbiddenException('Own record only');
+    const full = user.roles.some((r) => KYC_FULL.includes(r));
+    const [k] = await this.dbs.rows<Record<string, unknown>>(sql`select * from hostel.student_kyc where student_id = ${studentId}`);
+    if (!k) return { student_id: studentId, submitted_on: null, locked: false, can_edit: user.kind === 'student' || full };
+    const aad = k.aadhaar_no as string | null;
+    return { ...k, aadhaar_no: full || !aad ? aad : `XXXX XXXX ${aad.slice(-4)}`, aadhaar_photo: full || user.kind === 'student' ? k.aadhaar_photo : null, locked: !!k.submitted_on, can_edit: full || (user.kind === 'student' && !k.submitted_on) };
+  }
+
+  /** The student submits it once; after that only the Chief Warden changes it. */
+  async submitKyc(user: AuthUser, dto: KycDto) {
+    if (user.kind !== 'student') throw new ForbiddenException('Students submit their own record');
+    const [k] = await this.dbs.rows<{ submitted_on: string | null }>(sql`select submitted_on from hostel.student_kyc where student_id = ${user.id}`);
+    if (k?.submitted_on) throw new UnprocessableEntityException('Your record is submitted. Ask the Chief Warden to change anything on it.');
+    await this.writeKyc(user, user.id, dto, true);
+    return this.kyc(user.id, user);
+  }
+
+  async updateKyc(user: AuthUser, studentId: string, dto: KycDto) {
+    await this.writeKyc(user, studentId, dto, false);
+    return this.kyc(studentId, user);
+  }
+
+  private writeKyc(user: AuthUser, studentId: string, d: KycDto, submit: boolean) {
+    return this.dbs.run(user, (tx) => tx.execute(sql`
+      insert into hostel.student_kyc (student_id, aadhaar_no, aadhaar_photo, blood_group, hno, street, landmark, city, district, state, pincode, father_name, father_mobile, mother_name, mother_mobile,
+        guardian_name, guardian_mobile, guardian_relation, emergency_name, emergency_mobile, medical_notes, submitted_on, updated_by)
+      values (${studentId}, ${d.aadhaar_no ?? null}, ${d.aadhaar_photo ?? null}, ${d.blood_group ?? null}, ${d.hno ?? null}, ${d.street ?? null}, ${d.landmark ?? null}, ${d.city ?? null}, ${d.district ?? null}, ${d.state ?? null}, ${d.pincode ?? null},
+        ${d.father_name ?? null}, ${d.father_mobile ?? null}, ${d.mother_name ?? null}, ${d.mother_mobile ?? null}, ${d.guardian_name ?? null}, ${d.guardian_mobile ?? null}, ${d.guardian_relation ?? null},
+        ${d.emergency_name ?? null}, ${d.emergency_mobile ?? null}, ${d.medical_notes ?? null}, ${submit ? sql`now()` : sql`null`}, ${user.id})
+      on conflict (student_id) do update set aadhaar_no = coalesce(excluded.aadhaar_no, hostel.student_kyc.aadhaar_no), aadhaar_photo = coalesce(excluded.aadhaar_photo, hostel.student_kyc.aadhaar_photo),
+        blood_group = excluded.blood_group, hno = excluded.hno, street = excluded.street, landmark = excluded.landmark, city = excluded.city, district = excluded.district, state = excluded.state, pincode = excluded.pincode,
+        father_name = excluded.father_name, father_mobile = excluded.father_mobile, mother_name = excluded.mother_name, mother_mobile = excluded.mother_mobile,
+        guardian_name = excluded.guardian_name, guardian_mobile = excluded.guardian_mobile, guardian_relation = excluded.guardian_relation, emergency_name = excluded.emergency_name, emergency_mobile = excluded.emergency_mobile,
+        medical_notes = excluded.medical_notes, submitted_on = coalesce(hostel.student_kyc.submitted_on, excluded.submitted_on), updated_by = excluded.updated_by, updated_at = now()`));
+  }
+
   async setPhoto(user: AuthUser, photo: string | null) {
     if (user.kind !== 'student') throw new ForbiddenException('Students set their own photo');
     if (photo && !/^data:image\/(jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(photo)) throw new BadRequestException('Send a JPEG, PNG or WebP image');

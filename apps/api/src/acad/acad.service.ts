@@ -53,7 +53,11 @@ export class AcadService {
     const certs = await this.dbs.rows(sql`select cert_id::int as id, title, provider, category::text as category, issued_on, valid_until, credential_ref, verified_on is not null as verified from acad.certification where student_id = ${studentId} order by issued_on desc`);
     const activities = await this.dbs.rows(sql`select activity_id::int as id, activity_type::text as type, title, role, from_date, to_date, hours::float as hours from acad.activity where student_id = ${studentId} order by from_date desc`);
     const achievements = await this.dbs.rows(sql`select achievement_id::int as id, title, level::text as level, category, achieved_on, award, verified_on is not null as verified from acad.achievement where student_id = ${studentId} order by achieved_on desc`);
-    return { student: st, hostel, terms, crt: { attendance: crtAtt, tests: crtTests }, certs, activities, achievements };
+    // what the student came with: a fresher (no semester results yet) sees this instead of results
+    const prior = await this.dbs.rows(sql`select prior_id::int as id, level, board, institution, group_name, year_passed::int as year_passed, marks_pct::float as marks_pct, cgpa::float as cgpa, roll_no,
+        certificate is not null as has_certificate, certificate, source, verified_on is not null as verified
+      from acad.prior_education where student_id = ${studentId} order by array_position(array['SSC','Intermediate','Diploma','Degree','PG'], level)`);
+    return { student: st, hostel, terms, crt: { attendance: crtAtt, tests: crtTests }, certs, activities, achievements, prior, fresher: terms.length === 0 };
   }
 
   /** Every hosteller in one table for wardens and senior staff: academics, CRT and hostel conduct side by side. */
@@ -75,6 +79,17 @@ export class AcadService {
         and (not ${floorOnly} or exists (select 1 from hostel.staff_space_assignment a where a.staff_id = ${user.id} and a.hostel_role = 'Floor_Warden' and a.status = 'Active'
           and a.facility_id = b.facility_id and (a.zone_id is null or a.zone_id = b.zone_id)))
       order by b.hostel_code, b.floor_no, b.room_code`);
+  }
+
+  /** The student records a qualification from before KL (one row per level); a Warden verifies it, as with certificates. */
+  addPrior(user: AuthUser, dto: { level: string; board?: string; institution?: string; group_name?: string; year_passed?: number; marks_pct?: number; cgpa?: number; roll_no?: string; certificate?: string | null }) {
+    if (user.kind !== 'student') throw new ForbiddenException('Students add their own record');
+    return this.dbs.run(user, (tx) => tx.execute(sql`
+      insert into acad.prior_education (student_id, level, board, institution, group_name, year_passed, marks_pct, cgpa, roll_no, certificate, source)
+      values (${user.id}, ${dto.level}, ${dto.board ?? null}, ${dto.institution ?? null}, ${dto.group_name ?? null}, ${dto.year_passed ?? null}, ${dto.marks_pct ?? null}, ${dto.cgpa ?? null}, ${dto.roll_no ?? null}, ${dto.certificate ?? null}, 'Student')
+      on conflict (student_id, level) do update set board = excluded.board, institution = excluded.institution, group_name = excluded.group_name, year_passed = excluded.year_passed,
+        marks_pct = excluded.marks_pct, cgpa = excluded.cgpa, roll_no = excluded.roll_no, certificate = coalesce(excluded.certificate, acad.prior_education.certificate),
+        source = 'Student', verified_on = null, verified_by = null, updated_at = now()`));
   }
 
   addCert(user: AuthUser, dto: { title: string; provider: string; category: string; issued_on: string; credential_ref?: string }) {

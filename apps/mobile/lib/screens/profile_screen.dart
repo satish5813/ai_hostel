@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math' as math;
 import 'dart:ui' show PointMode;
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import '../core/api.dart';
 import '../core/theme.dart';
 import '../core/widgets.dart';
@@ -45,9 +46,9 @@ class _ProfileScreenState extends State<ProfileScreen> with AutoRefresh {
 
   Future<void> load() async {
     try {
-      final r = await Future.wait([Api.instance.get('/students/$me'), _try('/students/$me/360'), _try('/me/room'), _try('/students/$me/demands'), _try('/me/career-goal'), _try('/meters/mine')]);
+      final r = await Future.wait([Api.instance.get('/students/$me'), _try('/students/$me/360'), _try('/me/room'), _try('/students/$me/demands'), _try('/me/career-goal'), _try('/meters/mine'), _try('/me/kyc'), _try('/registrations/mine')]);
       if (!mounted) return;
-      setState(() { d = {'me': r[0], 'p': r[1], 'room': r[2], 'dues': r[3], 'goal': r[4], 'meter': r[5]}; error = null; loading = false; });
+      setState(() { d = {'me': r[0], 'p': r[1], 'room': r[2], 'dues': r[3], 'goal': r[4], 'meter': r[5], 'kyc': r[6], 'regs': r[7]}; error = null; loading = false; });
     } catch (e) {
       if (mounted) setState(() { error = e; loading = false; });
     }
@@ -74,17 +75,27 @@ class _ProfileScreenState extends State<ProfileScreen> with AutoRefresh {
     final name = titleCase(m['full_name']);
     final acts = _list(p?['activities']), achs = _list(p?['achievements']), certs = _list(p?['certs']);
 
+    final kyc = d['kyc'] as Map?;
+    final reg = _list(d['regs']).where((r) => !['Cancelled', 'Vacated'].contains(r['status'])).firstOrNull;
+    final prior = _list(p?['prior']);
+    final fresher = p?['fresher'] == true;
+    String came(String level) { final x = prior.where((q) => q['level'] == level).firstOrNull; return x == null ? '—' : x['cgpa'] != null ? 'CGPA ${_js(_n(x['cgpa']))}' : '${_js(_n(x['marks_pct']))}%'; }
     final stats = <(IconData, String, String, String)>[
+      if (fresher) ...[
+        (LucideIcons.school, '10th class', came('SSC'), came('SSC') == '—' ? 'none' : 'good'),
+        (LucideIcons.bookOpen, 'Intermediate', came('Intermediate'), came('Intermediate') == '—' ? 'none' : 'good'),
+      ] else ...[
       (LucideIcons.graduationCap, 'CGPA', cgpa != null ? cgpa.toStringAsFixed(2) : '—', cgpa == null ? 'none' : cgpa >= 7 ? 'good' : cgpa >= 6 ? 'warn' : 'bad'),
       (LucideIcons.bookOpen, 'Attendance', att != null ? '${_js(att)}%' : '—', att == null ? 'none' : att >= _attMin ? 'good' : 'bad'),
       (LucideIcons.triangleAlert, 'Backlogs', _js(backlogs), backlogs > 0 ? 'bad' : 'good'),
+      ],
       (LucideIcons.wallet, 'Fees due', _inr(due), due > 0 ? 'warn' : 'good'),
       (LucideIcons.moon, 'Roll call', night != null ? '${_js(night)}%' : '—', night == null ? 'none' : night >= 90 ? 'good' : 'warn'),
       (LucideIcons.trophy, 'Activities & awards', '${acts.length + achs.length + certs.length}', 'none'),
     ];
 
     return RefreshIndicator(onRefresh: load, child: ListView(physics: const AlwaysScrollableScrollPhysics(), padding: const EdgeInsets.fromLTRB(16, 16, 16, 90), children: [
-      _Hero(m: m, name: name, room: room, goal: goal, stats: stats),
+      _Hero(m: m, name: name, room: room, goal: goal, stats: stats, onPhoto: load, stay: room != null ? '${room['bed_label']}' : reg != null ? (reg['hostel_code'] != null ? '${reg['hostel_code']} · joining' : 'Joining the hostel') : 'Hosteller'), // everyone in this app is a hosteller, or about to be
       const SizedBox(height: 18),
 
       // ---------------- main column
@@ -184,6 +195,9 @@ class _ProfileScreenState extends State<ProfileScreen> with AutoRefresh {
             ])),
       ]),
       const SizedBox(height: 18),
+      _Card(icon: LucideIcons.idCard, title: 'My hostel record', sub: kyc?['locked'] == true ? 'Submitted ${day(kyc!['submitted_on'])}. Only the Chief Warden can change it now.' : 'Aadhaar, address, parents and emergency contact. Fill it once; after that the Chief Warden changes it.',
+          children: [_Kyc(k: kyc, m: m, onChange: load)]),
+      const SizedBox(height: 18),
       _Card(icon: LucideIcons.users, title: 'Family contacts', sub: 'Verify each number. One parent or guardian recommends your outings.',
           children: [_Contacts(m: m, onChange: load)]),
     ]));
@@ -237,7 +251,9 @@ class _Hero extends StatelessWidget {
   final String name;
   final Map? room, goal;
   final List<(IconData, String, String, String)> stats;
-  const _Hero({required this.m, required this.name, required this.room, required this.goal, required this.stats});
+  final VoidCallback onPhoto;
+  final String stay;
+  const _Hero({required this.m, required this.name, required this.room, required this.goal, required this.stats, required this.onPhoto, required this.stay});
   @override
   Widget build(BuildContext context) {
     Widget chip(IconData i, String t, {bool on = false}) => Container(padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
@@ -256,7 +272,7 @@ class _Hero extends StatelessWidget {
           Positioned.fill(child: Container(decoration: const BoxDecoration(gradient: RadialGradient(center: Alignment.topRight, radius: 1.3, colors: [Color(0xFF13968A), Color(0x0013968A)], stops: [0, .55])))),
           Positioned(right: -60, top: -80, child: Container(width: 240, height: 240, decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.white.withValues(alpha: .07)))),
           Padding(padding: const EdgeInsets.fromLTRB(16, 22, 16, 22), child: Column(children: [
-            _Photo(m: m),
+            _Photo(m: m, onChanged: onPhoto),
             const SizedBox(height: 22),
             Opacity(opacity: .8, child: Text('${m['dept_name'] ?? m['dept_code'] ?? 'Student'}'.toUpperCase(), textAlign: TextAlign.center,
                 style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700, letterSpacing: .96, color: Colors.white))),
@@ -268,7 +284,7 @@ class _Hero extends StatelessWidget {
             const SizedBox(height: 12),
             Wrap(spacing: 6, runSpacing: 6, alignment: WrapAlignment.center, children: [
               chip(LucideIcons.circleCheck, words(m['status']), on: true),
-              chip(LucideIcons.bedDouble, room != null ? '${room!['bed_label']}' : m['is_hosteller'] == true ? 'Hosteller' : 'Day scholar'),
+              chip(LucideIcons.bedDouble, stay),
               if (g != null && g != 'Undecided') chip(LucideIcons.compass, _goal[g] ?? '$g'),
               if (m['blood_group'] != null) chip(LucideIcons.heartPulse, '${m['blood_group']}'),
             ]),
@@ -300,7 +316,27 @@ class _Hero extends StatelessWidget {
 /// The 132 px photo with the white Change / Add photo button over its foot.
 class _Photo extends StatelessWidget {
   final Map m;
-  const _Photo({required this.m});
+  final VoidCallback onChanged;
+  const _Photo({required this.m, required this.onChanged});
+
+  /// Camera or gallery, squared small (the gate shows it at thumbnail size), saved as the student's photo.
+  Future<void> _pick(BuildContext context) async {
+    final src = await showModalBottomSheet<ImageSource>(context: context, builder: (ctx) => SafeArea(child: Column(mainAxisSize: MainAxisSize.min, children: [
+      ListTile(leading: const Icon(LucideIcons.camera), title: const Text('Take a photo'), onTap: () => Navigator.pop(ctx, ImageSource.camera)),
+      ListTile(leading: const Icon(LucideIcons.image), title: const Text('Choose from gallery'), onTap: () => Navigator.pop(ctx, ImageSource.gallery)),
+    ])));
+    if (src == null || !context.mounted) return;
+    try {
+      final x = await ImagePicker().pickImage(source: src, maxWidth: 480, maxHeight: 480, imageQuality: 70);
+      if (x == null) return;
+      final bytes = await x.readAsBytes();
+      final url = 'data:image/jpeg;base64,${base64Encode(bytes)}';
+      if (url.length > 290000) { if (context.mounted) toast(context, 'That photo is too large. Try a closer, plainer picture.', error: true); return; }
+      if (context.mounted && await act(context, () => Api.instance.put('/me/photo', {'photo': url}), 'Photo saved. Security sees it at the gate.')) onChanged();
+    } catch (e) {
+      if (context.mounted) toast(context, 'Could not open the picture: $e', error: true);
+    }
+  }
   @override
   Widget build(BuildContext context) {
     final src = '${m['photo'] ?? ''}';
@@ -318,8 +354,7 @@ class _Photo extends StatelessWidget {
               child: Text(_initials('${m['full_name']}'), style: const TextStyle(fontSize: 44, fontWeight: FontWeight.w800, letterSpacing: .88, color: Colors.white))))),
       Positioned(bottom: 0, child: Semantics(button: true, label: src.isNotEmpty ? 'Change photo' : 'Add a photo', child: Material(color: Colors.white, borderRadius: BorderRadius.circular(999), elevation: 0,
           child: InkWell(borderRadius: BorderRadius.circular(999),
-              // ponytail: the app has no image picker package; the photo is set from the web portal until one is added.
-              onTap: () => toast(context, 'Add or change your photo from the web portal.'),
+              onTap: () => _pick(context),
               child: Container(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(borderRadius: BorderRadius.circular(999), boxShadow: const [BoxShadow(color: Color(0x33000000), blurRadius: 14, offset: Offset(0, 6))]),
                   child: Row(mainAxisSize: MainAxisSize.min, children: [
@@ -595,6 +630,110 @@ class _FeeRing extends CustomPainter {
   }
   @override
   bool shouldRepaint(_FeeRing o) => o.f != f;
+}
+
+/* ------------------------------------------------------------ the hostel record (KYC) */
+
+const _kycFields = <(String, String, String?)>[ // key, label, hint
+  ('aadhaar_no', 'Aadhaar number', '12 digits'), ('blood_group', 'Blood group', 'O+ve'),
+  ('hno', 'House number', null), ('street', 'Street', null), ('landmark', 'Landmark', null), ('city', 'City or village', null), ('district', 'District', null), ('state', 'State', null), ('pincode', 'PIN code', '6 digits'),
+  ('father_name', "Father's name", null), ('father_mobile', "Father's mobile", '10 digits'), ('mother_name', "Mother's name", null), ('mother_mobile', "Mother's mobile", '10 digits'),
+  ('guardian_name', 'Local guardian', null), ('guardian_relation', 'Guardian relation', 'Uncle, aunt…'), ('guardian_mobile', "Guardian's mobile", '10 digits'),
+  ('emergency_name', 'Emergency contact', null), ('emergency_mobile', 'Emergency mobile', '10 digits'), ('medical_notes', 'Allergies or regular medicines', null),
+];
+const _bloodGroups = ['A+ve', 'A-ve', 'B+ve', 'B-ve', 'AB+ve', 'AB-ve', 'O+ve', 'O-ve', 'NA'];
+
+/// What the hostel keeps about the student. Empty: a button to fill it in. Submitted: the table, read-only.
+class _Kyc extends StatelessWidget {
+  final Map? k;
+  final Map m;
+  final VoidCallback onChange;
+  const _Kyc({required this.k, required this.m, required this.onChange});
+
+  @override
+  Widget build(BuildContext context) {
+    final locked = k?['locked'] == true;
+    if (k == null || (k!['submitted_on'] == null && !locked)) {
+      return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        const Text('Needed before the key is handed over. Keep your Aadhaar card nearby.', style: TextStyle(fontSize: 13, color: _ink3)),
+        const SizedBox(height: 10),
+        KButton('Fill in my record', icon: LucideIcons.pencilLine, block: true, onPressed: () => _form(context)),
+      ]);
+    }
+    final rows = <(String, String)>[
+      for (final (key, label, _) in _kycFields) if ('${k![key] ?? ''}'.isNotEmpty) (label, '${k![key]}'),
+    ];
+    final photo = '${k!['aadhaar_photo'] ?? ''}';
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      for (final (label, value) in rows) Padding(padding: const EdgeInsets.symmetric(vertical: 5), child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        SizedBox(width: 128, child: Text(label, style: const TextStyle(fontSize: 12.5, color: _ink3))),
+        Expanded(child: Text(value, style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600))),
+      ])),
+      if (photo.startsWith('data:image')) Padding(padding: const EdgeInsets.only(top: 8), child: ClipRRect(borderRadius: BorderRadius.circular(12), child: Image.memory(base64Decode(photo.split(',').last), height: 120, fit: BoxFit.cover))),
+      const SizedBox(height: 10),
+      Container(padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 9), decoration: BoxDecoration(color: K.sub, borderRadius: BorderRadius.circular(10)),
+          child: const Row(children: [Icon(LucideIcons.lock, size: 14, color: K.ink3), SizedBox(width: 8), Expanded(child: Text('Locked. To change anything, ask the Chief Warden of your hostel.', style: TextStyle(fontSize: 12.5, color: K.ink3)))])),
+    ]);
+  }
+
+  void _form(BuildContext context) {
+    final f = <String, String>{'father_name': '${m['father_name'] ?? ''}', 'mother_name': '${m['mother_name'] ?? ''}', 'blood_group': '${m['blood_group'] ?? ''}'};
+    for (final c in _list(m['contacts'])) { if (c['relation'] == 'Father') f['father_mobile'] = '${c['mobile_no']}'; if (c['relation'] == 'Mother') f['mother_mobile'] = '${c['mobile_no']}'; }
+    final a = _list(m['addresses']).firstOrNull;
+    if (a != null) for (final key in ['hno', 'street', 'landmark', 'city', 'district', 'state', 'pincode']) f[key] = '${a[key] ?? ''}';
+    String? photo; var busy = false;
+    Future<void> pick(StateSetter set, ImageSource src) async {
+      try {
+        final x = await ImagePicker().pickImage(source: src, maxWidth: 1100, maxHeight: 1600, imageQuality: 62);
+        if (x == null) return;
+        final url = 'data:image/jpeg;base64,${base64Encode(await x.readAsBytes())}';
+        if (url.length > 1400000) { if (context.mounted) toast(context, 'That photo is too large. Take it again a little further away.', error: true); return; }
+        set(() => photo = url);
+      } catch (e) { if (context.mounted) toast(context, 'Could not open the picture: $e', error: true); }
+    }
+    Widget field(String key, String label, String? hint, StateSetter set) => Padding(padding: const EdgeInsets.only(bottom: 12), child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+      KLabel(label),
+      key == 'blood_group'
+          ? DropdownButtonFormField<String>(initialValue: (f[key] ?? '').isEmpty ? null : f[key], items: [for (final b in _bloodGroups) DropdownMenuItem(value: b, child: Text(b))], onChanged: (v) => set(() => f[key] = v ?? ''), decoration: const InputDecoration(hintText: 'Choose'))
+          : TextFormField(initialValue: f[key], onChanged: (v) => set(() => f[key] = v), maxLines: key == 'medical_notes' ? 2 : 1,
+              keyboardType: key.endsWith('mobile') || key == 'aadhaar_no' || key == 'pincode' ? TextInputType.number : TextInputType.text,
+              decoration: InputDecoration(hintText: hint)),
+    ]));
+    showKSheet(context, mod: Mod.teal, icon: LucideIcons.idCard, title: 'My hostel record', sub: 'Submitted once; the Chief Warden changes it after that',
+        body: (ctx, set) => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          for (final (key, label, hint) in _kycFields) field(key, label, hint, set),
+          const KLabel('Photo of the Aadhaar card'),
+          if (photo != null) Padding(padding: const EdgeInsets.only(bottom: 8), child: ClipRRect(borderRadius: BorderRadius.circular(12), child: Image.memory(base64Decode(photo!.split(',').last), height: 150, fit: BoxFit.cover))),
+          Row(children: [
+            Expanded(child: KButton(photo == null ? 'Take a photo' : 'Take again', icon: LucideIcons.camera, kind: BtnKind.secondary, onPressed: () => pick(set, ImageSource.camera))),
+            const SizedBox(width: 8),
+            Expanded(child: KButton('From gallery', icon: LucideIcons.image, kind: BtnKind.secondary, onPressed: () => pick(set, ImageSource.gallery))),
+          ]),
+          const SizedBox(height: 12),
+          const Note('Your Aadhaar number is seen in full only by the Chief Warden. Wardens and the office see the last four digits.'),
+        ]),
+        footer: (ctx, set) {
+          final aad = (f['aadhaar_no'] ?? '').replaceAll(' ', '');
+          final why = !RegExp(r'^[0-9]{12}$').hasMatch(aad) ? 'Enter the 12-digit Aadhaar number.'
+              : (f['city'] ?? '').isEmpty || !RegExp(r'^[0-9]{6}$').hasMatch(f['pincode'] ?? '') ? 'Enter the address with a 6-digit PIN code.'
+              : !RegExp(r'^[6-9][0-9]{9}$').hasMatch(f['father_mobile'] ?? '') && !RegExp(r'^[6-9][0-9]{9}$').hasMatch(f['mother_mobile'] ?? '') ? "Enter a parent's 10-digit mobile number."
+              : !RegExp(r'^[6-9][0-9]{9}$').hasMatch(f['emergency_mobile'] ?? '') ? 'Enter an emergency mobile number.' : null;
+          return Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            KButton('Submit my record', icon: LucideIcons.send, block: true, busy: busy, onPressed: why != null ? null : () async {
+              set(() => busy = true);
+              final body = <String, dynamic>{for (final e in f.entries) if (e.value.trim().isNotEmpty) e.key: e.value.trim(), 'aadhaar_no': aad, if (photo != null) 'aadhaar_photo': photo};
+              if (await act(context, () => Api.instance.post('/me/kyc', body), 'Record submitted. Only the Chief Warden can change it now.')) {
+                if (ctx.mounted) Navigator.pop(ctx);
+                onChange();
+              }
+              if (ctx.mounted) set(() => busy = false);
+            }),
+            if (why != null) Padding(padding: const EdgeInsets.only(top: 6), child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              const Padding(padding: EdgeInsets.only(top: 1), child: Icon(LucideIcons.lock, size: 14, color: _ink3)), const SizedBox(width: 4),
+              Expanded(child: Text(why, style: const TextStyle(fontSize: 12, height: 16 / 12, color: _ink3)))])),
+          ]);
+        });
+  }
 }
 
 /* ------------------------------------------------------------ family contacts */

@@ -1,5 +1,7 @@
 import 'dart:math' as math;
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import '../core/api.dart';
 import '../core/theme.dart';
@@ -7,6 +9,10 @@ import '../core/widgets.dart';
 import '../shell.dart';
 
 const _tabs = ['Overview', 'Academics', 'CRT', 'Skills', 'Activities', 'Hostel'];
+// a first-year student has no semester results or CRT yet: the page shows the qualifications they came with instead
+const _fresherTabs = ['Overview', 'Before KL', 'Skills', 'Activities', 'Hostel'];
+const _levels = {'SSC': '10th class', 'Intermediate': 'Intermediate (12th)', 'Diploma': 'Diploma', 'Degree': 'Degree', 'PG': 'Post-graduate degree'};
+String _marks(Map p) => p['cgpa'] != null ? 'CGPA ${_n(p['cgpa'])}' : p['marks_pct'] != null ? '${_n(p['marks_pct'])}%' : 'marks not given';
 const _line = Color(0xCCE3E7F0);   // --ui-line
 const _muted = Color(0xFF4B5565);  // --ink-muted
 const _surface2 = Color(0xFFEEF1F7);
@@ -40,6 +46,11 @@ class _AcademicsScreenState extends State<AcademicsScreen> {
         final crt = d['crt'] as Map;
         final att = _list(crt['attendance']), tests = _list(crt['tests']);
         final certs = _list(d['certs']), activities = _list(d['activities']), achievements = _list(d['achievements']);
+        final prior = _list(d['prior']);
+        final fresher = d['fresher'] == true;
+        final tabs = fresher ? _fresherTabs : _tabs;
+        // UG freshers show 10th and Intermediate; PG ones add the degree
+        final wanted = '${st['level']}' == 'UG' ? ['SSC', 'Intermediate'] : ['SSC', 'Intermediate', 'Degree'];
         final last = terms.lastOrNull;
         final held = att.fold<num>(0, (a, m) => a + _n(m['held'])), got = att.fold<num>(0, (a, m) => a + _n(m['attended']));
         final crtPct = held > 0 ? 100 * got / held : null;
@@ -48,12 +59,16 @@ class _AcademicsScreenState extends State<AcademicsScreen> {
         Widget body() => switch (tab) {
               'Overview' => Column(children: [
                   for (final (i, t) in <Widget>[
-                    _Tile('Latest semester', () => setState(() => tab = 'Academics'), last == null ? [const _TileLine('No results yet')] : [
+                    if (fresher) _Tile('Before KL', () => setState(() => tab = 'Before KL'), prior.isEmpty ? [const _TileLine('Add your 10th and Intermediate marks')] : [
+                      _Big(_marks(prior.last), small: ' ${_levels[prior.last['level']] ?? prior.last['level']}'),
+                      for (final p in prior.reversed.skip(1).take(2)) _TileLine('${_levels[p['level']] ?? p['level']}: ${_marks(p)} · ${p['year_passed'] ?? ''}'),
+                      _TileLine('First year at KL: semester results appear here after the first semester'),
+                    ]) else _Tile('Latest semester', () => setState(() => tab = 'Academics'), last == null ? [const _TileLine('No results yet')] : [
                       _Big(_n(last['sgpa']).toStringAsFixed(2)),
                       _TileLine('SGPA, semester ${last['semester_no']} · ${_n(last['backlogs']) > 0 ? '${last['backlogs']} backlog' : 'no backlogs'}'),
                       _Spark([for (final t in terms) _n(t['sgpa']).toDouble()], _violet, const Color(0xFFF1ECFF)),
                     ]),
-                    _Tile('CRT', () => setState(() => tab = 'CRT'), tests.isEmpty ? [const _TileLine('No CRT records')] : [
+                    if (!fresher) _Tile('CRT', () => setState(() => tab = 'CRT'), tests.isEmpty ? [const _TileLine('No CRT records')] : [
                       _Big('${crtAvg!.round()}', small: '/100'),
                       _TileLine('average over ${tests.length} tests · ${_pct(crtPct)} sessions attended'),
                       _Spark([for (final t in tests) (100 * _n(t['score']) / _n(t['max_score'])).toDouble()], _coral, const Color(0xFFFFF0E8)),
@@ -66,6 +81,25 @@ class _AcademicsScreenState extends State<AcademicsScreen> {
                     _Tile('Hostel', () => setState(() => tab = 'Hostel'), [_Big(_pct(h['night_pct'])),
                       _TileLine('night roll call, last 30 days · ${h['outings']} outings · ${h['late_returns']} late')]),
                   ].indexed) Padding(padding: EdgeInsets.only(top: i == 0 ? 0 : 10), child: t),
+                ]),
+              'Before KL' => _Box(head: [const _H2('Before KL'), const Spacer(), KButton(prior.isEmpty ? 'Add' : 'Add or update', small: true, icon: LucideIcons.plus, onPressed: () => _addPrior(reload, wanted, prior))], children: [
+                  if (prior.isEmpty) const Padding(padding: EdgeInsets.fromLTRB(14, 12, 14, 12), child: Text('Add the marks and a photo of each certificate. The hostel office checks them against your admission file.', style: TextStyle(fontSize: 14, color: _muted))),
+                  for (final p in prior) Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10), decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: _line))),
+                    child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                      if ('${p['certificate'] ?? ''}'.startsWith('data:image')) ClipRRect(borderRadius: BorderRadius.circular(8), child: Image.memory(base64Decode('${p['certificate']}'.split(',').last), width: 56, height: 56, fit: BoxFit.cover))
+                      else Container(width: 56, height: 56, alignment: Alignment.center, decoration: BoxDecoration(color: _surface2, borderRadius: BorderRadius.circular(8)), child: Icon('${p['certificate'] ?? ''}'.isEmpty ? LucideIcons.fileQuestion : LucideIcons.fileText, size: 22, color: _muted)),
+                      const SizedBox(width: 12),
+                      Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                        Row(children: [Expanded(child: Text(_levels[p['level']] ?? '${p['level']}', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700))), _Tag(p['verified'] == true ? 'Verified' : 'To verify', tone: p['verified'] == true ? 'ok' : 'warn')]),
+                        Text('${_marks(p)}${p['group_name'] != null ? ' · ${p['group_name']}' : ''}${p['year_passed'] != null ? ' · ${p['year_passed']}' : ''}', style: const TextStyle(fontSize: 13, color: K.ink)),
+                        if (p['institution'] != null) Text('${p['institution']}', style: const TextStyle(fontSize: 12.5, color: _muted)),
+                        if (p['board'] != null) Text('${p['board']}${p['roll_no'] != null ? ' · Roll no ${p['roll_no']}' : ''}', style: const TextStyle(fontSize: 12.5, color: _muted)),
+                        if ('${p['certificate'] ?? ''}'.isEmpty) const Text('Certificate photo not added yet', style: TextStyle(fontSize: 12, color: Color(0xFFB7791F))),
+                      ])),
+                    ])),
+                  for (final lv in wanted.where((l) => !prior.any((p) => p['level'] == l))) Padding(padding: const EdgeInsets.fromLTRB(14, 8, 14, 8), child: Row(children: [
+                    const Icon(LucideIcons.circleAlert, size: 14, color: Color(0xFFB7791F)), const SizedBox(width: 6), Text('${_levels[lv]} is missing', style: const TextStyle(fontSize: 12.5, color: _muted))])),
                 ]),
               'Academics' => _Box(head: [const _H2('Semester results')], children: [
                   Padding(padding: const EdgeInsets.fromLTRB(14, 12, 14, 12), child: terms.isEmpty
@@ -165,7 +199,7 @@ class _AcademicsScreenState extends State<AcademicsScreen> {
 
         return CustomScrollView(physics: const AlwaysScrollableScrollPhysics(), slivers: [
           SliverPadding(padding: const EdgeInsets.fromLTRB(16, 16, 16, 14), sliver: SliverToBoxAdapter(child: _Hero(st: st, last: last, crtPct: crtPct, nightPct: h['night_pct']))),
-          SliverPersistentHeader(pinned: true, delegate: _TabsBar(tab, (t) => setState(() => tab = t))),
+          SliverPersistentHeader(pinned: true, delegate: _TabsBar(tabs.contains(tab) ? tab : tabs.first, tabs, (t) => setState(() => tab = t))),
           SliverPadding(padding: const EdgeInsets.fromLTRB(16, 14, 16, 90), sliver: SliverToBoxAdapter(child: body())),
         ]);
       });
@@ -206,6 +240,60 @@ class _AcademicsScreenState extends State<AcademicsScreen> {
               Padding(padding: EdgeInsets.only(top: 1), child: Icon(LucideIcons.lock, size: 14, color: _muted)), SizedBox(width: 4),
               Expanded(child: Text('Fill the starred fields.', style: TextStyle(fontSize: 12, height: 16 / 12, color: _muted))),
             ])),
+          ]);
+        });
+  }
+
+  /// One qualification from before KL: the level, where, when, the marks and a photo of the certificate.
+  void _addPrior(Future<void> Function() reload, List<String> wanted, List<Map> prior) {
+    final first = wanted.firstWhere((l) => !prior.any((p) => p['level'] == l), orElse: () => wanted.first);
+    final f = <String, String>{'level': first};
+    String? photo; var busy = false;
+    Map? existing() => prior.where((p) => p['level'] == f['level']).firstOrNull;
+    Future<void> pick(StateSetter set, ImageSource src) async {
+      try {
+        final x = await ImagePicker().pickImage(source: src, maxWidth: 1100, maxHeight: 1600, imageQuality: 62);
+        if (x == null) return;
+        final url = 'data:image/jpeg;base64,${base64Encode(await x.readAsBytes())}';
+        if (url.length > 1400000) { if (mounted) toast(context, 'That photo is too large. Take it again a little further away.', error: true); return; }
+        set(() => photo = url);
+      } catch (e) { if (mounted) toast(context, 'Could not open the picture: $e', error: true); }
+    }
+    showKSheet(context, mod: Mod.sky, icon: LucideIcons.graduationCap, title: 'Before KL', sub: 'Your marks and a photo of the certificate; the office checks them against your admission file',
+        body: (ctx, set) {
+          final e = existing();
+          return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            _Field('Qualification', child: _select(f, 'level', set, wanted)),
+            if (e != null) Padding(padding: const EdgeInsets.only(bottom: 10), child: Text('On record: ${_marks(e)}${e['institution'] != null ? ', ${e['institution']}' : ''}. Saving replaces it.', style: const TextStyle(fontSize: 12.5, color: _muted))),
+            _Field('Board or university', child: _input(f, 'board', set, hint: f['level'] == 'SSC' ? 'Board of Secondary Education, AP' : f['level'] == 'Intermediate' ? 'Board of Intermediate Education' : 'University')),
+            _Field('School or college', child: _input(f, 'institution', set)),
+            if (f['level'] != 'SSC') _Field('Group or branch', child: _input(f, 'group_name', set, hint: 'MPC, BiPC, B.Tech CSE…')),
+            _Field('Year passed', required: true, child: _input(f, 'year_passed', set, hint: '2026')),
+            _Field('Marks %', child: _input(f, 'marks_pct', set, hint: '96.3')),
+            _Field('or CGPA', child: _input(f, 'cgpa', set, hint: '9.5')),
+            _Field('Roll or hall-ticket number', child: _input(f, 'roll_no', set)),
+            const KLabel('Certificate photo'),
+            if (photo != null) ClipRRect(borderRadius: BorderRadius.circular(12), child: Image.memory(base64Decode(photo!.split(',').last), height: 160, fit: BoxFit.cover)),
+            Row(children: [
+              Expanded(child: KButton(photo == null ? 'Take a photo' : 'Take again', icon: LucideIcons.camera, kind: BtnKind.secondary, onPressed: () => pick(set, ImageSource.camera))),
+              const SizedBox(width: 8),
+              Expanded(child: KButton('From gallery', icon: LucideIcons.image, kind: BtnKind.secondary, onPressed: () => pick(set, ImageSource.gallery))),
+            ]),
+          ]);
+        },
+        footer: (ctx, set) {
+          final missing = (f['year_passed'] ?? '').isEmpty || ((f['marks_pct'] ?? '').isEmpty && (f['cgpa'] ?? '').isEmpty);
+          return Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            KButton('Save', block: true, busy: busy, onPressed: missing ? null : () async {
+              set(() => busy = true);
+              final body = <String, dynamic>{for (final x in f.entries) if (x.value.trim().isNotEmpty) x.key: x.value.trim(), if (photo != null) 'certificate': photo};
+              if (await act(context, () => Api.instance.post('/me/prior-education', body), 'Saved; the office verifies it against your admission file')) {
+                if (ctx.mounted) Navigator.pop(ctx);
+                reload();
+              }
+              if (ctx.mounted) set(() => busy = false);
+            }),
+            if (missing) const Padding(padding: EdgeInsets.only(top: 6), child: Text('Year passed and the marks (% or CGPA) are needed.', style: TextStyle(fontSize: 12, color: _muted))),
           ]);
         });
   }
@@ -302,21 +390,22 @@ class _RingPaint extends CustomPainter {
 /// The tab strip (s360-tabs), pinned under the top bar as the web keeps it sticky.
 class _TabsBar extends SliverPersistentHeaderDelegate {
   final String tab;
+  final List<String> tabs;
   final ValueChanged<String> onTab;
-  _TabsBar(this.tab, this.onTab);
+  _TabsBar(this.tab, this.tabs, this.onTab);
   @override
   double get minExtent => 42;
   @override
   double get maxExtent => 42;
   @override
-  bool shouldRebuild(_TabsBar o) => o.tab != tab;
+  bool shouldRebuild(_TabsBar o) => o.tab != tab || o.tabs != tabs;
   @override
   Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) => Container(
         color: K.ground, margin: const EdgeInsets.symmetric(horizontal: 16),
         child: Stack(children: [
           const Positioned(left: 0, right: 0, bottom: 0, child: Divider(height: 1, thickness: 1, color: _line)),
           SingleChildScrollView(scrollDirection: Axis.horizontal, child: Row(children: [
-            for (final (i, t) in _tabs.indexed) Padding(padding: EdgeInsets.only(left: i == 0 ? 0 : 4), child: Semantics(selected: tab == t, button: true, child: InkWell(onTap: () => onTab(t), child: Container(
+            for (final (i, t) in tabs.indexed) Padding(padding: EdgeInsets.only(left: i == 0 ? 0 : 4), child: Semantics(selected: tab == t, button: true, child: InkWell(onTap: () => onTab(t), child: Container(
               height: 42, padding: const EdgeInsets.fromLTRB(12, 10, 12, 9), alignment: Alignment.center,
               decoration: BoxDecoration(border: Border(bottom: BorderSide(color: tab == t ? K.brand : Colors.transparent, width: 2))),
               child: Text(t, style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w500, color: tab == t ? K.brandInk : _muted)))))),

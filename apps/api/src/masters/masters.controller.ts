@@ -15,6 +15,14 @@ const ContactDto = z.object({
   is_outpass_approver: z.boolean().optional(),
 });
 
+const txt = (n: number) => z.string().trim().max(n).nullable().optional();
+const mob = z.string().regex(/^[6-9][0-9]{9}$/, '10-digit mobile number').nullable().optional();
+const KycDto = z.object({ aadhaar_no: z.string().regex(/^[0-9]{12}$/, '12-digit Aadhaar number').nullable().optional(), aadhaar_photo: z.string().regex(/^data:(image\/(jpeg|png|webp)|application\/pdf);base64,/).max(1_500_000).nullable().optional(),
+  blood_group: z.enum(['A+ve', 'A-ve', 'B+ve', 'B-ve', 'AB+ve', 'AB-ve', 'O+ve', 'O-ve', 'NA']).nullable().optional(),
+  hno: txt(80), street: txt(120), landmark: txt(160), city: txt(80), district: txt(80), state: txt(80), pincode: z.string().regex(/^[0-9]{6}$/, '6-digit PIN code').nullable().optional(),
+  father_name: txt(120), father_mobile: mob, mother_name: txt(120), mother_mobile: mob, guardian_name: txt(120), guardian_mobile: mob, guardian_relation: txt(40),
+  emergency_name: txt(120), emergency_mobile: mob, medical_notes: txt(400) });
+
 @ApiTags('masters')
 @ApiBearerAuth()
 @Controller()
@@ -35,6 +43,10 @@ export class MastersController {
 
   @Get('me/room') myRoom(@CurrentUser() user: AuthUser) { return this.svc.myRoom(user); }
   @Get('students/:id') student(@Param('id') id: string, @CurrentUser() user: AuthUser) { return this.svc.student(id, user); }
+  @Roles('Student') @Get('me/kyc') myKyc(@CurrentUser() u: AuthUser) { return this.svc.kyc(u.id, u); }
+  @Roles('Student') @Post('me/kyc') submitKyc(@Body(zod(KycDto)) b: z.infer<typeof KycDto>, @CurrentUser() u: AuthUser) { return this.svc.submitKyc(u, b); }
+  @Get('students/:id/kyc') kyc(@Param('id') id: string, @CurrentUser() u: AuthUser) { return this.svc.kyc(id, u); }
+  @Roles('Chief_Warden', 'Director_Hostels', 'admin') @Put('students/:id/kyc') updateKyc(@Param('id') id: string, @Body(zod(KycDto)) b: z.infer<typeof KycDto>, @CurrentUser() u: AuthUser) { return this.svc.updateKyc(u, id, b); }
   @Roles('Student') @Put('me/photo') photo(@Body(zod(z.object({ photo: z.string().max(300_000).nullable() }))) b: { photo: string | null }, @CurrentUser() user: AuthUser) { return this.svc.setPhoto(user, b.photo); }
   @Post('students/:id/contacts') addContact(@Param('id') id: string, @Body(zod(ContactDto)) dto: z.infer<typeof ContactDto>, @CurrentUser() user: AuthUser) {
     return this.svc.addContact(user, id, dto);
