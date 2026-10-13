@@ -317,10 +317,22 @@ class _RoomScreenState extends State<RoomScreen> {
   Widget _feePlan(Map g) => _Box(title: 'Fee plan and mess', children: [
         _RadioCards(value: plan, onChanged: (v) => setState(() => plan = v), options: const [('Single', 'Single payment', 'Due within 7 days'), ('Two_Instalments', 'Two instalments', 'First part now, second on the due date')]),
         const SizedBox(height: 14),
-        const Padding(padding: EdgeInsets.only(top: 6, bottom: 4), child: Text('Food style', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: K.ink2))),
-        _RadioCards(value: region, onChanged: (v) => setState(() => region = v), options: const [('South', 'South Indian', 'Rice, sambar, rasam, curd; tiffins'), ('North', 'North Indian', 'Roti, dal, sabzi, rice'), ('International', 'Continental / special diet', 'For students from abroad or on a prescribed diet')]),
-        const Padding(padding: EdgeInsets.only(top: 10, bottom: 4), child: Text('Diet', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: K.ink2))),
-        _RadioCards(value: diet, onChanged: (v) => setState(() => diet = v), options: const [('Veg', 'Vegetarian', null), ('Non_Veg', 'Non-vegetarian', 'Egg, chicken, fish on the mess days')]),
+        const Padding(padding: EdgeInsets.only(top: 6, bottom: 4), child: Text('Mess food', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: K.ink2))),
+        // one spinner: food style and diet together (non-veg is chicken and egg only)
+        DropdownButtonFormField<String>(
+          initialValue: '$region/$diet', isExpanded: true,
+          items: const [
+            DropdownMenuItem(value: 'South/Veg', child: Text('South Indian · Veg')),
+            DropdownMenuItem(value: 'South/Non_Veg', child: Text('South Indian · Non-veg (chicken, egg)')),
+            DropdownMenuItem(value: 'North/Veg', child: Text('North Indian · Veg')),
+            DropdownMenuItem(value: 'North/Non_Veg', child: Text('North Indian · Non-veg (chicken, egg)')),
+            DropdownMenuItem(value: 'International/Veg', child: Text('Continental · Veg')),
+            DropdownMenuItem(value: 'International/Non_Veg', child: Text('Continental · Non-veg (chicken, egg)')),
+          ],
+          onChanged: (v) { if (v != null) setState(() { region = v.split('/')[0]; diet = v.split('/')[1]; }); },
+          decoration: const InputDecoration(contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12)),
+        ),
+        const Padding(padding: EdgeInsets.only(top: 6), child: Text('Continental is for students from abroad or on a prescribed diet. You can change food style later from Mess menu.', style: TextStyle(fontSize: 12, color: K.ink3))),
         const SizedBox(height: 14),
         Align(alignment: Alignment.centerLeft, child: KButton('Confirm plan', kind: BtnKind.accent, pill: true, busy: busy,
             onPressed: () => _run(() => api.post('/registrations/${g['registration_id']}/fee-plan', {'plan_type': plan, 'region': region, 'diet': diet}).then((_) => load()), 'Fees are ready to pay'))),
