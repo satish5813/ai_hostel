@@ -39,8 +39,9 @@ export class WalletService {
   /** Upload: the receipt photo, how much, when, the portal's reference, and the demands it pays (none = money for the wallet). */
   async upload(user: AuthUser, dto: ProofDto) {
     const s = this.student(user);
-    const kind = /^data:(image\/(?:jpeg|png|webp)|application\/pdf);base64,/.exec(dto.photo)?.[1];
-    if (!kind) throw new UnprocessableEntityException('Attach a photograph or a PDF of the receipt');
+    // only the PDF from the payment portal: its text layer is what the system matches; a photograph can be anything
+    const kind = /^data:(application\/pdf);base64,/.exec(dto.photo)?.[1];
+    if (!kind) throw new UnprocessableEntityException('Attach the PDF receipt downloaded from the university payment portal. Photographs are not accepted.');
     const hash = createHash('sha256').update(dto.photo.slice(dto.photo.indexOf(',') + 1)).digest('hex');
     const [dup] = await this.dbs.rows<{ proof_no: string; mine: boolean }>(sql`select proof_no, student_id = ${s} as mine from hostel.payment_proof where status <> 'Rejected' and (file_hash = ${hash} or (${dto.reference ?? null}::text is not null and upper(reference) = upper(${dto.reference ?? null}))) limit 1`);
     if (dup) throw new UnprocessableEntityException(dup.mine ? `You already uploaded this receipt (${dup.proof_no}).` : 'This receipt has already been uploaded. Each receipt can be used once.');

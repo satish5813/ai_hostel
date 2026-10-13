@@ -15,7 +15,9 @@ const ApplyDto = z.object({
 });
 const DecisionDto = z.object({ decision: z.enum(['Accepted', 'Declined']), decline_reason: z.string().min(3).optional() })
   .refine((d) => d.decision === 'Accepted' || !!d.decline_reason, { message: 'decline_reason is required when declining' });
-const FeePlanDto = z.object({ plan_type: z.enum(['Single', 'Two_Instalments']), mess_id: z.number().int().optional(), cuisine: z.enum(['South_Indian', 'North_Indian', 'Veg', 'Non_Veg', 'Jain', 'Special_Diet']).optional() });
+// the mess choice is a food style (South, North, International) and a diet (Veg, Non_Veg); the old single `cuisine` is still accepted
+const FeePlanDto = z.object({ plan_type: z.enum(['Single', 'Two_Instalments']), mess_id: z.number().int().optional(), cuisine: z.enum(['South_Indian', 'North_Indian', 'Veg', 'Non_Veg', 'Jain', 'Special_Diet']).optional(),
+  region: z.enum(['South', 'North', 'International']).optional(), diet: z.enum(['Veg', 'Non_Veg']).optional(), country: z.string().trim().max(60).optional() });
 const CashReceiptDto = z.object({ amount: z.number().positive(), payment_mode: z.enum(['Cash', 'DD']), reference: z.string().optional() });
 const CheckInDto = z.object({ offer_id: z.number().int(), key_no: z.string().min(1), approved_by: z.string().optional() });
 const HandoverDto = z.object({

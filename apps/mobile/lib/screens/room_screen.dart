@@ -56,7 +56,7 @@ class _RoomScreenState extends State<RoomScreen> {
   String floor = '';
   (String id, String room, String no)? bed;
   // fee plan
-  String plan = 'Two_Instalments', cuisine = 'South_Indian';
+  String plan = 'Two_Instalments', region = 'South', diet = 'Veg'; // food style and diet, chosen separately
 
   List<Map> proofs = []; // receipts sent from Pay all
   Timer? _poll;
@@ -209,7 +209,9 @@ class _RoomScreenState extends State<RoomScreen> {
   List<Widget> _journey(Map g) {
     final st = g['status'];
     final items = <Widget>[
-      if (st == 'Applied') _Notice(tone: 'info', title: 'Pay the registration fee', body: '${_inr(g['registration_fee'] ?? 0)}, not refundable. The rooms open for you to choose as soon as it is paid. Pay it from the dues on the right.'),
+      if (st == 'Applied' && proof != null) _Notice(tone: 'progress', title: proof!['status'] == 'Checked' ? 'Receipt checked by the Floor Warden · with the Chief Warden' : 'Receipt sent · with the Floor Warden',
+          body: 'Receipt ${proof!['proof_no']} for ${_inr(proof!['amount'])}${proof!['ocr_status'] == 'Matched' ? ' matches what you typed' : proof!['ocr_status'] == 'Mismatch' ? ' is being checked by eye' : ''}. This page moves on by itself when it is approved.')
+      else if (st == 'Applied') _Notice(tone: 'info', title: 'Pay the registration fee', body: '${_inr(g['registration_fee'] ?? 0)}, not refundable. The rooms open for you to choose as soon as it is paid. Pay it from the dues on the right.'),
       if (['Fee_Paid', 'Waitlisted'].contains(st)) _chooseRoom(g),
       if (st == 'Allotted') _offer(g),
       if (st == 'Accepted' && g['fee_plan_id'] == null) _feePlan(g),
@@ -315,10 +317,13 @@ class _RoomScreenState extends State<RoomScreen> {
   Widget _feePlan(Map g) => _Box(title: 'Fee plan and mess', children: [
         _RadioCards(value: plan, onChanged: (v) => setState(() => plan = v), options: const [('Single', 'Single payment', 'Due within 7 days'), ('Two_Instalments', 'Two instalments', 'First part now, second on the due date')]),
         const SizedBox(height: 14),
-        _RadioCards(value: cuisine, onChanged: (v) => setState(() => cuisine = v), options: const [('South_Indian', 'South Indian', null), ('North_Indian', 'North Indian', null), ('Special_Diet', 'Continental / special diet', null)]),
+        const Padding(padding: EdgeInsets.only(top: 6, bottom: 4), child: Text('Food style', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: K.ink2))),
+        _RadioCards(value: region, onChanged: (v) => setState(() => region = v), options: const [('South', 'South Indian', 'Rice, sambar, rasam, curd; tiffins'), ('North', 'North Indian', 'Roti, dal, sabzi, rice'), ('International', 'Continental / special diet', 'For students from abroad or on a prescribed diet')]),
+        const Padding(padding: EdgeInsets.only(top: 10, bottom: 4), child: Text('Diet', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: K.ink2))),
+        _RadioCards(value: diet, onChanged: (v) => setState(() => diet = v), options: const [('Veg', 'Vegetarian', null), ('Non_Veg', 'Non-vegetarian', 'Egg, chicken, fish on the mess days')]),
         const SizedBox(height: 14),
         Align(alignment: Alignment.centerLeft, child: KButton('Confirm plan', kind: BtnKind.accent, pill: true, busy: busy,
-            onPressed: () => _run(() => api.post('/registrations/${g['registration_id']}/fee-plan', {'plan_type': plan, 'cuisine': cuisine}).then((_) => load()), 'Fees are ready to pay'))),
+            onPressed: () => _run(() => api.post('/registrations/${g['registration_id']}/fee-plan', {'plan_type': plan, 'region': region, 'diet': diet}).then((_) => load()), 'Fees are ready to pay'))),
       ]);
 
   Widget _myBed(Map g) {
@@ -362,7 +367,10 @@ class _RoomScreenState extends State<RoomScreen> {
           Text(_inr(total), style: const TextStyle(fontSize: 26, height: 30 / 26, fontWeight: FontWeight.w600, fontFeatures: [FontFeature.tabularFigures()])),
           const SizedBox(height: 2),
           Text('${_inr(paid)} paid so far', style: small),
-          if (total > 0) ...[
+          if (total > 0 && proof != null && ['Uploaded', 'Checked'].contains(proof!['status'])) ...[
+            const SizedBox(height: 10),
+            Row(children: [const Icon(LucideIcons.clock, size: 14, color: K.warn), const SizedBox(width: 6), Expanded(child: Text('Receipt ${proof!['proof_no']} under check; pay again only if it is returned.', style: const TextStyle(fontSize: 12.5, color: K.warn)))]),
+          ] else if (total > 0) ...[
             const SizedBox(height: 10),
             KButton('Pay all ${_inr(total)}', icon: LucideIcons.wallet, kind: BtnKind.accent, pill: true,
                 onPressed: () => showPayAllSheet(context, demands: demands.where((d) => _openSt.contains(d['status'])).toList().cast<Map>(), onDone: load)),

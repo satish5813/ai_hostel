@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:file_selector/file_selector.dart';
-import 'package:image_picker/image_picker.dart';
 import '../core/theme.dart';
 import '../core/widgets.dart';
 import '../shell.dart';
@@ -12,7 +11,7 @@ String headOf(Map d) => d['reference_type'] == 'room_change' ? 'Room change' : d
     : '${words(d['fee_head'])}${d['fee_head'] == 'Hostel' && d['instalment_no'] != null ? ', part ${d['instalment_no']}' : ''}';
 
 /// Pay all: every open demand at once. Three ways, as the hostel accepts them: a receipt from the university payment
-/// portal (photo, checked by the Floor Warden and approved by the Chief Warden), the wallet, or the online gateway.
+/// portal (the PDF receipt, checked by the Floor Warden and approved by the Chief Warden), the wallet, or the online gateway.
 /// With no [demands] it adds money to the wallet with a receipt. [onDone] reloads the page underneath.
 void showPayAllSheet(BuildContext context, {required List<Map> demands, required VoidCallback onDone, num walletBalance = 0}) {
   final total = demands.fold<num>(0, (a, d) => a + balanceOf(d));
@@ -20,7 +19,7 @@ void showPayAllSheet(BuildContext context, {required List<Map> demands, required
   String mode = addMoney ? 'receipt' : '';
   final amount = TextEditingController(text: addMoney ? '' : total.round().toString()), ref = TextEditingController();
   DateTime paidOn = DateTime.now();
-  String? photo; // data URL of the photograph or the PDF
+  String? photo; // data URL of the PDF receipt (the field keeps its old name)
   String? fileName;
   var busy = false, done = false; String doneTitle = '', doneBody = '', error = '';
 
@@ -36,19 +35,7 @@ void showPayAllSheet(BuildContext context, {required List<Map> demands, required
       if (context.mounted) toast(context, 'Could not open the file: $e', error: true);
     }
   }
-  Future<void> pick(StateSetter set, ImageSource src) async {
-    try {
-      final x = await ImagePicker().pickImage(source: src, maxWidth: 1100, maxHeight: 1600, imageQuality: 62);
-      if (x == null) return;
-      final bytes = await x.readAsBytes();
-      final mime = (x.mimeType ?? 'image/jpeg').replaceFirst('image/jpg', 'image/jpeg');
-      final url = 'data:${mime == 'image/png' || mime == 'image/webp' ? mime : 'image/jpeg'};base64,${base64Encode(bytes)}';
-      if (url.length > 1400000) { if (context.mounted) toast(context, 'That photo is too large. Take it again a little further away.', error: true); return; }
-      set(() { photo = url; fileName = null; });
-    } catch (e) {
-      if (context.mounted) toast(context, 'Could not open the picture: $e', error: true);
-    }
-  }
+
 
   showKSheet(context, mod: Mod.amber, icon: LucideIcons.wallet, title: addMoney ? 'Add money to the wallet' : 'Pay all · ${inr(total)}',
       sub: addMoney ? 'Pay on the university portal and upload the receipt' : '${demands.length} fee${demands.length == 1 ? '' : 's'} in one payment',
@@ -59,7 +46,7 @@ void showPayAllSheet(BuildContext context, {required List<Map> demands, required
             Lines([for (final d in demands) LineItem(headOf(d), sub: 'Due ${day(d['due_date'])}', trailing: Text(inr(balanceOf(d)), style: const TextStyle(fontWeight: FontWeight.w800)))]),
             const SizedBox(height: 16),
             const KLabel('How did you pay, or how will you?'),
-            _Way(LucideIcons.receiptIndianRupee, 'I paid on the university portal', 'Upload a photo of the receipt. The Floor Warden checks it and the Chief Warden approves it.', () => set(() => mode = 'receipt')),
+            _Way(LucideIcons.receiptIndianRupee, 'I paid on the university portal', 'Upload the PDF receipt from the portal. The Floor Warden checks it and the Chief Warden approves it.', () => set(() => mode = 'receipt')),
             _Way(LucideIcons.wallet, 'Pay from my wallet', walletBalance >= total ? 'The wallet holds ${inr(walletBalance)}; ${inr(total)} is taken at once.' : 'The wallet holds ${inr(walletBalance)}; add money first.',
                 walletBalance >= total ? () => set(() => mode = 'wallet') : null),
             _Way(LucideIcons.creditCard, 'Pay online now', 'UPI, card or net banking through the university gateway.', () => set(() => mode = 'online')),
@@ -79,18 +66,14 @@ void showPayAllSheet(BuildContext context, {required List<Map> demands, required
         }
         // the receipt
         return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-          const KLabel('The receipt: a photo or the PDF from the portal'),
+          const KLabel('The receipt: the PDF downloaded from the university payment portal'),
           if (photo != null && fileName == null) ClipRRect(borderRadius: BorderRadius.circular(14), child: Image.memory(base64Decode(photo!.split(',').last), height: 220, fit: BoxFit.cover, width: double.infinity)),
           if (photo != null && fileName != null) Container(padding: const EdgeInsets.all(12), decoration: BoxDecoration(color: K.brandTint, borderRadius: BorderRadius.circular(14)),
               child: Row(children: [const Icon(LucideIcons.fileText, color: K.brand), const SizedBox(width: 10), Expanded(child: Text(fileName!, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.w700)))])),
           if (photo != null) const SizedBox(height: 8),
-          Row(children: [
-            Expanded(child: KButton(photo == null ? 'Take a photo' : 'Take again', icon: LucideIcons.camera, kind: BtnKind.secondary, onPressed: () => pick(set, ImageSource.camera))),
-            const SizedBox(width: 8),
-            Expanded(child: KButton('From gallery', icon: LucideIcons.image, kind: BtnKind.secondary, onPressed: () => pick(set, ImageSource.gallery))),
-          ]),
-          const SizedBox(height: 8),
-          KButton('Choose the PDF', icon: LucideIcons.fileText, kind: BtnKind.secondary, block: true, onPressed: () => pickPdf(set)),
+          KButton(photo == null ? 'Choose the PDF receipt' : 'Choose another PDF', icon: LucideIcons.fileText, kind: BtnKind.secondary, block: true, onPressed: () => pickPdf(set)),
+          const SizedBox(height: 6),
+          const Text('Photos are not accepted: the PDF carries the portal\'s own text, which the system reads and matches.', style: TextStyle(fontSize: 12, color: K.ink3)),
           const SizedBox(height: 16),
           const KLabel('Amount paid (₹)'),
           TextField(controller: amount, keyboardType: TextInputType.number, onChanged: (_) => set(() {}), decoration: const InputDecoration(hintText: 'As on the receipt')),
@@ -130,7 +113,7 @@ void showPayAllSheet(BuildContext context, {required List<Map> demands, required
           }, 'Paid online', '${inr(total)} is paid and the receipts are under Fees.'))]);
         }
         final amt = num.tryParse(amount.text.trim()) ?? 0;
-        final blocked = photo == null ? 'Attach the receipt photo.' : amt <= 0 ? 'Enter the amount paid.' : null;
+        final blocked = photo == null ? 'Attach the PDF receipt.' : amt <= 0 ? 'Enter the amount paid.' : null;
         return Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           if (error.isNotEmpty) Padding(padding: const EdgeInsets.only(bottom: 8), child: _ErrorNote(error)),
           KButton('Send the receipt', icon: LucideIcons.send, block: true, busy: busy, onPressed: blocked != null ? null : () => run(

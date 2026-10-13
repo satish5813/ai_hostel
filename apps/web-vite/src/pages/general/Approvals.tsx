@@ -12,6 +12,9 @@ export type Trail = { level: number; approver_role: string; decision: string; ac
  * Rules shown on screen: levels in order (the API only lists the lowest pending level), nobody approves their own request,
  * a rejection needs a reason (ConfirmDialog with remarks).
  */
+// inbox rows carry decision 'Pending'; only a real decision makes the drawer read-only
+const decided = (i: Item) => !!i.decision && i.decision !== 'Pending';
+
 export default function Approvals({ only }: { only?: string }) {
   const s = useSession();
   const inbox = useApi<Item[]>(s ? '/approvals/inbox' : null);
@@ -59,7 +62,7 @@ export default function Approvals({ only }: { only?: string }) {
           ]} />
       </Card>}
       <Drawer open={!!sel} onClose={() => setSel(null)} title={sel ? `${words(sel.request_type)} · ${titleCase(sel.full_name)}` : ''} subtitle={sel ? `${sel.student_id} · ${sel.programme} · ${sel.hostel_name ?? ''} ${sel.room_code ?? ''}` : undefined}
-        footer={sel && !sel.decision && <div className="klh-row" style={{ justifyContent: 'flex-end' }}><Button variant="danger" onClick={() => setReject(sel)}>Reject</Button><Button variant="primary" icon="check" loading={busy} onClick={() => decide(sel, 'Approved')}>Approve</Button></div>}>
+        footer={sel && !decided(sel) && <div className="klh-row" style={{ justifyContent: 'flex-end' }}><Button variant="danger" onClick={() => setReject(sel)}>Reject</Button><Button variant="primary" icon="check" loading={busy} onClick={() => decide(sel, 'Approved')}>Approve</Button></div>}>
         {sel && (
           <div className="klh-stack" style={{ gap: 20 }}>
             <dl className="klh-dl"><dt>Details</dt><dd>{sel.summary}</dd><dt>From</dt><dd>{formatDateTime(sel.from_at)}</dd>{sel.to_at && <><dt>To</dt><dd>{formatDateTime(sel.to_at)}</dd></>}<dt>Applied</dt><dd>{formatDateTime(sel.created_at)}</dd><dt>Your level</dt><dd>{levelNote(sel)}</dd></dl>
@@ -77,7 +80,7 @@ export default function Approvals({ only }: { only?: string }) {
                   {proof.data.dues != null && <><dt>Dues on those fees</dt><dd>₹{proof.data.dues.toLocaleString('en-IN')}{proof.data.amount > proof.data.dues ? ` · ₹${(proof.data.amount - proof.data.dues).toLocaleString('en-IN')} would go to the wallet` : proof.data.amount < proof.data.dues ? ' · less than the dues: part payment' : ''}</dd></>}</dl>
               </div>)}
             <div><p className="klh-overline">Approval trail</p>{trail.data && <ApprovalTrail entries={trail.data.map((t) => ({ level: t.level === 0 ? 'P' : t.level, role: words(t.approver_role), person: t.acted_by_name ?? t.acted_by_contact_name ?? undefined, decision: t.decision, at: t.decided_on ?? undefined, remarks: t.remarks ?? undefined }))} />}</div>
-            {sel.decision ? <Notice tone={sel.decision === 'Approved' ? 'success' : 'neutral'} title={`You ${sel.decision.toLowerCase()} this${sel.decided_on ? ` on ${formatDateTime(sel.decided_on)}` : ''}`}>{sel.remarks ?? 'No remarks.'}</Notice>
+            {decided(sel) ? <Notice tone={sel.decision === 'Approved' ? 'success' : 'neutral'} title={`You ${sel.decision!.toLowerCase()} this${sel.decided_on ? ` on ${formatDateTime(sel.decided_on)}` : ''}`}>{sel.remarks ?? 'No remarks.'}</Notice>
               : <Notice tone="info" title="Levels in order">The Approve button shows only because every earlier level is done. A rejection ends the request; the student and parent are told.</Notice>}
           </div>)}
       </Drawer>

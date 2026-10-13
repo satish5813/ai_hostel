@@ -111,7 +111,10 @@ export class RegistrationService {
   }
 
   /** Student chooses single payment or two instalments and the mess cuisine; the DB creates the hostel demands. */
-  async feePlan(user: AuthUser, registrationId: number, dto: { plan_type: 'Single' | 'Two_Instalments'; mess_id?: number; cuisine?: string }) {
+  async feePlan(user: AuthUser, registrationId: number, dto: { plan_type: 'Single' | 'Two_Instalments'; mess_id?: number; cuisine?: string; region?: string; diet?: string; country?: string }) {
+    // region + diet is the real choice; cuisine (the older single value) is derived from it for the rows that still read it
+    if (dto.region && !dto.cuisine) dto.cuisine = dto.region === 'North' ? 'North_Indian' : dto.region === 'International' ? 'Special_Diet' : dto.diet === 'Non_Veg' ? 'Non_Veg' : 'South_Indian';
+    if (dto.cuisine && !dto.region) { dto.region = dto.cuisine === 'North_Indian' ? 'North' : dto.cuisine === 'Special_Diet' ? 'International' : 'South'; dto.diet ??= dto.cuisine === 'Non_Veg' ? 'Non_Veg' : 'Veg'; }
     return this.dbs.run(user, async (tx) => {
       const [r] = await tx.select().from(t.registration).where(eq(t.registration.registration_id, registrationId));
       if (!r) throw new NotFoundException('Registration not found');
@@ -134,6 +137,7 @@ export class RegistrationService {
         [subscription] = await tx.insert(t.messSubscription).values({
           student_id: r.student_id, mess_id: messId, academic_year: r.academic_year, cuisine: dto.cuisine as never, mess_demand_id: demand.demand_id, created_by: user.id,
         }).returning();
+        await tx.execute(sql`update hostel.mess_subscription set region = ${dto.region ?? 'South'}, diet = ${dto.diet ?? 'Veg'}, country = ${dto.country ?? null} where subscription_id = ${subscription!.subscription_id}`);
       }
       const demands = await tx.select().from(t.feeDemand).where(eq(t.feeDemand.fee_plan_id, plan.fee_plan_id));
       return { plan, demands, subscription };

@@ -43,9 +43,9 @@ class _HomeScreenState extends State<HomeScreen> with AutoRefresh {
   Future<dynamic> _try(String path) async { try { return await Api.instance.get(path); } catch (_) { return null; } }
 
   Future<void> load() async {
-    const keys = ['regs', 'dues', 'me', 'meter', 'passes', 'sick', 'room', 'renewal', 'menu', 'meals', 'tickets', 'goal', 'wallet'];
+    const keys = ['regs', 'dues', 'me', 'meter', 'passes', 'sick', 'room', 'renewal', 'menu', 'meals', 'tickets', 'goal', 'wallet', 'proofs'];
     final r = await Future.wait([_try('/registrations/mine'), _try('/students/$me/demands'), _try('/students/$me'), _try('/meters/mine'), _try('/outpasses/mine'),
-      _try('/sick-leaves/mine'), _try('/me/room'), _try('/me/renewal'), _try('/me/menu'), _try('/me/meal-choices'), _try('/me/tickets'), _try('/me/career-goal'), _try('/me/wallet')]);
+      _try('/sick-leaves/mine'), _try('/me/room'), _try('/me/renewal'), _try('/me/menu'), _try('/me/meal-choices'), _try('/me/tickets'), _try('/me/career-goal'), _try('/me/wallet'), _try('/me/payment-proofs')]);
     if (!mounted) return;
     setState(() { d = {for (var i = 0; i < keys.length; i++) keys[i]: r[i]}; loading = false; });
   }
@@ -137,10 +137,13 @@ class _HomeScreenState extends State<HomeScreen> with AutoRefresh {
     ]..sort((a, b) => b.$1.compareTo(a.$1));
     const steps = ['Applied', 'Registration fee paid', 'Room allotted', 'Room accepted', 'Fees paid', 'Checked in'];
 
-    final heroLine = reg == null ? 'You have not applied for a hostel room yet.'
+    // a receipt that the wardens are still checking: the dues are not asked for again
+    final checking = _list('proofs').where((p) => ['Uploaded', 'Checked'].contains(p['status'])).firstOrNull;
+    final heroLine = checking != null ? 'Receipt ${checking['proof_no']} is ${checking['status'] == 'Checked' ? 'with the Chief Warden' : 'with the Floor Warden'}. This page moves on by itself.'
+        : reg == null ? 'You have not applied for a hostel room yet.'
         : stage == 3 && reg['student_decision'] == 'Pending' ? 'A bed is held for you until ${dayTime(reg['hold_until'])}. Accept it to continue.'
         : living ? (due > 0 ? '${inr(due)} is due${next != null ? ' by ${day(next['due_date'])}' : ''}.' : 'Everything is paid. Have a good day.')
-        : stage == 2 ? 'The hostel office is choosing a bed for you.' : stage < 3 ? 'Pay the registration fee to be allotted a bed.' : 'Pay the hostel and mess fees to check in.';
+        : stage == 2 ? 'Registration fee paid. Choose your bed: the rooms are open for you.' : stage < 3 ? 'Pay the registration fee to be allotted a bed.' : 'Pay the hostel and mess fees to check in.';
 
     return RefreshIndicator(onRefresh: load, child: ListView(physics: const AlwaysScrollableScrollPhysics(), padding: const EdgeInsets.fromLTRB(16, 16, 16, 24), children: [
       // banner
@@ -154,7 +157,8 @@ class _HomeScreenState extends State<HomeScreen> with AutoRefresh {
           if (curSick != null) (LucideIcons.heartPulse, 'Sick leave ${words(curSick['status']).toLowerCase()}'),
         ],
         actions: [
-          due > 0 ? _Cta(LucideIcons.wallet, 'Pay ${inr(due)}', () => _fees(open, receipts))
+          checking != null ? _Cta(LucideIcons.clock, 'Receipt under check', () => openPlace(context, 'room'))
+              : due > 0 ? _Cta(LucideIcons.wallet, 'Pay ${inr(due)}', () => _fees(open, receipts))
               : reg == null ? _Cta(LucideIcons.bedDouble, 'Apply for a room', () => openPlace(context, 'room'))
               : stage < 6 ? _Cta(LucideIcons.sparkles, 'Continue registration', () => openPlace(context, 'room'))
               : _Cta(LucideIcons.doorOpen, livePass != null ? 'Show my pass' : pending != null ? 'Outing request status' : 'Ask for outing permission', () => openPlace(context, 'outings')),
