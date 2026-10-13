@@ -1,0 +1,283 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>KL ERP · Campus Intelligence</title>
+<meta name="description" content="The KL University ERP: Hostels, Purchase and Inventory, Examinations and HR on one page.">
+<link rel="icon" href="assets/kl-emblem.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;500;600;700;800&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+<script>
+/* ======================================================================================================
+   EDIT HERE. The four applications of the ERP.
+     url     where the application opens ('' = address not set yet: the card says so and stays closed)
+     health  optional address that answers when the application is up; defaults to url
+   Add an entry to add a card (a, a2 = its colour). Twenty cards fit on one screen: five across, four down.
+   ====================================================================================================== */
+window.ERP = {
+  university: 'KL University',
+  apps: [
+    { id: 'hostels', name: 'Hostels', tag: 'Hostel management', icon: 'bed', a: '#12B5A2', a2: '#0A8577', url: 'http://localhost:5180/', health: 'http://localhost:4100/api/auth/demo-accounts',
+      line: 'Rooms, residents and daily hostel life, for students and wardens.', does: ['Room allotment', 'Fees and receipts', 'Outings and gate pass', 'Mess and repairs'] },
+    { id: 'purchase', name: 'Purchase & Inventory', tag: 'Purchases and stores', icon: 'cart', a: '#6A5AF9', a2: '#4334D0', url: '',
+      line: 'Requests, orders, receipts and stock.', does: ['Purchase requests', 'Purchase orders', 'Goods received', 'Inventory and stock'] },
+    { id: 'exams', name: 'Examinations', tag: 'Exam section', icon: 'cap', a: '#F59B2E', a2: '#D46B0B', url: 'http://localhost:5173/',
+      line: 'Papers, tests, evaluation and results in one place.', does: ['Question papers', 'Online tests', 'Evaluation', 'Results'] },
+    { id: 'hr', name: 'HR', tag: 'Human resources', icon: 'people', a: '#EC5B8F', a2: '#C22B63', url: '',
+      line: 'Staff, recruitment, leave and appraisals, with an AI assistant.', does: ['Recruitment', 'Staff records', 'Leave', 'Appraisals'] },
+  ],
+};
+</script>
+<style>
+/* Light and clean: a white page with soft colour washes, and module cards that lift and light up under the pointer. */
+@property --spin { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+:root { color-scheme: light; --bg: #FBFCFF; --surface: #FFFFFF; --ink: #101B3A; --ink-2: #44507A; --ink-3: #6B77A0; --line: #E3E8F8; --wash: #F1F4FF;
+  --v: #5B4BE8; --t: #0E9F8E; --o: #F08A24; --r: #E0457B;
+  --font: "Plus Jakarta Sans", "Segoe UI", system-ui, -apple-system, Roboto, sans-serif; --display: "Space Grotesk", "Plus Jakarta Sans", system-ui, sans-serif; }
+* { box-sizing: border-box; } [hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; overflow-x: hidden; }
+body { margin: 0; min-height: 100vh; background: var(--bg); color: var(--ink); font: 15px/1.5 var(--font); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+button { font: inherit; color: inherit; }
+
+/* ---------- soft colour washes that drift behind the page ---------- */
+.sky { position: fixed; inset: 0; z-index: -3; overflow: hidden; pointer-events: none; background: linear-gradient(135deg, #EEF0FF 0%, #F9FAFF 38%, #EFFCF8 70%, #FFF6EA 100%); }
+.sky i { position: absolute; border-radius: 50%; filter: blur(70px); will-change: transform; mix-blend-mode: multiply; }
+.sky i:nth-child(1) { width: 50vmax; height: 50vmax; left: -14vmax; top: -22vmax; background: #BDB3FF; opacity: .8; animation: drift 20s ease-in-out infinite alternate; }
+.sky i:nth-child(2) { width: 44vmax; height: 44vmax; right: -12vmax; top: -12vmax; background: #94EBD9; opacity: .75; animation: drift 26s ease-in-out infinite alternate-reverse; }
+.sky i:nth-child(3) { width: 40vmax; height: 40vmax; left: 26vmax; bottom: -20vmax; background: #FFD3A1; opacity: .6; animation: drift 32s ease-in-out infinite alternate; }
+.sky i:nth-child(4) { width: 30vmax; height: 30vmax; right: 4vmax; bottom: -6vmax; background: #FFB6D2; opacity: .5; animation: drift 28s ease-in-out infinite alternate-reverse; }
+@keyframes drift { to { transform: translate3d(7vmax, 5vmax, 0) scale(1.16) rotate(20deg); } }
+#net { position: fixed; inset: 0; z-index: -2; width: 100%; height: 100%; pointer-events: none; }
+.glow { position: fixed; left: 0; top: 0; z-index: -1; width: 560px; height: 560px; margin: -280px 0 0 -280px; border-radius: 50%; pointer-events: none; background: radial-gradient(closest-side, rgba(255, 255, 255, .95), rgba(255, 255, 255, 0)); will-change: transform; }
+.grain { position: fixed; inset: 0; z-index: -1; pointer-events: none; background-image: radial-gradient(rgba(91, 75, 232, .13) 1px, transparent 1px); background-size: 26px 26px; -webkit-mask-image: radial-gradient(ellipse at 50% 12%, #000 0%, transparent 68%); mask-image: radial-gradient(ellipse at 50% 12%, #000 0%, transparent 68%); }
+
+/* ---------- the opening ---------- */
+.intro { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; background: radial-gradient(ellipse at 50% 40%, #FFFFFF 0%, #EEF1FF 60%, #E4F7F3 100%); transition: opacity .7s ease, visibility .7s, transform .7s ease; cursor: pointer; }
+.intro.gone { opacity: 0; visibility: hidden; transform: scale(1.06); }
+.intro-in { display: grid; justify-items: center; gap: 22px; text-align: center; padding: 24px; }
+.orb { position: relative; width: 156px; height: 156px; display: grid; place-items: center; }
+.orb::before { content: ""; position: absolute; inset: -6px; border-radius: 50%; background: conic-gradient(from var(--spin), var(--v), var(--t), #FFC53D, var(--r), var(--v)); animation: spin 3s linear infinite; }
+.orb::after { content: ""; position: absolute; inset: -30px; border-radius: 50%; background: conic-gradient(from var(--spin), var(--v), var(--t), #FFC53D, var(--r), var(--v)); animation: spin 3s linear infinite; filter: blur(30px); opacity: .45; z-index: -1; }
+.orb img { position: relative; z-index: 1; width: 100%; height: 100%; border-radius: 50%; background: #fff; padding: 9px; animation: arrive 1s cubic-bezier(.2, .9, .2, 1.1) both; }
+.orb b { position: absolute; inset: 0; border-radius: 50%; border: 1.5px solid rgba(91, 75, 232, .45); animation: ring 2.2s ease-out infinite; }
+.orb b:nth-of-type(2) { animation-delay: .7s; } .orb b:nth-of-type(3) { animation-delay: 1.4s; }
+@keyframes spin { to { --spin: 360deg; } }
+@keyframes ring { from { transform: scale(1); opacity: .8; } to { transform: scale(2.5); opacity: 0; } }
+@keyframes arrive { from { transform: scale(.4) rotate(-40deg); opacity: 0; } }
+.intro h2 { margin: 6px 0 0; font: 700 clamp(34px, 5vw, 56px) var(--display); letter-spacing: -.04em; animation: rise .8s .35s both; }
+.intro p { margin: 0; font-size: 13px; font-weight: 800; letter-spacing: .28em; text-transform: uppercase; color: var(--ink-2); animation: rise .8s .55s both; }
+.boot { width: 210px; height: 4px; border-radius: 4px; background: #DDE2F6; overflow: hidden; animation: rise .8s .7s both; }
+.boot i { display: block; height: 100%; width: 100%; transform-origin: left; background: linear-gradient(90deg, var(--v), var(--t), var(--o)); animation: load 1.9s .6s cubic-bezier(.6, 0, .2, 1) both; }
+@keyframes load { from { transform: scaleX(0); } }
+@keyframes rise { from { opacity: 0; transform: translateY(14px); } }
+.grad { background: linear-gradient(100deg, var(--v) 0%, var(--t) 50%, var(--o) 100%); background-size: 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: sheen 7s ease-in-out infinite alternate; }
+@keyframes sheen { to { background-position: 100% 0; } }
+
+/* ---------- top and hero ---------- */
+.wrap { max-width: 1380px; margin: 0 auto; padding: 18px clamp(16px, 3vw, 36px) 70px; }
+.top { position: relative; display: flex; align-items: center; gap: 14px; padding-bottom: 14px; }
+.top::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; border-radius: 2px; background: linear-gradient(90deg, transparent, var(--v), var(--t), #FFC53D, var(--r), transparent); background-size: 200% 100%; opacity: .55; animation: flow 6s linear infinite; }
+@keyframes flow { to { background-position: -200% 0; } }
+.brand { display: flex; align-items: center; gap: 12px; text-decoration: none; color: inherit; }
+.brand-mark { position: relative; width: 52px; height: 52px; flex: none; }
+.brand-mark::before { content: ""; position: absolute; inset: -2.5px; border-radius: 50%; background: conic-gradient(from var(--spin), var(--v), var(--t), #FFC53D, var(--r), var(--v)); animation: spin 6s linear infinite; }
+.brand-mark img { position: relative; width: 100%; height: 100%; border-radius: 50%; background: #fff; padding: 3px; display: block; }
+.brand b { display: block; white-space: nowrap; font: 700 21px var(--display); letter-spacing: -.03em; line-height: 1.1; color: var(--ink); }
+.brand small { display: block; margin-top: 2px; font-size: 11px; font-weight: 800; letter-spacing: .18em; text-transform: uppercase; color: var(--ink-3); }
+.space { flex: 1; }
+.pill { display: inline-flex; align-items: center; gap: 8px; height: 38px; padding: 0 14px; border-radius: 999px; border: 1px solid var(--line); background: rgba(255, 255, 255, .8); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); box-shadow: 0 6px 18px -12px rgba(16, 27, 58, .35); font-size: 13px; font-weight: 700; color: var(--ink-2); white-space: nowrap; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: #B4BCDA; flex: none; }
+.dot[data-s="up"] { background: #12B886; box-shadow: 0 0 0 4px rgba(18, 184, 134, .18); animation: pulse 2s ease-in-out infinite; } .dot[data-s="down"] { background: #E5484D; } .dot[data-s="unset"], .dot[data-s="soon"] { background: #F5A524; }
+@keyframes pulse { 50% { box-shadow: 0 0 0 7px rgba(18, 184, 134, 0); } }
+
+.hero { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 10px 24px; padding: clamp(18px, 2.6vw, 30px) 2px 0; }
+.spark { display: inline-flex; align-items: center; gap: 8px; padding: 6px 13px; border-radius: 999px; border: 1px solid #D6D0FF; background: #F1EEFF; font-size: 11.5px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: #4636C9; }
+.spark svg { animation: twinkle 2.4s ease-in-out infinite; } @keyframes twinkle { 50% { transform: scale(1.3) rotate(20deg); opacity: .6; } }
+.hero h1 { margin: 10px 0 0; font: 700 clamp(28px, 3.7vw, 50px)/1.05 var(--display); letter-spacing: -.045em; }
+.hero h1 em { font-style: normal; font-weight: 300; }
+.hero p { margin: 0 0 6px; font-size: 14.5px; color: var(--ink-2); }
+
+/* ---------- the applications: compact cards, twenty fit on one screen (5 across, 4 down) ---------- */
+.grid { margin-top: 18px; display: grid; grid-template-columns: repeat(auto-fit, minmax(232px, 1fr)); gap: 14px; perspective: 1400px; }
+.mod { --a: #5B4BE8; --a2: #3F31C4; --mx: 50%; --my: 50%; --rx: 0deg; --ry: 0deg;
+  position: relative; isolation: isolate; overflow: hidden; display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto 1fr auto; column-gap: 12px; row-gap: 7px; height: 154px; padding: 14px 14px 12px; border-radius: 20px; text-decoration: none; color: inherit; cursor: pointer;
+  background: linear-gradient(150deg, rgba(255, 255, 255, .96), rgba(255, 255, 255, .78)); border: 1px solid rgba(255, 255, 255, .95); -webkit-backdrop-filter: blur(14px) saturate(160%); backdrop-filter: blur(14px) saturate(160%);
+  box-shadow: 0 0 0 1px rgba(91, 75, 232, .08), 0 1px 2px rgba(16, 27, 58, .04), 0 16px 30px -22px rgba(52, 40, 160, .5);
+  transform: rotateX(var(--rx)) rotateY(var(--ry)) translateZ(0); transition: transform .18s ease-out, border-color .25s, box-shadow .25s;
+  animation: land .6s cubic-bezier(.2, .9, .25, 1.05) both; animation-delay: calc(var(--i, 0) * 45ms + 100ms); }
+@keyframes land { from { opacity: 0; transform: translateY(34px) scale(.92) rotateX(22deg); filter: blur(6px); } }
+/* the application's colour: a strip down the left edge, a beam round the border, a wash under the pointer */
+.mod > i { position: absolute; left: 0; top: 14px; bottom: 14px; width: 4px; border-radius: 0 4px 4px 0; background: linear-gradient(180deg, var(--a), var(--a2)); transition: top .25s, bottom .25s, width .25s; }
+.mod:hover > i { top: 0; bottom: 0; width: 5px; }
+.mod::before { content: ""; position: absolute; inset: -1px; z-index: 1; border-radius: inherit; padding: 2px; pointer-events: none; background: conic-gradient(from var(--spin), transparent 0 60%, color-mix(in srgb, var(--a) 55%, #fff) 72%, var(--a) 84%, var(--a2) 92%, transparent 100%); animation: spin 4.5s linear infinite; animation-play-state: paused; opacity: 0; transition: opacity .25s;
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor; mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0); }
+.mod::after { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; pointer-events: none; opacity: 0; transition: opacity .25s;
+  background: radial-gradient(220px circle at var(--mx) var(--my), color-mix(in srgb, var(--a) 22%, #fff), transparent 66%); }
+.mod:hover, .mod:focus-visible { border-color: transparent; outline: none; box-shadow: 0 1px 2px rgba(16, 27, 58, .04), 0 22px 36px -22px color-mix(in srgb, var(--a) 80%, transparent); }
+.mod:hover::before, .mod:focus-visible::before { opacity: 1; animation-play-state: running; }
+.mod:hover::after, .mod:focus-visible::after { opacity: 1; }
+.tile { grid-row: 1; width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; color: #fff; background: linear-gradient(140deg, var(--a), var(--a2)); box-shadow: 0 10px 18px -10px var(--a), inset 0 1px 0 rgba(255, 255, 255, .4); transition: transform .3s cubic-bezier(.2, .9, .2, 1.4); }
+.mod:hover .tile { transform: rotate(-8deg) scale(1.1); }
+.name { grid-row: 1; min-width: 0; align-self: center; padding-right: 70px; }
+.name h3 { margin: 0; font: 700 16.5px/1.15 var(--display); letter-spacing: -.02em; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.tag { display: block; margin-top: 1px; font-size: 10.5px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--a2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.num { position: absolute; right: 12px; top: 2px; font: 700 58px/1 var(--display); letter-spacing: -.06em; font-variant-numeric: tabular-nums; pointer-events: none;
+  background: linear-gradient(160deg, var(--a) 10%, color-mix(in srgb, var(--a) 30%, #fff) 95%); -webkit-background-clip: text; background-clip: text; color: transparent; opacity: .9;
+  transform-origin: 100% 0; transition: transform .35s cubic-bezier(.2, .9, .2, 1.3), opacity .25s, filter .25s; }
+.mod:hover .num { transform: scale(1.14) translate(-2px, 2px); opacity: 1; filter: drop-shadow(0 8px 12px color-mix(in srgb, var(--a) 45%, transparent)); background: linear-gradient(160deg, var(--a2), var(--a)); -webkit-background-clip: text; background-clip: text; }
+.mod p { grid-column: 1 / -1; margin: 0; font-size: 13px; line-height: 1.4; color: var(--ink-2); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.mod-foot { grid-column: 1 / -1; display: flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 700; color: var(--ink-2); }
+.go { margin-left: auto; width: 28px; height: 28px; border-radius: 10px; display: grid; place-items: center; color: var(--a2); background: color-mix(in srgb, var(--a) 13%, #fff); transition: transform .25s, background .25s, color .25s; }
+.mod:hover .go { background: linear-gradient(140deg, var(--a), var(--a2)); color: #fff; transform: translateX(2px) rotate(-45deg); }
+.mod.nope { animation: nope .4s; } @keyframes nope { 20%, 60% { translate: -6px 0; } 40%, 80% { translate: 6px 0; } }
+
+.toast { position: fixed; left: 50%; bottom: 26px; z-index: 40; translate: -50% 20px; opacity: 0; padding: 12px 18px; border-radius: 14px; background: var(--ink); color: #fff; box-shadow: 0 20px 40px -18px rgba(16, 27, 58, .7); font-size: 14px; font-weight: 600; transition: opacity .25s, translate .25s; pointer-events: none; max-width: calc(100vw - 32px); }
+.toast.on { opacity: 1; translate: -50% 0; }
+footer { margin-top: 40px; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 18px; font-size: 12.5px; color: var(--ink-3); }
+
+@media (max-width: 720px) {
+  .brand small { display: none; }
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; } .mod { height: 150px; padding: 12px 12px 10px; }
+  .name h3 { font-size: 15px; } .tile { width: 38px; height: 38px; border-radius: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sky i, .orb::before, .orb::after, .orb b, .brand-mark::before, .mod::before, .spark svg, .boot i, .grad, .dot, .top::after { animation: none !important; }
+  .mod { animation: none; transition: none; } .intro { transition: none; }
+}
+</style>
+</head>
+<body>
+<div class="sky" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+<canvas id="net" aria-hidden="true"></canvas>
+<div class="glow" id="glow" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+
+<div class="intro" id="intro" role="button" tabindex="0" aria-label="Enter the ERP">
+  <div class="intro-in">
+    <div class="orb"><b></b><b></b><b></b><img src="assets/kl-emblem.png" alt="KL University"></div>
+    <h2>KL <span class="grad">ERP</span></h2>
+    <p>AI-powered campus</p>
+    <div class="boot"><i></i></div>
+  </div>
+</div>
+
+<div class="wrap">
+  <header class="top">
+    <a class="brand" href="./"><span class="brand-mark"><img src="assets/kl-emblem.png" alt=""></span><span><b>KL ERP</b><small>KL University</small></span></a>
+    <span class="space"></span>
+    <span class="pill"><span class="dot" id="all-dot"></span><span id="all-text">Checking…</span></span>
+  </header>
+
+  <section class="hero">
+    <div><span class="spark"><svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2l2.200 6.600L21 11l-6.800 2.400L12 20l-2.200-6.600L3 11l6.800-2.400z"/></svg>AI-powered ERP</span>
+      <h1><em id="greet">Welcome.</em> <span class="grad">Your applications.</span></h1></div>
+    <p id="sub"></p>
+  </section>
+
+  <main class="grid" id="grid"></main>
+  <footer><span id="copy"></span><span>Press the card's number to open it</span></footer>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(() => {
+  const E = window.ERP, $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+  const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const ICON = {
+    bed: '<path d="M2 4v16"/><path d="M2 8h18a2 2 0 0 1 2 2v10"/><path d="M2 17h20"/><path d="M6 8v9"/>',
+    cart: '<circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2 2h2l2.700 12.400a2 2 0 0 0 2 1.600h9.700a2 2 0 0 0 2-1.600L22 7H5.100"/>',
+    cap: '<path d="M21.400 10.900a1 1 0 0 0 0-1.800L12.800 5.200a2 2 0 0 0-1.600 0L2.600 9.100a1 1 0 0 0 0 1.800l8.600 3.900a2 2 0 0 0 1.600 0z"/><path d="M22 10v6"/><path d="M6 12.500V16a6 3 0 0 0 12 0v-3.500"/>',
+    box: '<path d="M21 8a2 2 0 0 0-1-1.700l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.700l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.300 7 8.700 5 8.700-5"/><path d="M12 22V12"/>',
+    people: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.900"/><path d="M16 3.100a4 4 0 0 1 0 7.800"/>',
+  };
+  const ARROW = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.400" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>';
+
+  /* the opening: the emblem, then the four cards land */
+  const intro = $('intro');
+  const enter = () => { intro.classList.add('gone'); try { sessionStorage.setItem('erp.in', '1'); } catch { /* fine */ } };
+  let seen = false; try { seen = sessionStorage.getItem('erp.in') === '1'; } catch { /* fine */ }
+  if (seen || still) intro.classList.add('gone'); else setTimeout(enter, 2700);
+  intro.addEventListener('click', enter); intro.addEventListener('keydown', enter);
+
+  const h = new Date().getHours();
+  $('greet').textContent = (h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening') + '.';
+  $('copy').textContent = `© ${new Date().getFullYear()} ${E.university}`;
+
+  /* the four cards */
+  const grid = $('grid'), state = {};
+  grid.innerHTML = E.apps.map((m, i) => `<a class="mod" data-id="${m.id}" style="--a:${m.a};--a2:${m.a2};--i:${i}" ${m.url ? `href="${esc(m.url)}"` : 'role="button" tabindex="0"'} title="${esc(m.does.join(' · '))}">
+      <i aria-hidden="true"></i><span class="num" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span>
+      <span class="tile"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[m.icon] ?? ICON.box}</svg></span>
+      <span class="name"><h3>${esc(m.name)}</h3><span class="tag">${esc(m.tag)}</span></span>
+      <p>${esc(m.line)}</p>
+      <span class="mod-foot"><span class="dot" data-dot="${m.id}"></span><span data-st="${m.id}"></span><span class="go">${ARROW}</span></span></a>`).join('');
+  $('sub').textContent = `${E.apps.length} application${E.apps.length === 1 ? '' : 's'} · choose one to sign in`;
+
+  function paint() {
+    for (const m of E.apps) {
+      const s = !m.url ? 'unset' : state[m.id];
+      grid.querySelector(`[data-dot="${m.id}"]`).dataset.s = s ?? '';
+      grid.querySelector(`[data-st="${m.id}"]`).textContent = s === 'up' ? 'Online' : s === 'down' ? 'Not answering' : s === 'unset' ? 'Not connected' : 'Checking';
+    }
+    const live = E.apps.filter((m) => m.url), up = live.filter((m) => state[m.id] === 'up').length, known = live.filter((m) => state[m.id]).length;
+    $('all-dot').dataset.s = known < live.length ? '' : up === E.apps.length ? 'up' : up ? 'soon' : 'down';
+    $('all-text').textContent = known < live.length ? 'Checking…' : `${up} of ${E.apps.length} applications online`;
+  }
+  /* is each application answering? A reachability check only: it signs in to nothing and reads nothing. */
+  async function check() {
+    await Promise.all(E.apps.filter((m) => m.url).map(async (m) => {
+      const stop = new AbortController(), t = setTimeout(() => stop.abort(), 6000);
+      try { await fetch(m.health ?? m.url, { mode: 'no-cors', cache: 'no-store', signal: stop.signal }); state[m.id] = 'up'; } catch { state[m.id] = 'down'; }
+      clearTimeout(t); paint();
+    }));
+  }
+
+  let toastT; const toast = (t) => { const el = $('toast'); el.textContent = t; el.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('on'), 2600); };
+  const closed = (e, el) => { const m = E.apps.find((x) => x.id === el.dataset.id); if (m.url) return; e.preventDefault(); toast(`${m.name}: its address is not set on this page yet.`); el.classList.remove('nope'); void el.offsetWidth; el.classList.add('nope'); };
+  grid.addEventListener('click', (e) => { const el = e.target.closest('.mod'); if (el) closed(e, el); });
+  document.addEventListener('keydown', (e) => {
+    if (e.metaKey || e.ctrlKey || e.altKey) return;
+    if (!/^[1-9]$/.test(e.key)) return;
+    const el = grid.children[Number(e.key) - 1]; if (!el) return;
+    if (el.href) location.href = el.href; else closed(e, el);
+  });
+
+  /* the card tilts towards the pointer and is lit from it */
+  if (!still && matchMedia('(hover: hover)').matches) {
+    grid.addEventListener('pointermove', (e) => {
+      const el = e.target.closest('.mod'); if (!el) return;
+      const r = el.getBoundingClientRect(), x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
+      el.style.setProperty('--mx', `${x * 100}%`); el.style.setProperty('--my', `${y * 100}%`);
+      el.style.setProperty('--ry', `${(x - .5) * 12}deg`); el.style.setProperty('--rx', `${(.5 - y) * 10}deg`);
+    });
+    grid.addEventListener('pointerout', (e) => { const el = e.target.closest('.mod'); if (el && !el.contains(e.relatedTarget)) { el.style.setProperty('--rx', '0deg'); el.style.setProperty('--ry', '0deg'); } });
+  }
+  /* the background thinks: points drift and join their neighbours with a line; near the pointer they wake up */
+  const cv = $('net'), cx = cv.getContext('2d'), HUES = ['91,75,232', '14,159,142', '240,138,36', '224,69,123'];
+  let pts = [], W = 0, H = 0, px = -999, py = -999;
+  const size = () => { const d = Math.min(devicePixelRatio || 1, 2); W = innerWidth; H = innerHeight; cv.width = W * d; cv.height = H * d; cx.setTransform(d, 0, 0, d, 0, 0);
+    pts = Array.from({ length: Math.min(90, Math.round(W * H / 17000)) }, (_, n) => ({ x: Math.random() * W, y: Math.random() * H, vx: (Math.random() - .5) * .35, vy: (Math.random() - .5) * .35, r: Math.random() * 1.600 + 1, c: HUES[n % 4] })); };
+  const net = () => {
+    cx.clearRect(0, 0, W, H);
+    for (const p of pts) { p.x += p.vx; p.y += p.vy; if (p.x < 0 || p.x > W) p.vx *= -1; if (p.y < 0 || p.y > H) p.vy *= -1; }
+    for (let a = 0; a < pts.length; a++) {
+      const p = pts[a], near = Math.hypot(p.x - px, p.y - py) < 190;
+      for (let b = a + 1; b < pts.length; b++) { const q = pts[b], d = Math.hypot(p.x - q.x, p.y - q.y); if (d < 130) { cx.strokeStyle = `rgba(${p.c},${(1 - d / 130) * (near ? .5 : .16)})`; cx.lineWidth = near ? 1.200 : .8; cx.beginPath(); cx.moveTo(p.x, p.y); cx.lineTo(q.x, q.y); cx.stroke(); } }
+      cx.fillStyle = `rgba(${p.c},${near ? .9 : .4})`; cx.beginPath(); cx.arc(p.x, p.y, near ? p.r + 1.200 : p.r, 0, 6.283); cx.fill();
+    }
+    if (!still && !document.hidden) requestAnimationFrame(net);
+  };
+  size(); addEventListener('resize', size); requestAnimationFrame(net);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && !still) requestAnimationFrame(net); });
+  const glow = $('glow'); let gx = innerWidth / 2, gy = innerHeight / 3, tx = gx, ty = gy;
+  addEventListener('pointermove', (e) => { px = tx = e.clientX; py = ty = e.clientY; });
+  const follow = () => { gx += (tx - gx) * .08; gy += (ty - gy) * .08; glow.style.transform = `translate(${gx}px, ${gy}px)`; if (!still) requestAnimationFrame(follow); };
+  follow();
+
+  paint(); check(); setInterval(check, 60000);
+})();
+</script>
+</body>
+</html>
