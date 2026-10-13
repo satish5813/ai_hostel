@@ -197,7 +197,7 @@ function DishForm({ week, title, hint, option, onClose, save, remove }: { week: 
         <Button variant="primary" loading={busy} blockedReason={b.dish.trim().length < 2 ? 'Write the dish name.' : undefined} onClick={() => run(() => save(b), option ? 'Dish saved' : 'Dish added')}>{option ? 'Save' : 'Add dish'}</Button>
         {remove && <Button variant="danger" loading={busy} blockedReason={chosen ? `${option!.plates} students chose it; it stays.` : undefined} onClick={() => run(remove, 'Dish removed')}>Remove</Button>}</div>}>
       <div className="klh-stack" style={{ gap: 14 }}>
-        <Field label="Dish" hint={hint ?? undefined}><Input autoFocus value={b.dish} onChange={(e) => setB({ ...b, dish: e.target.value })} placeholder="Gutti vankaya curry" /></Field>
+        <Field label="Dish" hint={hint ?? 'Non-veg means chicken or egg: fish, prawns and mutton are not served.'}><Input autoFocus value={b.dish} onChange={(e) => setB({ ...b, dish: e.target.value })} placeholder="Gutti vankaya curry" /></Field>
         <SegmentedControl label="Style" value={b.cuisine} onChange={(v) => setB({ ...b, cuisine: v })} options={[{ value: 'South', label: 'South Indian' }, { value: 'North', label: 'North Indian' }, { value: 'Both', label: 'Both' }]} />
         <SegmentedControl label="Diet" value={b.diet} onChange={(v) => setB({ ...b, diet: v })} options={[{ value: 'Veg', label: 'Veg' }, { value: 'Non_Veg', label: 'Non-veg' }]} />
         {chosen && <Notice tone="info">{option!.plates} students chose this dish, so only its name can be corrected.</Notice>}

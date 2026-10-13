@@ -11,8 +11,12 @@ const Meal = z.enum(['Breakfast', 'Lunch', 'Evening_Snacks', 'Dinner']);
 const Day = z.number().int().min(1).max(7);
 const CreateDto = z.object({ mess_id: z.number().int(), week_start: z.string().date(), copy_from: z.number().int().optional() });
 const WeekDto = z.object({ choices_close_at: z.string().datetime({ offset: true }).optional(), notes: z.string().max(400).nullable().optional() });
-const FixedDto = z.object({ meal: Meal, cuisine: z.enum(['South', 'North']), items: z.string().min(1).max(300) });
-const DishDto = z.object({ dish: z.string().trim().min(2).max(80), cuisine: z.enum(['South', 'North', 'Both']), diet: z.enum(['Veg', 'Non_Veg']) });
+// non-veg is chicken and egg only: seafood and red meat are not served (the database checks the same rule, migration 127)
+const NOT_SERVED = /\b(fish|fishes|prawn|prawns|shrimp|crab|squid|mutton|lamb|goat|beef|pork)\b/i;
+const allowed = (s: string) => !NOT_SERVED.test(s);
+const NOT_SERVED_MSG = 'Non-veg is chicken and egg only. Fish, prawns, mutton and other meat are not served.';
+const FixedDto = z.object({ meal: Meal, cuisine: z.enum(['South', 'North']), items: z.string().min(1).max(300).refine(allowed, NOT_SERVED_MSG) });
+const DishDto = z.object({ dish: z.string().trim().min(2).max(80).refine(allowed, NOT_SERVED_MSG), cuisine: z.enum(['South', 'North', 'Both']), diet: z.enum(['Veg', 'Non_Veg']) });
 const OptionDto = DishDto.extend({ day_no: Day, meal: Meal, course_code: z.string().max(20) });
 const CopyDto = z.object({ from_day: Day, to_days: z.array(Day).min(1).max(6) });
 const ChoiceDto = z.object({ day_no: Day, meal: Meal, course_code: z.string().max(20), option_id: z.number().int().nullable() });
