@@ -58,21 +58,46 @@ class _RoomScreenState extends State<RoomScreen> {
   // fee plan
   String plan = 'Two_Instalments', cuisine = 'South_Indian';
 
+  List<Map> proofs = []; // receipts sent from Pay all
+  Timer? _poll;
+  String _stage = '';
+  // what the student is told when the page moves on by itself
+  static const _said = {
+    'Applied/Uploaded': 'Receipt sent. The Floor Warden is checking it.', 'Applied/Checked': 'Checked by the Floor Warden. Now with the Chief Warden.',
+    'Fee_Paid/': 'Registration fee approved by the Chief Warden. Choose your room.', 'Waitlisted/': 'Registration fee approved. You are on the waiting list.',
+    'Confirmed/Verified': 'Fees verified and approved. Collect your key at the hostel office.', 'Checked_In/': 'Checked in. Your room is on the Home page.',
+  };
+
   @override
-  void initState() { super.initState(); load(); }
+  void initState() {
+    super.initState();
+    load();
+    // the wardens and the office act on their side; the page follows without a pull to refresh
+    _poll = Timer.periodic(const Duration(seconds: 4), (_) { if (reg != null && reg!['status'] != 'Checked_In' && !busy) load(quiet: true); });
+  }
+
+  @override
+  void dispose() { _poll?.cancel(); super.dispose(); }
 
   Map? get reg => regs?.where((r) => !['Cancelled', 'Vacated'].contains(r['status'])).firstOrNull;
+  Map? get proof => proofs.where((p) => p['status'] != 'Rejected').firstOrNull;
 
-  Future<void> load() async {
+  Future<void> load({bool quiet = false}) async {
     try {
       final r = await api.get('/registrations/mine');
+      final p = await api.get('/me/payment-proofs');
       if (!mounted) return;
-      setState(() => regs = (r as List).cast<Map>());
+      setState(() { regs = (r as List).cast<Map>(); proofs = (p as List).cast<Map>(); });
     } catch (e) {
-      if (mounted) toast(context, e.toString(), error: true);
+      if (mounted && !quiet) toast(context, e.toString(), error: true);
       return;
     }
     final g = reg;
+    final st = g?['status'];
+    final sub = st == 'Applied' ? (proof?['status'] ?? '') : st == 'Confirmed' ? (g?['fee_check_status'] ?? '') : '';
+    final stage = g == null ? '' : '$st/$sub';
+    if (_stage.isNotEmpty && stage != _stage && _said[stage] != null && mounted) toast(context, _said[stage]!);
+    _stage = stage;
     if (g == null) {
       api.get('/allotment/catalogue').then((c) { if (mounted) setState(() => catalogue = (c as List).cast<Map>()); }, onError: (_) {});
       return;

@@ -22,7 +22,7 @@ String _js(num v) => v == v.roundToDouble() ? v.toInt().toString() : v.toString(
 String _inr(num v) => inr(v.round());
 String _roomLabel(dynamic id) => '${id ?? ''}'.replaceFirst(RegExp(r'^H-'), '');
 
-class _ElectricityScreenState extends State<ElectricityScreen> {
+class _ElectricityScreenState extends State<ElectricityScreen> with AutoRefresh {
   Map? d;
   Map? bills;
   bool failed = false;
@@ -31,7 +31,7 @@ class _ElectricityScreenState extends State<ElectricityScreen> {
   final _amountCtl = TextEditingController(text: '200');
 
   @override
-  void initState() { super.initState(); load(); }
+  void initState() { super.initState(); load(); autoRefresh(load); }
   @override
   void dispose() { _amountCtl.dispose(); super.dispose(); }
 

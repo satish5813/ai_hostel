@@ -33,13 +33,13 @@ class ProfileScreen extends StatefulWidget {
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class _ProfileScreenState extends State<ProfileScreen> with AutoRefresh {
   Map<String, dynamic> d = {};
   Object? error;
   bool loading = true;
 
   @override
-  void initState() { super.initState(); load(); }
+  void initState() { super.initState(); load(); autoRefresh(load); }
 
   Future<dynamic> _try(String path) async { try { return await Api.instance.get(path); } catch (_) { return null; } }
 

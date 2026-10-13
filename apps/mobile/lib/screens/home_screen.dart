@@ -33,12 +33,12 @@ const _goals = [
   ('Undecided', 'Not decided yet', 'A counsellor can help you choose'),
 ];
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with AutoRefresh {
   Map<String, dynamic> d = {};
   bool loading = true;
 
   @override
-  void initState() { super.initState(); load(); }
+  void initState() { super.initState(); load(); autoRefresh(load); }
 
   Future<dynamic> _try(String path) async { try { return await Api.instance.get(path); } catch (_) { return null; } }
 
@@ -115,19 +115,20 @@ class _HomeScreenState extends State<HomeScreen> {
       _Task(Mod.rose, LucideIcons.heartPulse, 'Sick leave', curSick != null ? words(curSick['status']) : 'Feeling well', curSick != null ? '${day(curSick['from_date'])} to ${day(curSick['to_date'])}' : 'Report if you are unwell',
           curSick != null ? 'View' : 'Report', () => _sick(curSick), off: living ? null : 'After check-in'),
     ];
-    final tiles = <(String, String, IconData, Mod, VoidCallback)>[
-      ('My room', room != null ? '${room['bed_label']}' : 'Not yet', LucideIcons.bedDouble, Mod.teal, () => room != null ? _room(room) : openPlace(context, 'room')),
-      ('Mess menu', todayLunch != null ? 'Lunch: $todayLunch' : menuMe != null ? 'This week' : 'After check-in', LucideIcons.utensilsCrossed, Mod.em, () => openPlace(context, 'mess_menu')),
+    final needRoom = living ? null : 'After check-in'; // mess, meals and repairs open once the student has a room
+    final tiles = <(String, String, IconData, Mod, VoidCallback, String?)>[
+      ('My room', room != null ? '${room['bed_label']}' : 'Not yet', LucideIcons.bedDouble, Mod.teal, () => room != null ? _room(room) : openPlace(context, 'room'), null),
+      ('Mess menu', todayLunch != null ? 'Lunch: $todayLunch' : menuMe != null ? 'This week' : 'After check-in', LucideIcons.utensilsCrossed, Mod.em, () => openPlace(context, 'mess_menu'), needRoom),
       ('Choose my meals', openWeek != null ? (mealsLeft > 0 ? '$mealsLeft to choose by ${_dueLabel(openWeek['choices_close_at'])}' : 'Next week chosen') : 'When the mess publishes next week',
-          LucideIcons.chefHat, Mod.orange, () => openPlace(context, 'meal_choice')),
-      ('Repairs', 'Room, mess or common facility', LucideIcons.wrench, Mod.orange, () => openPlace(context, 'repairs')),
-      ('Rate my meals', 'Tell the mess what you liked', LucideIcons.star, Mod.amber, () => openPlace(context, 'rate_meals')),
-      ('Receipts', '${receipts.length} on record', LucideIcons.receipt, Mod.orange, () => _receipts(receipts)),
-      ('Hostel journey', reg != null ? '${reg['registration_no']}' : 'Apply for a room', LucideIcons.sparkles, Mod.indigo, () => openPlace(context, 'room')),
-      ('Academic record', 'Attendance, marks', LucideIcons.graduationCap, Mod.sky, () => openPlace(context, 'academics')),
-      ('My career goal', goal != null ? _goals.where((g) => g.$1 == goal['goal']).firstOrNull?.$2 ?? 'Set' : 'Tell us what you aim for', LucideIcons.sparkles, Mod.indigo, () => _goal(goal)),
-      ('Parents and profile', '${((student?['contacts'] as List?) ?? []).where((c) => c['is_verified'] == true).length} verified contacts', LucideIcons.idCard, Mod.em, () => openPlace(context, 'profile')),
-      ('Notifications', 'Messages and alerts', LucideIcons.bell, Mod.violet, () => openPlace(context, 'notifications')),
+          LucideIcons.chefHat, Mod.orange, () => openPlace(context, 'meal_choice'), needRoom),
+      ('Repairs', 'Room, mess or common facility', LucideIcons.wrench, Mod.orange, () => openPlace(context, 'repairs'), needRoom),
+      ('Rate my meals', 'Tell the mess what you liked', LucideIcons.star, Mod.amber, () => openPlace(context, 'rate_meals'), needRoom),
+      ('Receipts', '${receipts.length} on record', LucideIcons.receipt, Mod.orange, () => _receipts(receipts), null),
+      ('Hostel journey', reg != null ? '${reg['registration_no']}' : 'Apply for a room', LucideIcons.sparkles, Mod.indigo, () => openPlace(context, 'room'), null),
+      ('Academic record', 'Attendance, marks', LucideIcons.graduationCap, Mod.sky, () => openPlace(context, 'academics'), null),
+      ('My career goal', goal != null ? _goals.where((g) => g.$1 == goal['goal']).firstOrNull?.$2 ?? 'Set' : 'Tell us what you aim for', LucideIcons.sparkles, Mod.indigo, () => _goal(goal), null),
+      ('Parents and profile', '${((student?['contacts'] as List?) ?? []).where((c) => c['is_verified'] == true).length} verified contacts', LucideIcons.idCard, Mod.em, () => openPlace(context, 'profile'), null),
+      ('Notifications', 'Messages and alerts', LucideIcons.bell, Mod.violet, () => openPlace(context, 'notifications'), null),
     ];
     final activity = <(String, IconData, Mod, String, String)>[
       for (final r in receipts) ('${r['paid_on']}', LucideIcons.receipt, Mod.orange, 'Paid ${inr(r['amount'])}', '${_headOf(r)} · ${r['receipt_no']}'),
@@ -186,18 +187,18 @@ class _HomeScreenState extends State<HomeScreen> {
       ],
       const SizedBox(height: 18),
       Panel(title: 'Quick actions', child: Column(children: [
-        for (final (label, sub, icon, mod, go) in tiles) Padding(padding: const EdgeInsets.only(bottom: 8), child: Material(color: Colors.white, borderRadius: BorderRadius.circular(14), child: InkWell(
-          onTap: go, borderRadius: BorderRadius.circular(14),
+        for (final (label, sub, icon, mod, go, off) in tiles) Padding(padding: const EdgeInsets.only(bottom: 8), child: Grey(off: off != null, child: Material(color: Colors.white, borderRadius: BorderRadius.circular(14), child: InkWell(
+          onTap: off == null ? go : () => toast(context, '$label opens after check-in.'), borderRadius: BorderRadius.circular(14),
           child: Container(padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10), decoration: BoxDecoration(borderRadius: BorderRadius.circular(14), border: Border.all(color: K.line)),
             child: Row(children: [
               Container(width: 38, height: 38, decoration: BoxDecoration(color: mod.bg, borderRadius: BorderRadius.circular(11)), child: Icon(icon, size: 19, color: mod.fg)),
               const SizedBox(width: 12),
               Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 Text(label, style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w700)),
-                Text(sub, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12, color: K.ink3)),
+                Text(off ?? sub, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12, color: K.ink3)),
               ])),
-              const Icon(LucideIcons.chevronRight, size: 16, color: K.ink3),
-            ]))))),
+              Icon(off == null ? LucideIcons.chevronRight : LucideIcons.lock, size: 16, color: K.ink3),
+            ])))))),
       ])),
       const SizedBox(height: 18),
       Panel(title: 'Recent activity', child: activity.isEmpty ? const _Empty('Payments, outings and sick leave appear here.') : Column(children: [
@@ -544,7 +545,7 @@ class _TaskCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final off = c.off != null;
-    return Container(
+    return Grey(off: off, child: Container(
       padding: const EdgeInsets.all(13),
       decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(18), border: Border.all(color: c.alert ? K.alertLine : K.line), boxShadow: K.cardShadow),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -567,7 +568,7 @@ class _TaskCard extends StatelessWidget {
               Icon(LucideIcons.arrowRight, size: 15, color: c.mod.fg),
             ]))))),
       ]),
-    );
+    ));
   }
 }
 

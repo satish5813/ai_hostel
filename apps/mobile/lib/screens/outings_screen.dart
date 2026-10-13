@@ -18,12 +18,12 @@ const _livePass = ['Approved', 'Out', 'Overdue'];
 const _pendingPass = ['Applied', 'Parent_Recommended', 'L1_Approved', 'L2_Approved'];
 List<Map> _steps(Map o) => ((o['steps'] as List?) ?? []).cast<Map>();
 
-class _OutingsScreenState extends State<OutingsScreen> {
+class _OutingsScreenState extends State<OutingsScreen> with AutoRefresh {
   List<Map>? list;
   Object? error;
 
   @override
-  void initState() { super.initState(); load(); }
+  void initState() { super.initState(); load(); autoRefresh(load); }
 
   Future<void> load() async {
     try {

@@ -28,7 +28,7 @@ const _rcStatus = {
 };
 const _small = TextStyle(fontSize: 12, color: _ink3);
 
-class _ChangeRoomScreenState extends State<ChangeRoomScreen> {
+class _ChangeRoomScreenState extends State<ChangeRoomScreen> with AutoRefresh {
   Map? d;
   Map? openStatement;
   final expanded = <dynamic>{};
@@ -43,7 +43,7 @@ class _ChangeRoomScreenState extends State<ChangeRoomScreen> {
   final _reason = TextEditingController();
 
   @override
-  void initState() { super.initState(); load(); }
+  void initState() { super.initState(); load(); autoRefresh(load); }
   @override
   void dispose() { _reason.dispose(); super.dispose(); }
 

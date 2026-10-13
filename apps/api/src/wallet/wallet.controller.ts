@@ -20,6 +20,7 @@ export class WalletController {
   @Roles('Student') @Post('me/payment-proofs') upload(@Body(zod(ProofDto)) b: z.infer<typeof ProofDto>, @CurrentUser() u: AuthUser) { return this.svc.upload(u, b); }
   @Roles('Student') @Get('me/wallet') wallet(@CurrentUser() u: AuthUser) { return this.svc.wallet(u); }
   @Roles('Student') @Post('me/wallet/pay') pay(@Body(zod(PayDto)) b: z.infer<typeof PayDto>, @CurrentUser() u: AuthUser) { return this.svc.pay(u, b.demand_ids); }
+  @Roles(...WARDENS, ...OFFICE, 'Accounts_Section', 'admin') @Get('students/:sid/payment-proofs') ofStudent(@Param('sid') sid: string) { return this.svc.proofsOf(sid); }
   @Roles(...WARDENS, ...OFFICE, 'Accounts_Section', 'admin') @Get('payment-proofs/:id') proof(@Param('id', ParseIntPipe) id: number) { return this.svc.proof(id); }
   @Roles(...WARDENS, ...OFFICE, 'Accounts_Section', 'admin') @Post('payment-proofs/:id/recheck') recheck(@Param('id', ParseIntPipe) id: number) { return this.ocr.check(id); }
 }

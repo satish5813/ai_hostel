@@ -25,7 +25,7 @@ String _when(dynamic s) { final d = parseDate(s); return d == null ? '' : '${Dat
 
 const _tx2 = Color(0xFF344054), _tx5 = Color(0xFF475467), _green = Color(0xFF0CA30C);
 
-class _RepairsScreenState extends State<RepairsScreen> {
+class _RepairsScreenState extends State<RepairsScreen> with AutoRefresh {
   Map? d;
   Object? error;
   String? area;
@@ -34,7 +34,7 @@ class _RepairsScreenState extends State<RepairsScreen> {
   var busy = false;
 
   @override
-  void initState() { super.initState(); load(); }
+  void initState() { super.initState(); load(); autoRefresh(load); }
 
   Future<void> load() async {
     try { final r = await api.get('/me/tickets'); if (mounted) setState(() { d = r as Map?; error = null; }); }

@@ -15,6 +15,8 @@
 const API = process.env.API ?? 'http://localhost:4100';
 const STUDENTS = (process.env.STUDENTS ?? '2600040011').split(',').map((s) => s.trim()).filter(Boolean);
 const DELAY = Number(process.env.DELAY ?? 6) * 1000, EVERY = 3000;
+// steps left to a person at the portal, so they can be shown live: MANUAL=checkin (key and handover), proof (receipts), cw (Chief Warden's bed approval)
+const MANUAL = new Set((process.env.MANUAL ?? '').split(',').map((x) => x.trim()).filter(Boolean));
 const ONCE = process.argv.includes('--once');
 
 async function call(user, role, method, path, body) {
@@ -58,8 +60,8 @@ async function registrations(s) {
     const id = r.registration_id, k = `reg:${id}`;
     if (r.status !== 'Confirmed') continue; // not fully paid yet, or already checked in
     if (r.fee_check_status !== 'Verified') { await step(s, k + ':fee', `fees verified for ${r.registration_no}`, () => first(['Room_Allotment', 'Office_Staff', ...WARDENS], 'POST', `/registrations/${id}/fee-check`, { decision: 'Verified' })); continue; }
-    if (r.cw_status !== 'Approved') { await step(s, k + ':cw', `Chief Warden approved ${r.registration_no}`, () => first(['Chief_Warden', 'Director_Hostels'], 'POST', `/registrations/${id}/cw-decision`, { decision: 'Approved' })); continue; }
-    if (r.renewal_of == null && r.hostel_alloc_id == null && r.offer_id != null) {
+    if (r.cw_status !== 'Approved') { if (MANUAL.has('cw')) continue; await step(s, k + ':cw', `Chief Warden approved ${r.registration_no}`, () => first(['Chief_Warden', 'Director_Hostels'], 'POST', `/registrations/${id}/cw-decision`, { decision: 'Approved' })); continue; }
+    if (r.renewal_of == null && r.hostel_alloc_id == null && r.offer_id != null && !MANUAL.has('checkin')) {
       await step(s, k + ':in', `checked in: key given and room handed over (${r.registration_no})`, async () => {
         // the room's electricity meter must be there before check-in: checking in is what links the student to it
         const space = String(r.subspace_id ?? '').replace(/-B\d+$/, '');
@@ -85,7 +87,7 @@ async function waiting(s) {
   for (const o of (await asStudent(s, '/outpasses/mine')) ?? []) if (['Applied', 'Parent_Recommended', 'L1_Approved', 'L2_Approved'].includes(o.status)) w.set(`Outpass:${o.outpass_id}`, `outing ${o.outpass_no}`);
   for (const l of (await asStudent(s, '/sick-leaves/mine')) ?? []) if (['Applied', 'Recommended'].includes(l.status)) w.set(`Sick_Leave:${l.sick_leave_id}`, { text: 'sick leave', leave: l });
   for (const c of (await asStudent(s, '/me/room-change'))?.requests ?? []) if (String(c.status).startsWith('Pending')) w.set(`Room_Change:${c.change_id}`, `room change ${c.change_no}`);
-  for (const p of (await asStudent(s, '/me/payment-proofs')) ?? []) if (['Uploaded', 'Checked'].includes(p.status)) w.set(`Payment_Proof:${p.proof_id}`, `receipt ${p.proof_no} for ₹${p.amount} (system check: ${p.ocr_status ?? 'pending'})`);
+  if (!MANUAL.has('proof')) for (const p of (await asStudent(s, '/me/payment-proofs')) ?? []) if (['Uploaded', 'Checked'].includes(p.status)) w.set(`Payment_Proof:${p.proof_id}`, `receipt ${p.proof_no} for ₹${p.amount} (system check: ${p.ocr_status ?? 'pending'})`);
   return w;
 }
 async function approvals(s) {

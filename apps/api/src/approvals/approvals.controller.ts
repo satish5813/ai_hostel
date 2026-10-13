@@ -15,6 +15,7 @@ const ParentDto = DecideDto.extend({ contact_id: z.number().int() });
 export class ApprovalsController {
   constructor(private svc: ApprovalsService) {}
   @Get('inbox') inbox(@CurrentUser() u: AuthUser) { return this.svc.inbox(u); }
+  @Get('decided') decided(@CurrentUser() u: AuthUser) { return this.svc.decided(u); }
   @Get(':type/:id') steps(@Param('type') type: string, @Param('id', ParseIntPipe) id: number) { return this.svc.steps(type, id); }
   @Post(':id/decide') decide(@Param('id', ParseIntPipe) id: number, @Body(zod(DecideDto)) b: z.infer<typeof DecideDto>, @CurrentUser() u: AuthUser) { return this.svc.decide(u, id, b.decision, b.remarks); }
   @Post(':id/parent') parent(@Param('id', ParseIntPipe) id: number, @Body(zod(ParentDto)) b: z.infer<typeof ParentDto>, @CurrentUser() u: AuthUser) { return this.svc.parent(u, id, b.contact_id, b.decision, b.remarks); }

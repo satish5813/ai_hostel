@@ -32,11 +32,11 @@ const _kind = {
   'Refund': ('Refunded', LucideIcons.banknote, '−', 'ref'),
 };
 
-class _DepositScreenState extends State<DepositScreen> {
+class _DepositScreenState extends State<DepositScreen> with AutoRefresh {
   Map? a;
 
   @override
-  void initState() { super.initState(); load(); }
+  void initState() { super.initState(); load(); autoRefresh(load); }
 
   Future<void> load() async {
     try {

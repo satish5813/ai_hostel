@@ -9,6 +9,8 @@ ROOT=${0:A:h:h}; PG=/opt/homebrew/opt/postgresql@18/bin; SNAP=$ROOT/backups/demo
 pkill -f demo-staff-bot 2>/dev/null || true
 echo "Stopping the API"; lsof -ti tcp:4100 -sTCP:LISTEN | xargs kill 2>/dev/null || true; sleep 2
 echo "Restoring the database"; $PG/dropdb --force klu_hostel && $PG/createdb klu_hostel && $PG/pg_restore -d klu_hostel $SNAP
+# the OCR language file is not in git; without it the receipt check tries the internet and stalls
+TD=$ROOT/apps/api/tessdata; [[ -f $TD/eng.traineddata ]] || { echo "Fetching the OCR language file"; mkdir -p $TD && curl -sSL -o $TD/eng.traineddata.gz https://tessdata.projectnaptha.com/4.0.0/eng.traineddata.gz && gunzip -kf $TD/eng.traineddata.gz; }
 echo "Starting the API"; cd $ROOT/apps/api && (API_PORT=4100 TESSDATA_DIR=$ROOT/apps/api/tessdata nohup node --enable-source-maps dist/main.js > $ROOT/logs/api-4100.log 2>&1 &)
 for i in {1..40}; do curl -s -o /dev/null localhost:4100/api/auth/demo-accounts && break; sleep 1; done
 ADB=$HOME/Library/Android/sdk/platform-tools/adb

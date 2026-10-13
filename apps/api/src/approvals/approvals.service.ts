@@ -1,5 +1,5 @@
 import { ForbiddenException, Injectable, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
-import { eq, sql } from 'drizzle-orm';
+import { eq, sql, type SQL } from 'drizzle-orm';
 import { t } from '@klu/db';
 import { DbService } from '../db/db.service.js';
 import type { AuthUser } from '../auth/auth.types.js';
@@ -13,10 +13,25 @@ import type { AuthUser } from '../auth/auth.types.js';
 export class ApprovalsService {
   constructor(private dbs: DbService) {}
 
+  /** Steps this person already decided, newest first: the same rows as the inbox, so one drawer shows both. */
+  decided(user: AuthUser) {
+    return this.list(user, sql`s.acted_by = ${user.id} and s.decision <> 'Pending'`, sql`s.decided_on desc nulls last, s.created_at desc`, 100);
+  }
+
   /** Pending steps for the caller's roles, limited to the hostel / floor the caller is assigned to. */
   inbox(user: AuthUser) {
+    return this.list(user, sql`s.decision = 'Pending'
+        and (${user.kind} <> 'parent' or r.student_id in (select c.student_id from hostel.student_contact c where 'contact:' || c.contact_id = ${user.id}))
+        and s.approver_role = any(string_to_array(${user.roles.join(',')}, ','))
+        and (s.level = (select min(level) from shared.approval_step p where p.request_type = s.request_type and p.request_id = s.request_id and p.decision = 'Pending'))
+        and (s.approver_role not in ('Floor_Warden','Chief_Warden','Warden','Assistant_Warden')
+             or exists (select 1 from hostel.staff_space_assignment a where a.staff_id = ${user.id} and a.hostel_role = s.approver_role and a.status = 'Active'
+                         and (pp.proof_id is not null and pp.facility_id is null or a.facility_id = coalesce(st.facility_id, pp.facility_id)) and (a.zone_id is null or a.zone_id = coalesce(st.zone_id, a.zone_id))))`, sql`s.created_at`, 500);
+  }
+
+  private list(user: AuthUser, where: SQL, order: SQL, limit: number) {
     return this.dbs.rows(sql`
-      select s.step_id::int as step_id, s.request_type, s.request_id::int as request_id, s.level, s.approver_role, s.created_at,
+      select s.step_id::int as step_id, s.request_type, s.request_id::int as request_id, s.level, s.approver_role, s.created_at, s.decision, s.decided_on, s.remarks,
              r.student_id, sm.full_name, sm.programme, st.facility_id, st.zone_id, b.hostel_name, b.floor_name, b.room_code,
              r.summary, r.from_at, r.to_at
       from shared.approval_step s
@@ -39,14 +54,8 @@ export class ApprovalsService {
       join ref.student_master sm on sm.student_id = r.student_id
       left join hostel.fn_student_stay(r.student_id) st on true
       left join hostel.v_bed b on b.subspace_id = st.subspace_id
-      where s.decision = 'Pending'
-        and (${user.kind} <> 'parent' or r.student_id in (select c.student_id from hostel.student_contact c where 'contact:' || c.contact_id = ${user.id}))
-        and s.approver_role = any(string_to_array(${user.roles.join(',')}, ','))
-        and (s.level = (select min(level) from shared.approval_step p where p.request_type = s.request_type and p.request_id = s.request_id and p.decision = 'Pending'))
-        and (s.approver_role not in ('Floor_Warden','Chief_Warden','Warden','Assistant_Warden')
-             or exists (select 1 from hostel.staff_space_assignment a where a.staff_id = ${user.id} and a.hostel_role = s.approver_role and a.status = 'Active'
-                         and (pp.proof_id is not null and pp.facility_id is null or a.facility_id = coalesce(st.facility_id, pp.facility_id)) and (a.zone_id is null or a.zone_id = coalesce(st.zone_id, a.zone_id))))
-      order by s.created_at`);
+      where ${where}
+      order by ${order} limit ${limit}`);
   }
 
   async decide(user: AuthUser, stepId: number, decision: 'Approved' | 'Rejected', remarks?: string) {

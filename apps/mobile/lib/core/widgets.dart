@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'api.dart';
@@ -484,4 +485,27 @@ class InfoRow extends StatelessWidget {
         SizedBox(width: 120, child: Text(label, style: const TextStyle(color: K.ink3, fontSize: 13))),
         Expanded(child: Text(value, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14))),
       ]));
+}
+
+/// Reloads a page by itself every few seconds, so what the wardens and the office do shows up without a pull to refresh.
+/// Call [autoRefresh] once in initState after the first load; the timer stops with the page.
+mixin AutoRefresh<T extends StatefulWidget> on State<T> {
+  Timer? _autoTimer;
+  void autoRefresh(FutureOr<void> Function() reload, {Duration every = const Duration(seconds: 6)}) {
+    _autoTimer?.cancel();
+    _autoTimer = Timer.periodic(every, (_) { if (mounted) reload(); });
+  }
+  @override
+  void dispose() { _autoTimer?.cancel(); super.dispose(); }
+}
+
+/// Black and white while a module is not open yet (before check-in); full colour once it is.
+class Grey extends StatelessWidget {
+  final bool off;
+  final Widget child;
+  const Grey({super.key, required this.off, required this.child});
+  static const _desaturate = ColorFilter.matrix(<double>[
+    0.2126, 0.7152, 0.0722, 0, 0, 0.2126, 0.7152, 0.0722, 0, 0, 0.2126, 0.7152, 0.0722, 0, 0, 0, 0, 0, 1, 0]);
+  @override
+  Widget build(BuildContext context) => off ? Opacity(opacity: .7, child: ColorFiltered(colorFilter: _desaturate, child: child)) : child;
 }

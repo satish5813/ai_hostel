@@ -28,7 +28,7 @@ class SickLeaveScreen extends StatefulWidget {
   State<SickLeaveScreen> createState() => _SickLeaveScreenState();
 }
 
-class _SickLeaveScreenState extends State<SickLeaveScreen> {
+class _SickLeaveScreenState extends State<SickLeaveScreen> with AutoRefresh {
   List<Map>? list;
   Map? detail;
   Object? error;
@@ -37,7 +37,7 @@ class _SickLeaveScreenState extends State<SickLeaveScreen> {
   String? from, until, extend;
 
   @override
-  void initState() { super.initState(); load(); }
+  void initState() { super.initState(); load(); autoRefresh(load); }
 
   Map? get _current => list?.where((l) => ['Applied', 'Recommended', 'Approved'].contains(l['status'])).firstOrNull;
 

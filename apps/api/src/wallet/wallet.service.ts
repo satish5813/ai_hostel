@@ -23,13 +23,15 @@ export class WalletService {
   private student(user: AuthUser) { if (user.kind !== 'student') throw new ForbiddenException('Students only'); return user.id; }
 
   /** The student's uploaded receipts, newest first, with the demands each one names and the approval trail. */
-  async myProofs(user: AuthUser) {
-    const s = this.student(user);
+  myProofs(user: AuthUser) { return this.proofsOf(this.student(user)); }
+
+  /** Every receipt a student sent, newest first, with the photo and the approval steps (the student's own page and the wardens' drawers). */
+  async proofsOf(s: string) {
     return this.dbs.rows(sql`
       select p.proof_id::int as proof_id, p.proof_no, p.amount::float as amount, p.paid_on, p.reference, p.status, p.remarks, p.created_at, p.decided_on, p.photo, p.mime, p.ocr_status, p.ocr_checks,
              (select coalesce(json_agg(json_build_object('demand_id', d.demand_id::int, 'fee_head', d.fee_head::text, 'instalment_no', d.instalment_no, 'amount_due', d.amount_due::float, 'amount_paid', d.amount_paid::float, 'status', d.status::text) order by d.due_date), '[]'::json)
                 from hostel.fee_demand d where d.demand_id = any(p.demand_ids)) as demands,
-             (select coalesce(json_agg(json_build_object('level', st.level, 'approver_role', st.approver_role::text, 'decision', st.decision::text, 'decided_on', st.decided_on, 'remarks', st.remarks, 'acted_by_name', sm.full_name) order by st.level), '[]'::json)
+             (select coalesce(json_agg(json_build_object('step_id', st.step_id::int, 'level', st.level, 'approver_role', st.approver_role::text, 'decision', st.decision::text, 'decided_on', st.decided_on, 'remarks', st.remarks, 'acted_by_name', sm.full_name) order by st.level), '[]'::json)
                 from shared.approval_step st left join ref.staff_master sm on sm.staff_id = st.acted_by where st.request_type = 'Payment_Proof' and st.request_id = p.proof_id) as steps
       from hostel.payment_proof p where p.student_id = ${s} order by p.created_at desc`);
   }

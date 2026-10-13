@@ -22,14 +22,14 @@ String _when(dynamic s) { final d = parseDate(s); return d == null ? '' : DateFo
 // the .mo palette
 const _line = Color(0xFFE4E8EF), _tint = Color(0xFFE6F4F1), _ink2 = Color(0xFF475467), _goodBg = Color(0xFFECFDF3), _hair = Color(0xFFD0D5DD);
 
-class _ComplaintsScreenState extends State<ComplaintsScreen> {
+class _ComplaintsScreenState extends State<ComplaintsScreen> with AutoRefresh {
   Map? mess;
   bool messLoaded = false;
   List<Map>? mine;
   String? kind;
 
   @override
-  void initState() { super.initState(); loadMess(); loadMine(); }
+  void initState() { super.initState(); loadMess(); loadMine(); autoRefresh(() { loadMess(); loadMine(); }); }
 
   Future<void> loadMess() async { try { final r = await api.get('/me/mess-grievances'); if (mounted) setState(() => mess = r as Map?); } catch (_) {} finally { if (mounted) setState(() => messLoaded = true); } }
   Future<void> loadMine() async { try { final r = await api.get('/me/grievances'); if (mounted) setState(() => mine = ((r as List?) ?? []).cast<Map>()); } catch (_) {} }

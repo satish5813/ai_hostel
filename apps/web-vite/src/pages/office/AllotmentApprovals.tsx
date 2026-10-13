@@ -14,6 +14,11 @@ const COLS: { k: Card['stage']; title: string; sub: string; icon: LucideIcon; gr
   { k: 'approve', title: 'Chief Warden approves', sub: 'L2 · Chief Warden', icon: ShieldCheck, grad: 'linear-gradient(135deg,#0B7A71,#0A5F6E)', glow: 'rgba(11,122,113,.7)' },
   { k: 'allotted', title: 'Allotted', sub: 'Ready for the key', icon: KeyRound, grad: 'linear-gradient(135deg,#4263EB,#364FC7)', glow: 'rgba(66,99,235,.7)' },
 ];
+type Proof = { proof_id: number; proof_no: string; amount: number; paid_on: string; reference: string | null; status: string; photo: string; mime: string; ocr_status: string;
+  ocr_checks: { check: string; ok: boolean | null }[] | null; demands: { fee_head: string }[]; steps: { step_id: number; level: number; approver_role: string; decision: string | null; decided_on: string | null; acted_by_name: string | null }[] };
+type Tone = 'ok' | 'warn' | 'crit' | 'info' | 'neu';
+const PROOF_ST: Record<string, { label: string; tone: Tone }> = { Uploaded: { label: 'With the Floor Warden', tone: 'warn' }, Checked: { label: 'With the Chief Warden', tone: 'info' }, Approved: { label: 'Approved', tone: 'ok' }, Rejected: { label: 'Not accepted', tone: 'crit' } };
+const OCR_ST: Record<string, { label: string; tone: Tone }> = { Pending: { label: 'Being read', tone: 'neu' }, Matched: { label: 'Receipt matches', tone: 'ok' }, Mismatch: { label: 'Check by eye', tone: 'warn' }, Unreadable: { label: 'Could not read', tone: 'neu' } };
 const L1 = ['Room_Allotment', 'Office_Staff', 'Warden', 'Assistant_Warden', 'Hostel_Incharge', 'Chief_Warden', 'Director_Hostels'];
 const L2 = ['Chief_Warden', 'Director_Hostels'];
 const when = (d?: string | null) => (d ? new Date(d).toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'Not yet');
@@ -32,14 +37,23 @@ export default function AllotmentApprovals() {
   const [checked, setChecked] = useState(false);
   const [returning, setReturning] = useState(false);
   const [remarks, setRemarks] = useState('');
+  const [view, setView] = useState<Proof | null>(null); // the receipt opened full size for verification
   const { run: act, busy } = useAction();
   const run = (fn: () => Promise<unknown>) => act(fn, '');
   const cards = list.data ?? [];
   const c = cards.find((x) => x.registration_id === sel) ?? cards.find((x) => x.stage === 'verify') ?? cards[0];
+  const proofs = useApi<Proof[]>(c ? `/students/${c.student_id}/payment-proofs` : null);
   useEffect(() => { setChecked(false); setReturning(false); setRemarks(''); }, [c?.registration_id]);
   const refresh = () => Promise.all([list.mutate(), H.reload()]);
   const canL1 = L1.includes(s.role), canL2 = L2.includes(s.role);
 
+  // a receipt waiting at the signed-in warden's level: approve or return it from here (same step as the Approvals page)
+  const decideProof = (p: Proof, decision: 'Approved' | 'Rejected') => run(async () => {
+    const step = p.steps.find((x) => !x.decision || x.decision === 'Pending'); if (!step) return;
+    const why = decision === 'Rejected' ? window.prompt('Why is the receipt not accepted? The student sees this.') : undefined; if (decision === 'Rejected' && !why?.trim()) return;
+    await api(`/approvals/${step.step_id}/decide`, { method: 'POST', json: { decision, remarks: why?.trim() } }); await Promise.all([proofs.mutate(), refresh()]);
+    toast(`Receipt ${p.proof_no} ${decision === 'Approved' ? 'approved' : 'returned'}${decision === 'Approved' && step.level === 2 ? '. Receipts issued; the fees show as paid.' : ''}`); });
+  const canDecide = (p: Proof) => { const step = p.steps.find((x) => !x.decision || x.decision === 'Pending'); return !!step && (s.role === step.approver_role || (step.level === 2 && L2.includes(s.role))); }; // the database holds L1 to a Floor Warden of the hostel
   const verify = () => run(async () => { await api(`/registrations/${c!.registration_id}/fee-check`, { method: 'POST', json: { decision: 'Verified' } }); await refresh(); toast(`Fees verified for ${proper(c!.full_name)}. Sent to the Chief Warden.`); });
   const approve = () => run(async () => { await api(`/registrations/${c!.registration_id}/cw-decision`, { method: 'POST', json: { decision: 'Approved' } }); await refresh(); toast(`Bed ${c!.room_code ?? ''} approved for ${proper(c!.full_name)}. The office can check the student in.`); });
   const doReturn = () => run(async () => {
@@ -73,6 +87,14 @@ export default function AllotmentApprovals() {
       </main>
 
       <aside className="ra-aside">
+        {view && <div role="dialog" aria-label="Receipt" onClick={() => setView(null)} style={{ position: 'fixed', inset: 0, zIndex: 1000, background: 'rgba(16,24,40,.78)', display: 'grid', placeItems: 'center', padding: 24 }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ background: '#fff', borderRadius: 16, padding: 16, maxWidth: 'min(960px, 96vw)', maxHeight: '94vh', display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}><b style={{ flex: 1 }}>{rs(view.amount)} · {view.proof_no} · {proper(c?.full_name ?? '')}{view.reference ? ` · ${view.reference}` : ''}</b>
+              <a href={view.photo} target="_blank" rel="noreferrer" className="ra-outline" style={{ textDecoration: 'none' }}>Open in a new tab</a><button type="button" className="ra-outline" onClick={() => setView(null)}>Close</button></div>
+            {view.mime === 'application/pdf' ? <iframe title="Receipt PDF" src={view.photo} style={{ width: 'min(900px, 92vw)', height: '78vh', border: '1px solid var(--ax-bd2)', borderRadius: 12 }} />
+              : <img src={view.photo} alt="Receipt" style={{ maxWidth: '92vw', maxHeight: '78vh', objectFit: 'contain', borderRadius: 12, border: '1px solid var(--ax-bd2)' }} />}
+            {view.ocr_checks && <small>System check: {view.ocr_checks.map((k) => `${k.ok === true ? '✓' : k.ok === false ? '✗' : '·'} ${k.check}`).join('   ')}</small>}
+          </div></div>}
         {!c ? <div className="q-empty">{list.data ? 'No applications in progress.' : 'Loading…'}</div> : (<>
           <div className="ra-person"><span className="ra-av ra-av-xl" style={{ background: avc(c.full_name)[0], color: avc(c.full_name)[1] }}>{ini(c.full_name)}</span>
             <div><b>{proper(c.full_name)}</b><span className="ra-mono">{c.student_id} · {c.registration_no}</span></div>
@@ -85,6 +107,21 @@ export default function AllotmentApprovals() {
                 <div className="ra-fee-r"><b>{rs(f.due)}</b><Chip tone={f.paid >= f.due ? 'ok' : 'warn'}>{f.paid >= f.due ? 'Paid' : 'Due'}</Chip></div></div>))}
             <span className={`ra-match ${paidAll ? 'ra-ok-t' : 'ra-warn-t'}`}>{paidAll ? <CircleCheck size={14} /> : <Clock size={14} />}{paidAll ? `All ${c.fees.filter((f) => f.receipt).length} receipts on record` : `${rs(dueOf(c))} still due`}</span>
           </div>
+          {/* receipts the student uploaded from the university payment portal (Pay all on the phone); approved on the Approvals page */}
+          {(proofs.data ?? []).length > 0 && <div className="ra-list"><span className="ra-cap">Receipts uploaded by the student</span>
+            {proofs.data!.map((p) => { const st = PROOF_ST[p.status] ?? { label: p.status, tone: 'neu' as const }; const ocr = OCR_ST[p.ocr_status] ?? { label: '', tone: 'neu' as const };
+              return <div key={p.proof_id} className="ra-fee" style={{ alignItems: 'flex-start' }}>
+                <a href={p.photo} target="_blank" rel="noreferrer" title="Open the receipt" style={{ flexShrink: 0 }} onClick={(e) => { e.preventDefault(); setView(p); }}>{p.mime === 'application/pdf'
+                  ? <span style={{ display: 'grid', placeItems: 'center', width: 72, height: 72, borderRadius: 10, border: '1px solid var(--ax-bd2)', fontSize: 12, fontWeight: 700 }}>PDF</span>
+                  : <img src={p.photo} alt="Receipt" style={{ width: 72, height: 72, objectFit: 'cover', borderRadius: 10, border: '1px solid var(--ax-bd2)' }} />}</a>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 }}><b>{rs(p.amount)} · {p.proof_no}</b>
+                  <span style={{ display: 'flex', gap: 6, flexWrap: 'wrap', margin: '2px 0' }}><Chip tone={st.tone}>{st.label}</Chip>{ocr.label && <Chip tone={ocr.tone}>{ocr.label}</Chip>}</span><small>Paid {new Date(p.paid_on).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}{p.reference ? ` · ${p.reference}` : ''} · for {p.demands.map((d) => d.fee_head.replace(/_/g, ' ')).join(', ')}</small>
+                  {ocr.label && <small>System check: {ocr.label}{p.ocr_checks ? ` (${p.ocr_checks.filter((k) => k.ok === false).map((k) => k.check).join(', ') || 'amount, date, student'})` : ''}</small>}
+                  {p.steps.map((s) => <small key={s.level}>L{s.level} {s.approver_role.replace(/_/g, ' ')}: {s.decision === 'Pending' ? 'waiting' : s.decision ?? 'waiting'}{s.acted_by_name ? ` · ${proper(s.acted_by_name)}` : ''}{s.decided_on ? ` · ${when(s.decided_on)}` : ''}</small>)}
+                  {!canDecide(p) && p.status === 'Uploaded' && <small style={{ color: 'var(--ax-warn, #8A4B00)' }}>Waiting for the Floor Warden of {c.hostel_code} to check it; then it comes to the Chief Warden.</small>}
+                  {canDecide(p) && <span style={{ display: 'flex', gap: 8, marginTop: 6 }}><button type="button" className="ra-primary" disabled={busy} onClick={() => decideProof(p, 'Approved')}>Approve receipt</button><button type="button" className="ra-outline" disabled={busy} onClick={() => decideProof(p, 'Rejected')}>Return</button></span>}</div>
+                </div>; })}
+          </div>}
           <div className="ra-list"><span className="ra-cap">Approval trail</span>
             {[{ n: 1, role: 'Room Allotment · verify fees', who: c.fee_checked_by, at: c.fee_checked_on, st: c.fee_check_status === 'Verified' ? 'Approved' : c.fee_check_status === 'Query' ? 'Returned' : c.stage === 'verify' ? 'Pending' : 'Waiting' },
               { n: 2, role: 'Chief Warden · approve bed', who: c.cw_by, at: c.cw_on, st: c.cw_status === 'Approved' ? 'Approved' : c.stage === 'approve' ? 'Pending' : 'Waiting' }].map((t) => { const tone = t.st === 'Approved' ? 'ok' : t.st === 'Pending' ? 'warn' : t.st === 'Returned' ? 'crit' : 'neu';

@@ -29,7 +29,7 @@ String _forWhat(Map d) => d['reference_type'] == 'room_change'
     ? (d['fee_head'] == 'Hostel' ? 'Hostel fee difference (room change)' : '${words(d['fee_head'])} up to the room change')
     : '${words(d['fee_head'])}${d['fee_head'] == 'Hostel' ? ', instalment ${d['instalment_no']}' : ''}';
 
-class _FeesScreenState extends State<FeesScreen> {
+class _FeesScreenState extends State<FeesScreen> with AutoRefresh {
   Map? dues;
   String? name;
   Object? error;
@@ -37,7 +37,7 @@ class _FeesScreenState extends State<FeesScreen> {
   int? paying;
 
   @override
-  void initState() { super.initState(); load(); }
+  void initState() { super.initState(); load(); autoRefresh(load); }
 
   Future<void> load() async {
     try {

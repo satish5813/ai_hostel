@@ -22,7 +22,7 @@ void showPayAllSheet(BuildContext context, {required List<Map> demands, required
   DateTime paidOn = DateTime.now();
   String? photo; // data URL of the photograph or the PDF
   String? fileName;
-  var busy = false, done = false; String doneTitle = '', doneBody = '';
+  var busy = false, done = false; String doneTitle = '', doneBody = '', error = '';
 
   Future<void> pickPdf(StateSetter set) async {
     try {
@@ -110,27 +110,29 @@ void showPayAllSheet(BuildContext context, {required List<Map> demands, required
       footer: (ctx, set) {
         if (done) return const SizedBox.shrink();
         Future<void> run(Future<void> Function() f, String title, String body) async {
-          set(() => busy = true);
+          set(() { busy = true; error = ''; });
           try { await f(); onDone(); set(() { done = true; doneTitle = title; doneBody = body; }); }
-          catch (e) { if (ctx.mounted) toast(ctx, e.toString(), error: true); }
+          // the refusal is shown inside the sheet: a snack bar would be hidden under it
+          catch (e) { if (ctx.mounted) set(() => error = e.toString().replaceFirst(RegExp(r'^\w+: '), '')); }
           finally { if (ctx.mounted) set(() => busy = false); }
         }
         if (mode == '') return const SizedBox.shrink();
         final ids = [for (final d in demands) d['demand_id']];
         if (mode == 'wallet') {
-          return KButton('Pay ${inr(total)} from the wallet', block: true, busy: busy, onPressed: () => run(() => api.post('/me/wallet/pay', {'demand_ids': ids}), 'Paid from the wallet', '${inr(total)} is paid and the receipts are under Fees.'));
+          return Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [if (error.isNotEmpty) Padding(padding: const EdgeInsets.only(bottom: 8), child: _ErrorNote(error)), KButton('Pay ${inr(total)} from the wallet', block: true, busy: busy, onPressed: () => run(() => api.post('/me/wallet/pay', {'demand_ids': ids}), 'Paid from the wallet', '${inr(total)} is paid and the receipts are under Fees.'))]);
         }
         if (mode == 'online') {
-          return KButton('Pay ${inr(total)} online', block: true, busy: busy, onPressed: () => run(() async {
+          return Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [if (error.isNotEmpty) Padding(padding: const EdgeInsets.only(bottom: 8), child: _ErrorNote(error)), KButton('Pay ${inr(total)} online', block: true, busy: busy, onPressed: () => run(() async {
             for (final d in demands) {
               final order = await api.post('/payments/orders', {'demand_id': d['demand_id']});
               if (order is Map && order['mode'] == 'dev') { await api.post('/payments/dev-confirm', {'demand_id': d['demand_id'], 'amount': balanceOf(d)}); }
             }
-          }, 'Paid online', '${inr(total)} is paid and the receipts are under Fees.'));
+          }, 'Paid online', '${inr(total)} is paid and the receipts are under Fees.'))]);
         }
         final amt = num.tryParse(amount.text.trim()) ?? 0;
         final blocked = photo == null ? 'Attach the receipt photo.' : amt <= 0 ? 'Enter the amount paid.' : null;
         return Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+          if (error.isNotEmpty) Padding(padding: const EdgeInsets.only(bottom: 8), child: _ErrorNote(error)),
           KButton('Send the receipt', icon: LucideIcons.send, block: true, busy: busy, onPressed: blocked != null ? null : () => run(
               () => api.post('/me/payment-proofs', {'demand_ids': ids, 'amount': amt, 'paid_on': isoDay(paidOn), 'reference': ref.text.trim().isEmpty ? null : ref.text.trim(), 'photo': photo}),
               'Receipt sent', 'Your Floor Warden checks it, then the Chief Warden approves it. You get a message at each step.')),
@@ -138,6 +140,17 @@ void showPayAllSheet(BuildContext context, {required List<Map> demands, required
             const Icon(LucideIcons.lock, size: 13, color: K.ink3), const SizedBox(width: 5), Text(blocked, style: const TextStyle(fontSize: 12, color: K.ink3))])),
         ]);
       });
+}
+
+/// What the server refused and why, in red, right above the button.
+class _ErrorNote extends StatelessWidget {
+  final String text;
+  const _ErrorNote(this.text);
+  @override
+  Widget build(BuildContext context) => Container(width: double.infinity, padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 9),
+      decoration: BoxDecoration(color: const Color(0xFFFDECEC), borderRadius: BorderRadius.circular(10)),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [const Icon(LucideIcons.circleAlert, size: 16, color: K.bad), const SizedBox(width: 8),
+        Expanded(child: Text(text, style: const TextStyle(fontSize: 13, color: K.bad, fontWeight: FontWeight.w600)))]));
 }
 
 class _Way extends StatelessWidget {
