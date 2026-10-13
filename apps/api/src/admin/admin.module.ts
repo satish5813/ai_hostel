@@ -9,6 +9,8 @@ import { DataController } from './data.controller.js';
 import { DataService } from './data.service.js';
 import { PortalController } from './portal.controller.js';
 import { PortalService } from './portal.service.js';
+import { AccountsController, AuthController } from './accounts.controller.js';
+import { AccountsService } from './accounts.service.js';
 
-@Module({ controllers: [AdminController, SetupController, ImportController, DataController, PortalController], providers: [AdminService, SetupService, ImportService, DataService, PortalService] })
+@Module({ controllers: [AdminController, SetupController, ImportController, DataController, PortalController, AuthController, AccountsController], providers: [AdminService, SetupService, ImportService, DataService, PortalService, AccountsService] })
 export class AdminModule {}

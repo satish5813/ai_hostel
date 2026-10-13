@@ -52,9 +52,12 @@ class _LoginScreenState extends State<LoginScreen> {
     FocusManager.instance.primaryFocus?.unfocus();
     setState(() { _busy = username; _error = null; });
     try {
-      final r = await Api.instance.post('/auth/demo-login', {'username': username, 'password': password});
+      // the login made by the hostel office first; the demo accounts answer when the demo is switched on
+      dynamic r;
+      try { r = await Api.instance.post('/auth/login', {'username': username, 'password': password}); }
+      catch (e) { if (_demo?['enabled'] != true) rethrow; r = await Api.instance.post('/auth/demo-login', {'username': username, 'password': password}); }
       if (r['role'] != 'Student') throw ApiError(403, 'This app is for students. Staff use the web portal.');
-      await SessionStore.instance.signIn(Session(id: r['id'], role: r['role'], name: r['name'] ?? ''));
+      await SessionStore.instance.signIn(Session(id: r['id'], role: r['role'], name: r['name'] ?? '', token: r['token']));
     } catch (e) {
       if (mounted) setState(() => _error = e.toString());
     } finally {
@@ -131,7 +134,7 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 20),
               _Submit(label: typed ? 'Signing in…' : 'Sign in', busy: typed, onTap: _busy != null ? null : () => _signIn(_user.text.trim(), _pass.text)),
               const SizedBox(height: 12),
-              const Text('Forgot your password? Ask the hostel office.', textAlign: TextAlign.center, style: TextStyle(fontSize: 12.5, color: _mute)),
+              const Text('First time, or forgot your password? Use the link in the e-mail from the hostel office.', textAlign: TextAlign.center, style: TextStyle(fontSize: 12.5, color: _mute)),
               if (_demo?['enabled'] == true && students.isNotEmpty) ...[
                 const SizedBox(height: 22),
                 Row(children: [

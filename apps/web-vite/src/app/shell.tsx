@@ -52,7 +52,7 @@ export function Shell({ children }: { children: React.ReactNode }) {
   const inbox = useApi<unknown[]>(s && s.kind === 'staff' ? '/approvals/inbox' : null);
   const notes = useApi<{ delivery_status: string }[]>(s ? '/notifications' : null);
   // the executive dashboard draws its own top bar and has no menu
-  if (path === '/' || path.startsWith('/qr/') || path.startsWith('/a/') || path === '/exec' || path.startsWith('/exec/') || !s) return <><main>{children}</main><ToastHost /></>;
+  if (path === '/' || path === '/set-password' || path.startsWith('/qr/') || path.startsWith('/a/') || path === '/exec' || path.startsWith('/exec/') || !s) return <><main>{children}</main><ToastHost /></>;
   const signOut = () => { setSession(null); location.href = '/'; };
   if (path === '/gate') return <><main>{children}</main><ToastHost /></>;
 

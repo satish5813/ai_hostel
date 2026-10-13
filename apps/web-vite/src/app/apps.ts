@@ -118,6 +118,7 @@ export const APPS: App[] = [
     { label: 'File uploads', route: '/admin/masters?tab=upload', icon: Upload, roles: ['admin'] },
   ] },
   { k: 'access', name: 'Users and rules', mod: 'rose', icon: ShieldCheck, stat: () => 'Roles, approvals, audit', ops: [
+    { label: 'Logins: create and invite', route: '/admin/accounts', icon: KeyRound, roles: ['admin'] },
     { label: 'Logins and hostels', route: '/admin/logins', icon: ShieldCheck, roles: ['admin'] },
     { label: 'Users and roles', route: '/admin/users', icon: UserCog, code: 'ADM-01' },
     { label: 'Approval rules and settings', route: '/admin/settings', icon: Settings, code: 'ADM-02' },

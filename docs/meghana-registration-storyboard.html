@@ -81,12 +81,12 @@ code { font-family: "IBM Plex Mono", ui-monospace, Menlo, monospace; font-size: 
     <h2>She pays the registration fee and sends the receipt</h2>
     <div class="cols">
       <div class="pane phone"><h3>Phone</h3><ul>
-        <li>Pays ₹5,000 on the <b>university payment portal</b> as every fee is paid today, and saves the receipt (photo or PDF).</li>
-        <li>In the app: <span class="tap">Pay all ₹5,000</span> → <b>I paid on the university portal</b> → <span class="tap">From gallery</span> (or camera, or the PDF) → types the transaction number, the date → <span class="tap">Send the receipt</span>.</li>
+        <li>Pays ₹5,000 on the <b>university payment portal</b> as every fee is paid today, and downloads the <b>PDF receipt</b>.</li>
+        <li>In the app: <span class="tap">Pay all ₹5,000</span> → <b>I paid on the university portal</b> → <span class="tap">Choose the PDF receipt</span> → types the transaction number, the date → <span class="tap">Send the receipt</span>. Photographs are not accepted: only the portal’s PDF.</li>
         <li>Sees <i>Receipt sent. The Floor Warden is checking it.</i> If the receipt was used before or the amount is wrong, the reason shows in red right there.</li>
       </ul></div>
       <div class="pane staff"><h3>System, in seconds</h3><ul>
-        <li><b>Reads the receipt</b> (OCR): amount, date, transaction number, her ID, the KL header.</li>
+        <li><b>Reads the PDF</b>’s own text: amount, date, transaction number, her ID, the KL header.</li>
         <li>Marks it <b>Receipt matches</b> or <b>Check by eye</b> with what differed, for the warden to see beside the image.</li>
         <li>Refuses the same file or the same transaction number a second time.</li>
       </ul></div>
@@ -99,11 +99,11 @@ code { font-family: "IBM Plex Mono", ui-monospace, Menlo, monospace; font-size: 
     <h2>Two wardens approve from the web, the phone follows by itself</h2>
     <div class="cols">
       <div class="pane staff"><h3>Floor Warden · S-FW · level 1</h3><ul>
-        <li><i>My work → Approvals</i>: Meghana's receipt is waiting. Opens it: the receipt image, the system check list, the fees it pays.</li>
+        <li><i>My work → Approvals</i>: Meghana's receipt is waiting. Opens it: the PDF receipt, the system check list, the fees it pays.</li>
         <li><span class="tap">Approve</span> (or <b>Reject</b> with a reason the student will read).</li>
       </ul></div>
       <div class="pane staff"><h3>Chief Warden · S-GW · level 2</h3><ul>
-        <li><i>Rooms and allotment → Allotment approvals → Meghana</i>: the card shows <b>Receipts uploaded by the student</b> with a thumbnail (click → full size), the system check and the trail <i>L1 approved</i>.</li>
+        <li><i>Rooms and allotment → Allotment approvals → Meghana</i>: the card shows <b>Receipts uploaded by the student</b> with the PDF (click → full size), the system check and the trail <i>L1 approved</i>.</li>
         <li><span class="tap">Approve receipt</span>. The registration fee is now <b>Paid</b> and a receipt number is issued.</li>
       </ul></div>
     </div>
@@ -138,7 +138,7 @@ code { font-family: "IBM Plex Mono", ui-monospace, Menlo, monospace; font-size: 
     <div class="cols">
       <div class="pane phone"><h3>Phone · Choose your room</h3><ul>
         <li>Floor by floor, room by room: every <b>open bed</b> of her room type. Taps one → <span class="tap">Take this bed</span>. The bed is held for her for 48 hours.</li>
-        <li><b>Fee plan</b>: pay the hostel fee in one go or in <b>two instalments</b> (the second date shown). <b>Mess</b>: South or North Indian, veg or non-veg. <span class="tap">Confirm plan</span>.</li>
+        <li><b>Fee plan</b>: pay the hostel fee in one go or in <b>two instalments</b> (the second date shown). <b>Mess food</b>, one drop-down: South Indian, North Indian or Continental, each Veg or Non-veg (non-veg is chicken and egg). <span class="tap">Confirm plan</span>.</li>
         <li>Home: <i>Room GH1-103, bed A is kept for you. Pay the fees to check in.</i> The dues appear: hostel fee, mess, <b>caution deposit, electricity deposit, meter charge</b> — ₹1,80,500 in one line.</li>
       </ul></div>
       <div class="pane staff"><h3>Staff side</h3><ul><li>The bed shows as <b>held</b> on the Occupancy board. Nobody else can take it.</li><li>The electricity meter of the room is fitted if it is not there yet (maintenance).</li></ul></div>
@@ -151,7 +151,7 @@ code { font-family: "IBM Plex Mono", ui-monospace, Menlo, monospace; font-size: 
     <h2>She pays the hostel fees, the wardens approve, the bed is hers</h2>
     <div class="cols">
       <div class="pane phone"><h3>Phone</h3><ul>
-        <li><span class="tap">Pay all ₹1,80,500</span> → the receipt from the university portal, exactly as in scene 3 (or <b>Pay online now</b> when the gateway is on, or the <b>wallet</b> if she has money in it).</li>
+        <li><span class="tap">Pay all ₹1,80,500</span> → the PDF receipt from the university portal, exactly as in scene 3 (or <b>Pay online now</b> when the gateway is on, or the <b>wallet</b> if she has money in it).</li>
         <li>Messages follow by themselves: <i>Receipt sent</i> → <i>Checked by the Floor Warden</i> → <i>Fees verified and approved. Collect your key at the hostel office.</i></li>
       </ul></div>
       <div class="pane staff"><h3>Web</h3><ul>
@@ -175,7 +175,7 @@ code { font-family: "IBM Plex Mono", ui-monospace, Menlo, monospace; font-size: 
         <li>Everything that was black and white turns to colour: Outing, Electricity, Repairs, Sick leave, Mess menu, Choose my meals, Rate my meals.</li>
       </ul></div>
     </div>
-    <div class="result ok">✔ Registration complete. The Occupancy board shows the bed as occupied; Security's gate list has her photo; the mess has her on its South-Indian, non-veg list.</div>
+    <div class="result ok">✔ Registration complete. The Occupancy board shows the bed as occupied; Security's gate list has her photo; the mess has her on its South Indian, non-veg (chicken and egg) list.</div>
     <div class="bar"><span class="on">Applied</span><span class="on">Registration fee paid</span><span class="on">Room allotted</span><span class="on">Room accepted</span><span class="on">Fees paid</span><span class="on">Checked in</span></div>
   </div></div></section>
 
@@ -199,7 +199,7 @@ code { font-family: "IBM Plex Mono", ui-monospace, Menlo, monospace; font-size: 
     <div class="easy">
       <div><b>One phone, one login</b>From applying to the key, Meghana never visits an office or fills a paper form.</div>
       <div><b>Only what applies is shown</b>Modules that need a room are black and white until check-in; the status bar always says what comes next.</div>
-      <div><b>Receipts, not cash counters</b>She pays where KL already takes payment and uploads the receipt; the system reads it and the wardens approve from their inbox.</div>
+      <div><b>Receipts, not cash counters</b>She pays where KL already takes payment and uploads the portal’s PDF receipt; the system reads it and the wardens approve from their inbox.</div>
       <div><b>The phone keeps up by itself</b>Every page refreshes every few seconds; each approval arrives as a message. No pull-to-refresh, no phone call to ask "is it done?".</div>
       <div><b>Two levels, every time</b>Floor Warden checks, Chief Warden approves: receipts, bed, outings, sick leave, room change. One rule, learned once.</div>
       <div><b>Her record, filled once</b>Aadhaar, address, parents, emergency contact go in one form; afterwards only the Chief Warden can change them.</div>
@@ -212,10 +212,10 @@ code { font-family: "IBM Plex Mono", ui-monospace, Menlo, monospace; font-size: 
     <h3>Timing in the demo</h3>
     <table>
       <tr><th>Scene</th><th>Takes</th><th>Note</th></tr>
-      <tr><td>1–3 Sign in, apply, send the registration receipt</td><td>3 min</td><td>Receipt image is already in the phone's gallery</td></tr>
+      <tr><td>1–3 Sign in, apply, send the registration receipt</td><td>3 min</td><td>The PDF receipt is already in the phone's Files</td></tr>
       <tr><td>4 Two approvals</td><td>1 min by hand on the web · 15 s if the assistant plays the wardens</td><td><code>MANUAL=checkin,proof scripts/run-demo-assistant.sh</code> leaves these to people</td></tr>
       <tr><td>5 Her record and photo</td><td>2 min</td><td>Can be shown later, any time before the key</td></tr>
-      <tr><td>6–7 Bed, plan, mess, hostel fees, approvals</td><td>4 min</td><td>₹1,80,500 receipt also in the gallery</td></tr>
+      <tr><td>6–7 Bed, plan, mess, hostel fees, approvals</td><td>4 min</td><td>₹1,80,500 PDF receipt also in Files</td></tr>
       <tr><td>8 Key handover</td><td>1 min</td><td>Floor Warden on <i>Check-in and handover</i>; watch the phone change</td></tr>
       <tr><td>9 First day</td><td>as long as you like</td><td>Outing, electricity, mess, repairs</td></tr>
     </table>

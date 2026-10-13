@@ -92,6 +92,8 @@ import Careers from './pages/dean/Careers';
 import Overview from './pages/warden/Overview';
 import Exceptions from './pages/warden/Exceptions';
 import Logins from './pages/admin/Logins';
+import Accounts from './pages/admin/Accounts';
+import SetPassword from './pages/SetPassword';
 
 /** Routes carry the screen codes of the Roles document (see src/app/screens.ts). */
 export function App() {
@@ -99,6 +101,7 @@ export function App() {
     <Shell>
       <Routes>
         <Route path="/" element={<SignIn />} />
+        <Route path="/set-password" element={<SetPassword />} />           {/* the one-time link in the invitation e-mail */}
         <Route path="/home" element={<Home />} />
         <Route path="/profile" element={<Profile />} />                      {/* GEN-01 */}
         <Route path="/notifications" element={<Notifications />} />          {/* GEN-02 */}
@@ -137,6 +140,7 @@ export function App() {
         <Route path="/mess-sick-list" element={<MessSickList />} />          {/* SCK-03 */}
         <Route path="/reports/occupancy-fees-dues" element={<OccupancyFeesDues />} /> {/* RPT-07 */}
         <Route path="/admin/room-builder" element={<RoomBuilder />} />      {/* Administrator: build a hostel */}
+        <Route path="/admin/accounts" element={<Accounts />} />             {/* ADM-05 logins: create, bulk, invite, disable */}
         <Route path="/admin/logins" element={<Logins />} />                 {/* Administrator: logins and hostels (D7) */}
         <Route path="/admin/db" element={<DatabasePage />} />                {/* Data Administrator: every table */}
         <Route path="/admin/data/:kind" element={<DataPage />} />           {/* ADM-04 data workspace */}

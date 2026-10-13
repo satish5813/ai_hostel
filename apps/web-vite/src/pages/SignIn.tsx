@@ -1,29 +1,27 @@
 import { useEffect, useState } from 'react';
 import { Navigate } from 'react-router';
 import { Icon } from '@/lib/klh';
+import type { IconName } from '@/vendor/klh-types';
 import { setSession } from '@/lib/api';
 import { useApi, useSession } from '@/lib/ui';
 import { api } from '@/lib/api';
-import { ROLES } from '@/app/screens';
 import { Logo } from '@/ui/kit';
-import { PerspectiveCarousel, type PerspectiveCarouselItem } from '@/components/ui/perspective-carousel';
 import '@/styles/login.css';
 
-/** The five logins of this release. Parents act through one-time links; the Dean, Students Affairs has a login for the reports. */
-const LOGINS: { code: string; label: string }[] = [
-  { code: 'ADM', label: 'Administrator' }, { code: 'CW', label: 'Chief Warden' }, { code: 'OFF', label: 'Room Allotment' }, { code: 'DSA', label: 'Dean, Students Affairs' }, { code: 'STU', label: 'Student' },
-];
 /** Where each login lands after signing in. */
 const EXEC = ['President', 'Vice_President', 'Pro_VC', 'Pro_VC_Finance', 'Pro_VC_Academics', 'Vice_Chancellor'];
 const landing = (role: string) => (role === 'Chief_Warden' ? '/overview' : role === 'Dean_Students_Affairs' ? '/dean' : EXEC.includes(role) ? '/exec' : '/home');
-/** Photographs of the KL University hostels, supplied by the university (portrait crops). */
-const PHOTOS: PerspectiveCarouselItem[] = [
-  { src: '/brand/hostel-2p.jpg', title: 'Courtyard in the evening', alt: 'Residents sitting on stone benches in the hostel courtyard at dusk' },
-  { src: '/brand/hostel-3p.jpg', title: 'Campus lawns', alt: 'Students sitting under palm trees on the lawn beside the hostel' },
-  { src: '/brand/hostel-1p.jpg', title: 'The hostel block', alt: 'A tall white hostel block with teal balconies, seen from the entrance road' },
-  { src: '/brand/hostel-4p.jpg', title: 'Entrance at night', alt: 'The lit hostel entrance with planters and steps at night' },
-  { src: '/brand/hostel-5p.jpg', title: 'From above', alt: 'Aerial view of the hostel building and the fields around it' },
+/** Photographs of the KL University hostels, supplied by the university (landscape crops for the hero). */
+const PHOTOS: { src: string; title: string }[] = [
+  { src: '/brand/hostel-1.jpg', title: 'The hostel block' },
+  { src: '/brand/hostel-2.jpg', title: 'Courtyard in the evening' },
+  { src: '/brand/hostel-3.jpg', title: 'Campus lawns' },
+  { src: '/brand/hostel-4.jpg', title: 'Entrance at night' },
+  { src: '/brand/hostel-5.jpg', title: 'From above' },
 ];
+/** What the system covers, shown as chips on the hero. */
+const COVERS: [IconName, string][] = [['bed', 'Rooms and allotment'], ['wallet', 'Fees and receipts'], ['door', 'Outings and gate'], ['utensils', 'Mess and menus'], ['settings', 'Repairs'], ['trend-up', 'Reports']];
+const initials = (name: string) => name.split(/[\s,]+/).filter((w) => /^[A-Za-z]/.test(w)).slice(0, 2).map((w) => w[0].toUpperCase()).join('');
 function useMedia(query: string) {
   const [on, setOn] = useState(() => window.matchMedia(query).matches);
   useEffect(() => { const m = window.matchMedia(query); const f = () => setOn(m.matches); m.addEventListener('change', f); return () => m.removeEventListener('change', f); }, [query]);
@@ -37,7 +35,8 @@ type Demo = { enabled: boolean; password_hint?: string | null; accounts: Account
  * Demo sign-in (training): username and password, checked by the API against the demo accounts. Each demo account is
  * listed under the form; a click fills it in and signs in.
  */
-function DemoSignIn({ data }: { data: Demo }) {
+function SignInCard({ data }: { data: Demo }) {
+  const demo = data.enabled;
   const [u, setU] = useState('');
   const [pw, setPw] = useState('');
   const [show, setShow] = useState(false);
@@ -46,15 +45,28 @@ function DemoSignIn({ data }: { data: Demo }) {
   const signIn = async (username: string, password: string) => {
     setErr(''); setBusy(username);
     try {
-      const r = await api<{ id: string; role: string }>('/auth/demo-login', { method: 'POST', json: { username, password } });
-      setSession({ id: r.id, role: r.role }); location.href = landing(r.role);
+      // a login made by the administrator first; the demo accounts answer when the demo is switched on
+      type In = { id: string; role: string; name?: string; token?: string };
+      let r: In;
+      try { r = await api<In>('/auth/login', { method: 'POST', json: { username, password } }); }
+      catch (e) { if (!demo) throw e; r = await api<In>('/auth/demo-login', { method: 'POST', json: { username, password } }); }
+      setSession({ id: r.id, role: r.role, name: r.name, token: r.token }); location.href = landing(r.role);
     } catch (e) { setErr(e instanceof Error ? e.message : 'Could not sign in'); setBusy(null); }
   };
   const groups = [...new Set(data.accounts.map((a) => a.group_name))];
+  const [tab, setTab] = useState<'form' | 'demo'>('form');
+  const [q, setQ] = useState('');
+  const [group, setGroup] = useState('');
+  const shown = data.accounts.filter((a) => (!group || a.group_name === group) && (!q.trim() || `${a.display_name} ${a.username} ${a.description ?? ''}`.toLowerCase().includes(q.trim().toLowerCase())));
   return (
-    <div className="login-card login-card-demo">
-      <div className="login-logo"><Logo cut="full" height={58} /></div>
-      <div className="login-head"><h2>Welcome back</h2><p>Sign in to the hostel system.</p></div>
+    <div className="login-card">
+      <div className="login-head"><span className="login-hello">Welcome back</span><h2>Sign in to KL Hostels</h2><p>Use your employee or university ID.</p></div>
+      {demo && <div className="login-tabs" role="tablist" aria-label="How to sign in">
+        <button type="button" role="tab" aria-selected={tab === 'form'} className="login-tab" onClick={() => setTab('form')}><Icon name="lock" size={15} />Sign in</button>
+        <button type="button" role="tab" aria-selected={tab === 'demo'} className="login-tab" onClick={() => setTab('demo')}><Icon name="users" size={15} />Demo accounts<span className="login-count">{data.accounts.length}</span></button>
+      </div>}
+      {err && <p className="login-error" role="alert">{err}</p>}
+      {tab === 'form' ? (
       <form onSubmit={(e) => { e.preventDefault(); signIn(u.trim(), pw); }}>
         <div className="login-field">
           <label className="login-label" htmlFor="login-user">Username</label>
@@ -64,104 +76,73 @@ function DemoSignIn({ data }: { data: Demo }) {
         <div className="login-field">
           <label className="login-label" htmlFor="login-pw">Password</label>
           <div className="login-control"><Icon name="lock" size={17} />
-            <input id="login-pw" className="login-input login-input-pw" type={show ? 'text' : 'password'} value={pw} onChange={(e) => setPw(e.target.value)} autoComplete="current-password" required />
+            <input id="login-pw" className="login-input login-input-pw" type={show ? 'text' : 'password'} value={pw} onChange={(e) => setPw(e.target.value)} placeholder="Your password" autoComplete="current-password" required />
             <button type="button" className="login-eye" onClick={() => setShow(!show)} aria-label={show ? 'Hide password' : 'Show password'} aria-pressed={show}><Icon name="eye" size={16} /></button></div>
         </div>
-        {err && <p className="login-error" role="alert">{err}</p>}
         <button type="submit" className="login-submit" disabled={!!busy}>{busy && busy === u.trim() ? 'Signing in…' : 'Sign in'}<Icon name="arrow-right" size={17} /></button>
-      </form>
+        {demo ? <button type="button" className="login-link" onClick={() => setTab('demo')}>Trying the system? Pick a demo account<Icon name="arrow-right" size={14} /></button>
+          : <p className="login-hint" style={{ marginTop: 14 }}>First time, or forgot your password? Use the link in the e-mail from the hostel office, or ask them to send a new one.</p>}
+      </form>) : (
       <div className="login-demo">
-        <div className="login-demo-head"><span>Demo accounts</span>{data.password_hint && <small>Password for all: <code>{data.password_hint}</code></small>}</div>
-        <p className="login-demo-sub">Click an account to sign in as that person.</p>
-        <div className="login-demo-list">
-        {groups.map((g) => (
-          <div key={g} className="login-demo-group">
-            <span className="login-demo-g">{g}</span>
-            {data.accounts.filter((a) => a.group_name === g).map((a) => (
-              <button key={a.username} type="button" className="login-acct" disabled={!!busy} title={a.description ?? undefined}
-                onClick={() => { setU(a.username); if (data.password_hint) { setPw(data.password_hint); signIn(a.username, data.password_hint); } }}>
-                <span className="login-acct-tx"><b>{a.display_name}</b><small>{a.description}</small></span>
-                <code>{busy === a.username ? '…' : a.username}</code>
-              </button>))}
-          </div>))}
+        <div className="login-control"><Icon name="search" size={16} />
+          <input className="login-input login-input-sm" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search a name, role or ID" aria-label="Search the demo accounts" /></div>
+        <div className="login-chips" role="group" aria-label="Role group">
+          <button type="button" className="login-chip" aria-pressed={!group} onClick={() => setGroup('')}>All</button>
+          {groups.map((g) => <button key={g} type="button" className="login-chip" aria-pressed={group === g} onClick={() => setGroup(group === g ? '' : g)}>{g}</button>)}
         </div>
-      </div>
-      <p className="login-foot"><Icon name="lock" size={13} />Demo accounts are for training. The live system signs you in with your KL University account.</p>
+        <div className="login-demo-list">
+          {shown.map((a) => (
+            <button key={a.username} type="button" className="login-acct" data-hue={groups.indexOf(a.group_name) % 6} disabled={!!busy} title={a.description ?? undefined}
+              onClick={() => { setU(a.username); if (data.password_hint) { setPw(data.password_hint); signIn(a.username, data.password_hint); } else setTab('form'); }}>
+              <span className="login-av" aria-hidden="true">{busy === a.username ? '…' : initials(a.display_name)}</span>
+              <span className="login-acct-tx"><b>{a.display_name}</b><small>{a.description ?? a.group_name}</small></span>
+              <code>{a.username}</code>
+            </button>))}
+          {shown.length === 0 && <p className="login-empty">No demo account matches.</p>}
+        </div>
+        {data.password_hint && <p className="login-hint">One click signs you in. Password for all: <code>{data.password_hint}</code></p>}
+      </div>)}
+      <p className="login-foot"><Icon name="lock" size={13} />{demo ? 'Demo accounts are for training. Your own login comes by e-mail from the hostel office.' : 'Nobody from the hostel office will ask for your password.'}</p>
     </div>
   );
 }
 
-/** Development sign-in without demo accounts: one of the five logins and an ID from the fixtures. Production uses KL University single sign-on. */
+/** Sign-in: username and password. With the demo switched on, the demo accounts are one click away in a second tab. */
 export default function SignIn() {
   const s = useSession();
-  const [code, setCode] = useState('ADM');
-  const def = ROLES.find((r) => r.code === code)!;
-  const [id, setId] = useState(def.sample);
-  const [photo, setPhoto] = useState(2);   // open on the hostel block, with photos either side
-  const [paused, setPaused] = useState(false);
-  const small = useMedia('(max-width: 900px)');
+  const [photo, setPhoto] = useState(0);
   const still = useMedia('(prefers-reduced-motion: reduce)');
   const demo = useApi<Demo>('/auth/demo-accounts');
-  // the photos turn by themselves, and wait while someone is looking at or using them
+  // the photographs change by themselves
   useEffect(() => {
-    if (paused || still) return;
-    const t = window.setInterval(() => setPhoto((p) => (p + 1) % PHOTOS.length), 4200);
+    if (still) return;
+    const t = window.setInterval(() => setPhoto((p) => (p + 1) % PHOTOS.length), 5200);
     return () => window.clearInterval(t);
-  }, [paused, still]);
+  }, [still]);
   if (s) return <Navigate to={landing(s.role)} replace />;
-  const pick = (c: string) => { setCode(c); setId(ROLES.find((r) => r.code === c)!.sample); };
-  const idLabel = code === 'STU' ? 'University ID' : 'Employee ID';
 
   return (
     <div className="login">
-      <span className="login-orb login-orb-c" aria-hidden="true" />
-      <span className="login-orb login-orb-a" aria-hidden="true" />
-      <span className="login-orb login-orb-b" aria-hidden="true" />
-
-      <section className="login-left">
+      <section className="login-hero" aria-label="KL University hostels">
+        {PHOTOS.map((p, n) => <img key={p.src} src={p.src} alt="" className="login-photo" data-on={n === photo} />)}
+        <span className="login-shade" aria-hidden="true" />
+        <div className="login-hero-top">
+          <span className="login-logo"><Logo cut="full" height={44} /></span>
+          <span className="login-place"><Icon name="pin" size={13} />{PHOTOS[photo].title}</span>
+        </div>
         <div className="login-copy">
           <p className="login-kicker">Hostel Management System</p>
           <h1>Every room, every resident, <b>one place to look.</b></h1>
-        </div>
-        <div className="login-carousel" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)} onFocus={() => setPaused(true)} onBlur={() => setPaused(false)}>
-          <PerspectiveCarousel items={PHOTOS} loop activeIndex={photo} onActiveIndexChange={setPhoto} aria-label="Photographs of the KL University hostels"
-            slideWidth={small ? 150 : 236} rotationStep={small ? 34 : 40} inactiveScale={0.84} showControls={!small}
-            labelClassName="login-photo-label" imageClassName="login-photo" controlsClassName="login-photo-controls" />
+          <ul className="login-covers">{COVERS.map(([icon, label]) => <li key={label}><Icon name={icon} size={14} />{label}</li>)}</ul>
+          <div className="login-dots" role="group" aria-label="Photographs">
+            {PHOTOS.map((p, n) => <button key={p.src} type="button" aria-label={p.title} aria-pressed={n === photo} onClick={() => setPhoto(n)} />)}
+          </div>
         </div>
       </section>
 
-      {demo.data?.enabled ? <DemoSignIn data={demo.data} /> : (
-      <form className="login-card" onSubmit={(e) => { e.preventDefault(); const role = def.roles[0]; setSession({ id: id.trim(), role }); location.href = landing(role); }}>
-        <div className="login-logo"><Logo cut="full" height={58} /></div>
-        <div className="login-head">
-          <h2>Welcome back</h2>
-          <p>Sign in to the hostel system.</p>
-        </div>
-
-        <div className="login-field">
-          <label className="login-label" htmlFor="login-role">I am</label>
-          <div className="login-control">
-            <span className="login-badge" aria-hidden="true">{def.code}</span>
-            <select id="login-role" className="login-input login-input-role" value={code} onChange={(e) => pick(e.target.value)}>
-              {LOGINS.map((l) => <option key={l.code} value={l.code}>{l.label}</option>)}
-            </select>
-          </div>
-        </div>
-
-        <div className="login-field">
-          <label className="login-label" htmlFor="login-id">{idLabel}</label>
-          <div className="login-control">
-            <Icon name="key" size={17} />
-            <input id="login-id" className="login-input" value={id} onChange={(e) => setId(e.target.value)} placeholder={idLabel} autoComplete="username" required />
-          </div>
-        </div>
-
-        <p className="login-scope" title={def.scope}><Icon name="eye" size={14} /><span>Sees {def.scope.charAt(0).toLowerCase() + def.scope.slice(1)}</span></p>
-
-        <button type="submit" className="login-submit">Continue<Icon name="arrow-right" size={17} /></button>
-
-        <p className="login-foot"><Icon name="lock" size={13} />The live system signs you in with your KL University account.</p>
-      </form>)}
+      <section className="login-side">
+        <SignInCard data={demo.data ?? { enabled: false, accounts: [] }} />
+      </section>
     </div>
   );
 }

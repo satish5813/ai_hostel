@@ -2,7 +2,7 @@
 
 export const API = (import.meta.env.VITE_API_URL as string | undefined) ?? '';   // '' = same origin (Vite dev proxy / reverse proxy)
 
-export type Session = { id: string; role: string; name?: string };
+export type Session = { id: string; role: string; name?: string; /** password login: the token this API issued; absent with the demo sign-in */ token?: string };
 
 /** Local sign-in (development): the API accepts x-dev-user / x-dev-role until Keycloak is wired. */
 export function getSession(): Session | null {
@@ -21,11 +21,14 @@ export class ApiError extends Error {
 export async function api<T = unknown>(path: string, init: RequestInit & { json?: unknown } = {}): Promise<T> {
   const s = getSession();
   const headers: Record<string, string> = { ...(init.headers as Record<string, string>) };
-  if (s) { headers['x-dev-user'] = s.id; headers['x-dev-role'] = s.role; }
+  if (s?.token) headers['Authorization'] = `Bearer ${s.token}`;
+  else if (s) { headers['x-dev-user'] = s.id; headers['x-dev-role'] = s.role; }
   if (init.json !== undefined) { headers['Content-Type'] = 'application/json'; init.body = JSON.stringify(init.json); }
   const res = await fetch(`${API}/api${path}`, { ...init, headers, cache: 'no-store' });
   const text = await res.text();
   const body = text ? JSON.parse(text) : null;
+  // a password session that has ended (disabled, password changed, or expired): back to the sign-in page
+  if (res.status === 401 && s?.token && !path.startsWith('/auth/')) { setSession(null); location.href = '/'; }
   if (!res.ok) throw new ApiError(res.status, body ?? {});
   return body as T;
 }
