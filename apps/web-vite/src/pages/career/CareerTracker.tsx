@@ -27,9 +27,9 @@ const inr = (n: number) => (n >= 1e7 ? `₹${(n / 1e7).toFixed(2)} Cr` : n >= 1e
 const fmtDay = (s: string) => new Date(`${s}T00:00:00`).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
 
 /**
- * CAR-01 Career tracker for the Chief Warden (own hostels) and the Deans. Second year: each hosteller's progress towards
+ * CAR-01 Career tracker for the Chief Manager (own hostels) and the Deans. Second year: each hosteller's progress towards
  * the career they chose, with the milestones still open. Final year: placements and packages, higher studies,
- * competitive examinations and ventures, and the Chief Warden records what happens.
+ * competitive examinations and ventures, and the Chief Manager records what happens.
  */
 export default function CareerTracker() {
   const [tab, setTab] = useState<'y2' | 'y4'>('y2');

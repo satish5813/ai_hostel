@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { BadgeCheck, BedDouble, Check, CircleCheck, ClipboardCheck, Clock, Info, KeyRound, Lock, ShieldCheck, Wallet, type LucideIcon } from 'lucide-react';
 import { api } from '@/lib/api';
-import { toast, useAction, useApi, useSession } from '@/lib/ui';
+import { toast, useAction, useApi, useSession, words } from '@/lib/ui';
 import { Chip, HostelPills, RaHead, avc, ini, proper, rs, useHostel } from './ra-kit';
 
 type Fee = { head: string; inst: number; due: number; paid: number; due_date: string; status: string; receipt: string | null; paid_on: string | null };
@@ -11,13 +11,13 @@ type Card = { registration_id: number; registration_no: string; student_id: stri
 const COLS: { k: Card['stage']; title: string; sub: string; icon: LucideIcon; grad: string; glow: string }[] = [
   { k: 'fee', title: 'Awaiting payment', sub: 'Student pays hostel and mess fees', icon: Wallet, grad: 'linear-gradient(135deg,#C2410C,#9A3412)', glow: 'rgba(194,65,12,.7)' },
   { k: 'verify', title: 'Room Allotment verifies fees', sub: 'L1 · Room Allotment', icon: ClipboardCheck, grad: 'linear-gradient(135deg,#7048E8,#5932D1)', glow: 'rgba(112,72,232,.7)' },
-  { k: 'approve', title: 'Chief Warden approves', sub: 'L2 · Chief Warden', icon: ShieldCheck, grad: 'linear-gradient(135deg,#0B7A71,#0A5F6E)', glow: 'rgba(11,122,113,.7)' },
+  { k: 'approve', title: 'Chief Manager approves', sub: 'L2 · Chief Manager', icon: ShieldCheck, grad: 'linear-gradient(135deg,#0B7A71,#0A5F6E)', glow: 'rgba(11,122,113,.7)' },
   { k: 'allotted', title: 'Allotted', sub: 'Ready for the key', icon: KeyRound, grad: 'linear-gradient(135deg,#4263EB,#364FC7)', glow: 'rgba(66,99,235,.7)' },
 ];
 type Proof = { proof_id: number; proof_no: string; amount: number; paid_on: string; reference: string | null; status: string; photo: string; mime: string; ocr_status: string;
   ocr_checks: { check: string; ok: boolean | null }[] | null; demands: { fee_head: string }[]; steps: { step_id: number; level: number; approver_role: string; decision: string | null; decided_on: string | null; acted_by_name: string | null }[] };
 type Tone = 'ok' | 'warn' | 'crit' | 'info' | 'neu';
-const PROOF_ST: Record<string, { label: string; tone: Tone }> = { Uploaded: { label: 'With the Floor Warden', tone: 'warn' }, Checked: { label: 'With the Chief Warden', tone: 'info' }, Approved: { label: 'Approved', tone: 'ok' }, Rejected: { label: 'Not accepted', tone: 'crit' } };
+const PROOF_ST: Record<string, { label: string; tone: Tone }> = { Uploaded: { label: 'With the Floor Manager', tone: 'warn' }, Checked: { label: 'With the Chief Manager', tone: 'info' }, Approved: { label: 'Approved', tone: 'ok' }, Rejected: { label: 'Not accepted', tone: 'crit' } };
 const OCR_ST: Record<string, { label: string; tone: Tone }> = { Pending: { label: 'Being read', tone: 'neu' }, Matched: { label: 'Receipt matches', tone: 'ok' }, Mismatch: { label: 'Check by eye', tone: 'warn' }, Unreadable: { label: 'Could not read', tone: 'neu' } };
 const L1 = ['Room_Allotment', 'Office_Staff', 'Warden', 'Assistant_Warden', 'Hostel_Incharge', 'Chief_Warden', 'Director_Hostels'];
 const L2 = ['Chief_Warden', 'Director_Hostels'];
@@ -27,7 +27,7 @@ const headLabel = (f: Fee) => (f.head === 'Hostel' ? `Hostel fee · instalment $
 
 /**
  * Allotment approvals (design "Room Allotment", steps 5 and 6). The student pays first; Room Allotment checks every receipt
- * against Accounts (L1); the Chief Warden confirms the bed (L2). Either level can return it to the student with remarks.
+ * against Accounts (L1); the Chief Manager confirms the bed (L2). Either level can return it to the student with remarks.
  */
 export default function AllotmentApprovals() {
   const s = useSession()!;
@@ -53,8 +53,8 @@ export default function AllotmentApprovals() {
     const why = decision === 'Rejected' ? window.prompt('Why is the receipt not accepted? The student sees this.') : undefined; if (decision === 'Rejected' && !why?.trim()) return;
     await api(`/approvals/${step.step_id}/decide`, { method: 'POST', json: { decision, remarks: why?.trim() } }); await Promise.all([proofs.mutate(), refresh()]);
     toast(`Receipt ${p.proof_no} ${decision === 'Approved' ? 'approved' : 'returned'}${decision === 'Approved' && step.level === 2 ? '. Receipts issued; the fees show as paid.' : ''}`); });
-  const canDecide = (p: Proof) => { const step = p.steps.find((x) => !x.decision || x.decision === 'Pending'); return !!step && (s.role === step.approver_role || (step.level === 2 && L2.includes(s.role))); }; // the database holds L1 to a Floor Warden of the hostel
-  const verify = () => run(async () => { await api(`/registrations/${c!.registration_id}/fee-check`, { method: 'POST', json: { decision: 'Verified' } }); await refresh(); toast(`Fees verified for ${proper(c!.full_name)}. Sent to the Chief Warden.`); });
+  const canDecide = (p: Proof) => { const step = p.steps.find((x) => !x.decision || x.decision === 'Pending'); return !!step && (s.role === step.approver_role || (step.level === 2 && L2.includes(s.role))); }; // the database holds L1 to a Floor Manager of the hostel
+  const verify = () => run(async () => { await api(`/registrations/${c!.registration_id}/fee-check`, { method: 'POST', json: { decision: 'Verified' } }); await refresh(); toast(`Fees verified for ${proper(c!.full_name)}. Sent to the Chief Manager.`); });
   const approve = () => run(async () => { await api(`/registrations/${c!.registration_id}/cw-decision`, { method: 'POST', json: { decision: 'Approved' } }); await refresh(); toast(`Bed ${c!.room_code ?? ''} approved for ${proper(c!.full_name)}. The office can check the student in.`); });
   const doReturn = () => run(async () => {
     if (c!.stage === 'approve') await api(`/registrations/${c!.registration_id}/cw-decision`, { method: 'POST', json: { decision: 'Returned', remarks } });
@@ -66,7 +66,7 @@ export default function AllotmentApprovals() {
   return (
     <div className="ra-split ra-split-narrow">
       <main className="ra-main">
-        <RaHead eyebrow="Room Allotment and Chief Warden · Steps 5 and 6" tone="#5F3DC4" title="Allotment approvals" sub="The student pays first. Room Allotment checks the receipts, then the Chief Warden confirms the bed."
+        <RaHead eyebrow="Room Allotment and Chief Manager · Steps 5 and 6" tone="#5F3DC4" title="Allotment approvals" sub="The student pays first. Room Allotment checks the receipts, then the Chief Manager confirms the bed."
           right={<HostelPills list={H.list} value={H.id} onPick={H.pick} />} />
         <div className="ra-board-wrap"><div className="ra-board">
           {COLS.map((col) => { const items = cards.filter((x) => x.stage === col.k); const I = col.icon;
@@ -117,14 +117,14 @@ export default function AllotmentApprovals() {
                 <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 2, minWidth: 0 }}><b>{rs(p.amount)} · {p.proof_no}</b>
                   <span style={{ display: 'flex', gap: 6, flexWrap: 'wrap', margin: '2px 0' }}><Chip tone={st.tone}>{st.label}</Chip>{ocr.label && <Chip tone={ocr.tone}>{ocr.label}</Chip>}</span><small>Paid {new Date(p.paid_on).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}{p.reference ? ` · ${p.reference}` : ''} · for {p.demands.map((d) => d.fee_head.replace(/_/g, ' ')).join(', ')}</small>
                   {ocr.label && <small>System check: {ocr.label}{p.ocr_checks ? ` (${p.ocr_checks.filter((k) => k.ok === false).map((k) => k.check).join(', ') || 'amount, date, student'})` : ''}</small>}
-                  {p.steps.map((s) => <small key={s.level}>L{s.level} {s.approver_role.replace(/_/g, ' ')}: {s.decision === 'Pending' ? 'waiting' : s.decision ?? 'waiting'}{s.acted_by_name ? ` · ${proper(s.acted_by_name)}` : ''}{s.decided_on ? ` · ${when(s.decided_on)}` : ''}</small>)}
-                  {!canDecide(p) && p.status === 'Uploaded' && <small style={{ color: 'var(--ax-warn, #8A4B00)' }}>Waiting for the Floor Warden of {c.hostel_code} to check it; then it comes to the Chief Warden.</small>}
+                  {p.steps.map((s) => <small key={s.level}>L{s.level} {words(s.approver_role)}: {s.decision === 'Pending' ? 'waiting' : s.decision ?? 'waiting'}{s.acted_by_name ? ` · ${proper(s.acted_by_name)}` : ''}{s.decided_on ? ` · ${when(s.decided_on)}` : ''}</small>)}
+                  {!canDecide(p) && p.status === 'Uploaded' && <small style={{ color: 'var(--ax-warn, #8A4B00)' }}>Waiting for the Floor Manager of {c.hostel_code} to check it; then it comes to the Chief Manager.</small>}
                   {canDecide(p) && <span style={{ display: 'flex', gap: 8, marginTop: 6 }}><button type="button" className="ra-primary" disabled={busy} onClick={() => decideProof(p, 'Approved')}>Approve receipt</button><button type="button" className="ra-outline" disabled={busy} onClick={() => decideProof(p, 'Rejected')}>Return</button></span>}</div>
                 </div>; })}
           </div>}
           <div className="ra-list"><span className="ra-cap">Approval trail</span>
             {[{ n: 1, role: 'Room Allotment · verify fees', who: c.fee_checked_by, at: c.fee_checked_on, st: c.fee_check_status === 'Verified' ? 'Approved' : c.fee_check_status === 'Query' ? 'Returned' : c.stage === 'verify' ? 'Pending' : 'Waiting' },
-              { n: 2, role: 'Chief Warden · approve bed', who: c.cw_by, at: c.cw_on, st: c.cw_status === 'Approved' ? 'Approved' : c.stage === 'approve' ? 'Pending' : 'Waiting' }].map((t) => { const tone = t.st === 'Approved' ? 'ok' : t.st === 'Pending' ? 'warn' : t.st === 'Returned' ? 'crit' : 'neu';
+              { n: 2, role: 'Chief Manager · approve bed', who: c.cw_by, at: c.cw_on, st: c.cw_status === 'Approved' ? 'Approved' : c.stage === 'approve' ? 'Pending' : 'Waiting' }].map((t) => { const tone = t.st === 'Approved' ? 'ok' : t.st === 'Pending' ? 'warn' : t.st === 'Returned' ? 'crit' : 'neu';
               return <div key={t.n} className="ra-row"><span className={`ra-lv ra-${tone}`}>L{t.n}</span><span className="ra-row-text"><b>{t.role}</b><small>{t.who ? `${proper(t.who)} · ${when(t.at)}` : 'Not yet'}</small></span><Chip tone={tone as 'ok'}>{t.st}</Chip></div>; })}
             {c.fee_check_status === 'Query' && c.fee_check_remarks && <div className="ra-note ra-crit-n"><Info size={14} />{c.fee_check_remarks}</div>}
           </div>
@@ -142,7 +142,7 @@ export default function AllotmentApprovals() {
                   ? <button type="button" className="ra-primary" disabled={!checked || busy} onClick={verify}><BadgeCheck size={16} />Verify fees</button>
                   : <button type="button" className="ra-primary" disabled={busy} onClick={approve}><KeyRound size={16} />Approve allotment</button>}
               </div></>)}
-            {c.stage === 'approve' && !canL2 && <div className="ra-note ra-info"><Info size={14} />Waiting for the Chief Warden.</div>}
+            {c.stage === 'approve' && !canL2 && <div className="ra-note ra-info"><Info size={14} />Waiting for the Chief Manager.</div>}
             {c.stage === 'verify' && !canL1 && <div className="ra-note ra-info"><Info size={14} />Waiting for Room Allotment's fee check.</div>}
           </div>
         </>)}

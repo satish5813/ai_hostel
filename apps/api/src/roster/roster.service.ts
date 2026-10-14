@@ -17,7 +17,7 @@ type Asg = { staff_id: string; hostel_role: string; zone_id: string | null; spac
 
 /**
  * Staff attendance and the daily duty roster (MAP-06).
- * Each day the hostel marks who reported. The roster then gives every floor (Floor Warden, sweeper), every washroom
+ * Each day the hostel marks who reported. The roster then gives every floor (Floor Manager, sweeper), every washroom
  * block (scavenger), the hostel (Warden) and each guard shift a person from those present, sharing the rooms equally
  * when fewer people than floors are present (see generate). A place stays Open only when nobody who can do it is in.
  */
@@ -80,7 +80,7 @@ export class RosterService {
   /**
    * Build the day's roster for one hostel. Manual changes made earlier for that day are kept.
    *   Warden and guard shifts: the mapped person when present, otherwise the least-loaded colleague who can stand in.
-   *   Floor Wardens and sweepers: with at least one person present per floor, each keeps their home floor and the
+   *   Floor Managers and sweepers: with at least one person present per floor, each keeps their home floor and the
    *   others take the floors left; with fewer people than floors, all the rooms of the hostel, in floor and room order,
    *   are shared equally, each person taking one unbroken run of rooms (8 people and 200 rooms: 25 rooms each).
    *   Scavengers: washroom blocks the same way. A place stays Open only when nobody who can do it is present.
@@ -125,7 +125,7 @@ export class RosterService {
     const regularsOf = (role: string, zone: string | null, space: string | null) =>
       asg.filter((a) => a.hostel_role === role && (space ? a.space_id === space : !a.space_id && a.zone_id === zone)).map((a) => a.staff_id);
 
-    // ---- Floor Wardens and sweepers, by floor or by room range
+    // ---- Floor Managers and sweepers, by floor or by room range
     for (const role of ['Floor_Warden', 'Sweeper']) {
       const shift = role === 'Sweeper' ? 'Morning' : 'General';
       const fl = floors.filter((z) => !manualKey.has(`${role}|${z}||${shift}`) && !manualKey.has(`${role}|${z}||General`));

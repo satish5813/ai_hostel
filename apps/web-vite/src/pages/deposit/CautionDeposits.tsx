@@ -17,7 +17,7 @@ const ACCOUNTS = ['Accounts_Section', 'admin'];
 
 /**
  * CDP-01 Caution deposits. What the hostels hold for each student, hostel by hostel; wardens propose deductions with the
- * reason, the Chief Warden approves them, Accounts pays unpaid dues from a deposit and refunds the balance to leavers.
+ * reason, the Chief Manager approves them, Accounts pays unpaid dues from a deposit and refunds the balance to leavers.
  */
 export default function CautionDeposits() {
   const s = useSession()!;
@@ -42,7 +42,7 @@ export default function CautionDeposits() {
       {h.length > 1 && (
         <section className="box cd-hostels">
           <table>
-            <thead><tr><th>Hostel</th><th className="r">Residents</th><th className="r">Held</th><th className="r">Deducted</th><th className="r">Refunded</th><th className="r">Waiting</th><th className="r">To refund</th></tr></thead>
+            <thead><tr><th>Hostel</th><th className="r">Hostel students</th><th className="r">Held</th><th className="r">Deducted</th><th className="r">Refunded</th><th className="r">Waiting</th><th className="r">To refund</th></tr></thead>
             <tbody>{h.map((x) => (
               <tr key={x.facility_id} className={fac === x.facility_id ? 'cd-sel' : ''} onClick={() => setFac(fac === x.facility_id ? '' : x.facility_id)}>
                 <td><b>{x.hostel_name}</b></td><td className="r">{x.residents}</td><td className="r">{inr(x.held)}</td><td className="r">{inr(x.deducted)}</td><td className="r">{inr(x.refunded)}</td>
@@ -104,7 +104,7 @@ function StudentDrawer({ sid, role, me, onClose, onDone }: { sid: string; role: 
             <span><small>Held</small><b>{inr(d.balance)}</b><small>Caution {inr(d.hostel_balance)} · Electricity {inr(d.elec_balance)}</small></span><span><small>Paid in</small><b>{inr(d.paid_in)}</b></span>
             <span><small>Deducted</small><b>{inr(d.deducted)}</b></span><span><small>Refunded</small><b>{inr(d.refunded)}</b></span>
           </div>
-          {form === 'deduct' && <DeductForm d={d} busy={busy} onCancel={() => setForm(null)} onSave={(b) => run(() => api(`/caution/students/${sid}/deductions`, { method: 'POST', json: b }), 'Deduction proposed to the Chief Warden')} />}
+          {form === 'deduct' && <DeductForm d={d} busy={busy} onCancel={() => setForm(null)} onSave={(b) => run(() => api(`/caution/students/${sid}/deductions`, { method: 'POST', json: b }), 'Deduction proposed to the Chief Manager')} />}
           {form === 'refund' && <RefundForm d={d} busy={busy} onCancel={() => setForm(null)} onSave={(b) => run(() => api(`/caution/students/${sid}/refund`, { method: 'POST', json: b }), 'Refund recorded')} />}
           {form === 'opening' && <OpeningForm busy={busy} onCancel={() => setForm(null)} onSave={(b) => run(() => api(`/caution/students/${sid}/opening`, { method: 'POST', json: b }), 'Deposit recorded')} />}
           {isAcc && d.balance > 0 && d.dues.length > 0 && (
@@ -154,7 +154,7 @@ function DeductForm({ d, busy, onCancel, onSave }: { d: Detail; busy: boolean; o
       <div className="klh-row" style={{ gap: 8, justifyContent: 'flex-end' }}>
         <Button variant="secondary" onClick={onCancel}>Cancel</Button>
         <Button variant="primary" loading={busy} blockedReason={!(n > 0) ? 'Enter the amount.' : n > heldOf(d, kind) ? 'More than is held.' : reason.trim().length < 10 ? 'Write the reason.' : undefined}
-          onClick={() => onSave({ kind, category: cat, amount: n, reason, handover_id: ho })}>Send to the Chief Warden</Button>
+          onClick={() => onSave({ kind, category: cat, amount: n, reason, handover_id: ho })}>Send to the Chief Manager</Button>
       </div>
     </section>
   );

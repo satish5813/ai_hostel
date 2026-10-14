@@ -5,7 +5,7 @@ import { t } from '@klu/db';
 import { DbService } from '../db/db.service.js';
 import type { AuthUser } from '../auth/auth.types.js';
 
-/** Workflow B — wardens to hostels, Floor Wardens to floors, cleaners and in-charges to areas, QR labels. */
+/** Workflow B — wardens to hostels, Floor Managers to floors, cleaners and in-charges to areas, QR labels. */
 @Injectable()
 export class MappingService {
   constructor(private dbs: DbService) {}

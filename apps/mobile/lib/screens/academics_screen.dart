@@ -189,7 +189,7 @@ class _AcademicsScreenState extends State<AcademicsScreen> {
                 ]),
               _ => _Box(children: [
                   Padding(padding: const EdgeInsets.fromLTRB(14, 12, 14, 12), child: _Facts([
-                    ('Room', st['room_code'] != null ? '${st['hostel_code']} ${st['room_code']}' : '—'), ('Floor Warden', st['floor_warden'] != null ? titleCase(st['floor_warden']) : '—'),
+                    ('Room', st['room_code'] != null ? '${st['hostel_code']} ${st['room_code']}' : '—'), ('Floor Manager', st['floor_warden'] != null ? titleCase(st['floor_warden']) : '—'),
                     ('Night roll call', _pct(h['night_pct'])), ('All sessions', _pct(h['session_pct'])), ('Nights missed', '${h['nights_missed']}'),
                     ('Outings', '${h['outings']}'), ('Late returns', '${h['late_returns']}'), ('Sick days', '${h['sick_days']}'), ('Alerts', '${h['alerts']}'),
                     ('Dues', inr(h['dues'])),

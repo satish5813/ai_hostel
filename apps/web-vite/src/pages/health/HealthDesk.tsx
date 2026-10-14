@@ -31,7 +31,7 @@ function parseCsv(text: string): string[][] {
 
 /**
  * HLT-01 Health records. The Gym Manager captures results (equipment upload in the capture format, or typed in) and
- * everyone in care of the student sees their latest report: the Floor Warden for their floors, the Warden for the
+ * everyone in care of the student sees their latest report: the Floor Manager for their floors, the Warden for the
  * hostel, the Dean, Students Affairs for all. Students who need a doctor come first.
  */
 export default function HealthDesk() {

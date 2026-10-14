@@ -18,7 +18,7 @@ const concernGroup = (c: string) => GROUPS.find(([re]) => re.test(c))?.[1] ?? c;
 export const isDean = (u: AuthUser) => u.roles.includes('Dean_Students_Affairs');
 
 /**
- * The Dean, Students Affairs portal: analysis across every hostel (the Chief Warden sees the same for their own
+ * The Dean, Students Affairs portal: analysis across every hostel (the Chief Manager sees the same for their own
  * hostels). Absence, discipline, the weekly floor reports and career guidance for hostellers.
  */
 @Injectable()
@@ -158,7 +158,7 @@ export class DeanService {
       left join ref.staff_master ss on ss.staff_id = w.sent_by left join ref.staff_master rs on rs.staff_id = w.read_by where w.report_id = ${id}`);
     if (!w) throw new NotFoundException('Report not found');
     assertScope(user, w.facility_id);
-    if (isDean(user) && w.status === 'Draft') throw new ForbiddenException('The Chief Warden has not sent this report yet');
+    if (isDean(user) && w.status === 'Draft') throw new ForbiddenException('The Chief Manager has not sent this report yet');
     if (isDean(user) && w.status === 'Sent') {
       await this.dbs.run(user, (tx) => tx.execute(sql`update hostel.weekly_floor_report set status = 'Read', read_by = ${user.id}, read_at = now() where report_id = ${id} and status = 'Sent'`));
       w.status = 'Read';
@@ -181,7 +181,7 @@ export class DeanService {
       await tx.execute(sql`update hostel.weekly_floor_report set status = 'Sent', cw_remarks = ${remarks}, sent_by = ${user.id}, sent_at = now() where report_id = ${id}`);
       await tx.execute(sql`insert into shared.notification (recipient_type, staff_id, channel, template_code, subject, body, related_type, related_id)
         select 'Staff', u.staff_id, ch.c::shared.channel, 'WEEKLY_FLOOR_REPORT', ${`Weekly floor report: ${w.hostel_code}, week of ${w.week_start}`},
-               ${`The Chief Warden has sent the ${w.hostel_code} floor report for the week of ${w.week_start}.${remarks ? ` Remarks: ${remarks}` : ''}`}, 'weekly_floor_report', ${String(id)}
+               ${`The Chief Manager has sent the ${w.hostel_code} floor report for the week of ${w.week_start}.${remarks ? ` Remarks: ${remarks}` : ''}`}, 'weekly_floor_report', ${String(id)}
         from portal.user_role r join portal.app_user u on u.user_id = r.user_id and u.active, (values ('In_App'), ('Email')) ch(c)
         where r.role_code = 'Dean_Students_Affairs' and u.staff_id is not null`);
     });
@@ -239,7 +239,7 @@ export class DeanService {
 
   async inquire(user: AuthUser, id: number, dto: { student_statement?: string | null; cw_findings?: string | null; cw_recommendation?: string | null; send?: boolean }) {
     const c = await this.caseFor(user, id);
-    if (c.status !== 'Reported') throw new UnprocessableEntityException('Only a case still with the Chief Warden can be changed');
+    if (c.status !== 'Reported') throw new UnprocessableEntityException('Only a case still with the Chief Manager can be changed');
     await this.dbs.run(user, (tx) => tx.execute(sql`update hostel.discipline_case set
       student_statement = coalesce(${dto.student_statement ?? null}, student_statement), cw_findings = coalesce(${dto.cw_findings ?? null}, cw_findings),
       cw_recommendation = coalesce(${dto.cw_recommendation ?? null}, cw_recommendation), updated_by = ${user.id},
@@ -247,7 +247,7 @@ export class DeanService {
     return { ok: true, status: dto.send ? 'With_Dean' : 'Reported' };
   }
 
-  /** The Dean awards a punishment, closes the case with no action, or returns it to the Chief Warden for more inquiry. */
+  /** The Dean awards a punishment, closes the case with no action, or returns it to the Chief Manager for more inquiry. */
   async decide(user: AuthUser, id: number, dto: { outcome: 'Punish' | 'No_Action' | 'Return'; decision: string;
     punishment?: { punishment_type: string; from_date?: string | null; to_date?: string | null; fine_amount?: number | null; bars_outings?: boolean; details?: string | null } }) {
     if (!isDean(user)) throw new ForbiddenException('Only the Dean, Students Affairs decides a case');

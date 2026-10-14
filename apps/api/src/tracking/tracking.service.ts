@@ -4,7 +4,7 @@ import { t } from '@klu/db';
 import { DbService } from '../db/db.service.js';
 import type { AuthUser } from '../auth/auth.types.js';
 
-/** Workflow D — consent > scan or camera event > current status > alert > action by Floor Warden or Security. */
+/** Workflow D — consent > scan or camera event > current status > alert > action by Floor Manager or Security. */
 @Injectable()
 export class TrackingService {
   constructor(private dbs: DbService) {}

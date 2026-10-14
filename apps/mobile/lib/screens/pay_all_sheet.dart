@@ -11,7 +11,7 @@ String headOf(Map d) => d['reference_type'] == 'room_change' ? 'Room change' : d
     : '${words(d['fee_head'])}${d['fee_head'] == 'Hostel' && d['instalment_no'] != null ? ', part ${d['instalment_no']}' : ''}';
 
 /// Pay all: every open demand at once. Three ways, as the hostel accepts them: a receipt from the university payment
-/// portal (the PDF receipt, checked by the Floor Warden and approved by the Chief Warden), the wallet, or the online gateway.
+/// portal (the PDF receipt, checked by the Floor Manager and approved by the Chief Manager), the wallet, or the online gateway.
 /// With no [demands] it adds money to the wallet with a receipt. [onDone] reloads the page underneath.
 void showPayAllSheet(BuildContext context, {required List<Map> demands, required VoidCallback onDone, num walletBalance = 0}) {
   final total = demands.fold<num>(0, (a, d) => a + balanceOf(d));
@@ -46,7 +46,7 @@ void showPayAllSheet(BuildContext context, {required List<Map> demands, required
             Lines([for (final d in demands) LineItem(headOf(d), sub: 'Due ${day(d['due_date'])}', trailing: Text(inr(balanceOf(d)), style: const TextStyle(fontWeight: FontWeight.w800)))]),
             const SizedBox(height: 16),
             const KLabel('How did you pay, or how will you?'),
-            _Way(LucideIcons.receiptIndianRupee, 'I paid on the university portal', 'Upload the PDF receipt from the portal. The Floor Warden checks it and the Chief Warden approves it.', () => set(() => mode = 'receipt')),
+            _Way(LucideIcons.receiptIndianRupee, 'I paid on the university portal', 'Upload the PDF receipt from the portal. The Floor Manager checks it and the Chief Manager approves it.', () => set(() => mode = 'receipt')),
             _Way(LucideIcons.wallet, 'Pay from my wallet', walletBalance >= total ? 'The wallet holds ${inr(walletBalance)}; ${inr(total)} is taken at once.' : 'The wallet holds ${inr(walletBalance)}; add money first.',
                 walletBalance >= total ? () => set(() => mode = 'wallet') : null),
             _Way(LucideIcons.creditCard, 'Pay online now', 'UPI, card or net banking through the university gateway.', () => set(() => mode = 'online')),
@@ -118,7 +118,7 @@ void showPayAllSheet(BuildContext context, {required List<Map> demands, required
           if (error.isNotEmpty) Padding(padding: const EdgeInsets.only(bottom: 8), child: _ErrorNote(error)),
           KButton('Send the receipt', icon: LucideIcons.send, block: true, busy: busy, onPressed: blocked != null ? null : () => run(
               () => api.post('/me/payment-proofs', {'demand_ids': ids, 'amount': amt, 'paid_on': isoDay(paidOn), 'reference': ref.text.trim().isEmpty ? null : ref.text.trim(), 'photo': photo}),
-              'Receipt sent', 'Your Floor Warden checks it, then the Chief Warden approves it. You get a message at each step.')),
+              'Receipt sent', 'Your Floor Manager checks it, then the Chief Manager approves it. You get a message at each step.')),
           if (blocked != null) Padding(padding: const EdgeInsets.only(top: 6), child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
             const Icon(LucideIcons.lock, size: 13, color: K.ink3), const SizedBox(width: 5), Text(blocked, style: const TextStyle(fontSize: 12, color: K.ink3))])),
         ]);
@@ -199,7 +199,7 @@ class WalletCard extends StatelessWidget {
 class ProofsList extends StatelessWidget {
   final List<Map> proofs;
   const ProofsList({super.key, required this.proofs});
-  static const _state = {'Uploaded': ('With the Floor Warden', Tone.warn), 'Checked': ('With the Chief Warden', Tone.progress), 'Approved': ('Approved', Tone.good), 'Rejected': ('Not accepted', Tone.bad)};
+  static const _state = {'Uploaded': ('With the Floor Manager', Tone.warn), 'Checked': ('With the Chief Manager', Tone.progress), 'Approved': ('Approved', Tone.good), 'Rejected': ('Not accepted', Tone.bad)};
   static const _ocr = {'Pending': ('Being read', Tone.muted), 'Matched': ('Receipt matches', Tone.good), 'Mismatch': ('Does not match', Tone.bad), 'Unreadable': ('Could not be read', Tone.warn)};
   @override
   Widget build(BuildContext context) => Lines([

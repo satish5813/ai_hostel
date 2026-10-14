@@ -13,7 +13,7 @@ const CONTINUE_DAYS = 15;
 /**
  * Yearly renewal (Workflow A, every academic year). A resident renews in the renewal window: Keep my room reserves the bed
  * they live in, Change joins next year's allotment queue, Leaving is recorded. After the fee check (Room Allotment) and
- * the Chief Warden's approval, Room Allotment continues the stay into the new year (hostel.fn_continue_stay).
+ * the Chief Manager's approval, Room Allotment continues the stay into the new year (hostel.fn_continue_stay).
  */
 @Injectable()
 export class RenewalService {
@@ -116,7 +116,7 @@ export class RenewalService {
                   when n.status in ('Fee_Paid', 'Waitlisted', 'Allotted') then 'Waiting for a bed'
                   when n.status = 'Accepted' then 'Hostel fees'
                   when n.status = 'Confirmed' and n.fee_check_status <> 'Verified' then 'Fee check'
-                  when n.status = 'Confirmed' and n.cw_status <> 'Approved' then 'Chief Warden'
+                  when n.status = 'Confirmed' and n.cw_status <> 'Approved' then 'Chief Manager'
                   when n.status = 'Confirmed' then 'Ready to continue'
                   else initcap(replace(n.status::text, '_', ' ')) end as stage
       from hostel.hostel_registration r join cur on cur.academic_year = r.academic_year

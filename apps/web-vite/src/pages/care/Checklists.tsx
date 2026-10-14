@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { ClipboardCheck, Wrench } from 'lucide-react';
 import { Button, Drawer, Field, Input, SegmentedControl, Select, StatCard, Textarea } from '@/lib/klh';
 import { api } from '@/lib/api';
-import { ScreenHeader, toast, useApi } from '@/lib/ui';
+import { ScreenHeader, toast, useApi, words } from '@/lib/ui';
 
 type Fill = { template_id: number; template_name: string; frequency: string; scope: string; answer_type: string; reviewer_role: string; items: number; last_done: string | null };
 type Sub = { submission_id: number; template_name: string; scope: string; facility_id: string; hostel_name: string | null; zone_name: string | null; period_date: string; shift: string | null;
@@ -19,7 +19,7 @@ const todayIso = () => new Date(Date.now() + 330 * 60_000).toISOString().slice(0
 
 /**
  * TKT-05 Checklists. Staff fill the daily or weekly checklist of their role (floor check, mess kitchen hygiene, store);
- * a failed item with a trade opens a repair ticket at once; the reviewer (Chief Warden, Mess In-charge) signs it.
+ * a failed item with a trade opens a repair ticket at once; the reviewer (Chief Manager, Mess In-charge) signs it.
  */
 export default function Checklists() {
   const r = useApi<{ fill: Fill[]; submissions: Sub[] }>('/checklists');
@@ -82,7 +82,7 @@ function FillDrawer({ id, onClose, onDone }: { id: number; onClose: () => void; 
   };
   const sections = [...new Set(d.items.map((i) => i.section ?? ''))];
   return (
-    <Drawer open onClose={onClose} title={d.template_name} subtitle={`${d.items.length} items · signed by the ${d.reviewer_role.replace(/_/g, ' ')}`}
+    <Drawer open onClose={onClose} title={d.template_name} subtitle={`${d.items.length} items · signed by the ${words(d.reviewer_role)}`}
       footer={<Button variant="primary" icon="check" loading={busy} blockedReason={!pl ? 'Choose where.' : missing ? `Answer item ${missing.item_no}.` : noNote ? `Item ${noNote.item_no}: say what is wrong.` : undefined} onClick={save}>Submit</Button>}>
       <div className="klh-stack" style={{ gap: 12 }}>
         <div className="mo-row">

@@ -16,11 +16,11 @@ const CW_ROLES = ['Chief_Warden', 'Director_Hostels', 'admin'];
 /** Free beds as select options, with the room type and its yearly fee. */
 const bedOptions = (beds: FreeBed[]) => beds.map((b) => ({ value: b.subspace_id, label: `${b.type_name}${b.hostel_fee ? ` (${inr(b.hostel_fee)}/yr)` : ''} · ${b.bed_label} · ${b.floor_name} · ${b.occupied} of ${b.sharing_count} taken` }));
 type Filter = 'open' | 'Moved' | 'refund' | 'closed' | '';
-const WAIT: Record<string, string> = { Floor_Warden: 'Floor Warden', Chief_Warden: 'Chief Warden' };
+const WAIT: Record<string, string> = { Floor_Warden: 'Floor Manager', Chief_Warden: 'Chief Manager' };
 
 /**
- * RCH-01 Room changes. Students' requests for another room in the hostel: the Floor Warden approves first, the Chief
- * Warden gives the bed and approves; on the day the Floor Warden (or Chief Warden) reads the old room's meter, hands over
+ * RCH-01 Room changes. Students' requests for another room in the hostel: the Floor Manager approves first, the Chief
+ * Warden gives the bed and approves; on the day the Floor Manager (or Chief Manager) reads the old room's meter, hands over
  * the key and moves the student, and the hostel fee and electricity are settled. Accounts see the refunds due.
  */
 export default function RoomChanges() {
@@ -36,8 +36,8 @@ export default function RoomChanges() {
         actions={isCw ? <Button variant="primary" icon="bed" onClick={() => setMoving(true)}>Move a student</Button> : undefined} />
       {d && (
         <div className="klh-grid-4">
-          <StatCard color="amber" icon="eye" label="With the Floor Warden" value={String(d.counts.pending_fw)} sub="First approval" />
-          <StatCard color="indigo" icon="settings" label="With the Chief Warden" value={String(d.counts.pending_cw)} sub="Bed and final approval" />
+          <StatCard color="amber" icon="eye" label="With the Floor Manager" value={String(d.counts.pending_fw)} sub="First approval" />
+          <StatCard color="indigo" icon="settings" label="With the Chief Manager" value={String(d.counts.pending_cw)} sub="Bed and final approval" />
           <StatCard color="brand" icon="check" label="Approved, to move" value={String(d.counts.to_move)} sub={`${d.counts.moved_month} moved this month`} />
           <StatCard color="rose" icon="gauge" label="Fee difference" value={inr(d.counts.extra_fee)} sub={`${inr(d.counts.refunds)} refunds due`} />
         </div>)}
@@ -55,7 +55,7 @@ export default function RoomChanges() {
           <span className="rc-state"><span className={`xd-pill xd-t-${st?.tone === 'muted' ? 'warn' : st?.tone ?? 'warn'}`}>{st?.label ?? c.status}</span>
             {c.status === 'Moved' && c.hostel_adjustment != null && <small>{Number(c.hostel_adjustment) > 0 ? `+${inr(c.hostel_adjustment)} fee` : Number(c.hostel_adjustment) < 0 ? `${inr(c.refund_due)} refund` : 'No fee change'}</small>}
             {c.waiting_for && <small>Waiting for {WAIT[c.waiting_for] ?? c.waiting_for}</small>}
-            {c.arranged && <small>Arranged by the Chief Warden</small>}</span>
+            {c.arranged && <small>Arranged by the Chief Manager</small>}</span>
         </button>); })}</div>
       {open && <ChangeDrawer id={open} onClose={() => setOpen(null)} onDone={() => r.mutate()} />}
       {moving && <MoveDrawer onClose={() => setMoving(false)} onDone={(id) => { setMoving(false); r.mutate(); setOpen(id); }} />}
@@ -78,7 +78,7 @@ function ChangeDrawer({ id, onClose, onDone }: { id: number; onClose: () => void
   const setBed = (sub: string) => run(() => api(`/room-changes/${id}/bed`, { method: 'PUT', json: { subspace_id: sub } }), 'Bed given');
   const complete = () => run(() => api(`/room-changes/${id}/complete`, { method: 'POST', json: { meter_reading: reading ? Number(reading) : null, key_no: key || null } }), 'Moved; fee and electricity settled');
   const isCw = CW_ROLES.includes(useSession()?.role ?? '');
-  // the Chief Warden's approval takes both steps when a bed is given
+  // the Chief Manager's approval takes both steps when a bed is given
   const lastLevel = c?.steps.find((s) => s.decision === 'Pending')?.approver_role === 'Chief_Warden' || (isCw && !!c?.to_subspace_id);
   const footer = c && (c.can.decide ? (
     <div className="klh-row" style={{ gap: 8, flexWrap: 'wrap' }}>
@@ -120,7 +120,7 @@ function ChangeDrawer({ id, onClose, onDone }: { id: number; onClose: () => void
   );
 }
 
-/** The Chief Warden moves a resident of their building to any free bed of any room type, at once or approved for later. */
+/** The Chief Manager moves a hostel student of their building to any free bed of any room type, at once or approved for later. */
 function MoveDrawer({ onClose, onDone }: { onClose: () => void; onDone: (changeId: number) => void }) {
   const [q, setQ] = useState('');
   const [sid, setSid] = useState<string | null>(null);
@@ -145,7 +145,7 @@ function MoveDrawer({ onClose, onDone }: { onClose: () => void; onDone: (changeI
   };
   const blocked = !sid ? 'Choose the student.' : !bed ? 'Choose the bed.' : reason.trim().length < 10 ? 'Write the reason.' : now && opt.data?.meter && !reading ? 'Enter the meter reading of the old room.' : undefined;
   return (
-    <Drawer open onClose={onClose} title="Move a student" subtitle="Any resident of your building to any free bed, without waiting for a request"
+    <Drawer open onClose={onClose} title="Move a student" subtitle="Any hostel student of your building to any free bed, without waiting for a request"
       footer={<Button variant="primary" icon="check" loading={busy} blockedReason={blocked} onClick={save}>{now ? 'Move now and settle' : 'Approve; move later'}</Button>}>
       <div className="rc-det">
         {!sid ? (
@@ -154,7 +154,7 @@ function MoveDrawer({ onClose, onDone }: { onClose: () => void; onDone: (changeI
             <ul className="rc-people">{(people.data ?? []).map((p) => (
               <li key={p.student_id}><button type="button" onClick={() => setSid(p.student_id)}>
                 <b>{p.name}</b><small>{p.student_id} · {p.bed_label} · {p.type_name} · {p.floor_name}</small></button></li>))}
-              {people.data && !people.data.length && <li className="rc-small">No resident matches.</li>}</ul>
+              {people.data && !people.data.length && <li className="rc-small">No hostel student matches.</li>}</ul>
           </>) : opt.data && (
           <>
             <div className="rc-det-move">

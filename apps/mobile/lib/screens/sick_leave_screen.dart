@@ -12,7 +12,7 @@ const _diet = {
 };
 
 /// Who a sick-leave step belongs to, as people say it (STEP_ROLE).
-const _stepRole = {'Floor_Warden': 'Floor Warden', 'Warden': 'Building in-charge', 'Hostel_Incharge': 'Building in-charge', 'Chief_Warden': 'Chief Warden'};
+const _stepRole = {'Floor_Warden': 'Floor Manager', 'Warden': 'Building in-charge', 'Hostel_Incharge': 'Building in-charge', 'Chief_Warden': 'Chief Manager'};
 
 /// The day after a date: an extension starts the day after the leave ends, so no meal is sent twice.
 String _dayAfter(dynamic d) {
@@ -73,7 +73,7 @@ class _SickLeaveScreenState extends State<SickLeaveScreen> with AutoRefresh {
     final d = detail;
     final history = list?.where((l) => cur == null || l['sick_leave_id'] != cur['sick_leave_id']).toList();
     return RefreshIndicator(onRefresh: load, child: ListView(physics: const AlwaysScrollableScrollPhysics(), padding: const EdgeInsets.fromLTRB(16, 16, 16, 90), children: [
-      const PageHead('SCK-01', subtitle: 'Your Floor Warden visits you first, then the building in-charge approves. Meals then come to your room, light food if you need it.'),
+      const PageHead('SCK-01', subtitle: 'Your Floor Manager visits you first, then the building in-charge approves. Meals then come to your room, light food if you need it.'),
       const SizedBox(height: 24),
       if (cur != null && d != null) _leave(cur, d) else _report(),
       const SizedBox(height: 24),
@@ -98,7 +98,7 @@ class _SickLeaveScreenState extends State<SickLeaveScreen> with AutoRefresh {
       _CardHead(LucideIcons.heartPulse, _rose, approved ? 'Approved sick leave' : 'Sick leave in progress', sub: '${day(cur['from_date'])} to ${day(cur['to_date'])}', action: Pill.status(cur['status'])),
       Padding(padding: const EdgeInsets.only(bottom: 16), child: Text('${cur['illness_details']}', style: const TextStyle(fontSize: 16, height: 1.5, color: K.ink))),
       if (cur['status'] == 'Applied' && !visited)
-        const _Notice(Tone.info, "Waiting for the Floor Warden's visit", 'Stay in your room; the Floor Warden comes to see you and decides what food to send.'),
+        const _Notice(Tone.info, "Waiting for the Floor Manager's visit", 'Stay in your room; the Floor Manager comes to see you and decides what food to send.'),
       if (visited && diet != null)
         _Notice(Tone.info, 'Food to your room: ${diet.$1}', '${diet.$2}${d['diet_note'] != null ? '. ${d['diet_note']}' : ''}'),
       if (visited) _Notice(Tone.progress, 'Visited by ${cur['visited_by']}', cur['visit_remarks']),
@@ -124,7 +124,7 @@ class _SickLeaveScreenState extends State<SickLeaveScreen> with AutoRefresh {
           }))),
           _Blocked(KButton('Request extension', kind: BtnKind.secondary, busy: busy, onPressed: extend == null ? null : () => _run(() => api.post('/sick-leaves', {
                 'illness_details': 'Extension: ${cur['illness_details']}', 'from_date': _dayAfter(cur['to_date']), 'to_date': extend, 'extended_from_id': cur['sick_leave_id'],
-              }), 'Extension requested. Your Floor Warden will visit again.', () => extend = null)),
+              }), 'Extension requested. Your Floor Manager will visit again.', () => extend = null)),
               extend == null ? 'Pick the new end date.' : null),
         ]),
       ]),
@@ -143,7 +143,7 @@ class _SickLeaveScreenState extends State<SickLeaveScreen> with AutoRefresh {
         Align(alignment: Alignment.centerLeft, child: KButton('Report sick leave', icon: LucideIcons.heartPulse, kind: BtnKind.accent, pill: true, large: true, busy: busy, onPressed: () {
           // the browser's own check on required fields
           if (what.text.trim().isEmpty || from == null || until == null) { toast(context, 'Please fill out this field.', error: true); return; }
-          _run(() => api.post('/sick-leaves', {'illness_details': what.text, 'from_date': from, 'to_date': until}), 'Reported. Your Floor Warden will come and see you.',
+          _run(() => api.post('/sick-leaves', {'illness_details': what.text, 'from_date': from, 'to_date': until}), 'Reported. Your Floor Manager will come and see you.',
               () { what.clear(); from = null; until = null; });
         })),
       ]));

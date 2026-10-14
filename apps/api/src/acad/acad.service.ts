@@ -58,7 +58,10 @@ export class AcadService {
     const prior = await this.dbs.rows(sql`select prior_id::int as id, level, board, institution, group_name, year_passed::int as year_passed, marks_pct::float as marks_pct, cgpa::float as cgpa, roll_no,
         certificate is not null as has_certificate, certificate, source, verified_on is not null as verified
       from acad.prior_education where student_id = ${studentId} order by array_position(array['SSC','Intermediate','Diploma','Degree','PG'], level)`);
-    return { student: st, hostel, terms, crt: { attendance: crtAtt, tests: crtTests }, certs, activities, achievements, prior, fresher: terms.length === 0 };
+    // the courses behind the backlog count (grade sheets, migration 129)
+    const backlogCourses = await this.dbs.rows<{ course_code: string; grade: string }>(sql`select course_code, grade from acad.course_grade
+      where student_id = ${studentId} and is_backlog order by course_code`);
+    return { student: st, hostel, terms, backlog_courses: backlogCourses, crt: { attendance: crtAtt, tests: crtTests }, certs, activities, achievements, prior, fresher: terms.length === 0 };
   }
 
   /** Every hosteller in one table for wardens and senior staff: academics, CRT and hostel conduct side by side. */

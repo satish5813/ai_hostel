@@ -58,7 +58,7 @@ export class LinksService {
     const l = await this.link(token);
     const st = this.state(l);
     if (st === 'decided' || st === 'used') throw new GoneException('This request has already been answered');
-    if (st === 'expired') throw new GoneException('This link has expired. The Chief Warden can send a new one.');
+    if (st === 'expired') throw new GoneException('This link has expired. The Chief Manager can send a new one.');
     if (decision === 'Rejected' && !remarks?.trim()) throw new UnprocessableEntityException('Say why you refuse');
     const user: AuthUser = l.contact_id
       ? { id: `contact:${l.contact_id}`, kind: 'parent', role: 'Parent', roles: ['Parent'] }
@@ -69,7 +69,7 @@ export class LinksService {
     return this.view(token);
   }
 
-  /** Chief Warden: send fresh links when the earlier ones expired or were lost. */
+  /** Chief Manager: send fresh links when the earlier ones expired or were lost. */
   async resend(user: AuthUser, outpassId: number) {
     const [s] = await this.dbs.rows<{ step_id: number; approver_role: string }>(sql`
       select step_id::int as step_id, approver_role from shared.approval_step

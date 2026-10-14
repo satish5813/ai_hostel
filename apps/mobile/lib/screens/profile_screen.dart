@@ -195,7 +195,7 @@ class _ProfileScreenState extends State<ProfileScreen> with AutoRefresh {
             ])),
       ]),
       const SizedBox(height: 18),
-      _Card(icon: LucideIcons.idCard, title: 'My hostel record', sub: kyc?['locked'] == true ? 'Submitted ${day(kyc!['submitted_on'])}. Only the Chief Warden can change it now.' : 'Aadhaar, address, parents and emergency contact. Fill it once; after that the Chief Warden changes it.',
+      _Card(icon: LucideIcons.idCard, title: 'My hostel record', sub: kyc?['locked'] == true ? 'Submitted ${day(kyc!['submitted_on'])}. Only the Chief Manager can change it now.' : 'Aadhaar, address, parents and emergency contact. Fill it once; after that the Chief Manager changes it.',
           children: [_Kyc(k: kyc, m: m, onChange: load)]),
       const SizedBox(height: 18),
       _Card(icon: LucideIcons.users, title: 'Family contacts', sub: 'Verify each number. One parent or guardian recommends your outings.',
@@ -672,7 +672,7 @@ class _Kyc extends StatelessWidget {
       if (photo.startsWith('data:image')) Padding(padding: const EdgeInsets.only(top: 8), child: ClipRRect(borderRadius: BorderRadius.circular(12), child: Image.memory(base64Decode(photo.split(',').last), height: 120, fit: BoxFit.cover))),
       const SizedBox(height: 10),
       Container(padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 9), decoration: BoxDecoration(color: K.sub, borderRadius: BorderRadius.circular(10)),
-          child: const Row(children: [Icon(LucideIcons.lock, size: 14, color: K.ink3), SizedBox(width: 8), Expanded(child: Text('Locked. To change anything, ask the Chief Warden of your hostel.', style: TextStyle(fontSize: 12.5, color: K.ink3)))])),
+          child: const Row(children: [Icon(LucideIcons.lock, size: 14, color: K.ink3), SizedBox(width: 8), Expanded(child: Text('Locked. To change anything, ask the Chief Manager of your hostel.', style: TextStyle(fontSize: 12.5, color: K.ink3)))])),
     ]);
   }
 
@@ -699,7 +699,7 @@ class _Kyc extends StatelessWidget {
               keyboardType: key.endsWith('mobile') || key == 'aadhaar_no' || key == 'pincode' ? TextInputType.number : TextInputType.text,
               decoration: InputDecoration(hintText: hint)),
     ]));
-    showKSheet(context, mod: Mod.teal, icon: LucideIcons.idCard, title: 'My hostel record', sub: 'Submitted once; the Chief Warden changes it after that',
+    showKSheet(context, mod: Mod.teal, icon: LucideIcons.idCard, title: 'My hostel record', sub: 'Submitted once; the Chief Manager changes it after that',
         body: (ctx, set) => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           for (final (key, label, hint) in _kycFields) field(key, label, hint, set),
           const KLabel('Photo of the Aadhaar card'),
@@ -710,7 +710,7 @@ class _Kyc extends StatelessWidget {
             Expanded(child: KButton('From gallery', icon: LucideIcons.image, kind: BtnKind.secondary, onPressed: () => pick(set, ImageSource.gallery))),
           ]),
           const SizedBox(height: 12),
-          const Note('Your Aadhaar number is seen in full only by the Chief Warden. Wardens and the office see the last four digits.'),
+          const Note('Your Aadhaar number is seen in full only by the Chief Manager. Wardens and the office see the last four digits.'),
         ]),
         footer: (ctx, set) {
           final aad = (f['aadhaar_no'] ?? '').replaceAll(' ', '');
@@ -722,7 +722,7 @@ class _Kyc extends StatelessWidget {
             KButton('Submit my record', icon: LucideIcons.send, block: true, busy: busy, onPressed: why != null ? null : () async {
               set(() => busy = true);
               final body = <String, dynamic>{for (final e in f.entries) if (e.value.trim().isNotEmpty) e.key: e.value.trim(), 'aadhaar_no': aad, if (photo != null) 'aadhaar_photo': photo};
-              if (await act(context, () => Api.instance.post('/me/kyc', body), 'Record submitted. Only the Chief Warden can change it now.')) {
+              if (await act(context, () => Api.instance.post('/me/kyc', body), 'Record submitted. Only the Chief Manager can change it now.')) {
                 if (ctx.mounted) Navigator.pop(ctx);
                 onChange();
               }

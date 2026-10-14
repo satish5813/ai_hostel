@@ -17,7 +17,7 @@ const TINTS = ['klh-tile-brand', 'klh-tile-violet', 'klh-tile-sky', 'klh-tile-am
 const CONFIRMED = ['Approved', 'Out', 'Returned', 'Overdue'];
 
 /**
- * Attendance register (TRK-07, an addition to the 87 screens): every resident against every day.
+ * Attendance register (TRK-07, an addition to the 87 screens): every hostel student against every day.
  * Outings and sick leave are drawn as bars from the requests themselves; the night roll call adds a mark per night.
  */
 export default function Attendance() {
@@ -47,10 +47,10 @@ export default function Attendance() {
   return (
     <div className="klh-stack" style={{ gap: 18 }}>
       <ScreenHeader code="TRK-07" subtitle="Outings and sick leave come from the approved requests. You take the night roll call; an absence with no pass raises a Not Seen alert."
-        actions={canMark ? <Button variant="primary" icon="check" onClick={() => setRoll(true)} blockedReason={!d?.students.length ? 'No residents in your scope.' : undefined}>Take tonight's roll call</Button> : undefined} />
+        actions={canMark ? <Button variant="primary" icon="check" onClick={() => setRoll(true)} blockedReason={!d?.students.length ? 'No hostel students in your scope.' : undefined}>Take tonight's roll call</Button> : undefined} />
       {d && (
         <div className="ad-stats">
-          <Stat icon="users" color="brand" label="Residents" value={String(d.students.length)} />
+          <Stat icon="users" color="brand" label="Hostel students" value={String(d.students.length)} />
           <Stat icon="check" color="sky" label="Present last night" value={String(marksOn(lastNight).filter((m) => m.status === 'Present').length)} sub={`${marksOn(lastNight).filter((m) => m.status === 'Absent').length} absent`} />
           <Stat icon="door" color="violet" label="On a pass today" value={String(d.students.filter((st) => away(st, todayIso)).length)} />
           <Stat icon="heart" color="rose" label="On sick leave" value={String(d.students.filter((st) => sickOn(st, todayIso)).length)} />
@@ -65,7 +65,7 @@ export default function Attendance() {
         </div>}>
         <div className="ui-att">
           <div className="ui-att-grid">
-            <div style={{ fontSize: 12.5, color: 'var(--ink-muted)', alignSelf: 'end', padding: '0 0 8px 4px' }}>Residents</div>
+            <div style={{ fontSize: 12.5, color: 'var(--ink-muted)', alignSelf: 'end', padding: '0 0 8px 4px' }}>Hostel students</div>
             <div className="ui-att-days" style={cols}>
               {days.map((day) => { const w = day.getDay() === 0 || day.getDay() === 6; const t = iso(day) === todayIso; return (
                 <div key={iso(day)} className={`ui-att-day${t ? ' ui-att-day-today' : w ? ' ui-att-day-off' : ''}`}>{day.toLocaleDateString('en-IN', { weekday: 'short' })}<b>{day.getDate()}</b></div>); })}
@@ -93,7 +93,7 @@ export default function Attendance() {
                 </div>
               </div>))}
           </div>
-          {d && d.students.length === 0 && <EmptyState icon="users" title="No residents in your scope" body="Residents appear here after check-in, on the floors you are assigned to." />}
+          {d && d.students.length === 0 && <EmptyState icon="users" title="No hostel students in your scope" body="Hostel students appear here after check-in, on the floors you are assigned to." />}
         </div>
         <div className="klh-row" style={{ gap: 16, padding: '0 20px 16px', fontSize: 12.5, color: 'var(--ink-muted)', flexWrap: 'wrap' }}>
           <span className="klh-row" style={{ gap: 6 }}><span className="ui-att-mark" />Present at roll call</span>
@@ -126,7 +126,7 @@ function RollCall({ date, facility, students, existing, away, sick, onClose, onD
   const { run, busy } = useAction();
   const absent = Object.values(marks).filter((v) => v === 'Absent').length;
   return (
-    <Drawer open onClose={onClose} title="Night roll call" subtitle={`${formatDate(date)} · ${students.length} residents`}
+    <Drawer open onClose={onClose} title="Night roll call" subtitle={`${formatDate(date)} · ${students.length} hostel students`}
       footer={<Button variant="primary" icon="check" loading={busy} onClick={() => run(() => api('/attendance/mark', { method: 'POST', json: { att_date: date, facility_id: facility, marks: students.map((st) => ({ student_id: st.student_id, status: marks[st.student_id] })) } }).then(onDone), absent ? `Roll call saved. ${absent} Not Seen alert${absent > 1 ? 's' : ''} raised.` : 'Roll call saved. Everyone accounted for.')}>Save roll call</Button>}>
       <div className="klh-stack" style={{ gap: 4 }}>
         {students.map((st) => { const auto = away(st) ? 'On an approved pass' : sick(st) ? 'On sick leave, in room' : null; return (
@@ -134,7 +134,7 @@ function RollCall({ date, facility, students, existing, away, sick, onClose, onD
             <div style={{ minWidth: 0 }}><div className="ui-row-title">{titleCase(st.full_name)}</div><div className="ui-row-sub">{roomLabel(st.space_id)}-{bedLabel(st.subspace_id).slice(-1)} · {st.student_id}</div></div>
             {auto ? <StatusChip status={marks[st.student_id]} label={auto} tone="info" /> : <SegmentedControl label={`Roll call for ${st.full_name}`} value={marks[st.student_id]} onChange={(v) => setMarks({ ...marks, [st.student_id]: v })} options={[{ value: 'Present', label: 'Present' }, { value: 'Absent', label: 'Absent' }]} />}
           </div>); })}
-        {absent > 0 && <Notice tone="warning" title={`${absent} marked absent`}>Saving raises a Not Seen alert for each, assigned to the Floor Warden of the floor.</Notice>}
+        {absent > 0 && <Notice tone="warning" title={`${absent} marked absent`}>Saving raises a Not Seen alert for each, assigned to the Floor Manager of the floor.</Notice>}
       </div>
     </Drawer>
   );

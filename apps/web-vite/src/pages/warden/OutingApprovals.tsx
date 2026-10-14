@@ -7,7 +7,7 @@ import { ScreenHeader, titleCase, useAction, useApi, useSession, words } from '@
 type Step = { level: number; role: string; decision: string; by?: string; on?: string; remarks?: string };
 type Outpass = { outpass_id: number; outpass_no: string; student_id: string; full_name: string; reason: string; destination: string; leave_from: string; return_by: string; outing_category: string; levels_required: number; contact_during_leave: string; status: string; actual_out_at: string | null; actual_in_at: string | null; late_by_minutes: number | null; applied_on: string; steps: Step[] };
 
-/** OUT-03 Outing approvals: level 1 Floor Warden, level 2 Chief Warden, who issues the QR pass (migration 122: no parent or Dean step). */
+/** OUT-03 Outing approvals: level 1 Floor Manager, level 2 Chief Manager, who issues the QR pass (migration 122: no parent or Dean step). */
 export default function OutingApprovals() {
   const [tab, setTab] = useState('decide');
   const [status, setStatus] = useState('');
@@ -21,7 +21,7 @@ export default function OutingApprovals() {
   const history = sel ? (list.data ?? []).filter((o) => o.student_id === sel.student_id && o.outpass_id !== sel.outpass_id) : [];
   return (
     <div className="klh-stack" style={{ gap: 24 }}>
-      <ScreenHeader code="OUT-03" subtitle="The Floor Warden approves (level 1), then the Chief Warden (level 2). The QR gate pass is issued when the Chief Warden approves, for a same-day outing and for a day or more. The parent gets an SMS when the pass is issued." />
+      <ScreenHeader code="OUT-03" subtitle="The Floor Manager approves (level 1), then the Chief Manager (level 2). The QR gate pass is issued when the Chief Manager approves, for a same-day outing and for a day or more. The parent gets an SMS when the pass is issued." />
       <Tabs label="Outing approvals" tabs={[{ id: 'decide', label: 'Waiting for my decision' }, { id: 'all', label: 'All outings', count: list.data?.length }]} value={tab} onChange={setTab} />
       {tab === 'decide' && <Approvals only="Outpass" />}
       {tab === 'all' && (

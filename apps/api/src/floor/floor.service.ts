@@ -6,8 +6,8 @@ import type { AuthUser } from '../auth/auth.types.js';
 type Floor = { zone_id: string; floor_name: string; floor_no: number; facility_id: string; hostel_name: string; hostel_code: string };
 
 /**
- * The Floor Warden's day in one call: the floors in their charge, every resident with tonight's state, and what needs
- * the Floor Warden today (roll call, sick visits, returns, alerts, check-ins, floor staff). A Warden or Chief Warden may
+ * The Floor Manager's day in one call: the floors in their charge, every resident with tonight's state, and what needs
+ * the Floor Manager today (roll call, sick visits, returns, alerts, check-ins, floor staff). A Warden or Chief Manager may
  * pass facility_id to see every floor of a hostel the same way.
  */
 @Injectable()

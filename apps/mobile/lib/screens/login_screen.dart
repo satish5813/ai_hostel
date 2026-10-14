@@ -13,7 +13,7 @@ const _photos = [
   ('assets/brand/hostel-1p.jpg', 'The hostel block', 'A tall white hostel block with teal balconies, seen from the entrance road'),
   ('assets/brand/hostel-4p.jpg', 'Entrance at night', 'The lit hostel entrance with planters and steps at night'),
   ('assets/brand/hostel-3p.jpg', 'Campus lawns', 'Students sitting under palm trees on the lawn beside the hostel'),
-  ('assets/brand/hostel-2p.jpg', 'Courtyard in the evening', 'Residents sitting on stone benches in the hostel courtyard at dusk'),
+  ('assets/brand/hostel-2p.jpg', 'Courtyard in the evening', 'Hostel students sitting on stone benches in the hostel courtyard at dusk'),
   ('assets/brand/hostel-5p.jpg', 'From above', 'Aerial view of the hostel building and the fields around it'),
 ];
 

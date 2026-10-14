@@ -113,7 +113,7 @@ class _FeesScreenState extends State<FeesScreen> with AutoRefresh {
                 ])),
       if (proofs.isNotEmpty) ...[
         const SizedBox(height: 24),
-        _Card(icon: LucideIcons.fileCheck, color: 'brand', title: 'Uploaded receipts', subtitle: 'Checked by the Floor Warden, approved by the Chief Warden', child: ProofsList(proofs: proofs)),
+        _Card(icon: LucideIcons.fileCheck, color: 'brand', title: 'Uploaded receipts', subtitle: 'Checked by the Floor Manager, approved by the Chief Manager', child: ProofsList(proofs: proofs)),
       ],
       const SizedBox(height: 24),
       _Card(icon: LucideIcons.receipt, color: 'orange', title: 'Receipts', subtitle: 'Receipts are never edited; a refund is a new entry', flush: true,

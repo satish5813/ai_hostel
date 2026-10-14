@@ -15,7 +15,7 @@ const PRIO: Record<string, string> = { Critical: 'tag-bad', High: 'tag-warn', Me
 const placeName = (p: Place) => (p.category === 'Floor' ? `${p.zone_name}: corridor and safety` : p.category === 'Toilet_Block' ? `Washroom ${p.space_code}` : p.category === 'Hostel_Room' ? `Room ${p.space_code}` : `${words(p.category)} ${p.space_code}`);
 
 /**
- * TKT-04 Checklists, TKT-01 raise a ticket, TKT-02 confirm the repair — the Floor Warden's maintenance in one screen.
+ * TKT-04 Checklists, TKT-01 raise a ticket, TKT-02 confirm the repair — the Floor Manager's maintenance in one screen.
  * Floor round: each room, washroom and the floor itself with its checklist; tap OK or Fault (a fault needs a note).
  * Saving raises one ticket per fault and trade, unless one is already open for that place.
  */

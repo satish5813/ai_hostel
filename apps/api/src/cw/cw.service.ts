@@ -8,7 +8,7 @@ import { exceptionNeeded, isChiefWarden, type ExceptionKind } from './rules.js';
 export type NewException = { kind: ExceptionKind; registration_id?: number; from_alloc_id?: number; staff_id?: string; subspace_id: string; key_no?: string; reason: string };
 
 /**
- * Chief Warden portal (Stage 2 of docs/flow-a-to-f.html): the overview across the hostels of the login (CW-01) and
+ * Chief Manager portal (Stage 2 of docs/flow-a-to-f.html): the overview across the hostels of the login (CW-01) and
  * the exceptions inbox (CW-03). The database checks who may decide and carries out an approval.
  */
 @Injectable()
@@ -100,8 +100,8 @@ export class CwService {
       const [e] = (await tx.execute(sql`insert into hostel.allotment_exception (kind, facility_id, registration_id, from_alloc_id, staff_id, subspace_id, key_no, reason, requested_by, created_by)
         values (${kind}::hostel.exception_kind, ${bed.facility_id}, ${dto.registration_id ?? null}, ${dto.from_alloc_id ?? null}, ${dto.staff_id ?? null}, ${dto.subspace_id}, ${dto.key_no ?? null}, ${dto.reason}, ${user.id}, ${user.id})
         returning exception_id::int as exception_id`)) as unknown as { exception_id: number }[];
-      // the Chief Warden asking is the Chief Warden deciding: carried out at once, on record
-      if (isChiefWarden(user)) await tx.execute(sql`update hostel.allotment_exception set status = 'Approved', decided_by = ${user.id}, decision_remarks = 'Decided by the Chief Warden when asking', updated_by = ${user.id} where exception_id = ${e.exception_id}`);
+      // the Chief Manager asking is the Chief Manager deciding: carried out at once, on record
+      if (isChiefWarden(user)) await tx.execute(sql`update hostel.allotment_exception set status = 'Approved', decided_by = ${user.id}, decision_remarks = 'Decided by the Chief Manager when asking', updated_by = ${user.id} where exception_id = ${e.exception_id}`);
       return { exception_id: e.exception_id, status: isChiefWarden(user) ? 'Approved' : 'Pending' };
     });
   }

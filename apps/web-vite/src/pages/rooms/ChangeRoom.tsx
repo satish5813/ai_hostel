@@ -15,16 +15,16 @@ type Mine = { stay: Stay | null; types: RType[]; requests: Change[] };
 type Bed = { subspace_id: string; bed_label: string; bed_code: string; room_code: string; floor_name: string; floor_no: number; sharing_count: number; occupied: number };
 
 export const RC_STATUS: Record<string, { label: string; tone: 'warn' | 'good' | 'bad' | 'muted' }> = {
-  Pending_FW: { label: 'With the Floor Warden', tone: 'warn' }, Pending_CW: { label: 'With the Chief Warden', tone: 'warn' }, Approved: { label: 'Approved: to move', tone: 'good' },
+  Pending_FW: { label: 'With the Floor Manager', tone: 'warn' }, Pending_CW: { label: 'With the Chief Manager', tone: 'warn' }, Approved: { label: 'Approved: to move', tone: 'good' },
   Moved: { label: 'Moved', tone: 'good' }, Rejected: { label: 'Not approved', tone: 'bad' }, Cancelled: { label: 'Cancelled', tone: 'muted' },
 };
 
-/** The path of a request: Floor Warden, Chief Warden, the move. */
+/** The path of a request: Floor Manager, Chief Manager, the move. */
 export function RcTimeline({ c }: { c: Pick<Change, 'status' | 'steps' | 'move_date' | 'moved_by_name' | 'requested_at' | 'arranged'> }) {
   const moved = c.status === 'Moved';
   const items = [
-    { label: c.arranged ? 'Arranged by the Chief Warden' : 'Asked', done: true, sub: day(c.requested_at), bad: false },
-    ...c.steps.map((s) => ({ label: s.approver_role === 'Floor_Warden' ? 'Floor Warden' : 'Chief Warden', done: s.decision === 'Approved', bad: s.decision === 'Rejected',
+    { label: c.arranged ? 'Arranged by the Chief Manager' : 'Asked', done: true, sub: day(c.requested_at), bad: false },
+    ...c.steps.map((s) => ({ label: s.approver_role === 'Floor_Warden' ? 'Floor Manager' : 'Chief Manager', done: s.decision === 'Approved', bad: s.decision === 'Rejected',
       sub: s.decision === 'Pending' ? 'Waiting' : s.decision === 'Skipped' ? 'Not needed' : `${s.decision === 'Rejected' ? 'Not approved' : 'Approved'}${s.acted_by_name ? ` · ${s.acted_by_name}` : ''} · ${day(s.decided_on)}${s.remarks ? ` · “${s.remarks}”` : ''}` })),
     { label: 'Moved and settled', done: moved, bad: false, sub: moved ? `${day(c.move_date)}${c.moved_by_name ? ` · ${c.moved_by_name}` : ''}` : c.status === 'Approved' ? 'On the day of the move' : '' },
   ];
@@ -39,8 +39,8 @@ export function RcTimeline({ c }: { c: Pick<Change, 'status' | 'steps' | 'move_d
 
 /**
  * RCH-02 Change room. The student asks for another room type or another room of the same type in their hostel, picks a
- * free bed (or leaves it to the Chief Warden), and sees what it does to the hostel fee and electricity before sending.
- * The Floor Warden and then the Chief Warden approve; on the day the warden moves the student and settles the money.
+ * free bed (or leaves it to the Chief Manager), and sees what it does to the hostel fee and electricity before sending.
+ * The Floor Manager and then the Chief Manager approve; on the day the warden moves the student and settles the money.
  */
 export default function ChangeRoom() {
   const r = useApi<Mine>('/me/room-change');
@@ -93,7 +93,7 @@ function OpenRequest({ c, onChange }: { c: Change; onChange: () => void }) {
         </header>
         <p className="rc-reason">“{c.reason}”</p>
         <RcTimeline c={c} />
-        {c.status === 'Approved' && <p className="rc-hint"><CheckCircle2 size={16} />Approved. Your bed {c.to_bed} is kept for you. Your Floor Warden will read the room's meter, take your old key and give you the new one on the day you move.</p>}
+        {c.status === 'Approved' && <p className="rc-hint"><CheckCircle2 size={16} />Approved. Your bed {c.to_bed} is kept for you. Your Floor Manager will read the room's meter, take your old key and give you the new one on the day you move.</p>}
         <div className="rc-acts"><Button variant="secondary" loading={busy} onClick={cancel}>Cancel request</Button></div>
       </section>
       {det.data?.statement && <section className="st-panel"><h2>Fee and electricity</h2><RoomChangeStatement s={det.data.statement} /></section>}
@@ -123,7 +123,7 @@ function NewRequest({ d, onDone }: { d: Mine; onDone: () => void }) {
     setBusy(true);
     try {
       const x = await api<{ change_no: string }>('/me/room-change', { method: 'POST', json: { kind, to_room_type_id: typeId, to_subspace_id: bed, reason } });
-      toast(`Request ${x.change_no} sent to your Floor Warden`); onDone();
+      toast(`Request ${x.change_no} sent to your Floor Manager`); onDone();
     } catch (e) { toast((e as Error).message, 'critical'); } finally { setBusy(false); }
   };
   const blocked = !typeId ? 'Choose the room type.' : reason.trim().length < 10 ? 'Say why in a sentence.' : undefined;
@@ -153,9 +153,9 @@ function NewRequest({ d, onDone }: { d: Mine; onDone: () => void }) {
 
       {typeId && (
         <section className="st-panel">
-          <h2>{kind === 'Room_Type' ? '3' : '2'}. Choose a bed <small className="rc-opt">or leave it to the Chief Warden</small></h2>
+          <h2>{kind === 'Room_Type' ? '3' : '2'}. Choose a bed <small className="rc-opt">or leave it to the Chief Manager</small></h2>
           {!beds.data && <p className="st-empty">Loading free beds…</p>}
-          {beds.data && !beds.data.length && <p className="st-empty">No free bed of this type now. You can still ask; the Chief Warden will give one when it is free.</p>}
+          {beds.data && !beds.data.length && <p className="st-empty">No free bed of this type now. You can still ask; the Chief Manager will give one when it is free.</p>}
           <div className="rc-floors">{floors.map(([f, rooms]) => (
             <div key={f} className="rc-floor"><h4>{f}</h4>
               <div className="rc-rooms">{[...rooms.entries()].map(([room, bs]) => (
@@ -164,7 +164,7 @@ function NewRequest({ d, onDone }: { d: Mine; onDone: () => void }) {
                     <button key={b.subspace_id} type="button" aria-pressed={bed === b.subspace_id} onClick={() => setBed(bed === b.subspace_id ? null : b.subspace_id)} aria-label={`Bed ${b.bed_label}`}>Bed {b.bed_code}</button>))}</span>
                 </div>))}</div>
             </div>))}</div>
-          {bed && <p className="rc-hint"><BedDouble size={16} />You asked for {beds.data?.find((b) => b.subspace_id === bed)?.bed_label}. The Chief Warden may give another bed of the same type.</p>}
+          {bed && <p className="rc-hint"><BedDouble size={16} />You asked for {beds.data?.find((b) => b.subspace_id === bed)?.bed_label}. The Chief Manager may give another bed of the same type.</p>}
         </section>)}
 
       {typeId && (
@@ -174,8 +174,8 @@ function NewRequest({ d, onDone }: { d: Mine; onDone: () => void }) {
             placeholder="For example: my roommates study late and I cannot sleep; I would like a 2-sharing room to prepare for exams." />
           {preview.data && <><h3 className="rc-h3">What it means for your fees</h3><RoomChangeStatement s={preview.data} /></>}
           {preview.error && <p className="st-empty">{(preview.error as Error).message}</p>}
-          <div className="rc-acts"><Button variant="primary" loading={busy} blockedReason={blocked} onClick={send}>Send to my Floor Warden</Button></div>
-          <p className="rc-small">The Floor Warden of your floor approves first, then the Chief Warden. You can cancel until you move.</p>
+          <div className="rc-acts"><Button variant="primary" loading={busy} blockedReason={blocked} onClick={send}>Send to my Floor Manager</Button></div>
+          <p className="rc-small">The Floor Manager of your floor approves first, then the Chief Manager. You can cancel until you move.</p>
         </section>)}
     </>
   );

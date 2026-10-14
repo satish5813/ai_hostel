@@ -111,10 +111,10 @@ td small { display: block; color: var(--muted); font-size: 12.5px; }
 
 <section id="logins">
   <h2>Four logins, nothing else</h2>
-  <p class="sub">The sign-in page will offer only these four. The other roles in the document (Floor Warden, Office Staff, Accounts, Security and the rest) remain as staff records that the system maps and notifies, but they do not sign in. Their tasks move to one of the four logins, as listed in <a href="#who">Who does what</a>.</p>
+  <p class="sub">The sign-in page will offer only these four. The other roles in the document (Floor Manager, Office Staff, Accounts, Security and the rest) remain as staff records that the system maps and notifies, but they do not sign in. Their tasks move to one of the four logins, as listed in <a href="#who">Who does what</a>.</p>
   <div class="logins">
     <div class="login first"><span>Built first</span><b>Administrator</b><p>Sets up hostels, floors, rooms, beds, fees, students, staff, meters and rules. Gives the other logins and their hostels. Approves nothing.</p></div>
-    <div class="login"><span>Second</span><b>Chief Warden</b><p>Gives the final approval for allotments, outings and sick leave. Handles exceptions, blocking and alerts. Sees every hostel in their scope.</p></div>
+    <div class="login"><span>Second</span><b>Chief Manager</b><p>Gives the final approval for allotments, outings and sick leave. Handles exceptions, blocking and alerts. Sees every hostel in their scope.</p></div>
     <div class="login"><span>Third</span><b>Room Allotment</b><p>The hostel office. Works the allotment queue, verifies fees (first level), checks students in with the key, the handover list and the meter reading.</p></div>
     <div class="login"><span>Fourth</span><b>Student</b><p>Registers, pays, accepts a room, chooses the fee plan and mess, confirms check-in. Also electricity, outings and sick leave.</p></div>
   </div>
@@ -172,7 +172,7 @@ flowchart LR
     r2[Verify fees: level 1<br/>receipts match the demands]
     r3[Check in: key number,<br/>handover list, opening meter reading]
   end
-  subgraph CW[Chief Warden]
+  subgraph CW[Chief Manager]
     c1[Approve: level 2]
   end
   s2 --> y1
@@ -187,7 +187,7 @@ flowchart LR
   c1 --> r3 --> s7 --> done([Checked in: bed active,<br/>meter mapped to the student])
 </pre>
   </div>
-  <p class="note">The two approvals before check-in (fee verification by Room Allotment, then the Chief Warden's approval) are already built and enforced by the database. Check-in is refused until both are done.</p>
+  <p class="note">The two approvals before check-in (fee verification by Room Allotment, then the Chief Manager's approval) are already built and enforced by the database. Check-in is refused until both are done.</p>
 </section>
 
 <section id="who">
@@ -198,17 +198,17 @@ flowchart LR
     <tbody>
       <tr><td class="id">A</td><td>Choose hostel building and room type</td><td>Student</td><td class="who">Student</td></tr>
       <tr><td class="id">A</td><td>Pay the registration fee</td><td>Student; Accounts checks</td><td class="who">Student <small>Room Allotment verifies <span class="chip c-moved">moved</span></small></td></tr>
-      <tr><td class="id">A</td><td>Allot room and bed</td><td>Software; Room Allotment; Warden for exceptions</td><td class="who">System + Room Allotment <small>exceptions: Chief Warden</small></td></tr>
-      <tr><td class="id">A</td><td>Show the room for physical verification</td><td>Floor Warden</td><td class="who">Room Allotment <span class="chip c-moved">moved</span><small>optional "room shown" tick</small></td></tr>
+      <tr><td class="id">A</td><td>Allot room and bed</td><td>Software; Room Allotment; Warden for exceptions</td><td class="who">System + Room Allotment <small>exceptions: Chief Manager</small></td></tr>
+      <tr><td class="id">A</td><td>Show the room for physical verification</td><td>Floor Manager</td><td class="who">Room Allotment <span class="chip c-moved">moved</span><small>optional "room shown" tick</small></td></tr>
       <tr><td class="id">A</td><td>Accept or decline the room</td><td>Student</td><td class="who">Student</td></tr>
-      <tr><td class="id">A</td><td>Fee plan, hostel and mess fees, cuisine</td><td>Student; Accounts checks</td><td class="who">Student <small>Room Allotment verifies (level 1), Chief Warden approves (level 2)</small></td></tr>
-      <tr><td class="id">A</td><td>Check-in: key, handover list, opening meter reading</td><td>Office Staff, Floor Warden; Warden approves</td><td class="who">Room Allotment <span class="chip c-moved">moved</span><small>student confirms on the phone</small></td></tr>
-      <tr><td class="id">A</td><td>Follow up an overdue instalment</td><td>Accounts; Chief Warden</td><td class="who">Room Allotment <span class="chip c-moved">moved</span><small>escalates to the Chief Warden</small></td></tr>
-      <tr><td class="id">B</td><td>Create buildings, floors, rooms, beds, room types</td><td>Office Staff; Chief Warden checks</td><td class="who">Administrator <span class="chip c-moved">moved</span></td></tr>
-      <tr><td class="id">B</td><td>Assign Chief Warden and Wardens to hostels</td><td>Director, Hostels</td><td class="who">Administrator <span class="chip c-moved">moved</span></td></tr>
-      <tr><td class="id">B</td><td>Floor Wardens to floors; cleaners to blocks; in-charges to areas</td><td>Chief Warden; Housekeeping</td><td class="who">Administrator sets up <small>Chief Warden adjusts day to day</small></td></tr>
+      <tr><td class="id">A</td><td>Fee plan, hostel and mess fees, cuisine</td><td>Student; Accounts checks</td><td class="who">Student <small>Room Allotment verifies (level 1), Chief Manager approves (level 2)</small></td></tr>
+      <tr><td class="id">A</td><td>Check-in: key, handover list, opening meter reading</td><td>Office Staff, Floor Manager; Warden approves</td><td class="who">Room Allotment <span class="chip c-moved">moved</span><small>student confirms on the phone</small></td></tr>
+      <tr><td class="id">A</td><td>Follow up an overdue instalment</td><td>Accounts; Chief Manager</td><td class="who">Room Allotment <span class="chip c-moved">moved</span><small>escalates to the Chief Manager</small></td></tr>
+      <tr><td class="id">B</td><td>Create buildings, floors, rooms, beds, room types</td><td>Office Staff; Chief Manager checks</td><td class="who">Administrator <span class="chip c-moved">moved</span></td></tr>
+      <tr><td class="id">B</td><td>Assign Chief Manager and Wardens to hostels</td><td>Director, Hostels</td><td class="who">Administrator <span class="chip c-moved">moved</span></td></tr>
+      <tr><td class="id">B</td><td>Floor Managers to floors; cleaners to blocks; in-charges to areas</td><td>Chief Manager; Housekeeping</td><td class="who">Administrator sets up <small>Chief Manager adjusts day to day</small></td></tr>
       <tr><td class="id">B</td><td>Generate and print QR labels</td><td>Office Staff</td><td class="who">Administrator <span class="chip c-moved">moved</span></td></tr>
-      <tr><td class="id">B</td><td>Room for resident faculty or staff</td><td>Office Staff; Chief Warden approves</td><td class="who">Room Allotment <small>Chief Warden approves</small></td></tr>
+      <tr><td class="id">B</td><td>Room for resident faculty or staff</td><td>Office Staff; Chief Manager approves</td><td class="who">Room Allotment <small>Chief Manager approves</small></td></tr>
       <tr><td class="id">C</td><td>Register meters; set included units and rate</td><td>Maintenance; Accounts; Pro-VC Finance</td><td class="who">Administrator <span class="chip c-moved">moved</span><small>enters the approved tariff</small></td></tr>
       <tr><td class="id">C</td><td>Map meter to student at check-in</td><td>Software</td><td class="who">System</td></tr>
       <tr><td class="id">C</td><td>Collect readings</td><td>Smart meter or electrician</td><td class="who">System feed <small>manual readings uploaded by the Administrator</small></td></tr>
@@ -216,14 +216,14 @@ flowchart LR
       <tr><td class="id">D</td><td>Consent to tracking</td><td>Student or parent; Office checks</td><td class="who">Student <small>at registration; parent link if under 18</small></td></tr>
       <tr><td class="id">D</td><td>Register gates, cameras, readers</td><td>Security Officer</td><td class="who">Administrator <span class="chip c-moved">moved</span></td></tr>
       <tr><td class="id">D</td><td>Capture in and out</td><td>Devices; guard for manual entry</td><td class="who">Devices <small>manual entry: decision D5</small></td></tr>
-      <tr><td class="id">D</td><td>Act on alerts; look up a student</td><td>Floor Warden, Security; Chief Warden reviews</td><td class="who">Chief Warden <span class="chip c-moved">moved</span><small>every look-up is logged</small></td></tr>
+      <tr><td class="id">D</td><td>Act on alerts; look up a student</td><td>Floor Manager, Security; Chief Manager reviews</td><td class="who">Chief Manager <span class="chip c-moved">moved</span><small>every look-up is logged</small></td></tr>
       <tr><td class="id">E</td><td>Apply for an outing</td><td>Student</td><td class="who">Student</td></tr>
       <tr><td class="id">E</td><td>Parent recommends</td><td>Parent</td><td class="who">Parent by link</td></tr>
-      <tr><td class="id">E</td><td>Level 1 Floor Warden, Level 2 Chief Warden</td><td>Floor Warden; Chief Warden</td><td class="who">Chief Warden <span class="chip c-moved">moved</span><small>one decision, decision D2</small></td></tr>
+      <tr><td class="id">E</td><td>Level 1 Floor Manager, Level 2 Chief Manager</td><td>Floor Manager; Chief Manager</td><td class="who">Chief Manager <span class="chip c-moved">moved</span><small>one decision, decision D2</small></td></tr>
       <tr><td class="id">E</td><td>Level 3 for a day or more</td><td>Dean, Students Affairs</td><td class="who">Dean by link <small>decision D3</small></td></tr>
       <tr><td class="id">F</td><td>Apply for sick leave</td><td>Student</td><td class="who">Student</td></tr>
-      <tr><td class="id">F</td><td>Visit in person and recommend</td><td>Floor Warden</td><td class="who">Chief Warden records the visit <span class="chip c-moved">moved</span><small>decision D4</small></td></tr>
-      <tr><td class="id">F</td><td>Approve; extend</td><td>Chief Warden</td><td class="who">Chief Warden</td></tr>
+      <tr><td class="id">F</td><td>Visit in person and recommend</td><td>Floor Manager</td><td class="who">Chief Manager records the visit <span class="chip c-moved">moved</span><small>decision D4</small></td></tr>
+      <tr><td class="id">F</td><td>Approve; extend</td><td>Chief Manager</td><td class="who">Chief Manager</td></tr>
       <tr><td class="id">F</td><td>Sick list for the mess; food to the room</td><td>Mess In-charge</td><td class="who">System sends the list <small>decision D6</small></td></tr>
     </tbody>
   </table></div>
@@ -244,8 +244,8 @@ flowchart LR
         <tr><td>Room builder</td><td>Generates floors, rooms and beds for a whole hostel from a pattern, with a preview of counts.</td><td><span class="chip c-new">new</span></td></tr>
         <tr><td>Room types and fees</td><td>Beds per room, AC, hostel fee, mess fee, instalment split, per year.</td><td><span class="chip c-built">built</span></td></tr>
         <tr><td>Students</td><td>Upload from the university ERP. Aadhaar, PAN and bank details are dropped in the browser.</td><td><span class="chip c-built">built</span></td></tr>
-        <tr><td>Staff and mapping</td><td>Staff records; Chief Wardens to hostels, Floor Wardens to floors by shift, cleaners to blocks.</td><td><span class="chip c-built">built</span></td></tr>
-        <tr><td>Logins</td><td>The Chief Warden and Room Allotment logins, each with the hostels it may see. Disable and reset.</td><td><span class="chip c-rework">rework</span></td></tr>
+        <tr><td>Staff and mapping</td><td>Staff records; Chief Managers to hostels, Floor Managers to floors by shift, cleaners to blocks.</td><td><span class="chip c-built">built</span></td></tr>
+        <tr><td>Logins</td><td>The Chief Manager and Room Allotment logins, each with the hostels it may see. Disable and reset.</td><td><span class="chip c-rework">rework</span></td></tr>
         <tr><td>Meters and tariff</td><td>A meter per room (upload); included units and rate per room type.</td><td><span class="chip c-built">built</span></td></tr>
         <tr><td>Capture points and QR labels</td><td>Gates, readers and cameras; QR labels for rooms and blocks.</td><td><span class="chip c-built">built</span></td></tr>
         <tr><td>Audit log and Database</td><td>Every change with who and when; every table, browsable.</td><td><span class="chip c-built">built</span></td></tr>
@@ -259,8 +259,8 @@ flowchart LR
         <tr><td class="id">AD-03</td><td>Build a hostel's rooms</td><td>Choose floors (G–12), rooms per floor (for example 40), room-type ranges (for example 01–10 single AC, 11–40 triple). Preview, then generate.</td><td>About 1,500 rooms and 4,000 beds created in one step, codes unique.</td></tr>
         <tr><td class="id">AD-04</td><td>Set fees for the year</td><td>Per room type: hostel fee, mess fee, two-instalment split.</td><td>Every room type in use has a fee; otherwise the set-up board flags it.</td></tr>
         <tr><td class="id">AD-05</td><td>Load students</td><td>Upload the ERP file; check; load. Rejected rows are listed with the reason.</td><td>Students can sign in and register.</td></tr>
-        <tr><td class="id">AD-06</td><td>Map staff</td><td>Load staff; assign Chief Wardens to hostels and Floor Wardens to floors.</td><td>Every floor with beds has a Floor Warden.</td></tr>
-        <tr><td class="id">AD-07</td><td>Give logins</td><td>Create a Chief Warden or Room Allotment login and pick its hostels.</td><td>That login sees only its hostels.</td></tr>
+        <tr><td class="id">AD-06</td><td>Map staff</td><td>Load staff; assign Chief Managers to hostels and Floor Managers to floors.</td><td>Every floor with beds has a Floor Manager.</td></tr>
+        <tr><td class="id">AD-07</td><td>Give logins</td><td>Create a Chief Manager or Room Allotment login and pick its hostels.</td><td>That login sees only its hostels.</td></tr>
         <tr><td class="id">AD-08</td><td>Meters, tariff, capture points, QR</td><td>Upload meters; set the tariff; register gates; print QR labels floor by floor.</td><td>The set-up board shows the hostel ready.</td></tr>
         <tr><td class="id">AD-09</td><td>Check readiness and open registration</td><td>Set-up board shows no blockers; open the window.</td><td>Student portal accepts applications.</td></tr>
       </tbody>
@@ -268,7 +268,7 @@ flowchart LR
   </div>
 
   <div class="portal">
-    <h3>2. Chief Warden <span>Approvals, exceptions, oversight</span></h3>
+    <h3>2. Chief Manager <span>Approvals, exceptions, oversight</span></h3>
     <div class="tbl"><table>
       <thead><tr><th>Screen</th><th>What it does</th><th>Status</th></tr></thead>
       <tbody>
@@ -279,7 +279,7 @@ flowchart LR
         <tr><td>Outing approvals</td><td>One decision after the parent's recommendation; a day or more goes on to the Dean.</td><td><span class="chip c-rework">rework</span></td></tr>
         <tr><td>Sick leave</td><td>Record the visit, approve, reject or extend; the mess list follows.</td><td><span class="chip c-rework">rework</span></td></tr>
         <tr><td>Alerts, status board, look-up</td><td>No-pass exits, late returns, students not seen; where a student is, with a logged purpose.</td><td><span class="chip c-built">built</span></td></tr>
-        <tr><td>Staff attendance and room mapping</td><td>Who is on duty today; covers for absent Floor Wardens and cleaners.</td><td><span class="chip c-built">built</span></td></tr>
+        <tr><td>Staff attendance and room mapping</td><td>Who is on duty today; covers for absent Floor Managers and cleaners.</td><td><span class="chip c-built">built</span></td></tr>
         <tr><td>Reports</td><td>Occupancy, fees and dues by hostel and floor; export.</td><td><span class="chip c-built">built</span></td></tr>
       </tbody>
     </table></div>
@@ -294,7 +294,7 @@ flowchart LR
         <tr><td class="id">CW-06</td><td>Handle sick leave</td><td>Record who visited, when, and what they found; approve.</td><td>Student shows as on sick leave; meals listed for the room.</td></tr>
         <tr><td class="id">CW-07</td><td>Act on an alert</td><td>Open it, note the action, close it. A parent can be informed.</td><td>Alert closed with the action recorded.</td></tr>
         <tr><td class="id">CW-08</td><td>Find a student</td><td>Search; choose the purpose (routine, alert, parent query, emergency).</td><td>Location shown and the look-up logged.</td></tr>
-        <tr><td class="id">CW-09</td><td>Cover an absent staff member</td><td>Mark attendance; auto-assign covers.</td><td>No floor left without a Floor Warden today.</td></tr>
+        <tr><td class="id">CW-09</td><td>Cover an absent staff member</td><td>Mark attendance; auto-assign covers.</td><td>No floor left without a Floor Manager today.</td></tr>
       </tbody>
     </table></div>
   </div>
@@ -317,11 +317,11 @@ flowchart LR
       <thead><tr><th>ID</th><th>Use case</th><th>Main steps</th><th>Done when</th></tr></thead>
       <tbody>
         <tr><td class="id">RA-01</td><td>Run auto-allotment</td><td>Pick hostel and room type; run. The system offers the free beds in application order.</td><td>Each offered student is notified, with a hold time.</td></tr>
-        <tr><td class="id">RA-02</td><td>Offer a bed by hand</td><td>Open the floor board; pick a vacant bed; offer. Outside the rules, it goes to the Chief Warden first.</td><td>Bed shows as held for that student.</td></tr>
+        <tr><td class="id">RA-02</td><td>Offer a bed by hand</td><td>Open the floor board; pick a vacant bed; offer. Outside the rules, it goes to the Chief Manager first.</td><td>Bed shows as held for that student.</td></tr>
         <tr><td class="id">RA-03</td><td>Re-offer after a decline or expiry</td><td>The queue shows declined and expired offers first.</td><td>A new offer is made, or the student is waitlisted.</td></tr>
-        <tr><td class="id">RA-04</td><td>Verify fees (level 1)</td><td>Open the student; tick that the receipts are seen; verify, or query.</td><td>Student moves to the Chief Warden column.</td></tr>
+        <tr><td class="id">RA-04</td><td>Verify fees (level 1)</td><td>Open the student; tick that the receipts are seen; verify, or query.</td><td>Student moves to the Chief Manager column.</td></tr>
         <tr><td class="id">RA-05</td><td>Check a student in</td><td>Confirm level 2 is approved; enter the key number; mark each item Good, Fair, Damaged or Missing; read the meter; the student confirms.</td><td>Stay active, meter mapped, bed occupied.</td></tr>
-        <tr><td class="id">RA-06</td><td>Chase dues</td><td>Filter overdue; send reminders; escalate unpaid ones after the grace period.</td><td>Paid, or listed for the Chief Warden.</td></tr>
+        <tr><td class="id">RA-06</td><td>Chase dues</td><td>Filter overdue; send reminders; escalate unpaid ones after the grace period.</td><td>Paid, or listed for the Chief Manager.</td></tr>
         <tr><td class="id">RA-07</td><td>House a faculty member</td><td>Pick a staff room; send for approval; check in after approval.</td><td>Staff stay active in that room.</td></tr>
       </tbody>
     </table></div>
@@ -373,13 +373,13 @@ flowchart LR
       <tr><td class="id">A</td><td>The student's gender must match the hostel's.</td></tr>
       <tr><td class="id">A</td><td>A blocked bed, or a bed in a room under maintenance, is never offered.</td></tr>
       <tr><td class="id">A</td><td>A fee plan exists only for an accepted room. Two instalments means exactly two hostel demands; mess is always one.</td></tr>
-      <tr><td class="id">A</td><td>Check-in needs level 1 fee verification and level 2 Chief Warden approval.</td></tr>
+      <tr><td class="id">A</td><td>Check-in needs level 1 fee verification and level 2 Chief Manager approval.</td></tr>
       <tr><td class="id">A</td><td>Aadhaar, PAN and bank details are never stored in the hostel database.</td></tr>
-      <tr><td class="id">B</td><td>One active QR label per space. Every floor with occupied beds needs a Floor Warden; floors without one are reported.</td></tr>
+      <tr><td class="id">B</td><td>One active QR label per space. Every floor with occupied beds needs a Floor Manager; floors without one are reported.</td></tr>
       <tr><td class="id">C</td><td>One active meter per room. A reading can't be lower than the last one. Units and excess are calculated, never typed. The meter link opens and closes with check-in and check-out.</td></tr>
       <tr><td class="id">D</td><td>No movement is stored without current consent. An exit at the campus gate without an approved outing raises an alert. Movements and look-ups can be added, never changed.</td></tr>
       <tr><td class="id">E</td><td>Levels go in order; a rejection ends the request. Only a verified parent contact can recommend. A day or more gets no QR pass until the Dean approves.</td></tr>
-      <tr><td class="id">F</td><td>Sick leave can't be recommended without the visit details. Only the Chief Warden approves. A missed room meal raises an alert.</td></tr>
+      <tr><td class="id">F</td><td>Sick leave can't be recommended without the visit details. Only the Chief Manager approves. A missed room meal raises an alert.</td></tr>
       <tr><td class="id">All</td><td>Every change records who made it and when, in a log that can't be edited.</td></tr>
     </tbody>
   </table></div>
@@ -391,15 +391,15 @@ flowchart LR
   <div class="sprints">
     <div class="sprint"><h4>Stage 0 · Four logins and full-size data</h4><p>The base everything else is tested on.</p><ul>
       <li>Sign-in page with four choices only. Menus, home pages and the API accept only those four roles.</li>
-      <li>Logins carry a hostel scope; a Chief Warden or Room Allotment login sees only its hostels.</li>
+      <li>Logins carry a hostel scope; a Chief Manager or Room Allotment login sees only its hostels.</li>
       <li>Test-data generator for 15 hostels × 13 floors × 40 rooms, with students at every step.</li></ul></div>
     <div class="sprint"><h4>Stage 1 · Administrator portal</h4><p>Use cases AD-01 to AD-09.</p><ul>
       <li>Room builder (new); set-up board reworked as a readiness check; policy screen for the window, hold and due dates.</li>
       <li>Logins screen for the two staff logins and their hostels.</li>
       <li>Accepted when a new hostel of 13 floors can be built, fee-set, staffed and marked ready in one sitting.</li></ul></div>
-    <div class="sprint"><h4>Stage 2 · Chief Warden portal</h4><p>Use cases CW-01 to CW-09.</p><ul>
+    <div class="sprint"><h4>Stage 2 · Chief Manager portal</h4><p>Use cases CW-01 to CW-09.</p><ul>
       <li>Overview across hostels; exceptions inbox (new); outings and sick leave reworked for one decision.</li>
-      <li>Accepted when a Chief Warden can clear a day's approvals for 15 hostels from the overview without searching.</li></ul></div>
+      <li>Accepted when a Chief Manager can clear a day's approvals for 15 hostels from the overview without searching.</li></ul></div>
     <div class="sprint"><h4>Stage 3 · Room Allotment portal</h4><p>Use cases RA-01 to RA-07.</p><ul>
       <li>Allotment desk reworked for paging and batch auto-allot; check-in desk with the student's confirmation; search across hostels.</li>
       <li>Accepted when two officers working the same hostel can't offer the same bed, and a check-in takes under two minutes.</li></ul></div>
@@ -417,12 +417,12 @@ flowchart LR
   <p class="sub">All eight recommended answers were accepted on 3 Oct 2026 and are now in the application (migration 098). Bed letters and room numbers apply to rooms built from now on; existing beds were re-lettered.</p>
   <div class="decide">
     <div><b><span class="chip c-built">built</span> D1 · Who verifies fees?</b><p>The document gives this to the Accounts section, which no longer has a login. <strong>Recommended:</strong> the Room Allotment login verifies (level 1), as it does today.</p></div>
-    <div><b><span class="chip c-built">built</span> D2 · Outing approval without a Floor Warden login</b><p>The document has Floor Warden (level 1) then Chief Warden (level 2). <strong>Recommended:</strong> after the parent's recommendation, the Chief Warden decides once. The Floor Warden is informed by SMS.</p></div>
+    <div><b><span class="chip c-built">built</span> D2 · Outing approval without a Floor Manager login</b><p>The document has Floor Manager (level 1) then Chief Manager (level 2). <strong>Recommended:</strong> after the parent's recommendation, the Chief Manager decides once. The Floor Manager is informed by SMS.</p></div>
     <div><b><span class="chip c-built">built</span> D3 · Outings of a day or more need the Dean</b><p><strong>Recommended:</strong> the Dean gets a one-time approval link by SMS or email, like the parent, with no login.</p></div>
-    <div><b><span class="chip c-built">built</span> D4 · Sick leave needs an in-person visit</b><p><strong>Recommended:</strong> the Floor Warden still visits; the Chief Warden records who visited, when, and what they found, then approves.</p></div>
-    <div><b><span class="chip c-built">built</span> D5 · Gate in and out without a Security login</b><p><strong>Recommended:</strong> gate readers and cameras record movements on their own. A manual entry desk sits inside the Chief Warden portal for when a device is down.</p></div>
-    <div><b><span class="chip c-built">built</span> D6 · Mess sick list without a Mess login</b><p><strong>Recommended:</strong> the list is sent to the mess in-charge by SMS before each meal and is visible in the Chief Warden portal.</p></div>
-    <div><b><span class="chip c-built">built</span> D7 · How many Chief Wardens?</b><p><strong>Recommended:</strong> one login type; the Administrator gives each Chief Warden and each Room Allotment login a set of hostels (one, a group, or all).</p></div>
+    <div><b><span class="chip c-built">built</span> D4 · Sick leave needs an in-person visit</b><p><strong>Recommended:</strong> the Floor Manager still visits; the Chief Manager records who visited, when, and what they found, then approves.</p></div>
+    <div><b><span class="chip c-built">built</span> D5 · Gate in and out without a Security login</b><p><strong>Recommended:</strong> gate readers and cameras record movements on their own. A manual entry desk sits inside the Chief Manager portal for when a device is down.</p></div>
+    <div><b><span class="chip c-built">built</span> D6 · Mess sick list without a Mess login</b><p><strong>Recommended:</strong> the list is sent to the mess in-charge by SMS before each meal and is visible in the Chief Manager portal.</p></div>
+    <div><b><span class="chip c-built">built</span> D7 · How many Chief Managers?</b><p><strong>Recommended:</strong> one login type; the Administrator gives each Chief Manager and each Room Allotment login a set of hostels (one, a group, or all).</p></div>
     <div><b><span class="chip c-built">built</span> D8 · Room numbering</b><p><strong>Recommended:</strong> floor plus two-digit room (<code>G01</code>, <code>1207</code>), bed letter after it, hostel code in front: <code>BH3-1207-B</code>.</p></div>
   </div>
 </section>

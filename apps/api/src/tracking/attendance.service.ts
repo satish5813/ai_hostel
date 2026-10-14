@@ -5,7 +5,7 @@ import type { AuthUser } from '../auth/auth.types.js';
 
 /**
  * Attendance register for wardens: each resident against each day, with planned absences (approved outings, sick leave)
- * and the night roll call. A Floor Warden sees the floors they are assigned to; other wardens the whole hostel.
+ * and the night roll call. A Floor Manager sees the floors they are assigned to; other wardens the whole hostel.
  */
 @Injectable()
 export class AttendanceService {
@@ -35,7 +35,7 @@ export class AttendanceService {
     return { students, outings, sick, marks };
   }
 
-  /** Night roll call. Absent with no pass and no sick leave raises a Not_Seen alert to the Floor Warden. */
+  /** Night roll call. Absent with no pass and no sick leave raises a Not_Seen alert to the Floor Manager. */
   async mark(user: AuthUser, dto: { att_date: string; facility_id: string; marks: { student_id: string; status: 'Present' | 'Absent' | 'On_Pass' | 'Sick_Leave'; remarks?: string }[] }) {
     await this.dbs.run(user, async (tx) => {
       for (const m of dto.marks) {

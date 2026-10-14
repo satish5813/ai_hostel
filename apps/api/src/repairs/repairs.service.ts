@@ -84,7 +84,7 @@ export class RepairsService {
           ${it.category_id === 'ELEC' ? 'Electrical' : it.category_id === 'CARP' ? 'Furniture_Doors' : it.category_id === 'PLUMB' ? 'Plumbing' : 'Other'})
         returning ticket_id::int as ticket_id`)) as unknown as { ticket_id: number }[];
       await this.event(tx, user, t.ticket_id, 'Raised', `${it.label}${dto.location_note ? ` · ${dto.location_note}` : ''}`);
-      // tell whoever checks it: the floor warden of the student's floor (room and common), the mess in-charge (mess)
+      // tell whoever checks it: the floor manager of the student's floor (room and common), the mess in-charge (mess)
       await tx.execute(sql`insert into shared.notification (recipient_type, staff_id, channel, template_code, subject, body, related_type, related_id)
         select 'Staff', a.staff_id, 'In_App', 'TICKET_RAISED', ${`New ticket: ${it.label}`}, ${`${m.stay!.bed_label}: ${dto.description.trim().slice(0, 140)}`}, 'maintenance_ticket', ${String(t.ticket_id)}
         from hostel.staff_space_assignment a

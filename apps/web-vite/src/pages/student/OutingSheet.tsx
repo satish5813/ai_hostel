@@ -53,9 +53,9 @@ export function OutingSheet({ ask, live, pending, room, onClose, onDone, onShow 
     const warden = pending.steps.find((x) => x.role === 'Chief_Warden');
     const flow: { label: string; state: 'done' | 'now' | 'next' | 'lock'; who?: string }[] = [
       { label: 'Request sent', state: 'done' },
-      // level 1 Floor Warden, level 2 Chief Warden (migration 122: no parent or Dean step)
-      ...(floor ? [{ label: 'Floor Warden approves', state: (floor.decision === 'Approved' ? 'done' : 'now') as 'done' | 'now', who: floor.by }] : []),
-      { label: 'Chief Warden approves', state: warden && warden.decision === 'Approved' ? 'done' : !floor || floor.decision === 'Approved' ? 'now' : 'next', who: warden?.by },
+      // level 1 Floor Manager, level 2 Chief Manager (migration 122: no parent or Dean step)
+      ...(floor ? [{ label: 'Floor Manager approves', state: (floor.decision === 'Approved' ? 'done' : 'now') as 'done' | 'now', who: floor.by }] : []),
+      { label: 'Chief Manager approves', state: warden && warden.decision === 'Approved' ? 'done' : !floor || floor.decision === 'Approved' ? 'now' : 'next', who: warden?.by },
       { label: 'QR gate pass', state: 'lock' },
     ];
     return (
@@ -64,7 +64,7 @@ export function OutingSheet({ ask, live, pending, room, onClose, onDone, onShow 
         <div className="st-stack">
           <ol className="st-flow">{flow.map((x, i) => (
             <li key={x.label} className={`st-flow-${x.state}`}><span>{x.state === 'done' ? <CheckCircle2 size={15} /> : x.state === 'lock' ? <Lock size={13} /> : i + 1}</span><b>{x.label}</b>{x.who && <small>{x.who}</small>}</li>))}</ol>
-          <div className="st-lock"><Lock size={22} /><b>No gate pass yet</b><small>Your QR gate pass is made when the Chief Warden approves. It will appear here and on the Outing card.</small></div>
+          <div className="st-lock"><Lock size={22} /><b>No gate pass yet</b><small>Your QR gate pass is made when the Chief Manager approves. It will appear here and on the Outing card.</small></div>
           <div className="st-facts st-pass">
             <span><small>Reason</small><b>{pending.reason}</b></span>
             <span><small>Going to</small><b>{pending.destination}</b></span>
@@ -74,9 +74,9 @@ export function OutingSheet({ ask, live, pending, room, onClose, onDone, onShow 
       </Sheet>);
   }
   return (
-    <Sheet mod="violet" icon={DoorOpen} title="Ask for outing permission" sub="Write why you need to go. The QR gate pass is made only after the Chief Warden approves." onClose={onClose}
+    <Sheet mod="violet" icon={DoorOpen} title="Ask for outing permission" sub="Write why you need to go. The QR gate pass is made only after the Chief Manager approves." onClose={onClose}
       footer={sent ? undefined : <Button variant="primary" loading={busy} blockedReason={existing ? `Finish with ${existing.outpass_no} first.` : missing} onClick={apply}>Submit request</Button>}>
-      {sent ? <Done title="Request submitted" body="There is no gate pass yet. Your Floor Warden approves it, then the Chief Warden. Your QR gate pass appears on the Outing card once it is approved." onClose={onClose} /> : (
+      {sent ? <Done title="Request submitted" body="There is no gate pass yet. Your Floor Manager approves it, then the Chief Manager. Your QR gate pass appears on the Outing card once it is approved." onClose={onClose} /> : (
         <div className="st-stack">
           {existing && (
             <div className="st-open">
@@ -91,7 +91,7 @@ export function OutingSheet({ ask, live, pending, room, onClose, onDone, onShow 
                 {!outNow && <Button size="sm" variant="secondary" loading={busy} onClick={() => clear(existing)}>{live ? 'Cancel pass' : 'Withdraw'}</Button>}
               </span>
             </div>)}
-          <ol className="st-flow st-flow-mini">{['Your request', 'Floor Warden', 'Chief Warden', 'QR gate pass'].map((l, i) => <li key={l} className={i === 0 ? 'st-flow-now' : i === 3 ? 'st-flow-lock' : 'st-flow-next'}><span>{i === 3 ? <Lock size={13} /> : i + 1}</span><b>{l}</b></li>)}</ol>
+          <ol className="st-flow st-flow-mini">{['Your request', 'Floor Manager', 'Chief Manager', 'QR gate pass'].map((l, i) => <li key={l} className={i === 0 ? 'st-flow-now' : i === 3 ? 'st-flow-lock' : 'st-flow-next'}><span>{i === 3 ? <Lock size={13} /> : i + 1}</span><b>{l}</b></li>)}</ol>
           <Field label="Why do you need to go out?" required><Textarea rows={3} value={f.reason} onChange={(e) => setF({ ...f, reason: e.target.value })} placeholder="For example: sister's wedding, bank work, hospital visit" /></Field>
           <Field label="Going to" required><Input value={f.destination} onChange={(e) => setF({ ...f, destination: e.target.value })} placeholder="Vijayawada" /></Field>
           <div className="st-grid2">
@@ -99,7 +99,7 @@ export function OutingSheet({ ask, live, pending, room, onClose, onDone, onShow 
             <Field label="Back by" required error={bad ? 'Must be after leaving.' : undefined}><Input type="datetime-local" value={f.return_by} onChange={(e) => setF({ ...f, return_by: e.target.value })} /></Field>
           </div>
           <Field label="Phone while away" required><Input value={f.contact_during_leave} onChange={(e) => setF({ ...f, contact_during_leave: e.target.value })} placeholder="98480 12345" inputMode="tel" /></Field>
-          {f.leave_from && f.return_by && !bad && <p className="st-note"><CalendarClock size={14} />{sameDay ? 'Same-day outing: ' : 'A day or more: '}your Floor Warden approves, then the Chief Warden.</p>}
+          {f.leave_from && f.return_by && !bad && <p className="st-note"><CalendarClock size={14} />{sameDay ? 'Same-day outing: ' : 'A day or more: '}your Floor Manager approves, then the Chief Manager.</p>}
         </div>)}
     </Sheet>
   );

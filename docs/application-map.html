@@ -136,7 +136,7 @@ flowchart LR
 </section>
 
 <section id="journey">
-  <span class="eyebrow">A resident's year</span>
+  <span class="eyebrow">A hostel student's year</span>
   <h2>From joining to leaving</h2>
   <p>The path every student takes. The money steps follow the joining and renewal rules: deposits and registration are paid once, the hostel fee, mess fee and meter charge every year.</p>
   <div class="frame"><pre class="mermaid">
@@ -145,7 +145,7 @@ flowchart TD
   A2 --> A3[Room offered or chosen]
   A3 --> A4[Accept; choose fee plan and mess]
   A4 --> A5[Pay: hostel fee, mess fee, meter charge,<br/>caution deposit, electricity deposit]
-  A5 --> A6[Warden checks fees; Chief Warden approves]
+  A5 --> A6[Warden checks fees; Chief Manager approves]
   A6 --> A7[Check-in: key, room handover, meter reading]
   A7 --> D{{Daily life}}
   D --> D1[Choose and rate meals]
@@ -169,12 +169,12 @@ flowchart TD
   <h2>The fourteen workflows and how far each is built</h2>
   <div class="legend"><span class="pill live">Live: all screens built</span><span class="pill part">Partly built</span><span class="pill plan">Database only, screens to build</span></div>
   <div class="wf">
-    <article><div class="hd"><span class="letter">A</span><h3>Registration, fees and rooms</h3><span class="pill live">Live</span></div><div class="bar"><i style="width:100%"></i></div><span class="count">18 of 18 screens</span><p>Registration, room offers, fee plans, fee check, Chief Warden approval, check-in, renewals, room change, caution deposits.</p></article>
+    <article><div class="hd"><span class="letter">A</span><h3>Registration, fees and rooms</h3><span class="pill live">Live</span></div><div class="bar"><i style="width:100%"></i></div><span class="count">18 of 18 screens</span><p>Registration, room offers, fee plans, fee check, Chief Manager approval, check-in, renewals, room change, caution deposits.</p></article>
     <article><div class="hd"><span class="letter">B</span><h3>Rooms, beds and staff mapping</h3><span class="pill live">Live</span></div><div class="bar"><i style="width:100%"></i></div><span class="count">8 of 8 screens</span><p>Rooms and beds, QR labels, staff duties and attendance, duty roster that covers every floor.</p></article>
     <article><div class="hd"><span class="letter">C</span><h3>Electricity</h3><span class="pill live">Live</span></div><div class="bar"><i style="width:100%"></i></div><span class="count">4 of 4 screens</span><p>Meters and readings, tariffs, monthly room bills split by days among roommates.</p></article>
     <article><div class="hd"><span class="letter">D</span><h3>Tracking and gate</h3><span class="pill live">Live</span></div><div class="bar"><i style="width:100%"></i></div><span class="count">9 of 9 screens</span><p>Gate scans, status board, alerts, roll call, attendance, consent and look-up log.</p></article>
-    <article><div class="hd"><span class="letter">E</span><h3>Outings</h3><span class="pill live">Live</span></div><div class="bar"><i style="width:100%"></i></div><span class="count">3 of 3 screens</span><p>Parent by link, Floor Warden, Chief Warden, Dean for a day or more; QR gate pass.</p></article>
-    <article><div class="hd"><span class="letter">F</span><h3>Sick leave</h3><span class="pill live">Live</span></div><div class="bar"><i style="width:100%"></i></div><span class="count">3 of 3 screens</span><p>Floor Warden visits, Chief Warden approves, meals go to the room.</p></article>
+    <article><div class="hd"><span class="letter">E</span><h3>Outings</h3><span class="pill live">Live</span></div><div class="bar"><i style="width:100%"></i></div><span class="count">3 of 3 screens</span><p>Parent by link, Floor Manager, Chief Manager, Dean for a day or more; QR gate pass.</p></article>
+    <article><div class="hd"><span class="letter">F</span><h3>Sick leave</h3><span class="pill live">Live</span></div><div class="bar"><i style="width:100%"></i></div><span class="count">3 of 3 screens</span><p>Floor Manager visits, Chief Manager approves, meals go to the room.</p></article>
     <article><div class="hd"><span class="letter">G</span><h3>Mess</h3><span class="pill live">Live</span></div><div class="bar"><i style="width:100%"></i></div><span class="count">10 of 10 screens</span><p>Weekly menu, choices, ratings, sentiment, complaints desk, meal scan, store with stock alerts, daily record and monthly report.</p></article>
     <article><div class="hd"><span class="letter">H</span><h3>Repairs, checklists and grievances</h3><span class="pill live">Live</span></div><div class="bar"><i style="width:100%"></i></div><span class="count">7 of 7 screens</span><p>Tickets, warden check, repair desk, floor rounds, checklists that open repair tickets, and grievances with confidential handling.</p></article>
     <article><div class="hd"><span class="letter">I</span><h3>Indents and purchase</h3><span class="pill plan">To build</span></div><div class="bar"><i style="width:0%"></i></div><span class="count">0 of 12 screens</span><p>Indent, stock, quotations, purchase orders, receipt, assets, invoices and budget.</p></article>
@@ -197,7 +197,7 @@ sequenceDiagram
   actor St as Student
   participant Of as Hostel office
   participant Wa as Warden
-  participant CW as Chief Warden
+  participant CW as Chief Manager
   St->>Of: Apply for hostel and room type
   St->>St: Pay registration fee (once)
   Of->>St: Offer a bed (held 48 hours)
@@ -214,8 +214,8 @@ sequenceDiagram
 sequenceDiagram
   actor St as Student
   participant Pa as Parent
-  participant FW as Floor Warden
-  participant CW as Chief Warden
+  participant FW as Floor Manager
+  participant CW as Chief Manager
   participant Dn as Dean
   participant Gt as Gate
   St->>Pa: Outing request sends an SMS link
@@ -234,9 +234,9 @@ sequenceDiagram
   <h3 id="f-rc">Room change</h3>
   <div class="frame"><pre class="mermaid">
 flowchart TD
-  S[Student asks: another room type<br/>or another room, same type] --> FW{Floor Warden}
-  CWD[Chief Warden moves a student<br/>directly, no request] --> AP
-  FW -->|approves| CW{Chief Warden<br/>gives or changes the bed}
+  S[Student asks: another room type<br/>or another room, same type] --> FW{Floor Manager}
+  CWD[Chief Manager moves a student<br/>directly, no request] --> AP
+  FW -->|approves| CW{Chief Manager<br/>gives or changes the bed}
   FW -->|refuses with reason| X[Closed]
   CW -->|approves| AP[Approved: bed held]
   CW -->|refuses| X
@@ -249,7 +249,7 @@ flowchart TD
   <div class="frame"><pre class="mermaid">
 flowchart LR
   P[Paid on joining<br/>or held from before] --> H[(Deposit account<br/>caution and electricity)]
-  W[Warden proposes a deduction<br/>with a written reason] --> C{Chief Warden}
+  W[Warden proposes a deduction<br/>with a written reason] --> C{Chief Manager}
   C -->|approves| H
   C -->|refuses| N[No change]
   AC[Accounts pays unpaid dues<br/>from the deposit] --> H
@@ -299,8 +299,8 @@ flowchart LR
       <tbody>
         <tr><td>Student</td><td>Registration and fees, meals, outings, sick leave, repairs, electricity, health, room change, deposit</td></tr>
         <tr><td>Parent</td><td>Recommends outings through an SMS link; no login</td></tr>
-        <tr><td>Floor Warden</td><td>First approval for outings and room changes, roll call, floor rounds, ticket checks, deduction proposals</td></tr>
-        <tr><td>Warden / Chief Warden</td><td>Allotment approvals, exceptions, room changes with full control of the building, deposits, duty roster</td></tr>
+        <tr><td>Floor Manager</td><td>First approval for outings and room changes, roll call, floor rounds, ticket checks, deduction proposals</td></tr>
+        <tr><td>Warden / Chief Manager</td><td>Allotment approvals, exceptions, room changes with full control of the building, deposits, duty roster</td></tr>
         <tr><td>Hostel office</td><td>Offers, check-in, renewals, rooms and staff mapping</td></tr>
         <tr><td>Accounts</td><td>Dues and collections, electricity bills, deposit dues and refunds</td></tr>
         <tr><td>Mess team and Chief Chef</td><td>Weekly menu, choices, sick meals, sentiment</td></tr>
@@ -361,8 +361,8 @@ flowchart LR
   <div class="todo">
     <details><summary><span class="pill part">Should</span><span class="t">Vacating screens (workflow N)</span><span class="who">Developer</span></summary>
       <p>The rules are in the database, but there are no screens. Deposit refunds require an approved vacate, so this is the next build.</p></details>
-    <details><summary><span class="pill part">Should</span><span class="t">Floor Wardens for every floor</span><span class="who">Hostel office</span></summary>
-      <p>Girls Hostel 1 has no Floor Warden assigned, so its outings and room changes fall back to the Chief Warden. Assign duties for every hostel.</p></details>
+    <details><summary><span class="pill part">Should</span><span class="t">Floor Managers for every floor</span><span class="who">Hostel office</span></summary>
+      <p>Girls Hostel 1 has no Floor Manager assigned, so its outings and room changes fall back to the Chief Manager. Assign duties for every hostel.</p></details>
     <details><summary><span class="pill part">Should</span><span class="t">Automatic tests for the newest modules</span><span class="who">Developer</span></summary>
       <p>Room change, deposits, health records and the joining/renewal fees were tested by hand. Add them to the automatic checks so later changes cannot break them.</p></details>
     <details><summary><span class="pill part">Should</span><span class="t">Discipline screens (workflow M)</span><span class="who">Developer</span></summary>

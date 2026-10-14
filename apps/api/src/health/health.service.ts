@@ -8,7 +8,7 @@ export type ReportDto = { student_id: string; collected_at: string; source: 'Dev
   device_notes?: string | null; results: Record<string, string | number | null> };
 type Test = { test_code: string; value_type: 'Number' | 'Text'; decimals: number };
 
-/** Everyone who may see every student's health report; the Warden and Floor Warden see their own students. */
+/** Everyone who may see every student's health report; the Warden and Floor Manager see their own students. */
 export const HEALTH_ALL = ['Gym_Manager', 'Dean_Students_Affairs', 'admin'];
 export const HEALTH_VIEW = [...HEALTH_ALL, 'Warden', 'Assistant_Warden', 'Hostel_Incharge', 'Floor_Warden', 'Chief_Warden', 'Director_Hostels'];
 export const HEALTH_CAPTURE = ['Gym_Manager', 'admin', 'system'];

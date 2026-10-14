@@ -15,7 +15,7 @@ type BedRow = {
 
 /**
  * The allotment desk around Workflow A:
- *   Chief Warden blocks rooms -> students choose from the rest after paying the registration fee (or the desk allots
+ *   Chief Manager blocks rooms -> students choose from the rest after paying the registration fee (or the desk allots
  *   automatically, hostel by hostel) -> fees -> a Warden checks the fees -> the office checks the student in.
  */
 @Injectable()
@@ -73,7 +73,7 @@ export class AllotmentService {
     return [...floors.values()].map((f) => ({ ...f, rooms: [...f.rooms.values()] }));
   }
 
-  /** Chief Warden: block rooms for a reason. Occupied beds stay as they are; vacant beds leave the students' choice. */
+  /** Chief Manager: block rooms for a reason. Occupied beds stay as they are; vacant beds leave the students' choice. */
   block(user: AuthUser, dto: { space_ids: string[]; reason: string; remarks?: string; until_date?: string }) {
     return this.dbs.run(user, async (tx) => {
       const r = (await tx.execute(sql`insert into hostel.room_block (space_id, reason, remarks, until_date, blocked_by, created_by)
@@ -170,7 +170,7 @@ export class AllotmentService {
   }
 
   /**
-   * Allotment approvals board (design "Room Allotment"): Awaiting payment -> L1 Warden verifies fees -> L2 Chief Warden
+   * Allotment approvals board (design "Room Allotment"): Awaiting payment -> L1 Warden verifies fees -> L2 Chief Manager
    * approves the bed -> Allotted (ready for the key). Each card carries its demands and receipts for the side panel.
    */
   approvals(facilityId?: string, user?: AuthUser) {
@@ -197,7 +197,7 @@ export class AllotmentService {
       order by r.applied_on`);
   }
 
-  /** L2: the Chief Warden approves the bed (needs the Warden's fee check) or returns it to the student with remarks. */
+  /** L2: the Chief Manager approves the bed (needs the Warden's fee check) or returns it to the student with remarks. */
   async cwDecide(user: AuthUser, id: number, dto: { decision: 'Approved' | 'Returned'; remarks?: string }) {
     const [r] = await this.dbs.rows<{ status: string; fee_check_status: string; facility_id: string }>(sql`select status::text as status, fee_check_status, facility_id from hostel.hostel_registration where registration_id = ${id}`);
     if (!r) throw new NotFoundException('Registration not found');

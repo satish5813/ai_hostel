@@ -31,9 +31,9 @@ export default function StatusBoard() {
         <StatCard color="rose" icon="alert" label="Outside with no pass" value={String(counts.Outside_No_Pass ?? 0)} tone={counts.Outside_No_Pass ? 'critical' : undefined} sub={counts.Overdue ? `${counts.Overdue} overdue` : undefined} />
       </div>
       <Card padding={0}>
-        <DataTable caption="Residents" rowKey="student_id" rows={rows} loading={!board.data} searchable searchPlaceholder="Search name, ID or room" onRowClick={(r) => api<Detail>(`/students/${(r as Loc).student_id}/location?purpose=${purpose}`).then(setDetail)}
+        <DataTable caption="Hostel students" rowKey="student_id" rows={rows} loading={!board.data} searchable searchPlaceholder="Search name, ID or room" onRowClick={(r) => api<Detail>(`/students/${(r as Loc).student_id}/location?purpose=${purpose}`).then(setDetail)}
           filters={<div className="klh-row" style={{ flexWrap: 'wrap' }}><FilterChip label="All" count={board.data?.length} selected={!filter} onClick={() => setFilter('')} />{Object.entries(counts).map(([k, n]) => <FilterChip key={k} label={words(k)} count={n} selected={filter === k} onClick={() => setFilter(filter === k ? '' : k)} />)}</div>}
-          empty={<EmptyState icon="users" title="No residents in your scope" />}
+          empty={<EmptyState icon="users" title="No hostel students in your scope" />}
           columns={[
             { key: 'full_name', label: 'Student', render: (v: string, r: Loc) => <Person name={titleCase(v)} sub={`${r.student_id} · ${r.programme}`} /> },
             { key: 'space_id', label: 'Room', render: (v: string, r: Loc) => `${roomLabel(v)}-${bedLabel(r.subspace_id).slice(-1)}` },

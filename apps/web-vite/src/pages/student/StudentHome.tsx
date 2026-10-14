@@ -43,7 +43,7 @@ const balance = (d: Demand) => Number(d.amount_due) - Number(d.amount_paid);
 const headOf = (d: { fee_head: string; instalment_no: number }) => `${words(d.fee_head)}${d.fee_head === 'Hostel' ? `, instalment ${d.instalment_no}` : ''}`;
 const STAGE = (r?: Reg) => (!r ? 0 : r.status === 'Applied' ? 1 : ['Fee_Paid', 'Waitlisted'].includes(r.status) ? 2 : r.status === 'Allotted' ? 3 : r.status === 'Accepted' ? 4 : r.status === 'Confirmed' ? 5 : 6);
 const trail = (st: Step) => ({ level: st.level === 0 ? 'P' : st.level, role: words(st.role), person: st.by, decision: st.decision, at: st.on, remarks: st.remarks });
-const ROLE: Record<string, string> = { Floor_Warden: 'Floor Warden', Chief_Warden: 'Chief Warden', Sweeper: 'Sweeper', Scavenger: 'Scavenger' };
+const ROLE: Record<string, string> = { Floor_Warden: 'Floor Manager', Chief_Warden: 'Chief Manager', Sweeper: 'Sweeper', Scavenger: 'Scavenger' };
 
 /**
  * Student home: the room at a glance, one card per everyday task (fees, electricity, outing, sick leave) and quick tiles.
@@ -311,15 +311,15 @@ function SickSheet({ current, onClose, onDone }: { current?: Sick; onClose: () =
       <div className="st-stack">
         <StatusChip status={current.status} />
         <p style={{ margin: 0 }}>{current.illness_details}</p>
-        {current.visited_by ? <p className="st-note"><ShieldCheck size={14} />Visited: {current.visit_remarks}</p> : <p className="st-note"><ShieldCheck size={14} />Stay in your room; your Floor Warden will come and see you.</p>}
+        {current.visited_by ? <p className="st-note"><ShieldCheck size={14} />Visited: {current.visit_remarks}</p> : <p className="st-note"><ShieldCheck size={14} />Stay in your room; your Floor Manager will come and see you.</p>}
         {current.status === 'Approved' && <p className="st-note"><UtensilsCrossed size={14} />Your meals come to your room until the leave ends.</p>}
       </div>
     </Sheet>);
   return (
-    <Sheet mod="rose" icon={HeartPulse} title="Report that you are unwell" sub="Your Floor Warden visits; the Chief Warden approves" onClose={onClose}
+    <Sheet mod="rose" icon={HeartPulse} title="Report that you are unwell" sub="Your Floor Manager visits; the Chief Manager approves" onClose={onClose}
       footer={sent ? undefined : <Button variant="primary" loading={busy} blockedReason={f.illness_details.trim().length < 3 ? 'Say what is wrong.' : f.to_date < f.from_date ? 'Until must be after From.' : undefined}
         onClick={() => run(() => api('/sick-leaves', { method: 'POST', json: f }).then(() => { setSent(true); onDone(); }), '')}>Report sick leave</Button>}>
-      {sent ? <Done title="Reported" body="Your Floor Warden will come and see you. Rest in your room." onClose={onClose} /> : (
+      {sent ? <Done title="Reported" body="Your Floor Manager will come and see you. Rest in your room." onClose={onClose} /> : (
         <div className="st-stack">
           <Field label="What is wrong" required><Textarea rows={3} value={f.illness_details} onChange={(e) => setF({ ...f, illness_details: e.target.value })} placeholder="Fever since last night" /></Field>
           <div className="st-grid2">
@@ -350,7 +350,7 @@ function RoomSheet({ r, onClose }: { r: Room; onClose: () => void }) {
           <ul className="st-list">{r.people.map((p) => (
             <li key={p.hostel_role}><span className="st-line-tx"><b>{p.full_name}</b><small>{ROLE[p.hostel_role] ?? words(p.hostel_role)}</small></span>{p.mobile_no && <a className="st-call" href={`tel:${p.mobile_no}`}><Phone size={14} />{p.mobile_no}</a>}</li>))}</ul>
         </div>
-        <p className="st-note"><BookOpen size={14} />Report a damaged item to your Floor Warden; it is checked against your room list when you vacate.</p>
+        <p className="st-note"><BookOpen size={14} />Report a damaged item to your Floor Manager; it is checked against your room list when you vacate.</p>
       </div>
     </Sheet>
   );
@@ -379,7 +379,7 @@ function RenewalBanner({ rn, onOpen }: { rn: Renewal; onOpen: () => void }) {
   const closes = y.renewal_open ? y.renewal_closes : y.registration_closes;
   const line = leaving ? `You told the office you are not staying in ${y.academic_year}. You can still change your mind while renewal is open.`
     : !r ? `Renewal for ${y.academic_year} is open${closes ? ` until ${formatDate(closes)}` : ''}. Keep ${rn.current!.bed_label}, ask for another room, or tell us you are leaving.`
-    : step === 4 ? `All paid. Room Allotment moves you into ${y.academic_year} once the fee check and the Chief Warden are done.`
+    : step === 4 ? `All paid. Room Allotment moves you into ${y.academic_year} once the fee check and the Chief Manager are done.`
     : `${r.registration_no} · next step: ${RENEW_STEPS[step].toLowerCase()}.`;
   return (
     <section className="st-renew" aria-label={`Renewal for ${y.academic_year}`}>
@@ -484,7 +484,7 @@ function RenewalSheet({ rn, demands, onClose, onDone }: { rn: Renewal; demands: 
       action = (
         <div className="st-facts">
           <span><small>Fee check</small><b>{r.fee_check_status === 'Verified' ? 'Verified' : 'With Room Allotment'}</b></span>
-          <span><small>Chief Warden</small><b>{r.cw_status === 'Approved' ? 'Approved' : words(r.cw_status)}</b></span>
+          <span><small>Chief Manager</small><b>{r.cw_status === 'Approved' ? 'Approved' : words(r.cw_status)}</b></span>
           <span><small>Moving in</small><b>From {formatDate(y.start_date)}</b><small>No break in your stay</small></span>
         </div>);
     } else action = <Done title={`You are in for ${y.academic_year}`} body={`${r.bed_label ?? cur.bed_label} is yours for ${y.academic_year}.`} onClose={onClose} />;

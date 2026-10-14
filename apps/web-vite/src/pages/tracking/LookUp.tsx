@@ -17,7 +17,7 @@ export default function LookUp() {
   const look = () => run(async () => { setErr(''); try { setD(await api<Detail>(`/students/${sid.trim()}/location?purpose=${purpose}${alertId ? `&alert_id=${alertId}` : ''}`)); } catch (e) { setD(null); setErr(e instanceof ApiError ? e.message : String(e)); throw e; } }, 'Look-up recorded in the log');
   return (
     <div className="klh-stack" style={{ gap: 24 }}>
-      <ScreenHeader code="TRK-02" subtitle="Students in your scope only. Your name, the purpose and the time are written to TRK-06 Look-up log, which the Chief Warden reviews." />
+      <ScreenHeader code="TRK-02" subtitle="Students in your scope only. Your name, the purpose and the time are written to TRK-06 Look-up log, which the Chief Manager reviews." />
       <Card icon="search" color="sky" title="Look up a student">
         <form className="klh-row" style={{ alignItems: 'flex-end', gap: 12, flexWrap: 'wrap' }} onSubmit={(e) => { e.preventDefault(); look(); }}>
           <Field label="University ID" required><Input value={sid} onChange={(e) => setSid(e.target.value)} placeholder="2600040012" style={{ width: 200 }} autoFocus /></Field>

@@ -9,15 +9,15 @@ type Asg = { staff_id: string; full_name: string; mobile_no: string | null; host
 type Duty = { zone_id: string | null; space_id: string | null; hostel_role: string; staff_id: string | null; full_name: string | null; regular_name: string | null; source: string };
 type Who = { name: string | null; phone?: string | null; cover?: string | null };
 const FLOOR_ROLES: { k: string; one: string; icon: LucideIcon }[] = [
-  { k: 'Floor_Warden', one: 'Floor Warden', icon: ShieldCheck }, { k: 'Sweeper', one: 'Sweeper', icon: Brush }, { k: 'Scavenger', one: 'Scavenger', icon: Recycle },
+  { k: 'Floor_Warden', one: 'Floor Manager', icon: ShieldCheck }, { k: 'Sweeper', one: 'Sweeper', icon: Brush }, { k: 'Scavenger', one: 'Scavenger', icon: Recycle },
 ];
 const STATES = [['all', 'All rooms'], ['occ', 'Occupied'], ['free', 'Vacant'], ['held', 'Held'], ['blocked', 'Blocked']] as const;
 type StateKey = (typeof STATES)[number][0];
 const TODAY = (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; })();
-const words = (s: string) => s.replace(/_/g, ' ');
+const words = (s: string) => (({ Chief_Warden: 'Chief Manager', Floor_Warden: 'Floor Manager' } as Record<string, string>)[s] ?? s).replace(/_/g, ' ');
 
 /**
- * Hostel allotment (Chief Warden, Room Allotment): the whole hostel at a glance, floor by floor. Every room shows its beds
+ * Hostel allotment (Chief Manager, Room Allotment): the whole hostel at a glance, floor by floor. Every room shows its beds
  * with the student (or the faculty member living there), and every floor shows the staff responsible for it today.
  * Floors open one at a time, so a hostel of 13 floors and 520 rooms stays quick.
  */
@@ -73,7 +73,7 @@ export default function AllotmentView() {
   return (
     <div className="ra-main av">
       <RaHead eyebrow="Whole hostel · floors, rooms, beds and staff" tone="#0B7A71" title="Hostel allotment"
-        sub={chief.length ? `Chief Warden: ${chief.map((c) => proper(c.full_name)).join(', ')}` : 'Every bed with its student, every floor with the staff responsible for it today.'}
+        sub={chief.length ? `Chief Manager: ${chief.map((c) => proper(c.full_name)).join(', ')}` : 'Every bed with its student, every floor with the staff responsible for it today.'}
         right={<HostelPills list={H.list} value={H.id} onPick={H.pick} />} />
 
       <div className="ra-kpis">
@@ -107,7 +107,7 @@ export default function AllotmentView() {
                 <span className="av-staff">
                   {FLOOR_ROLES.map((r) => { const w = floorStaff.get(`${f.zone_id}|${r.k}`) ?? { name: null }; const I = r.icon; return (
                     <span key={r.k} className={`av-who${w.name ? '' : ' av-who-none'}${w.cover ? ' av-who-cover' : ''}`} title={`${r.one}: ${w.name ? proper(w.name) : 'nobody'}${w.cover ? ` (covering for ${proper(w.cover)})` : ''}`}>
-                      <I size={13} />{w.name ? proper(w.name) : r.k === 'Floor_Warden' ? 'No Floor Warden' : `No ${r.one.toLowerCase()}`}</span>); })}
+                      <I size={13} />{w.name ? proper(w.name) : r.k === 'Floor_Warden' ? 'No Floor Manager' : `No ${r.one.toLowerCase()}`}</span>); })}
                 </span>
                 <ChevronDown className="av-chev" size={18} />
               </button>

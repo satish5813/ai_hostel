@@ -27,9 +27,9 @@ The interface system for the KL University hostel management web app: one produc
 
 ## Content fundamentals
 
-- Sentence case everywhere: "Apply for outpass", "Record cash receipt". Title case only for proper names (Chief Warden, Dean, Students Affairs, hostel names).
+- Sentence case everywhere: "Apply for outpass", "Record cash receipt". Title case only for proper names (Chief Manager, Dean, Students Affairs, hostel names).
 - Speak to students and parents as "you"; staff screens use plain imperative labels ("Approve", "Mark out").
-- Button labels start with a verb and name the object when ambiguous: "Accept room", "Send reminder", "Escalate to Chief Warden".
+- Button labels start with a verb and name the object when ambiguous: "Accept room", "Send reminder", "Escalate to Chief Manager".
 - No emoji. No exclamation marks except on the payment success page.
 - Indian formats: currency `₹45,000.00` with en-IN grouping (`₹4,82,500`), dates `05 Oct 2026`, times `6:00 pm`, date-times `05 Oct 2026, 6:00 pm`, academic year `2026-27`, mobile numbers as `98480 12345`.
 - Identifiers (Registration No, Receipt No, Outpass No, Meter No) are set in the `code` style: `HR-2026-00412`, `RC-2026-08831`, `OP-2026-1187`.

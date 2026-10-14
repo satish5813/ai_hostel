@@ -13,7 +13,7 @@ const when = (s: string) => new Date(s).toLocaleDateString('en-IN', { day: 'nume
 
 /**
  * TKT-07 Complaints (student). A problem with a meal goes to the Mess In-charge; anything else that is not a repair
- * (room-mate, staff conduct, ragging, safety) goes to the wardens, or only to the Chief Warden and Dean when marked
+ * (room-mate, staff conduct, ragging, safety) goes to the wardens, or only to the Chief Manager and Dean when marked
  * confidential. Replies show here.
  */
 export default function Complaints() {
@@ -84,14 +84,14 @@ function OtherForm({ onDone }: { onDone: () => void }) {
   const alwaysConf = cat === 'Ragging' || cat === 'Safety';
   const send = async () => {
     setBusy(true);
-    try { await api('/me/grievances', { method: 'POST', json: { category: cat, description: text, is_confidential: conf || alwaysConf } }); toast(conf || alwaysConf ? 'Sent to the Chief Warden in confidence' : 'Sent to your wardens'); onDone(); }
+    try { await api('/me/grievances', { method: 'POST', json: { category: cat, description: text, is_confidential: conf || alwaysConf } }); toast(conf || alwaysConf ? 'Sent to the Chief Manager in confidence' : 'Sent to your managers'); onDone(); }
     catch (e) { toast((e as Error).message, 'critical'); } finally { setBusy(false); }
   };
   return (
     <div className="mo-form">
       <div className="mo-chips" role="group" aria-label="About">{Object.entries(CAT).filter(([k]) => k !== 'Mess').map(([v, l]) => <button key={v} type="button" aria-pressed={cat === v} onClick={() => setCat(v)}>{l}</button>)}</div>
       <textarea className="rc-why" rows={4} value={text} onChange={(e) => setText(e.target.value)} placeholder="What happened, when and where." />
-      <label className="mo-check"><input type="checkbox" checked={conf || alwaysConf} disabled={alwaysConf} onChange={(e) => setConf(e.target.checked)} /> <Lock size={14} /> Confidential: only the Chief Warden and the Dean see it{alwaysConf ? ' (always for ragging and safety)' : ''}</label>
+      <label className="mo-check"><input type="checkbox" checked={conf || alwaysConf} disabled={alwaysConf} onChange={(e) => setConf(e.target.checked)} /> <Lock size={14} /> Confidential: only the Chief Manager and the Dean see it{alwaysConf ? ' (always for ragging and safety)' : ''}</label>
       <div className="rc-acts"><Button variant="primary" loading={busy} blockedReason={text.trim().length < 10 ? 'Describe what happened.' : undefined} onClick={send}>Send</Button></div>
     </div>
   );

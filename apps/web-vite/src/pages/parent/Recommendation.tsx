@@ -14,10 +14,10 @@ export default function ParentRecommendation() {
   const { run, busy } = useAction();
   const [refuse, setRefuse] = useState<Item | null>(null);
   const contactId = Number(s?.id.replace('contact:', ''));
-  const decide = (i: Item, decision: 'Approved' | 'Rejected', remarks?: string) => run(() => api(`/approvals/${i.step_id}/parent`, { method: 'POST', json: { contact_id: contactId, decision, remarks } }).then(() => { inbox.mutate(); history.mutate(); }), decision === 'Approved' ? 'Recommended. The Floor Warden is next.' : 'Declined');
+  const decide = (i: Item, decision: 'Approved' | 'Rejected', remarks?: string) => run(() => api(`/approvals/${i.step_id}/parent`, { method: 'POST', json: { contact_id: contactId, decision, remarks } }).then(() => { inbox.mutate(); history.mutate(); }), decision === 'Approved' ? 'Recommended. The Floor Manager is next.' : 'Declined');
   return (
     <div className="klh-stack" style={{ gap: 24 }}>
-      <ScreenHeader code="OUT-02" compact subtitle="Your recommendation goes to the Floor Warden and Chief Warden. You get an SMS when the pass is issued." />
+      <ScreenHeader code="OUT-02" compact subtitle="Your recommendation goes to the Floor Manager and Chief Manager. You get an SMS when the pass is issued." />
       {inbox.data?.length === 0 && <Card padding={0}><EmptyState icon="door" title="Nothing to recommend right now" body="New outing requests from your child appear here." /></Card>}
       {inbox.data?.map((i) => (
         <Card key={i.step_id} icon="door" color="violet" title={`${titleCase(i.full_name)} wants to go to ${i.summary.split(' → ')[1] ?? i.summary}`} subtitle={`${i.summary.split(' → ')[0]} · ${i.hostel_name}, room ${i.room_code}`}>

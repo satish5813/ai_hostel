@@ -40,8 +40,8 @@ export default function Exceptions() {
 
   return (
     <div className="ra-main ex">
-      <RaHead eyebrow={cw ? 'Chief Warden · decisions' : 'Room Allotment · requests to the Chief Warden'} tone="#C2410C" title="Exceptions"
-        sub={cw ? 'Beds outside the rules, moves and staff rooms that Room Allotment asks for. Approving carries it out at once.' : 'A blocked or kept room, another room type, a jump in the waiting list, a move or a staff room needs the Chief Warden.'}
+      <RaHead eyebrow={cw ? 'Chief Manager · decisions' : 'Room Allotment · requests to the Chief Manager'} tone="#C2410C" title="Exceptions"
+        sub={cw ? 'Beds outside the rules, moves and staff rooms that Room Allotment asks for. Approving carries it out at once.' : 'A blocked or kept room, another room type, a jump in the waiting list, a move or a staff room needs the Chief Manager.'}
         right={<HostelPills list={H.list} value={H.id} onPick={H.pick} />} />
       <div className="ex-tools">
         <div className="ra-seg" role="tablist" aria-label="Show">
@@ -51,7 +51,7 @@ export default function Exceptions() {
         <span className="av-gap" />
         <Button size="sm" variant="primary" onClick={() => setAdding(true)}><Plus size={15} />New request</Button>
       </div>
-      {!cw && <p className="ex-hint">To offer a bed outside the rules, use the allotment desk: it asks the Chief Warden for you.</p>}
+      {!cw && <p className="ex-hint">To offer a bed outside the rules, use the allotment desk: it asks the Chief Manager for you.</p>}
       {!list.data && <div className="q-empty">Loading…</div>}
       {list.data && !rows.length && <div className="q-empty">{tab === 'Pending' ? (cw ? 'Nothing waits for your decision.' : 'No request is waiting.') : 'No decided requests yet.'}</div>}
       <div className="ex-list">
@@ -133,14 +133,14 @@ function NewRequest({ facility, hostelCode, cw, onClose, onDone }: { facility: s
     try {
       const r = await api<{ status: string }>('/exceptions', { method: 'POST', json: { kind, subspace_id: bed, reason: reason.trim(), key_no: key.trim() || undefined,
         ...(kind === 'Transfer' ? { from_alloc_id: stay!.hostel_alloc_id } : { staff_id: staff!.staff_id }) } });
-      toast(r.status === 'Approved' ? (kind === 'Transfer' ? 'Done: the student is moved' : 'Done: the room is given') : 'Sent to the Chief Warden'); onDone(); onClose();
+      toast(r.status === 'Approved' ? (kind === 'Transfer' ? 'Done: the student is moved' : 'Done: the room is given') : 'Sent to the Chief Manager'); onDone(); onClose();
     } catch (x) { setProblem(x instanceof ApiError ? x.message : String(x)); } finally { setBusy(false); }
   };
   return (
-    <Drawer open onClose={onClose} title="New request" subtitle={cw ? `${hostelCode} · as Chief Warden this takes effect at once` : `${hostelCode} · goes to the Chief Warden`}
+    <Drawer open onClose={onClose} title="New request" subtitle={cw ? `${hostelCode} · as Chief Manager this takes effect at once` : `${hostelCode} · goes to the Chief Manager`}
       footer={<div className="dm-panel-foot"><span style={{ flex: 1 }} /><Button variant="ghost" size="sm" onClick={onClose}>Cancel</Button>
         <Button variant="primary" size="sm" loading={busy} blockedReason={!who ? (kind === 'Transfer' ? 'Choose the student.' : 'Choose the staff member.') : !bed ? 'Choose the bed.' : kind === 'Staff_Room' && !key.trim() ? 'Give the key number.' : reason.trim().length < 5 ? 'Write the reason.' : undefined} onClick={send}>
-          {cw ? 'Do it now' : 'Send to the Chief Warden'}</Button></div>}>
+          {cw ? 'Do it now' : 'Send to the Chief Manager'}</Button></div>}>
       <div className="klh-stack" style={{ gap: 16 }}>
         {problem && <Notice tone="critical" title="Not sent">{problem}</Notice>}
         <div className="lg-roles" role="radiogroup" aria-label="Request">
@@ -163,7 +163,7 @@ function NewRequest({ facility, hostelCode, cw, onClose, onDone }: { facility: s
           <Select value={bed} onChange={(e) => setBed(e.target.value)} options={[{ value: '', label: 'Choose a vacant bed' }, ...open.map((b) => ({ value: b.subspace_id, label: `${bedLabel(hostelCode, b.room_code, b.bed_code)} · ${b.floor_name}${b.type_name ? ` · ${b.type_name}` : ''}${b.is_blocked ? ' · blocked room' : ''}` }))]} />
         </Field>
         <Field label="Key number" required={kind === 'Staff_Room'} hint={kind === 'Transfer' ? 'Leave empty to keep the present key number' : undefined}><Input value={key} onChange={(e) => setKey(e.target.value)} /></Field>
-        <Field label="Reason" required hint="The Chief Warden reads this"><textarea className="ex-text" rows={3} value={reason} onChange={(e) => setReason(e.target.value)} /></Field>
+        <Field label="Reason" required hint="The Chief Manager reads this"><textarea className="ex-text" rows={3} value={reason} onChange={(e) => setReason(e.target.value)} /></Field>
         <p className="ex-hint" style={{ margin: 0 }}><GitPullRequestArrow size={13} /> The student keeps the fee plan; the electricity meter follows the move.</p>
       </div>
     </Drawer>

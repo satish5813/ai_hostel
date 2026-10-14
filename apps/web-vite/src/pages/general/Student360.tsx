@@ -10,6 +10,7 @@ type P360 = {
   student: { student_id: string; full_name: string; gender: string; programme: string; level: string; dept_name: string | null; dept_code: string | null; is_hosteller: boolean; hostel_name: string | null; hostel_code: string | null; floor_name: string | null; room_code: string | null; bed_code: string | null; type_name: string | null; allocation_date: string | null; floor_warden: string | null; current_status: string | null; career_goal: string | null; career_notes: string | null };
   hostel: { session_pct: number | null; night_pct: number | null; nights_missed: number; outings: number; late_returns: number; alerts: number; sick_days: number; dues: number };
   terms: { semester_no: number; term_label: string; sgpa: number; cgpa: number; credits: number; attendance_pct: number; backlogs: number }[];
+  backlog_courses?: { course_code: string; grade: string }[];
   crt: { attendance: { month: string; held: number; attended: number }[]; tests: { id: number; test_name: string; test_date: string; category: string; score: number; max_score: number; percentile: number }[] };
   certs: { id: number; title: string; provider: string; category: string; issued_on: string; credential_ref: string | null; verified: boolean }[];
   activities: { id: number; type: string; title: string; role: string | null; from_date: string; to_date: string | null; hours: number | null }[];
@@ -85,6 +86,10 @@ export default function Student360({ id: own }: { id?: string }) {
           <table className="s360-table"><thead><tr><th>Semester</th><th>SGPA</th><th>CGPA</th><th>Credits</th><th>Attendance</th><th>Backlogs</th></tr></thead>
             <tbody>{terms.map((t) => <tr key={t.semester_no}><td data-label="Semester">{t.semester_no} · {t.term_label}</td><td data-label="SGPA"><b>{t.sgpa.toFixed(2)}</b></td><td data-label="CGPA">{t.cgpa.toFixed(2)}</td><td data-label="Credits">{t.credits}</td>
               <td data-label="Attendance"><span className={t.attendance_pct < 75 ? 'tag tag-bad' : 'tag tag-ok'}>{pct(t.attendance_pct)}</span></td><td data-label="Backlogs">{t.backlogs || '—'}</td></tr>)}</tbody></table>
+          {(d.data.backlog_courses?.length ?? 0) > 0 && <div className="box-body" style={{ display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'center' }}>
+            <span className="klh-muted" style={{ marginRight: 4 }}>Backlog courses:</span>
+            {d.data.backlog_courses!.map((c) => <span key={c.course_code} className="tag tag-bad" title={c.grade === 'DT' ? 'Detained' : `Grade ${c.grade}`}>{c.course_code} · {c.grade}</span>)}
+          </div>}
         </section>)}
 
       {tab === 'CRT' && (
@@ -121,7 +126,7 @@ export default function Student360({ id: own }: { id?: string }) {
         <HostelRecord id={id} canEdit={['Chief_Warden', 'Director_Hostels', 'admin'].includes(s.role)} />
         <section className="box"><div className="box-body">
           <div className="facts">
-            <div><span>Room</span><b>{st.room_code ? `${st.hostel_code} ${st.room_code}` : '—'}</b></div><div><span>Floor Warden</span><b>{st.floor_warden ? titleCase(st.floor_warden) : '—'}</b></div>
+            <div><span>Room</span><b>{st.room_code ? `${st.hostel_code} ${st.room_code}` : '—'}</b></div><div><span>Floor Manager</span><b>{st.floor_warden ? titleCase(st.floor_warden) : '—'}</b></div>
             <div><span>Night roll call</span><b>{pct(h.night_pct)}</b></div><div><span>All sessions</span><b>{pct(h.session_pct)}</b></div><div><span>Nights missed</span><b>{h.nights_missed}</b></div>
             <div><span>Outings</span><b>{h.outings}</b></div><div><span>Late returns</span><b>{h.late_returns}</b></div><div><span>Sick days</span><b>{h.sick_days}</b></div><div><span>Alerts</span><b>{h.alerts}</b></div>
             <div><span>Dues</span><b>{formatINR(h.dues)}</b></div>
@@ -165,7 +170,7 @@ function AddPanel({ kind, onClose, onDone }: { kind: 'cert' | 'ach'; onClose: ()
   );
 }
 
-/* ---------- the hostel record (migration 126): what the student submitted once; the Chief Warden edits it ---------- */
+/* ---------- the hostel record (migration 126): what the student submitted once; the Chief Manager edits it ---------- */
 type Kyc = Record<string, string | null | boolean> & { locked: boolean; can_edit: boolean; submitted_on: string | null };
 const KYC_FIELDS: [string, string][] = [['aadhaar_no', 'Aadhaar number'], ['blood_group', 'Blood group'], ['hno', 'House number'], ['street', 'Street'], ['landmark', 'Landmark'], ['city', 'City or village'], ['district', 'District'], ['state', 'State'], ['pincode', 'PIN code'],
   ['father_name', "Father's name"], ['father_mobile', "Father's mobile"], ['mother_name', "Mother's name"], ['mother_mobile', "Mother's mobile"], ['guardian_name', 'Local guardian'], ['guardian_relation', 'Guardian relation'], ['guardian_mobile', "Guardian's mobile"],
@@ -192,7 +197,7 @@ function HostelRecord({ id, canEdit }: { id: string; canEdit: boolean }) {
         {!edit ? (<>
           <div className="facts">{KYC_FIELDS.map(([key, label]) => <div key={key}><span>{label}</span><b>{text(key) || '—'}</b></div>)}</div>
           {text('aadhaar_photo') && <a href={text('aadhaar_photo')} target="_blank" rel="noreferrer"><img src={text('aadhaar_photo')} alt="Aadhaar card" style={{ marginTop: 12, maxHeight: 220, borderRadius: 12, border: '1px solid var(--klh-line, #DCE5E4)' }} /></a>}
-          {!canEdit && <p className="muted" style={{ marginTop: 10 }}>Only the Chief Warden changes this record. The Aadhaar number is shown in part.</p>}
+          {!canEdit && <p className="muted" style={{ marginTop: 10 }}>Only the Chief Manager changes this record. The Aadhaar number is shown in part.</p>}
         </>) : (<>
           <div className="facts" style={{ gap: 12 }}>{KYC_FIELDS.map(([key, label]) => <Field key={key} label={label}><Input value={edit[key] ?? ''} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEdit({ ...edit, [key]: e.target.value })} /></Field>)}</div>
           <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', marginTop: 12 }}><Button variant="secondary" onClick={() => setEdit(null)}>Cancel</Button><Button variant="primary" loading={busy} onClick={save}>Save</Button></div>

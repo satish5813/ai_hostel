@@ -53,11 +53,11 @@ export default function AbsenceReport() {
         <header><h2>By floor</h2><small>Absences as a share of the nights marked</small></header>
         <div className="dn-floors">{(r.data?.floors ?? []).map((x) => (
           <div key={x.hostel_code + x.floor_name} className="dn-floor">
-            <span><b>{x.hostel_code} · {x.floor_name}</b><small>{x.residents} residents · {x.absent} of {x.marked} nights</small></span>
+            <span><b>{x.hostel_code} · {x.floor_name}</b><small>{x.residents} hostel students · {x.absent} of {x.marked} nights</small></span>
             <span className="av-bar"><i style={{ width: `${Math.min((x.rate ?? 0) * 4, 100)}%`, background: (x.rate ?? 0) >= 10 ? 'var(--dn-attn)' : undefined }} /></span>
             <em>{x.rate == null ? '—' : `${x.rate}%`}</em>
           </div>))}
-          {r.data && !r.data.floors.length && <p className="ov-none">No residents in this hostel.</p>}</div>
+          {r.data && !r.data.floors.length && <p className="ov-none">No hostel students in this hostel.</p>}</div>
       </section>
 
       <section className="ov-card" aria-label="Students">

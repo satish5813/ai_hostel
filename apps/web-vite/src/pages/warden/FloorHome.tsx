@@ -33,8 +33,8 @@ const iso = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.
 type Op = { key: string; title: string; about: string; icon: T.IconName; color: T.TileColor; count?: number; unit: string; warn?: string; go?: string };
 
 /**
- * Floor Warden home (FW): the floors in their charge as one board. Today's numbers, the operations as icon cards
- * (each opens a side panel with the list and the action), and the rooms with every resident's state tonight.
+ * Floor Manager home (FW): the floors in their charge as one board. Today's numbers, the operations as icon cards
+ * (each opens a side panel with the list and the action), and the rooms with every hostel student's state tonight.
  */
 export default function FloorHome() {
   const s = useSession()!;
@@ -71,8 +71,8 @@ export default function FloorHome() {
     { key: 'returns', title: 'Outings today', about: 'Leaving or due back today, and overdue', icon: 'door', color: 'sky', count: d?.returning.length, unit: 'students' },
     { key: 'checkins', title: 'New arrivals', about: 'Students moving into your rooms', icon: 'key', color: 'indigo', count: d?.checkins.length, unit: 'expected' },
     { key: 'staff', title: 'Floor staff', about: 'Sweepers and scavengers on your floors today', icon: 'users', color: 'cyan', count: staffIn, unit: `of ${staff.length} present`, warn: staff.some((x) => x.source === 'Open') ? 'A place has nobody' : undefined },
-    { key: 'register', title: 'Attendance register', about: 'Each resident against each day', icon: 'calendar', color: 'brand', unit: 'two weeks', go: '/attendance' },
-    { key: 'students', title: 'Student performance', about: 'Results, CRT, skills and achievements of your residents', icon: 'trend-up', color: 'violet', unit: 'open', go: '/academics' },
+    { key: 'register', title: 'Attendance register', about: 'Each hostel student against each day', icon: 'calendar', color: 'brand', unit: 'two weeks', go: '/attendance' },
+    { key: 'students', title: 'Student performance', about: 'Results, CRT, skills and achievements of your hostel students', icon: 'trend-up', color: 'violet', unit: 'open', go: '/academics' },
   ];
   const rooms = useMemo(() => {
     const m = new Map<string, FloorBed[]>();
@@ -86,9 +86,9 @@ export default function FloorHome() {
         <div>
           <p style={{ margin: 0, fontSize: 'var(--t-small)', color: 'var(--ink-muted)' }}>{today()}</p>
           <h1>{greeting()}, {name}</h1>
-          <p>{hostel ? `Floor Warden, ${hostel} · ${d!.floors.map((f) => f.floor_name).join(', ')}` : 'No floor is assigned to you yet. The Chief Warden maps Floor Wardens in the Mapping centre.'}</p>
+          <p>{hostel ? `Floor Manager, ${hostel} · ${d!.floors.map((f) => f.floor_name).join(', ')}` : 'No floor is assigned to you yet. The Chief Manager maps Floor Managers in the Mapping centre.'}</p>
         </div>
-        <div className="pg-actions"><Button variant="primary" icon="check" blockedReason={!res.length ? 'No residents on your floors.' : undefined} onClick={() => navigate('/roll-call')}>{marked && marked === res.length ? 'Roll call done' : 'Take roll call'}</Button></div>
+        <div className="pg-actions"><Button variant="primary" icon="check" blockedReason={!res.length ? 'No hostel students on your floors.' : undefined} onClick={() => navigate('/roll-call')}>{marked && marked === res.length ? 'Roll call done' : 'Take roll call'}</Button></div>
       </div>
 
       {(d?.floors.length ?? 0) > 1 && (
@@ -98,7 +98,7 @@ export default function FloorHome() {
         </div>)}
 
       <div className="stg stg-static" aria-label="Tonight">
-        <div><b>{res.length}</b><span>Residents</span></div>
+        <div><b>{res.length}</b><span>Hostel students</span></div>
         <div><b>{count('in')}</b><span>In hostel</span></div>
         <div><b>{count('pass')}</b><span>On a pass</span></div>
         <div><b>{count('sick')}</b><span>Sick leave</span></div>
@@ -291,7 +291,7 @@ function AccessPanel({ list, onClose, onDone }: { list: AccessReq[]; onClose: ()
   const [why, setWhy] = useState<Record<number, string>>({});
   const decide = (id: number, approve: boolean) => run(() => api(`/access/requests/${id}/decide`, { method: 'POST', json: { approve, remarks: why[id] || undefined } }).then(onDone), approve ? 'Let in for the next hour' : 'Refused');
   return (
-    <Drawer open onClose={onClose} title="Entry approvals" subtitle="Your residents at a gate or the gym out of hours">
+    <Drawer open onClose={onClose} title="Entry approvals" subtitle="Your hostel students at a gate or the gym out of hours">
       {!list.length && <p className="klh-muted">Nobody is waiting.</p>}
       <div className="klh-stack" style={{ gap: 10 }}>
         {list.map((r) => (

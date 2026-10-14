@@ -7,7 +7,7 @@ export type CareerRow = CareerRecord & { facility_id: string; study_year: number
 /**
  * Each resident's record as the career rules read it: results, placement training, certifications, activities,
  * achievements, discipline and roll call, with their stated goal. `resWhere` narrows the residents (a condition on
- * the bed `b` and student `sm`), so the Dean, the Chief Warden and the executive dashboard all read the same record.
+ * the bed `b` and student `sm`), so the Dean, the Chief Manager and the executive dashboard all read the same record.
  */
 export function loadCareerRecords(dbs: DbService, resWhere: SQL): Promise<CareerRow[]> {
   return dbs.rows<CareerRow>(sql`

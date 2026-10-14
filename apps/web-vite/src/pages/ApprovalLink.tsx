@@ -10,7 +10,7 @@ type View = {
   outpass: { outpass_no: string; student_id: string; full_name: string; programme: string | null; reason: string; destination: string; leave_from: string; return_by: string; outing_category: string; contact_during_leave: string; status: string; hostel_name: string | null; room_code: string | null };
   steps: Step[];
 };
-const ROLE: Record<string, string> = { Parent: 'Parent', Chief_Warden: 'Chief Warden', Dean_Students_Affairs: 'Dean, Students Affairs', Floor_Warden: 'Floor Warden' };
+const ROLE: Record<string, string> = { Parent: 'Parent', Chief_Warden: 'Chief Manager', Dean_Students_Affairs: 'Dean, Students Affairs', Floor_Warden: 'Floor Manager' };
 const DONE: Record<string, string> = { Recommended: 'recommended', Approved: 'approved', Rejected: 'refused', Pending: 'waiting' };
 
 /**
@@ -74,7 +74,7 @@ export default function ApprovalLink() {
                 </div>
               ) : (
                 <div className="klh-stack" style={{ gap: 10 }}>
-                  <p style={{ margin: 0 }}>{parent ? 'Do you agree to this outing? The Chief Warden decides after you.' : 'The Chief Warden has approved. Your approval issues the gate pass.'}</p>
+                  <p style={{ margin: 0 }}>{parent ? 'Do you agree to this outing? The Chief Manager decides after you.' : 'The Chief Manager has approved. Your approval issues the gate pass.'}</p>
                   <div className="klh-row" style={{ gap: 10, flexWrap: 'wrap' }}>
                     <Button variant="primary" loading={busy} onClick={() => act('Approved')}>{yes} the outing</Button>
                     <Button variant="secondary" onClick={() => setRefuse(true)}>Refuse</Button>

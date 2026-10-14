@@ -11,10 +11,10 @@ import type { AuthUser } from '../auth/auth.types.js';
 /** The roles that sign in, in the order used to pick a person's main role, with what each is responsible for. */
 export const ROLE_INFO: { code: string; label: string; group: string; hostel: boolean; does: string }[] = [
   { code: 'admin', label: 'Administrator', group: 'Administration', hostel: false, does: 'Masters, room builder, file uploads, logins and roles, approval rules, audit log' },
-  { code: 'Chief_Warden', label: 'Chief Warden', group: 'Wardens', hostel: true, does: 'Final approval of receipts, beds, outings, sick leave and room changes; the only editor of a student\'s hostel record' },
-  { code: 'Director_Hostels', label: 'Director, Hostels', group: 'Wardens', hostel: false, does: 'Everything a Chief Warden does, across all hostels' },
-  { code: 'Warden', label: 'Warden', group: 'Wardens', hostel: true, does: 'Day-to-day running of one hostel: indents, repairs, attendance, discipline' },
-  { code: 'Floor_Warden', label: 'Floor Warden', group: 'Wardens', hostel: true, does: 'First check of receipts, outings, sick leave and repairs; roll call; key and room handover' },
+  { code: 'Chief_Warden', label: 'Chief Manager', group: 'Managers', hostel: true, does: 'Final approval of receipts, beds, outings, sick leave and room changes; the only editor of a student\'s hostel record' },
+  { code: 'Director_Hostels', label: 'Director, Hostels', group: 'Managers', hostel: false, does: 'Everything a Chief Manager does, across all hostels' },
+  { code: 'Warden', label: 'Warden', group: 'Managers', hostel: true, does: 'Day-to-day running of one hostel: indents, repairs, attendance, discipline' },
+  { code: 'Floor_Warden', label: 'Floor Manager', group: 'Managers', hostel: true, does: 'First check of receipts, outings, sick leave and repairs; roll call; key and room handover' },
   { code: 'Room_Allotment', label: 'Room Allotment (hostel office)', group: 'Office', hostel: true, does: 'Fee checks, bed offers, check-in and handover, renewals, vacating' },
   { code: 'Accounts_Section', label: 'Accounts', group: 'Office', hostel: false, does: 'Fees, receipts, deposits and refunds, electricity bills' },
   { code: 'Mess_Incharge', label: 'Mess In-charge', group: 'Mess', hostel: false, does: 'Writes and publishes the weekly menu; replies to meal complaints' },

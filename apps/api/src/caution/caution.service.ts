@@ -19,14 +19,14 @@ const ENTRY_FROM = sql`hostel.caution_entry e left join ref.staff_master ps on p
 /**
  * CDP Caution deposit. Each student's refundable deposit as an account of lines with reasons (hostel.caution_entry,
  * db/migrations/116_caution_deposit.sql): paid in through the fee demand or held from before, deductions proposed by a
- * warden and approved by the Chief Warden, unpaid dues paid from it by Accounts, the balance refunded on leaving.
+ * warden and approved by the Chief Manager, unpaid dues paid from it by Accounts, the balance refunded on leaving.
  * The money itself sits in the university's bank account through the payment gateway; the rules are in the database.
  */
 @Injectable()
 export class CautionService {
   constructor(private dbs: DbService) {}
 
-  /** Students this person may see: by hostel, by floor for a Floor Warden, all for Accounts and management. */
+  /** Students this person may see: by hostel, by floor for a Floor Manager, all for Accounts and management. */
   private scope(user: AuthUser): SQL {
     if (user.roles.some((r) => ['admin', 'Accounts_Section', 'Pro_VC_Finance', 'President', 'Vice_President', 'Pro_VC'].includes(r))) return sql`true`;
     if (user.roles.some((r) => ['Chief_Warden', 'Director_Hostels', 'Warden'].includes(r))) return facWhere('s.facility_id', null, user);

@@ -18,7 +18,7 @@ const groupBy = <T,>(rows: T[], key: (r: T) => string) => rows.reduce((m, r) => 
 /**
  * CAR-01 Career tracker. Second year: each hosteller's progress towards the career they chose (milestones of the
  * path, and On track / Watch / Needs guidance from career-rules.ts). Final year: placements and packages, higher
- * studies, competitive examinations and ventures. Student by student for the Chief Warden (their hostels only) and
+ * studies, competitive examinations and ventures. Student by student for the Chief Manager (their hostels only) and
  * the Deans; building by building for the President, Vice President and Pro-VCs.
  */
 @Injectable()

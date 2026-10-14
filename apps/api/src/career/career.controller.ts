@@ -14,7 +14,7 @@ const OutcomeDto = z.object({
   country: z.string().max(60).nullable().optional(), score: z.string().max(40).nullable().optional(), funding_inr: z.number().min(0).nullable().optional(),
   stage_on: z.string().date().optional(), verified: z.boolean().optional(), notes: z.string().max(300).nullable().optional(),
 });
-/** Student by student: the Chief Warden (own hostels), the Deans. Executives get buildings only. */
+/** Student by student: the Chief Manager (own hostels), the Deans. Executives get buildings only. */
 const TRACKERS = ['Chief_Warden', 'Director_Hostels', 'Dean_Students_Affairs', 'Dean_Students_Progression', 'admin'];
 
 @ApiTags('CAR · career tracker')

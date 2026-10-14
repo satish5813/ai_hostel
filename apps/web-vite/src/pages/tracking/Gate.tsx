@@ -60,7 +60,7 @@ export default function Gate() {
             ) : result === 'valid' ? <Button variant="secondary" onClick={reset}>Cancel</Button> : undefined} />
         </div>
       </div>
-      <p style={{ color: 'var(--hero-muted)', textAlign: 'center', fontSize: 13, margin: 0 }}>A student cannot be let out on a pass that is not approved. An exit without a valid pass raises a No-Pass-Exit alert to the Floor Warden. Every scan is recorded; the guard does not see why a pass was approved or refused.</p>
+      <p style={{ color: 'var(--hero-muted)', textAlign: 'center', fontSize: 13, margin: 0 }}>A student cannot be let out on a pass that is not approved. An exit without a valid pass raises a No-Pass-Exit alert to the Floor Manager. Every scan is recorded; the guard does not see why a pass was approved or refused.</p>
     </div>
   );
 }

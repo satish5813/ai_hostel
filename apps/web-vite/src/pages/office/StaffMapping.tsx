@@ -7,7 +7,7 @@ import { can } from '@/app/screens';
 type Asg = { assignment_id: number; staff_id: string; full_name: string; mobile_no: string; hostel_role: string; facility_id: string; zone_id: string | null; space_id: string | null; shift: string; from_date: string; show_on_qr: boolean };
 const ROLES = ['Chief_Warden', 'Warden', 'Assistant_Warden', 'Floor_Warden', 'Office_Staff', 'Room_Allotment', 'Accounts_Section', 'Security_Officer', 'Security_Guard', 'Mess_Incharge', 'Mess_Supervisor', 'Housekeeping_Supervisor', 'Cleaner', 'Maintenance_Supervisor', 'Electrician', 'Facility_Incharge', 'Counsellor'];
 
-/** MAP-02 Staff mapping: who is responsible for which hostel, floor or area. Chief Warden C E; Warden A (cleaners); Dean A (wardens). */
+/** MAP-02 Staff mapping: who is responsible for which hostel, floor or area. Chief Manager C E; Warden A (cleaners); Dean A (wardens). */
 export default function StaffMapping() {
   const s = useSession()!;
   const editable = can(s.role, 'MAP-02', 'C');
@@ -20,11 +20,11 @@ export default function StaffMapping() {
   const { run, busy } = useAction();
   return (
     <div className="klh-stack" style={{ gap: 24 }}>
-      <ScreenHeader code="MAP-02" subtitle={editable ? 'Assign Floor Wardens and Facility In-charges; end assignments. Scope for every staff screen comes from these rows.' : 'View the mapping of your hostel; approve the assignments your role approves.'} />
+      <ScreenHeader code="MAP-02" subtitle={editable ? 'Assign Floor Managers and Facility In-charges; end assignments. Scope for every staff screen comes from these rows.' : 'View the mapping of your hostel; approve the assignments your role approves.'} />
       <div className="klh-grid-3">
         <StatCard color="brand" icon="users" label="Active duties" value={String(list.data?.length ?? 0)} />
-        <StatCard color="violet" icon="building" label="Floor Wardens" value={String(list.data?.filter((a) => a.hostel_role === 'Floor_Warden').length ?? 0)} />
-        <StatCard color="orange" icon="alert" label="Floors with no Floor Warden" value={String(floors.data?.length ?? 0)} tone={floors.data?.length ? 'critical' : undefined} sub={floors.data?.map((x) => `${x.hostel_name} ${x.floor_name}`).join(', ') || 'all floors covered'} />
+        <StatCard color="violet" icon="building" label="Floor Managers" value={String(list.data?.filter((a) => a.hostel_role === 'Floor_Warden').length ?? 0)} />
+        <StatCard color="orange" icon="alert" label="Floors with no Floor Manager" value={String(floors.data?.length ?? 0)} tone={floors.data?.length ? 'critical' : undefined} sub={floors.data?.map((x) => `${x.hostel_name} ${x.floor_name}`).join(', ') || 'all floors covered'} />
       </div>
       {editable && (
         <Card icon="users" color="brand" title="Assign a duty" subtitle="Who is responsible for a hostel, a floor or an area, and in which shift">
@@ -41,11 +41,11 @@ export default function StaffMapping() {
             <div><Button type="submit" variant="primary" icon="plus" loading={busy} blockedReason={!facility ? 'Choose a hostel.' : !f.staff_id ? 'Enter the employee ID.' : undefined}>Assign duty</Button></div>
           </form>
         </Card>)}
-      {!editable && <Notice tone="info" title="Approvals">Warden: approve cleaner assignments proposed by Housekeeping. Dean, Students Affairs: approve Warden and Chief Warden assignments. Approval requests arrive in GEN-03 My approvals.</Notice>}
+      {!editable && <Notice tone="info" title="Approvals">Warden: approve cleaner assignments proposed by Housekeeping. Dean, Students Affairs: approve Warden and Chief Manager assignments. Approval requests arrive in GEN-03 My approvals.</Notice>}
       <Card padding={0}>
         <DataTable caption="Current duties" rowKey="assignment_id" rows={list.data ?? []} loading={!list.data} searchable onRowClick={editable ? (r) => setEnd(r as Asg) : undefined}
           filters={!editable ? <Select value={facility} onChange={(e) => setFacility(e.target.value)} options={[{ value: '', label: 'All hostels' }, ...(hostels.data ?? []).map((h) => ({ value: h.facility_id, label: h.facility_name }))]} /> : undefined}
-          empty={<EmptyState icon="users" title="No duties assigned" body="Every floor with occupied beds needs an active Floor Warden." />}
+          empty={<EmptyState icon="users" title="No duties assigned" body="Every floor with occupied beds needs an active Floor Manager." />}
           columns={[
             { key: 'full_name', label: 'Person', render: (v: string, r: Asg) => <Person name={titleCase(v)} sub={`${r.staff_id} · ${r.mobile_no}`} /> },
             { key: 'hostel_role', label: 'Duty', render: (v: string) => words(v) },

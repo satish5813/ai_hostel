@@ -23,7 +23,7 @@ String _num(dynamic v) => v == null ? '—' : _fmt.format(_n(v));
 String _day(dynamic s) { final d = parseDate(s); return d == null ? '—' : DateFormat('d MMM yyyy').format(d); }
 
 const _rcStatus = {
-  'Pending_FW': ('With the Floor Warden', 'warn'), 'Pending_CW': ('With the Chief Warden', 'warn'), 'Approved': ('Approved: to move', 'good'),
+  'Pending_FW': ('With the Floor Manager', 'warn'), 'Pending_CW': ('With the Chief Manager', 'warn'), 'Approved': ('Approved: to move', 'good'),
   'Moved': ('Moved', 'good'), 'Rejected': ('Not approved', 'bad'), 'Cancelled': ('Cancelled', 'muted'),
 };
 const _small = TextStyle(fontSize: 12, color: _ink3);
@@ -85,7 +85,7 @@ class _ChangeRoomScreenState extends State<ChangeRoomScreen> with AutoRefresh {
     setState(() => busy = true);
     try {
       final x = await api.post('/me/room-change', {'kind': kind, 'to_room_type_id': _typeId, 'to_subspace_id': bed, 'reason': _reason.text});
-      if (mounted) toast(context, 'Request ${(x as Map)['change_no']} sent to your Floor Warden');
+      if (mounted) toast(context, 'Request ${(x as Map)['change_no']} sent to your Floor Manager');
       setState(() { kind = null; type = null; bed = null; _reason.clear(); });
       await load();
     } catch (e) {
@@ -173,7 +173,7 @@ class _ChangeRoomScreenState extends State<ChangeRoomScreen> with AutoRefresh {
             decoration: const BoxDecoration(color: Color(0xFFF8FAFC), border: Border(left: BorderSide(color: K.brand, width: 3)), borderRadius: BorderRadius.horizontal(right: Radius.circular(10))),
             child: Text('“${c['reason']}”', style: const TextStyle(color: _ink2, fontStyle: FontStyle.italic))),
         _Timeline(c),
-        if (c['status'] == 'Approved') _Hint(LucideIcons.circleCheck, 'Approved. Your bed ${c['to_bed']} is kept for you. Your Floor Warden will read the room\'s meter, take your old key and give you the new one on the day you move.'),
+        if (c['status'] == 'Approved') _Hint(LucideIcons.circleCheck, 'Approved. Your bed ${c['to_bed']} is kept for you. Your Floor Manager will read the room\'s meter, take your old key and give you the new one on the day you move.'),
         const SizedBox(height: 14),
         Align(alignment: Alignment.centerRight, child: KButton('Cancel request', kind: BtnKind.secondary, busy: busy, onPressed: () => _cancel(c))),
       ]),
@@ -208,9 +208,9 @@ class _ChangeRoomScreenState extends State<ChangeRoomScreen> with AutoRefresh {
       if (kind == 'Room_Type') _Panel(title: '2. Room type', children: [
         for (var i = 0; i < others.length; i++) Padding(padding: EdgeInsets.only(top: i == 0 ? 0 : 12), child: _typeCard(others[i], stay)),
       ]),
-      if (typeId != null) _Panel(title: '${2 + step}. Choose a bed ', titleExtra: 'or leave it to the Chief Warden', children: [
+      if (typeId != null) _Panel(title: '${2 + step}. Choose a bed ', titleExtra: 'or leave it to the Chief Manager', children: [
         if (beds == null) const Text('Loading free beds…', style: TextStyle(fontSize: 13, color: _ink3)),
-        if (beds != null && beds!.isEmpty) const Text('No free bed of this type now. You can still ask; the Chief Warden will give one when it is free.', style: TextStyle(fontSize: 13, color: _ink3)),
+        if (beds != null && beds!.isEmpty) const Text('No free bed of this type now. You can still ask; the Chief Manager will give one when it is free.', style: TextStyle(fontSize: 13, color: _ink3)),
         if (floors.isNotEmpty) ConstrainedBox(constraints: const BoxConstraints(maxHeight: 420), child: SingleChildScrollView(child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           for (final (i, f) in floors.entries.indexed) Padding(padding: EdgeInsets.only(top: i == 0 ? 0 : 14), child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             Padding(padding: const EdgeInsets.only(bottom: 6), child: Text(f.key.toUpperCase(), style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700, letterSpacing: .78, color: _ink3))),
@@ -227,7 +227,7 @@ class _ChangeRoomScreenState extends State<ChangeRoomScreen> with AutoRefresh {
             )),
           ])),
         ]))),
-        if (bed != null) _Hint(LucideIcons.bedDouble, 'You asked for ${beds?.where((b) => b['subspace_id'] == bed).firstOrNull?['bed_label']}. The Chief Warden may give another bed of the same type.'),
+        if (bed != null) _Hint(LucideIcons.bedDouble, 'You asked for ${beds?.where((b) => b['subspace_id'] == bed).firstOrNull?['bed_label']}. The Chief Manager may give another bed of the same type.'),
       ]),
       if (typeId != null) _Panel(title: '${3 + step}. Why?', children: [
         TextField(
@@ -248,9 +248,9 @@ class _ChangeRoomScreenState extends State<ChangeRoomScreen> with AutoRefresh {
         if (previewError != null) Text(previewError!, style: const TextStyle(fontSize: 13, color: _ink3)),
         const SizedBox(height: 14),
         Align(alignment: Alignment.centerRight, child: _Blocked(reason: blocked,
-            child: KButton('Send to my Floor Warden', busy: busy, onPressed: blocked == null ? _send : null))),
+            child: KButton('Send to my Floor Manager', busy: busy, onPressed: blocked == null ? _send : null))),
         const SizedBox(height: 8),
-        const Text('The Floor Warden of your floor approves first, then the Chief Warden. You can cancel until you move.', style: TextStyle(fontSize: 12.5, color: _ink3)),
+        const Text('The Floor Manager of your floor approves first, then the Chief Manager. You can cancel until you move.', style: TextStyle(fontSize: 12.5, color: _ink3)),
       ]),
     ];
   }
@@ -393,7 +393,7 @@ class _Blocked extends StatelessWidget {
       ]));
 }
 
-/// RcTimeline: asked, the Floor and Chief Warden steps, moved; a grid of 150 px boxes.
+/// RcTimeline: asked, the Floor and Chief Manager steps, moved; a grid of 150 px boxes.
 class _Timeline extends StatelessWidget {
   final Map c;
   const _Timeline(this.c);
@@ -402,8 +402,8 @@ class _Timeline extends StatelessWidget {
     final moved = c['status'] == 'Moved';
     final steps = ((c['steps'] as List?) ?? []).cast<Map>();
     final items = <(String, bool, bool, String)>[ // label, done, bad, sub
-      (c['arranged'] == true ? 'Arranged by the Chief Warden' : 'Asked', true, false, _day(c['requested_at'])),
-      for (final s in steps) (s['approver_role'] == 'Floor_Warden' ? 'Floor Warden' : 'Chief Warden', s['decision'] == 'Approved', s['decision'] == 'Rejected',
+      (c['arranged'] == true ? 'Arranged by the Chief Manager' : 'Asked', true, false, _day(c['requested_at'])),
+      for (final s in steps) (s['approver_role'] == 'Floor_Warden' ? 'Floor Manager' : 'Chief Manager', s['decision'] == 'Approved', s['decision'] == 'Rejected',
           s['decision'] == 'Pending' ? 'Waiting' : s['decision'] == 'Skipped' ? 'Not needed'
               : '${s['decision'] == 'Rejected' ? 'Not approved' : 'Approved'}${s['acted_by_name'] != null ? ' · ${s['acted_by_name']}' : ''} · ${_day(s['decided_on'])}${s['remarks'] != null ? ' · “${s['remarks']}”' : ''}'),
       ('Moved and settled', moved, false, moved ? '${_day(c['move_date'])}${c['moved_by_name'] != null ? ' · ${c['moved_by_name']}' : ''}' : c['status'] == 'Approved' ? 'On the day of the move' : ''),

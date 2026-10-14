@@ -1640,7 +1640,7 @@ Order header; the total is never stored — see portal.v_po_total
 | response_status | rfq_response | no |  | 'Invited'::portal.rfq_response |
 
 ### portal.role
-The roles of the portal plus hostel roles (Chief Warden, Floor Warden, Security ...); hostel.staff_space_assignment.hostel_role references it
+The roles of the portal plus hostel roles (Chief Manager, Floor Manager, Security ...); hostel.staff_space_assignment.hostel_role references it
 
 | Column | Type | Null | Key | Default |
 |---|---|---|---|---|

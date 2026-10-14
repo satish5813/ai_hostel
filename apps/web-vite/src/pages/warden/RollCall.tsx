@@ -19,7 +19,7 @@ const pick = (list: Session[]) => { const t = nowHm(); const today = list.filter
 /**
  * TRK-08 Night roll call (addition). Room by room on the phone: tap In, Not seen, Pass or Sick for each resident.
  * Passes and sick leave are filled in from the approved requests. Saving marks the night; a resident not seen
- * without a pass raises a Not Seen alert to the Floor Warden.
+ * without a pass raises a Not Seen alert to the Floor Manager.
  */
 export default function RollCall() {
   const navigate = useNavigate();

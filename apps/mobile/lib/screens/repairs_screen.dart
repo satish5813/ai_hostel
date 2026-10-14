@@ -47,7 +47,7 @@ class _RepairsScreenState extends State<RepairsScreen> with AutoRefresh {
     setState(() => busy = true);
     try {
       final t = await api.post('/me/tickets', {'item_code': item!['item_code'], 'description': text.text, 'location_note': where.text.isEmpty ? null : where.text});
-      if (mounted) toast(context, 'Ticket ${t['ticket_id']} raised; the ${item!['area'] == 'Mess' ? 'mess in-charge' : 'floor warden'} will check it');
+      if (mounted) toast(context, 'Ticket ${t['ticket_id']} raised; the ${item!['area'] == 'Mess' ? 'mess in-charge' : 'floor manager'} will check it');
       reset(); load();
     } catch (e) { if (mounted) toast(context, '$e', error: true); }
     finally { if (mounted) setState(() => busy = false); }

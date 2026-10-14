@@ -71,7 +71,7 @@ export class MastersController {
   @Post('rooms/:id/status') roomStatus(@Param('id') id: string, @Body(zod(z.object({ status: z.enum(['Available', 'Under_Maintenance']), reason: z.string().min(3) }))) b: { status: 'Available' | 'Under_Maintenance'; reason: string }, @CurrentUser() user: AuthUser) {
     return this.svc.setRoomStatus(user, id, b.status, b.reason);
   }
-  /** MAP-01: room type, reservation and accessibility of a room (Office C E; approved by the Chief Warden). */
+  /** MAP-01: room type, reservation and accessibility of a room (Office C E; approved by the Chief Manager). */
   @Roles('Office_Staff', 'Room_Allotment', 'Chief_Warden', 'Director_Hostels', 'admin')
   @Post('rooms/:id/profile') roomProfile(@Param('id') id: string, @Body(zod(RoomProfileDto)) b: z.infer<typeof RoomProfileDto>, @CurrentUser() user: AuthUser) {
     return this.svc.setRoomProfile(user, id, b);

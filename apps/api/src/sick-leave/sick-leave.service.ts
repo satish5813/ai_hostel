@@ -5,7 +5,7 @@ import { DbService } from '../db/db.service.js';
 import { assertScope, facWhere } from '../auth/scope.js';
 import type { AuthUser } from '../auth/auth.types.js';
 
-/** Workflow F — apply > Floor Warden verifies in person > Chief Warden approves > mess sick list > food to the room > leave ends. */
+/** Workflow F — apply > Floor Manager verifies in person > Chief Manager approves > mess sick list > food to the room > leave ends. */
 @Injectable()
 export class SickLeaveService {
   constructor(private dbs: DbService) {}
@@ -51,8 +51,8 @@ export class SickLeaveService {
   }
 
   /**
-   * The in-person visit (decision D4). The Chief Warden records who visited, when and what they found; a Floor Warden
-   * may still record their own visit. The Chief Warden then approves through /approvals.
+   * The in-person visit (decision D4). The Chief Manager records who visited, when and what they found; a Floor Manager
+   * may still record their own visit. The Chief Manager then approves through /approvals.
    */
   async visit(user: AuthUser, id: number, dto: { visit_remarks: string; visited_by?: string; visited_at?: string; diet?: 'Light' | 'Liquid' | 'Normal'; diet_note?: string | null }) {
     const [l] = await this.dbs.rows<{ status: string; applied_on: string; facility_id: string | null; floor_warden: string | null }>(sql`

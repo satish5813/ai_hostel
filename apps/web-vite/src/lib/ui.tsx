@@ -84,6 +84,7 @@ export const roomLabel = (spaceId?: string | null) => (spaceId ?? '').replace(/^
 export const bedLabel = (subspaceId?: string | null) => (subspaceId ?? '').replace(/-B(\d+)$/, (_m, n) => `-${String.fromCharCode(64 + Number(n))}`);
 export const greeting = () => { const h = new Date().getHours(); return h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening'; };
 export const today = () => new Date().toLocaleDateString('en-IN', { weekday: 'long', day: '2-digit', month: 'short', year: 'numeric' });
-export const words = (s?: string | null) => (s ?? '').replace(/_/g, ' ');
+const ROLE_WORDS: Record<string, string> = { Chief_Warden: 'Chief Manager', Floor_Warden: 'Floor Manager' };
+export const words = (s?: string | null) => (ROLE_WORDS[s ?? ''] ?? (s ?? '')).replace(/_/g, ' ');
 export const mobile = (m?: string | null) => (m ?? '').replace(/(\d{5})(\d{5})/, '$1 $2');
 export const moduleColor = (w: keyof typeof MODULE): T.TileColor => MODULE[w].color;

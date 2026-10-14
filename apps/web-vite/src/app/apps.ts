@@ -1,7 +1,7 @@
 /**
  * The apps of the launcher (design "KL Hostels Admin"). An app groups the screens of one area; each screen is an
  * operation in the app's sidebar. What a person sees is cut down to the screens their role may open (screens.ts),
- * so a Floor Warden and a Chief Warden get the same frame with different apps and operations.
+ * so a Floor Manager and a Chief Manager get the same frame with different apps and operations.
  */
 import {
   Activity, BedDouble, GitPullRequestArrow, LayoutDashboard, BedSingle, Building2, CalendarCheck, CalendarRange, ChartColumn, ClipboardCheck, ClipboardList, Database, DoorClosed, DoorOpen, Eye, FileText,

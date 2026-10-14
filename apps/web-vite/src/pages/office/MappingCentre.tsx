@@ -12,7 +12,7 @@ type Op = { key: string; title: string; about: string; icon: T.IconName; color: 
 
 /**
  * MAP-07 Mapping centre. Everything that ties a person to a place, in one board:
- * students to beds, Floor Wardens and sweepers to floors, scavengers to washroom blocks, guards to shifts, wardens to hostels.
+ * students to beds, Floor Managers and sweepers to floors, scavengers to washroom blocks, guards to shifts, wardens to hostels.
  * Each card opens the list (search, filter, end), a one-at-a-time form, or a file upload checked row by row.
  */
 export default function MappingCentre() {
@@ -27,11 +27,11 @@ export default function MappingCentre() {
   const hostels = sum.data?.length ?? 0;
   const ops: Op[] = [
     { key: 'beds', title: 'Students in beds', about: 'Who lives in which bed', icon: 'bed', color: 'indigo', done: t.students, of: t.beds, unit: 'beds filled', kind: 'bed_map' },
-    { key: 'Floor_Warden', title: 'Floor Wardens', about: 'One for every floor with residents', icon: 'shield', color: 'violet', done: t.fw, of: t.floors, unit: 'floors covered', kind: 'duties', role: 'Floor_Warden' },
+    { key: 'Floor_Warden', title: 'Floor Managers', about: 'One for every floor with hostel students', icon: 'shield', color: 'violet', done: t.fw, of: t.floors, unit: 'floors covered', kind: 'duties', role: 'Floor_Warden' },
     { key: 'Sweeper', title: 'Sweepers', about: 'Floors and corridors, morning shift', icon: 'sparkle', color: 'cyan', done: t.sw, of: t.floors, unit: 'floors covered', kind: 'duties', role: 'Sweeper' },
     { key: 'Scavenger', title: 'Scavengers', about: 'Washroom blocks, morning shift', icon: 'door', color: 'sky', done: t.sc, of: t.wr, unit: 'washrooms covered', kind: 'duties', role: 'Scavenger' },
     { key: 'Security_Guard', title: 'Security guards', about: 'Morning, evening and night at each hostel', icon: 'lock', color: 'orange', done: t.gs, of: hostels * 3, unit: 'shifts covered', kind: 'duties', role: 'Security_Guard' },
-    { key: 'Warden', title: 'Wardens', about: 'Warden and Chief Warden of each hostel', icon: 'users', color: 'brand', done: t.wd, of: hostels, unit: 'hostels covered', kind: 'duties', role: 'Warden' },
+    { key: 'Warden', title: 'Managers', about: 'Warden and Chief Manager of each hostel', icon: 'users', color: 'brand', done: t.wd, of: hostels, unit: 'hostels covered', kind: 'duties', role: 'Warden' },
   ];
   return (
     <div className="pg">
@@ -57,7 +57,7 @@ export default function MappingCentre() {
             <div key={h.facility_id} className="mc-h">
               <header><span className="hs-code">{h.hostel_code}</span><span style={{ display: 'flex', flexDirection: 'column' }}><b>{h.facility_name}</b><span>{h.hostel_gender} · {h.floors} floors · {h.beds} beds</span></span></header>
               <Line label="Students in beds" done={h.students} of={h.beds} soft />
-              <Line label="Floor Warden on each floor" done={h.floors_warden} of={h.floors} />
+              <Line label="Floor Manager on each floor" done={h.floors_warden} of={h.floors} />
               <Line label="Sweeper on each floor" done={h.floors_sweeper} of={h.floors} />
               <Line label="Scavenger for each washroom" done={h.washrooms_scavenger} of={h.washrooms} />
               <Line label="Guard shifts" done={h.guard_shifts ?? 0} of={3} />

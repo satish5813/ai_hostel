@@ -149,7 +149,7 @@ export function App() {
         <Route path="/roll-call" element={<RollCall />} />
         <Route path="/room-blocking" element={<RoomBlocking />} />           {/* REG-10 (design) */}
         <Route path="/allotment-approvals" element={<AllotmentApprovals />} /> {/* REG-11 (design) */}
-        <Route path="/overview" element={<Overview />} />                   {/* CWP-01 Chief Warden overview */}
+        <Route path="/overview" element={<Overview />} />                   {/* CWP-01 Chief Manager overview */}
         <Route path="/exceptions" element={<Exceptions />} />               {/* REG-13 exceptions */}
         <Route path="/dean" element={<DeanHome />} />                 {/* DSA-01 Dean, Students Affairs */}
         <Route path="/absence-report" element={<AbsenceReport />} />  {/* RPT-09 */}
@@ -187,7 +187,7 @@ export function App() {
         <Route path="/renewals" element={<Renewals />} />             {/* REG-14 yearly renewals: continue the stay into the new year */}
         <Route path="/allotment-view" element={<AllotmentView />} />        {/* REG-12 whole hostel: floors, rooms, beds, staff */}
         <Route path="/room-mapping" element={<RoomMapping />} />             {/* MAP-08 (design) */}
-        <Route path="/floor" element={<FloorHome />} />                       {/* Floor Warden: my floor today */}
+        <Route path="/floor" element={<FloorHome />} />                       {/* Floor Manager: my floor today */}
         <Route path="/admin/board" element={<AdminDashboard />} />           {/* Data Administrator: set-up board */}
         <Route path="/maintenance" element={<Maintenance />} />              {/* TKT-01 02 04 */}
         <Route path="/academics" element={<Academics />} />                  {/* ACA-01 */}

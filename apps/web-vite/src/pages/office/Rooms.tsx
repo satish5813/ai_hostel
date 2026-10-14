@@ -124,7 +124,7 @@ function EditRoom({ ctx, types, editable, onClose, onDone }: { ctx: { hostel: Ho
           {typeChanged && <Notice tone="warning" title="Beds are not changed">Changing the room type changes the fee band only. The room keeps its {x.beds} beds.</Notice>}
           <Field label="Reserved for"><Select value={f.reserved_for} onChange={(e) => setF({ ...f, reserved_for: e.target.value })} options={['None', 'Staff', 'Guest', 'Medical']} /></Field>
           <Checkbox label="Accessible room" checked={f.is_accessible} onChange={(v) => setF({ ...f, is_accessible: v })} />
-          <Field label="Approved by" hint="Employee ID of the Chief Warden, when the Hostel Office corrects a room"><Input value={f.approved_by} onChange={(e) => setF({ ...f, approved_by: e.target.value })} placeholder="S-CW" /></Field>
+          <Field label="Approved by" hint="Employee ID of the Chief Manager, when the Hostel Office corrects a room"><Input value={f.approved_by} onChange={(e) => setF({ ...f, approved_by: e.target.value })} placeholder="S-CW" /></Field>
         </>) : <dl className="klh-dl"><dt>Room type</dt><dd>{x.type_name ?? 'Not set'}</dd><dt>Reserved for</dt><dd>{x.reserved_for}</dd><dt>Accessible</dt><dd>{x.is_accessible ? 'Yes' : 'No'}</dd></dl>)}
         <Notice tone="info" title="Blocking a bed or a room">Use REG-08 Occupancy board to block a bed or mark the room under maintenance; it needs a reason and is audited.</Notice>
       </div>

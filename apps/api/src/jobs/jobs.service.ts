@@ -24,7 +24,7 @@ export class JobsService {
   @Cron('0 12 * * *', { timeZone: 'Asia/Kolkata' }) sickLunch() { return this.call("hostel.fn_queue_sick_lists('Lunch')"); }
   @Cron('30 16 * * *', { timeZone: 'Asia/Kolkata' }) sickSnacks() { return this.call("hostel.fn_queue_sick_lists('Evening_Snacks')"); }
   @Cron('0 19 * * *', { timeZone: 'Asia/Kolkata' }) sickDinner() { return this.call("hostel.fn_queue_sick_lists('Dinner')"); }
-  /** Monday 06:00: last week's floor reports are prepared for the Chief Warden to send to the Dean. */
+  /** Monday 06:00: last week's floor reports are prepared for the Chief Manager to send to the Dean. */
   @Cron('0 6 * * 1', { timeZone: 'Asia/Kolkata' }) weeklyFloorReports() { return this.call('hostel.fn_build_weekly_floor_reports()'); }
   /** Weekly food choice: changes apply on Monday; on Friday every resident is reminded they may change next week's food. */
   @Cron('5 0 * * 1', { timeZone: 'Asia/Kolkata' }) foodChoices() { return this.call('hostel.fn_apply_food_choices()'); }

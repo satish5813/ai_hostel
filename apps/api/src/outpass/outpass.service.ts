@@ -5,7 +5,7 @@ import { t } from '@klu/db';
 import { DbService } from '../db/db.service.js';
 import type { AuthUser } from '../auth/auth.types.js';
 
-/** Workflow E — apply > parent recommends > L1 Floor Warden > L2 Chief Warden > L3 Dean (a day or more) > QR pass > gate out > gate in. */
+/** Workflow E — apply > parent recommends > L1 Floor Manager > L2 Chief Manager > L3 Dean (a day or more) > QR pass > gate out > gate in. */
 @Injectable()
 export class OutpassService {
   constructor(private dbs: DbService) {}

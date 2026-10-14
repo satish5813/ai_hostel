@@ -36,7 +36,7 @@ installed fresh on the Mac (the Windows `node_modules` are not copied: several t
 - `db/klu_hostel.sql.gz`: plain SQL, used for PostgreSQL 16 or 17. A few PostgreSQL 18 settings lines may print
   errors on an older server; the set-up checks the table count afterwards.
 
-Both hold the database as of 4 Oct 2026: 253 tables, migrations 000 to 105, 35 residents and the demo data.
+Both hold the database as of 4 Oct 2026: 253 tables, migrations 000 to 105, 35 hostel students and the demo data.
 
 ## Debugging
 

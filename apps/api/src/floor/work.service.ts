@@ -9,7 +9,7 @@ const myZones = (user: AuthUser) => sql`(select z.zone_id from infra.zone z wher
   and a.hostel_role in ('Floor_Warden','Warden','Assistant_Warden','Chief_Warden','Hostel_Incharge')))`;
 
 /**
- * The Floor Warden's work besides approvals: attendance in sessions through the day, floor rounds with a checklist
+ * The Floor Manager's work besides approvals: attendance in sessions through the day, floor rounds with a checklist
  * that raise maintenance tickets for what is broken, and closing those tickets once the repair is confirmed.
  */
 @Injectable()
@@ -133,7 +133,7 @@ export class WorkService {
     });
   }
 
-  /** TKT-02: the Floor Warden confirms the repair (Closed) or sends it back (Reopened). Not on a ticket they raised and repaired themselves. */
+  /** TKT-02: the Floor Manager confirms the repair (Closed) or sends it back (Reopened). Not on a ticket they raised and repaired themselves. */
   async confirm(user: AuthUser, id: number, dto: { fixed: boolean; note?: string }) {
     const [t] = await this.dbs.rows<{ status: string }>(sql`select status::text as status from infra.maintenance_ticket where ticket_id = ${id}`);
     if (!t) throw new NotFoundException('Ticket not found');

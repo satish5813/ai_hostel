@@ -17,7 +17,7 @@ const TABS: { id: string; label: string; test: (r: Row) => boolean }[] = [
   { id: 'undecided', label: 'Not decided', test: (r) => r.stage === 'Not decided' },
   { id: 'leaving', label: 'Leaving', test: (r) => r.stage === 'Leaving' },
   { id: 'continued', label: 'Continued', test: (r) => r.stage === 'Continued' },
-  { id: 'all', label: 'All residents', test: () => true },
+  { id: 'all', label: 'All hostel students', test: () => true },
 ];
 const tone = (s: string) => (s === 'Continued' || s === 'Ready to continue' ? 'tag-ok' : s === 'Leaving' ? 'tag-bad' : s === 'Not decided' ? '' : 'tag-warn');
 
@@ -40,7 +40,7 @@ export default function Renewals() {
   return (
     <div className="pg">
       <div className="pg-head">
-        <div><p>{board.data?.next_year ? `Renewal for ${board.data.next_year}. Residents keep their bed, ask for another room or tell you they are leaving. ` : 'The next academic year is not set up yet. '}
+        <div><p>{board.data?.next_year ? `Renewal for ${board.data.next_year}. Hostel students keep their bed, ask for another room or tell you they are leaving. ` : 'The next academic year is not set up yet. '}
           {board.data?.continue_from ? `Continue stay opens on ${formatDate(board.data.continue_from)}.` : ''}</p></div>
         <div className="pg-actions"><select className="dm-filter" aria-label="Hostel" value={facility} onChange={(e) => setFacility(e.target.value)}><option value="">All my hostels</option>{(hostels.data ?? []).map((h) => <option key={h.facility_id} value={h.facility_id}>{h.facility_name}</option>)}</select></div>
       </div>
@@ -50,7 +50,7 @@ export default function Renewals() {
       <section className="box">
         <div className="q">
           {!board.data && <div className="q-empty">Loading…</div>}
-          {board.data && rows.length === 0 && <div className="q-empty">{tab === 'ready' ? 'Nobody is ready yet. A renewal is ready once it is paid, fee-checked and approved by the Chief Warden.' : 'Nobody here.'}</div>}
+          {board.data && rows.length === 0 && <div className="q-empty">{tab === 'ready' ? 'Nobody is ready yet. A renewal is ready once it is paid, fee-checked and approved by the Chief Manager.' : 'Nobody here.'}</div>}
           {rows.map((r) => (
             <button key={r.registration_id} type="button" className="q-row" style={{ gridTemplateColumns: '34px minmax(0, 1.4fr) minmax(0, 1fr) auto' }} onClick={() => setSel(r)}>
               <span className="q-av">{initials(r.full_name)}</span>
@@ -75,7 +75,7 @@ function RenewalPanel({ r, b, doIt, onClose, onDone }: { r: Row; b: Board; doIt:
     ? <Button variant="primary" icon="check" loading={busy} blockedReason={!b.can_continue ? `Opens on ${formatDate(b.continue_from)}, before ${b.next_year} starts.` : moving && !key.trim() ? 'Give the key for the new room.' : undefined}
         onClick={() => run(() => api(`/registrations/${r.next_registration_id}/continue-stay`, { method: 'POST', json: key.trim() ? { key_no: key.trim() } : {} }).then(onDone), `${titleCase(r.full_name)} continues into ${b.next_year}`)}>Continue stay</Button>
     : r.stage === 'Fee check' ? <Button variant="secondary" onClick={() => navigate('/fee-checks')}>Open fee check</Button>
-    : r.stage === 'Chief Warden' ? <Button variant="secondary" onClick={() => navigate('/allotment-approvals')}>Open approvals</Button>
+    : r.stage === 'Chief Manager' ? <Button variant="secondary" onClick={() => navigate('/allotment-approvals')}>Open approvals</Button>
     : undefined;
   return (
     <Drawer open onClose={onClose} title={titleCase(r.full_name)} subtitle={`${r.student_id}${r.programme ? ` · ${r.programme}` : ''}`} footer={footer}>
@@ -89,7 +89,7 @@ function RenewalPanel({ r, b, doIt, onClose, onDone }: { r: Row; b: Board; doIt:
           <div className="facts">
             <div><span>Renewal</span><b>{r.next_registration_no}</b></div>
             <div><span>Fee check</span><b>{r.fee_check_status ?? '—'}</b></div>
-            <div><span>Chief Warden</span><b>{r.cw_status ?? '—'}</b></div>
+            <div><span>Chief Manager</span><b>{r.cw_status ?? '—'}</b></div>
           </div>)}
         {r.stage === 'Not decided' && <Notice tone="info" title="No choice yet">The student sees a renewal card on their home page while the renewal window is open.</Notice>}
         {r.stage === 'Leaving' && <Notice tone="warning" title="Not staying next year">The bed is free for {b.next_year}. The student vacates through the usual vacating process at the end of the year.</Notice>}

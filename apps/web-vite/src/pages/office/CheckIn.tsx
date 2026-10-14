@@ -6,7 +6,7 @@ import type { Reg } from './Allotment';
 
 type Asset = { asset_id: string; asset_name: string; asset_category: string };
 
-/** REG-06 Check-in and room handover: key, furniture list (handover), opening meter reading. Office and Floor Warden C. */
+/** REG-06 Check-in and room handover: key, furniture list (handover), opening meter reading. Office and Floor Manager C. */
 export default function CheckIn() {
   const regs = useApi<Reg[]>('/registrations');
   const [sel, setSel] = useState<Reg | null>(null);
@@ -31,7 +31,7 @@ export default function CheckIn() {
       </div>
       <Card padding={0}>
         <DataTable caption="Ready to check in" rowKey="registration_id" rows={ready} loading={!regs.data} searchable onRowClick={(r) => { setSel(r as Reg); setKey(''); setReading(''); setCond({}); }} selectedKey={sel?.registration_id}
-          empty={<EmptyState icon="key" title="No one is waiting to check in" body="A student appears here once the Warden has verified the fees and the Chief Warden has approved the bed." />}
+          empty={<EmptyState icon="key" title="No one is waiting to check in" body="A student appears here once the Warden has verified the fees and the Chief Manager has approved the bed." />}
           columns={[
             { key: 'full_name', label: 'Student', render: (v: string, r: Reg) => <Person name={titleCase(v)} sub={`${r.student_id} · ${r.programme}`} /> },
             { key: 'hostel_code', label: 'Hostel', render: (v: string, r: Reg) => `${v} · ${r.type_name}` },

@@ -30,12 +30,12 @@ export default function MyDeposit() {
           <span><b>{inr(a.to_pay)} caution deposit to pay</b><small>Due {day(a.due_date)} · caution and electricity deposits, paid once on joining; returned when you leave</small></span>
           <Button variant="primary" onClick={() => navigate('/fees')}>Pay in Fees</Button>
         </section>)}
-      {a.proposed > 0 && <p className="cd-note cd-note-warn"><Info size={16} />A deduction of {inr(a.proposed)} has been proposed and is waiting for the Chief Warden. It is taken only if approved.</p>}
+      {a.proposed > 0 && <p className="cd-note cd-note-warn"><Info size={16} />A deduction of {inr(a.proposed)} has been proposed and is waiting for the Chief Manager. It is taken only if approved.</p>}
       <section className="st-panel">
         <h2>Account</h2>
         <Ledger entries={a.entries} />
       </section>
-      <p className="cd-note"><Info size={16} />The deposit stays in the university's account. A deduction needs a written reason and the Chief Warden's approval, and you are told when one is made. When you vacate, Accounts sends the balance to your bank account and the reference appears here.</p>
+      <p className="cd-note"><Info size={16} />The deposit stays in the university's account. A deduction needs a written reason and the Chief Manager's approval, and you are told when one is made. When you vacate, Accounts sends the balance to your bank account and the reference appears here.</p>
     </div>
   );
 }

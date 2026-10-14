@@ -31,7 +31,7 @@ export function Ledger({ entries, actions }: { entries: Entry[]; actions?: (e: E
         <li key={e.entry_id} className={`${k.cls}${waiting ? ' cd-wait' : ''}${refused ? ' cd-refused' : ''}`}>
           <span className="cd-ico"><Icon size={17} /></span>
           <span className="cd-what">
-            <b>{e.entry_type === 'Deduction' ? CATEGORY[e.category ?? 'Other'] : k.label}{waiting && <em>Waiting for the Chief Warden</em>}{refused && <em>Not approved</em>}</b>
+            <b>{e.entry_type === 'Deduction' ? CATEGORY[e.category ?? 'Other'] : k.label}{waiting && <em>Waiting for the Chief Manager</em>}{refused && <em>Not approved</em>}</b>
             <span>{e.reason}</span>
             <small>{KIND_LABEL[e.deposit_kind] ?? 'Caution deposit'} · {e.entry_no} · {day(e.created_at)}{e.proposed_by_name ? ` · ${e.entry_type === 'Deduction' ? 'proposed by' : 'by'} ${e.proposed_by_name}` : ''}
               {e.decided_by_name && e.entry_type === 'Deduction' && e.category !== 'Unpaid_Dues' ? ` · ${refused ? 'refused' : 'approved'} by ${e.decided_by_name}` : ''}

@@ -13,12 +13,12 @@ type Case = { case_id: number; case_no: string; student_id: string; full_name: s
 type Register = { cases: Case[]; stats: { month: string; incident_type: string; n: number }[]; repeat: { student_id: string; full_name: string; cases: number; last_incident: string }[] };
 const TYPES = ['Curfew_Violation', 'Misconduct', 'Property_Damage', 'Ragging', 'Violence', 'Substance', 'Other'];
 const STATUS: Record<string, { label: string; tone: 'warn' | 'info' | 'ok' | 'neu' }> = {
-  Reported: { label: 'Inquiry by Chief Warden', tone: 'info' }, With_Dean: { label: 'For the Dean', tone: 'warn' }, Action_Taken: { label: 'Action taken', tone: 'ok' }, Closed_No_Action: { label: 'Closed, no action', tone: 'neu' },
+  Reported: { label: 'Inquiry by Chief Manager', tone: 'info' }, With_Dean: { label: 'For the Dean', tone: 'warn' }, Action_Taken: { label: 'Action taken', tone: 'ok' }, Closed_No_Action: { label: 'Closed, no action', tone: 'neu' },
 };
 const PUNISH = [{ value: 'Warning', label: 'Written warning' }, { value: 'Fine', label: 'Fine' }, { value: 'Outing_Ban', label: 'Outing ban' }, { value: 'Community_Service', label: 'Community service' }, { value: 'Hostel_Suspension', label: 'Hostel suspension' }, { value: 'Expulsion', label: 'Expulsion from the hostel' }];
 
 /**
- * DIS-07 Discipline register: the Chief Warden records an incident, takes the student's statement, writes findings and a
+ * DIS-07 Discipline register: the Chief Manager records an incident, takes the student's statement, writes findings and a
  * recommendation, and sends it to the Dean; the Dean awards a punishment, closes it with no action, or returns it.
  * The register also shows cases month by month and students with more than one case.
  */
@@ -86,7 +86,7 @@ function CasePanel({ c, dean, cw, onClose, onDone }: { c: Case; dean: boolean; c
   const decide = () => run(() => api(`/discipline/${c.case_id}/decide`, { method: 'POST', json: {
     outcome: d.outcome, decision: d.decision,
     punishment: d.outcome === 'Punish' ? { punishment_type: d.punishment_type, from_date: d.from_date || null, to_date: d.to_date || null, fine_amount: d.fine_amount ? Number(d.fine_amount) : null, details: d.details || null } : undefined,
-  } }).then(onDone), d.outcome === 'Return' ? 'Returned to the Chief Warden' : 'Decision recorded; the student is told');
+  } }).then(onDone), d.outcome === 'Return' ? 'Returned to the Chief Manager' : 'Decision recorded; the student is told');
   const blocked = d.decision.trim().length < 5 ? 'Write the decision.' : d.outcome === 'Punish' && dated && (!d.from_date || !d.to_date) ? 'Give the dates.' : d.outcome === 'Punish' && d.punishment_type === 'Fine' && !(Number(d.fine_amount) > 0) ? 'Give the fine.' : undefined;
   return (
     <Drawer open onClose={onClose} title={`${c.case_no} · ${c.full_name}`} subtitle={`${words(c.incident_type)} · ${formatDateTime(c.incident_on)}`}
@@ -103,7 +103,7 @@ function CasePanel({ c, dean, cw, onClose, onDone }: { c: Case; dean: boolean; c
           <Field label="Recommendation to the Dean" required><Textarea rows={2} value={f.cw_recommendation} onChange={(e) => setF({ ...f, cw_recommendation: e.target.value })} placeholder="For example: written warning, parents informed" /></Field>
         </>) : (<>
           {c.student_statement && <div className="dn-block"><small>Student's statement</small><p>{c.student_statement}</p></div>}
-          {c.cw_findings && <div className="dn-block"><small>Chief Warden's findings</small><p>{c.cw_findings}</p></div>}
+          {c.cw_findings && <div className="dn-block"><small>Chief Manager's findings</small><p>{c.cw_findings}</p></div>}
           {c.cw_recommendation && <div className="dn-block dn-block-attn"><small>Recommendation</small><p>{c.cw_recommendation}</p></div>}
         </>)}
         {c.dean_decision && c.status !== 'With_Dean' && <Notice tone={c.status === 'Reported' ? 'warning' : 'success'} title={c.status === 'Reported' ? 'Returned by the Dean' : `Decided by ${c.decided_by_name ?? 'the Dean'}`}>{c.dean_decision}</Notice>}
@@ -138,7 +138,7 @@ function RecordPanel({ onClose, onDone }: { onClose: () => void; onDone: (id: nu
       <div className="klh-stack" style={{ gap: 14 }}>
         {who ? <div className="dn-block"><small>Student</small><p><b>{who.full_name}</b> · {who.student_id} · {who.bed_label}</p><button type="button" className="av-link" onClick={() => { setWho(null); setQ(''); }}>Change</button></div> : (
           <Field label="Student" required hint="Name or ID"><Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Arjun or 2600040012" />
-            {found.data && <ul className="dn-pick">{found.data.map((x) => <li key={x.student_id}><button type="button" onClick={() => setWho(x)}><b>{x.full_name}</b><small>{x.student_id} · {x.bed_label}</small></button></li>)}{!found.data.length && <li className="klh-muted">No resident found.</li>}</ul>}
+            {found.data && <ul className="dn-pick">{found.data.map((x) => <li key={x.student_id}><button type="button" onClick={() => setWho(x)}><b>{x.full_name}</b><small>{x.student_id} · {x.bed_label}</small></button></li>)}{!found.data.length && <li className="klh-muted">No hostel student found.</li>}</ul>}
           </Field>)}
         <div className="klh-grid-2">
           <Field label="When" required><Input type="datetime-local" value={f.incident_on} onChange={(e) => setF({ ...f, incident_on: e.target.value })} /></Field>

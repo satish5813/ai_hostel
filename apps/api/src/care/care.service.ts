@@ -4,7 +4,7 @@ import { DbService } from '../db/db.service.js';
 import { facWhere } from '../auth/scope.js';
 import type { AuthUser } from '../auth/auth.types.js';
 
-/** Who reviews checklists whatever the template says: the Chief Warden and Director for hostel checklists. */
+/** Who reviews checklists whatever the template says: the Chief Manager and Director for hostel checklists. */
 const HOSTEL_HEADS = ['Chief_Warden', 'Director_Hostels', 'admin'];
 /** Grievances that are not repairs: who works on them; confidential ones only reach the heads and the Dean. */
 export const GRIEVANCE_STAFF = ['Warden', 'Floor_Warden', 'Chief_Warden', 'Director_Hostels', 'Room_Allotment', 'Office_Staff', 'Dean_Students_Affairs', 'admin'];
@@ -148,7 +148,7 @@ export class CareService {
     return { rows, counts: n };
   }
 
-  /** Take it up, escalate it to the Chief Warden, or close it with what was done; the student is told. */
+  /** Take it up, escalate it to the Chief Manager, or close it with what was done; the student is told. */
   async act(user: AuthUser, id: number, dto: { status: 'In_Review' | 'Escalated' | 'Closed'; action_taken?: string | null }) {
     if (dto.status === 'Closed' && !(dto.action_taken ?? '').trim()) throw new UnprocessableEntityException('Say what was done before closing');
     const [g] = await this.dbs.rows<{ grievance_id: number }>(sql`select g.grievance_id from hostel.student_grievance g left join hostel.v_bed b on b.student_id = g.student_id
@@ -161,7 +161,7 @@ export class CareService {
         closed_at = case when ${dto.status} = 'Closed' then now() end, updated_by = ${user.id}
       where g.grievance_id = ${id} and g.status <> 'Closed' returning g.student_id`);
     if (!rows.length) throw new UnprocessableEntityException('This grievance is already closed');
-    const text = dto.status === 'Closed' ? `Your grievance is closed: ${dto.action_taken}` : dto.status === 'Escalated' ? 'Your grievance has gone to the Chief Warden.' : 'A warden is looking into your grievance.';
+    const text = dto.status === 'Closed' ? `Your grievance is closed: ${dto.action_taken}` : dto.status === 'Escalated' ? 'Your grievance has gone to the Chief Manager.' : 'A warden is looking into your grievance.';
     await this.run(user, sql`insert into shared.notification (recipient_type, student_id, channel, template_code, subject, body, related_type, related_id)
       values ('Student', ${rows[0].student_id}, 'In_App', 'GRIEVANCE', 'Your grievance', ${text}, 'student_grievance', ${String(id)})`);
     return { ok: true };

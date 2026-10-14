@@ -1,7 +1,7 @@
 import { useNavigate, useParams } from 'react-router';
 import { Activity, AlertTriangle, ArrowDownRight, ArrowLeft, ArrowRightLeft, ArrowUpRight, Cpu, Dumbbell, Eye, Printer, Stethoscope, Utensils } from 'lucide-react';
 import { Logo } from '@/ui/kit';
-import { useApi } from '@/lib/ui';
+import { useApi, words } from '@/lib/ui';
 
 type Result = { panel_code: string; panel_name: string; specimen: string | null; test_code: string; test_name: string; unit: string | null; method: string | null; decimals: number;
   value_type: string; value_num: number | null; value_text: string | null; flag: string; low: number | null; high: number | null; normal_text: string | null; note: string | null; previous: number | null };
@@ -110,7 +110,7 @@ export function HealthReport({ id }: { id: number }) {
 
       <footer className="hr-foot">
         <span>Entered by {h.entered_by_name ?? 'the gym equipment'} · Reference intervals are for young adults and may differ from the laboratory's own.</span>
-        {views.length > 0 && <span className="hr-views"><Eye size={13} />Seen by {views.map((v) => `${v.role_code.replace(/_/g, ' ')} (${v.n})`).join(', ')}</span>}
+        {views.length > 0 && <span className="hr-views"><Eye size={13} />Seen by {views.map((v) => `${words(v.role_code)} (${v.n})`).join(', ')}</span>}
         <span className="hr-end"><ArrowRightLeft size={12} />End of report</span>
       </footer>
     </article>

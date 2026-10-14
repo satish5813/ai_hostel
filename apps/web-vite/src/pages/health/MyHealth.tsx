@@ -15,7 +15,7 @@ export default function MyHealth() {
     <div className="st mh">
       <section className="st-panel mn-head">
         <div className="mn-title"><span className="st-ico mn-ico"><HeartPulse size={20} /></span>
-          <span><h1>My health</h1><small>From the gym's health equipment and the laboratory. Your Floor Warden, Warden, the Gym Manager and the Dean can see it.</small></span></div>
+          <span><h1>My health</h1><small>From the gym's health equipment and the laboratory. Your Floor Manager, Warden, the Gym Manager and the Dean can see it.</small></span></div>
       </section>
       {r.data && !list.length && <section className="st-panel"><p className="st-empty">No health report yet. Your first check-up at the gym appears here.</p></section>}
       {list.length > 1 && (

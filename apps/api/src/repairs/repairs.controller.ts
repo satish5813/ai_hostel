@@ -10,7 +10,7 @@ import type { AuthUser } from '../auth/auth.types.js';
 
 const RaiseDto = z.object({ item_code: z.string().max(20), description: z.string().trim().min(5).max(600), location_note: z.string().max(120).nullable().optional() });
 const DESK = [...WARDENS, ...MESS, ...MAINT, 'admin'];
-/** Room bills: Accounts, the Chief Warden (own hostels), the office and the Pro-VC Finance. */
+/** Room bills: Accounts, the Chief Manager (own hostels), the office and the Pro-VC Finance. */
 const BILLS = ['Accounts_Section', 'Chief_Warden', 'Director_Hostels', 'Room_Allotment', 'Office_Staff', 'Pro_VC_Finance', 'admin'];
 
 @ApiTags('TKT · repairs · ELE · room electricity bills')

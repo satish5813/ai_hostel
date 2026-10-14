@@ -76,7 +76,7 @@ export class MessOpsService {
     return { ok: true };
   }
 
-  /** A significant meal goes to management (Chief Warden, Dean, reports) with what the mess is doing about it. */
+  /** A significant meal goes to management (Chief Manager, Dean, reports) with what the mess is doing about it. */
   raise(user: AuthUser, dto: { mess_id: number; meal_date: string; slot: string; action_summary?: string | null }) {
     return this.run(user, sql`insert into hostel.mess_grievance_summary (mess_id, meal_date, slot, students_count, mess_strength, is_significant, main_aspect, raised_to_management_at, action_summary, status, created_by)
       select d.mess_id, d.meal_date, d.slot, d.students, d.strength, d.significant, d.main_aspect, now(), ${dto.action_summary ?? null},

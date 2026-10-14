@@ -28,20 +28,20 @@ export default function StaffRooms() {
   }, [beds.data]);
   return (
     <div className="klh-stack" style={{ gap: 24 }}>
-      <ScreenHeader code="MAP-05" subtitle="Resident faculty and staff get a room on the Chief Warden's approval. Rooms reserved for staff appear first."
+      <ScreenHeader code="MAP-05" subtitle="Resident faculty and staff get a room on the Chief Manager's approval. Rooms reserved for staff appear first."
         actions={<Field label="Hostel"><Select value={fac} onChange={(e) => setFacility(e.target.value)} options={(hostels.data ?? []).map((h) => ({ value: h.facility_id, label: h.facility_name }))} /></Field>} />
       <div className="klh-grid-2">
         <Card icon="user" color="brand" title={cw ? 'Allot a room to a staff member' : 'Ask for a staff room'}>
           <form className="klh-stack" style={{ gap: 16 }} onSubmit={(e) => { e.preventDefault(); run(() => (cw ? api('/staff-allocations', { method: 'POST', json: { staff_id: f.staff_id, subspace_id: f.subspace_id, key_no: f.key_no, approved_by: '', remarks: f.reason || undefined } })
-              : api('/exceptions', { method: 'POST', json: { kind: 'Staff_Room', staff_id: f.staff_id, subspace_id: f.subspace_id, key_no: f.key_no, reason: f.reason } })).then(() => { list.mutate(); beds.mutate(); setF({ staff_id: '', subspace_id: '', key_no: '', reason: '' }); }), cw ? 'Room allotted' : 'Sent to the Chief Warden'); }}>
+              : api('/exceptions', { method: 'POST', json: { kind: 'Staff_Room', staff_id: f.staff_id, subspace_id: f.subspace_id, key_no: f.key_no, reason: f.reason } })).then(() => { list.mutate(); beds.mutate(); setF({ staff_id: '', subspace_id: '', key_no: '', reason: '' }); }), cw ? 'Room allotted' : 'Sent to the Chief Manager'); }}>
             <Field label="Find staff" hint="Name or employee ID"><Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Type at least two characters" /></Field>
             {staff.data && <Field label="Staff member" required><Select value={f.staff_id} onChange={(e) => setF({ ...f, staff_id: e.target.value })} options={[{ value: '', label: 'Choose' }, ...staff.data.map((x) => ({ value: x.staff_id, label: `${x.full_name} · ${x.designation} (${x.staff_id})` }))]} /></Field>}
             <Field label="Bed" required derived={!!f.subspace_id} value={f.subspace_id ? `${roomLabel(f.subspace_id.replace(/-B\d+$/, ''))}, bed ${bedLabel(f.subspace_id).slice(-1)}` : undefined}>{!f.subspace_id && <p className="klh-muted" style={{ margin: 0 }}>Pick a vacant bed on the map.</p>}</Field>
             <div className="klh-grid-2">
               <Field label="Key number" required><Input value={f.key_no} onChange={(e) => setF({ ...f, key_no: e.target.value })} /></Field>
-              <Field label="Reason" required={!cw} hint={cw ? 'Optional' : 'The Chief Warden reads this'}><Input value={f.reason} onChange={(e) => setF({ ...f, reason: e.target.value })} placeholder="Visiting faculty for the semester" /></Field>
+              <Field label="Reason" required={!cw} hint={cw ? 'Optional' : 'The Chief Manager reads this'}><Input value={f.reason} onChange={(e) => setF({ ...f, reason: e.target.value })} placeholder="Visiting faculty for the semester" /></Field>
             </div>
-            <div><Button type="submit" variant="primary" icon="key" loading={busy} blockedReason={!f.staff_id ? 'Choose the staff member.' : !f.subspace_id ? 'Pick a bed on the map.' : !f.key_no ? 'Enter the key number.' : !cw && f.reason.trim().length < 5 ? 'Write the reason.' : undefined}>{cw ? 'Allot room' : 'Send to the Chief Warden'}</Button></div>
+            <div><Button type="submit" variant="primary" icon="key" loading={busy} blockedReason={!f.staff_id ? 'Choose the staff member.' : !f.subspace_id ? 'Pick a bed on the map.' : !f.key_no ? 'Enter the key number.' : !cw && f.reason.trim().length < 5 ? 'Write the reason.' : undefined}>{cw ? 'Allot room' : 'Send to the Chief Manager'}</Button></div>
           </form>
         </Card>
         <Card icon="bed" color="brand" title="Vacant beds and staff rooms">{rooms.length ? <BedMap rooms={rooms} selectable selected={f.subspace_id} onSelect={(id) => setF({ ...f, subspace_id: id })} legend /> : <Notice tone="info" title="No vacant beds">Reserve a room for staff under MAP-01 Rooms and beds.</Notice>}</Card>

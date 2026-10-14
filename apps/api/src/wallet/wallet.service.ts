@@ -12,7 +12,7 @@ export type ProofDto = { demand_ids: number[]; amount: number; paid_on: string; 
 
 /**
  * Pay all with a receipt from the university portal, and the wallet (migration 123).
- * The student uploads the receipt against the demands it pays; the Floor Warden and Chief Warden decide it through the
+ * The student uploads the receipt against the demands it pays; the Floor Manager and Chief Manager decide it through the
  * approval engine (GEN-03), and the database writes the receipts and moves the registration on. The wallet holds what
  * was paid beyond the dues; dues can be paid from it at once.
  */
@@ -25,7 +25,7 @@ export class WalletService {
   /** The student's uploaded receipts, newest first, with the demands each one names and the approval trail. */
   myProofs(user: AuthUser) { return this.proofsOf(this.student(user)); }
 
-  /** Every receipt a student sent, newest first, with the photo and the approval steps (the student's own page and the wardens' drawers). */
+  /** Every receipt a student sent, newest first, with the photo and the approval steps (the student's own page and the managers' drawers). */
   async proofsOf(s: string) {
     return this.dbs.rows(sql`
       select p.proof_id::int as proof_id, p.proof_no, p.amount::float as amount, p.paid_on, p.reference, p.status, p.remarks, p.created_at, p.decided_on, p.photo, p.mime, p.ocr_status, p.ocr_checks,

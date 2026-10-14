@@ -32,7 +32,7 @@ function ParentHome() {
   const inbox = useApi<unknown[]>('/approvals/inbox');
   return (
     <div className="klh-stack" style={{ gap: 24 }}>
-      <HeroHeader eyebrow={today()} title={p.data?.contact_name ? `${greeting()}, ${p.data.contact_name}` : 'Welcome'} subtitle={p.data?.student_name ? `You are the ${(p.data as { relation?: string }).relation?.toLowerCase() ?? 'guardian'} of ${titleCase(p.data.student_name)}. Your recommendation goes to the Floor Warden and Chief Warden.` : 'Your recommendation goes to the Floor Warden and Chief Warden.'}
+      <HeroHeader eyebrow={today()} title={p.data?.contact_name ? `${greeting()}, ${p.data.contact_name}` : 'Welcome'} subtitle={p.data?.student_name ? `You are the ${(p.data as { relation?: string }).relation?.toLowerCase() ?? 'guardian'} of ${titleCase(p.data.student_name)}. Your recommendation goes to the Floor Manager and Chief Manager.` : 'Your recommendation goes to the Floor Manager and Chief Manager.'}
         actions={[inbox.data?.length ? <Button key="a" variant="accent" pill icon="door" onClick={() => navigate('/parent-recommendation')}>Recommend {inbox.data.length} outing{inbox.data.length > 1 ? 's' : ''}</Button> : null]}
         stats={[{ value: String(inbox.data?.length ?? 0), label: 'Waiting for you', gold: !!inbox.data?.length }]} />
       <Launcher />

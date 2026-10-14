@@ -5,7 +5,7 @@ import '../core/widgets.dart';
 import '../shell.dart';
 
 /// TKT-07 Complaints, as pages/care/Complaints.tsx: a problem with a meal goes to the Mess In-charge; anything else
-/// that is not a repair goes to the wardens, or only to the Chief Warden and Dean when confidential. Replies show here.
+/// that is not a repair goes to the wardens, or only to the Chief Manager and Dean when confidential. Replies show here.
 class ComplaintsScreen extends StatefulWidget {
   const ComplaintsScreen({super.key});
   @override
@@ -14,7 +14,7 @@ class ComplaintsScreen extends StatefulWidget {
 
 const _meals = [('Breakfast', 'Breakfast'), ('Lunch', 'Lunch'), ('Evening_Snacks', 'Snacks'), ('Dinner', 'Dinner')];
 const _cat = {'Room_Mate': 'Room-mate', 'Discipline': 'Discipline', 'Mess': 'Mess', 'Staff_Conduct': 'Staff conduct', 'Ragging': 'Ragging', 'Safety': 'Safety', 'Other': 'Other'};
-const _gstatus = {'Open': ('Open', 'warn'), 'In_Review': ('Being looked into', 'warn'), 'Escalated': ('With the Chief Warden', 'bad'), 'Closed': ('Closed', 'good')};
+const _gstatus = {'Open': ('Open', 'warn'), 'In_Review': ('Being looked into', 'warn'), 'Escalated': ('With the Chief Manager', 'bad'), 'Closed': ('Closed', 'good')};
 /// A day n days back, in India time, as YYYY-MM-DD.
 String _back(int n) => isoDay(DateTime.now().toUtc().add(const Duration(minutes: 330)).subtract(Duration(days: n)));
 String _when(dynamic s) { final d = parseDate(s); return d == null ? '' : DateFormat('d MMM').format(d); }
@@ -120,7 +120,7 @@ class _OtherFormState extends State<_OtherForm> {
     setState(() => busy = true);
     try {
       await api.post('/me/grievances', {'category': cat, 'description': text.text, 'is_confidential': conf || always});
-      if (mounted) toast(context, conf || always ? 'Sent to the Chief Warden in confidence' : 'Sent to your wardens');
+      if (mounted) toast(context, conf || always ? 'Sent to the Chief Manager in confidence' : 'Sent to your managers');
       widget.onDone();
     } catch (e) { if (mounted) toast(context, '$e', error: true); }
     finally { if (mounted) setState(() => busy = false); }
@@ -136,7 +136,7 @@ class _OtherFormState extends State<_OtherForm> {
           const SizedBox(width: 6),
           const Padding(padding: EdgeInsets.only(top: 2), child: Icon(LucideIcons.lock, size: 14, color: K.ink)),
           const SizedBox(width: 6),
-          Expanded(child: Text('Confidential: only the Chief Warden and the Dean see it${always ? ' (always for ragging and safety)' : ''}',
+          Expanded(child: Text('Confidential: only the Chief Manager and the Dean see it${always ? ' (always for ragging and safety)' : ''}',
               style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: K.ink))),
         ])),
         _Acts(KButton('Send', busy: busy, onPressed: text.text.trim().length < 10 ? null : send), text.text.trim().length < 10 ? 'Describe what happened.' : null),

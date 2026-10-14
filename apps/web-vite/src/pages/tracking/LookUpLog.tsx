@@ -4,7 +4,7 @@ import { ScreenHeader, titleCase, useApi, words } from '@/lib/ui';
 
 type Row = { log_id: number; viewer_staff_id: string; viewer_name: string | null; viewer_designation: string | null; student_id: string; student_name: string | null; viewed_at: string; purpose: string; alert_id: number | null };
 
-/** TRK-06 Look-up log: who looked up which student, and why. Chief Warden reviews; append-only. */
+/** TRK-06 Look-up log: who looked up which student, and why. Chief Manager reviews; append-only. */
 export default function LookUpLog() {
   const [student, setStudent] = useState('');
   const [viewer, setViewer] = useState('');

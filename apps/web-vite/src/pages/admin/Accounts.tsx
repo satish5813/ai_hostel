@@ -209,7 +209,7 @@ function ManyPanel({ sum, hostels, onClose, onSaved }: { sum: Summary; hostels: 
             {OPTIONS.map(([v, t, d]) => <button key={v} type="button" role="radio" aria-checked={scope === v} onClick={() => setScope(v)}><b>{t}</b><small>{d}</small></button>)}
           </div>
           {scope !== 'list' && (
-            <Field label="Only this hostel" hint={scope === 'students' ? 'With a hostel chosen: its residents and the students who have applied to it' : 'Leave empty for all hostels'}>
+            <Field label="Only this hostel" hint={scope === 'students' ? 'With a hostel chosen: its hostel students and the students who have applied to it' : 'Leave empty for all hostels'}>
               <Select value={fac} onChange={(e) => setFac(e.target.value)} options={[{ value: '', label: 'All hostels' }, ...hostels.map((h) => ({ value: h.facility_id, label: `${h.hostel_code} · ${h.facility_name}` }))]} />
             </Field>)}
           {scope === 'list' && (<>

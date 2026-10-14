@@ -8,14 +8,14 @@ export type Grievance = { grievance_id: number; student_id?: string; student_nam
   is_confidential: boolean; status: string; raised_at: string; action_taken: string | null; closed_at: string | null; assigned_name: string | null };
 export const CAT: Record<string, string> = { Room_Mate: 'Room-mate', Discipline: 'Discipline', Mess: 'Mess', Staff_Conduct: 'Staff conduct', Ragging: 'Ragging', Safety: 'Safety', Other: 'Other' };
 export const GSTATUS: Record<string, { label: string; tone: string }> = { Open: { label: 'Open', tone: 'warn' }, In_Review: { label: 'Being looked into', tone: 'warn' },
-  Escalated: { label: 'With the Chief Warden', tone: 'bad' }, Closed: { label: 'Closed', tone: 'good' } };
+  Escalated: { label: 'With the Chief Manager', tone: 'bad' }, Closed: { label: 'Closed', tone: 'good' } };
 const when = (s: string) => new Date(s).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
 const HEADS = ['Chief_Warden', 'Director_Hostels', 'Dean_Students_Affairs', 'admin'];
 
 /**
  * TKT-06 Grievances that are not repairs: room-mates, staff conduct, discipline, ragging, safety. Wardens take them up
- * and close them with what was done; anything serious goes to the Chief Warden. Ragging and safety complaints, and any
- * the student marks confidential, are seen only by the Chief Warden and the Dean.
+ * and close them with what was done; anything serious goes to the Chief Manager. Ragging and safety complaints, and any
+ * the student marks confidential, are seen only by the Chief Manager and the Dean.
  */
 export default function Grievances() {
   const [show, setShow] = useState<'open' | ''>('open');
@@ -24,12 +24,12 @@ export default function Grievances() {
   const d = r.data;
   return (
     <div className="klh-stack mo" style={{ gap: 16 }}>
-      <ScreenHeader code="TKT-06" subtitle="Students' grievances that are not repairs: take them up, close them with what was done, or send them to the Chief Warden." />
+      <ScreenHeader code="TKT-06" subtitle="Students' grievances that are not repairs: take them up, close them with what was done, or send them to the Chief Manager." />
       {d && (
         <div className="klh-grid-4">
           <StatCard color="amber" icon="inbox" label="New" value={String(d.counts.open)} sub="Not yet taken up" />
           <StatCard color="indigo" icon="eye" label="Being looked into" value={String(d.counts.in_review)} sub="Taken up by a warden" />
-          <StatCard color="rose" icon="alert" label="With the Chief Warden" value={String(d.counts.escalated)} sub="Escalated" />
+          <StatCard color="rose" icon="alert" label="With the Chief Manager" value={String(d.counts.escalated)} sub="Escalated" />
           <StatCard color="brand" icon="check" label="Closed" value={String(d.counts.closed_30)} sub="Last 30 days" />
         </div>)}
       <section className="box rd-bar"><SegmentedControl label="Show" value={show} onChange={(v) => setShow(v as typeof show)} options={[{ value: 'open', label: 'Not closed' }, { value: '', label: 'All' }]} /></section>
@@ -60,7 +60,7 @@ function ActDrawer({ g, onClose, onDone }: { g: Grievance; onClose: () => void; 
       footer={closed ? undefined : <div className="klh-row" style={{ gap: 8, flexWrap: 'wrap' }}>
         <Button variant="primary" icon="check" loading={busy} blockedReason={!text.trim() ? 'Say what was done.' : undefined} onClick={() => act('Closed')}>Close</Button>
         {g.status === 'Open' && <Button variant="secondary" loading={busy} onClick={() => act('In_Review')}>Take it up</Button>}
-        {!head && g.status !== 'Escalated' && <Button variant="secondary" loading={busy} onClick={() => act('Escalated')}>Send to the Chief Warden</Button>}</div>}>
+        {!head && g.status !== 'Escalated' && <Button variant="secondary" loading={busy} onClick={() => act('Escalated')}>Send to the Chief Manager</Button>}</div>}>
       <div className="klh-stack" style={{ gap: 14 }}>
         <p className="mo-quote">“{g.description}”</p>
         {closed ? <div className="mo-reply"><b>Closed{g.assigned_name ? ` by ${g.assigned_name}` : ''}</b><p>{g.action_taken}</p></div>

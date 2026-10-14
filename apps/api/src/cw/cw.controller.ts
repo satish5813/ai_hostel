@@ -15,7 +15,7 @@ const NewDto = z.object({
 });
 const DecideDto = z.object({ decision: z.enum(['Approved', 'Refused']), remarks: z.string().max(600).optional() });
 
-@ApiTags('CW · Chief Warden portal')
+@ApiTags('CW · Chief Manager portal')
 @ApiBearerAuth()
 @Controller()
 export class CwController {

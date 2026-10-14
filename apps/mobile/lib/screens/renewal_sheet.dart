@@ -22,7 +22,7 @@ num _n(dynamic v) => num.tryParse('${v ?? 0}') ?? 0;
 num _balance(Map d) => _n(d['amount_due']) - _n(d['amount_paid']);
 String _head(Map d) => '${words(d['fee_head'])}${d['instalment_no'] != null && d['fee_head'] == 'Hostel' ? ', part ${d['instalment_no']}' : ''}';
 
-/// Yearly renewal, as the web's RenewalSheet (pages/student/StudentHome.tsx): the resident keeps the bed, asks for another
+/// Yearly renewal, as the web's RenewalSheet (pages/student/StudentHome.tsx): the hostel student keeps the bed, asks for another
 /// room or says they are leaving; then pays, confirms the room and the fee plan, and follows the office checks.
 /// Every step is saved through the same API as the web portal. [onChanged] reloads the page underneath.
 void showRenewalSheet(BuildContext context, Map first, VoidCallback onChanged) {
@@ -117,7 +117,7 @@ void showRenewalSheet(BuildContext context, Map first, VoidCallback onChanged) {
         } else if (step == 4) {
           action = Facts([
             ('Fee check', r['fee_check_status'] == 'Verified' ? 'Verified' : 'With Room Allotment', LucideIcons.receipt),
-            ('Chief Warden', r['cw_status'] == 'Approved' ? 'Approved' : words(r['cw_status']), LucideIcons.shieldCheck),
+            ('Chief Manager', r['cw_status'] == 'Approved' ? 'Approved' : words(r['cw_status']), LucideIcons.shieldCheck),
             ('Moving in', 'From ${day(y['start_date'])} · no break in your stay', LucideIcons.calendarClock),
           ]);
         } else {

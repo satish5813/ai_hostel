@@ -33,7 +33,7 @@ as stubs from the index descriptions) in Phase 1.
 | Database | **PostgreSQL 16** | The spec is relational with ~110 tables, strict enums, derived columns and "rules the database must enforce". Postgres gives CHECK/partial-unique constraints, triggers, row-level security, table partitioning (Movement_Event), and native audit. Mature, free, runs on campus hardware. |
 | Backend API | **NestJS (TypeScript, Node 24 LTS)** + **Drizzle ORM** | Modular monolith maps 1:1 to the workflow letters (one Nest module per workflow). Strong typing end-to-end, guards/interceptors for RBAC and audit, built-in validation (class-validator / zod), OpenAPI generation. Drizzle keeps SQL explicit so DB-level constraints stay the source of truth. |
 | Web front-end | **Next.js 15 (App Router) + shadcn/ui + Tailwind** | One codebase for student portal, warden/office dashboards and accounts screens. Installable as a PWA for the gate QR scanner, floor-warden checklists and meter readings on phones. |
-| Identity / SSO | **Keycloak** (self-hosted, OIDC) | University ERPs need SSO against the existing ERP / Active Directory, MFA for staff, and data residency inside the campus. Roles (Student, Parent, Floor Warden, Chief Warden, Dean, Accounts, Security, Mess In-charge…) become Keycloak realm roles; fine-grained scope comes from Staff_Space_Assignment in the DB. |
+| Identity / SSO | **Keycloak** (self-hosted, OIDC) | University ERPs need SSO against the existing ERP / Active Directory, MFA for staff, and data residency inside the campus. Roles (Student, Parent, Floor Manager, Chief Manager, Dean, Accounts, Security, Mess In-charge…) become Keycloak realm roles; fine-grained scope comes from Staff_Space_Assignment in the DB. |
 | Background jobs | **BullMQ on Redis** | Alerts (No_Pass_Exit, Fee_Overdue, Meter_Low), ticket auto-close, meter recharge push with retry, Movement_Event retention deletion, nightly Meter_Monthly_Usage roll-ups, ERP import batches. |
 | Files | **MinIO** (S3-compatible, on-prem) | Student photos, medical documents, handover photos, QR label PDFs. Private buckets, signed URLs only. |
 | Payments | **Razorpay** (UPI / card / net-banking) | Fee_Receipt.Gateway_Ref / Gateway_Status; webhook-driven, idempotent. |
@@ -48,8 +48,8 @@ the right size for this spec.
 ### Security baseline (non-negotiable)
 
 1. **Authentication**: OIDC via Keycloak, short-lived access tokens, refresh in HTTP-only cookies,
-   MFA mandatory for Chief Warden / Dean / Accounts / Security Officer roles.
-2. **Authorisation**: RBAC by role + scope by Staff_Space_Assignment (a Floor Warden sees only their
+   MFA mandatory for Chief Manager / Dean / Accounts / Security Officer roles.
+2. **Authorisation**: RBAC by role + scope by Staff_Space_Assignment (a Floor Manager sees only their
    floor). Report_Visibility (SH3) drives report access. Enforced in the API *and* mirrored as
    Postgres row-level-security policies for the reporting user.
 3. **PII minimisation**: Aadhaar / government IDs are never copied (spec says so). Photos and medical

@@ -24,7 +24,7 @@ const WARDEN = (sa: ReturnType<typeof sql>) => sql`exists (select 1 from hostel.
 /**
  * EXE-01 Executive dashboard for the President, Vice President and Pro-VCs: one card per hostel building, and
  * inside it the students' academic standing (backlogs, cumulative attendance short of the minimum, CGPA), their
- * clubs, sports and other activities, night roll call, mess mood, fees and dues, the wardens' attendance and
+ * clubs, sports and other activities, night roll call, mess mood, fees and dues, the managers' attendance and
  * discipline. Read-only; every figure is counted in the database from the workflow records.
  */
 @Injectable()
@@ -219,7 +219,7 @@ export class ExecService {
         bool_or(d.due_date < current_date) as overdue
       from hostel.fee_demand d join hostel.v_resident_snapshot v on v.student_id = d.student_id
       where v.facility_id = ${facilityId} and d.status::text not in ('Paid', 'Waived') and d.amount_due > d.amount_paid group by 1, 2 order by 3 desc limit 10`);
-    // one row per person: their role is looked up, not joined (a Floor Warden holds one assignment per floor)
+    // one row per person: their role is looked up, not joined (a Floor Manager holds one assignment per floor)
     const wardens = await this.dbs.rows(sql`select sa.staff_id, initcap(sm.full_name) as name,
         (select string_agg(distinct replace(x.hostel_role, '_', ' '), ', ') from hostel.staff_space_assignment x where x.staff_id = sa.staff_id and x.facility_id = sa.facility_id
           and x.status = 'Active' and x.hostel_role in ('Chief_Warden', 'Warden', 'Floor_Warden', 'Assistant_Warden', 'Hostel_Incharge')) as role,

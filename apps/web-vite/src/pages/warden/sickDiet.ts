@@ -1,4 +1,4 @@
-/** The food a student on sick leave gets in the room. The kitchen reads the menu line; the Floor Warden chooses. */
+/** The food a student on sick leave gets in the room. The kitchen reads the menu line; the Floor Manager chooses. */
 export type Diet = 'Light' | 'Liquid' | 'Normal';
 export const DIET: Record<Diet, { label: string; menu: string; tone: string }> = {
   Light: { label: 'Light food', menu: 'Khichdi, idli, curd rice, plain dal, vegetable soup, banana', tone: 'warn' },
@@ -6,4 +6,4 @@ export const DIET: Record<Diet, { label: string; menu: string; tone: string }> =
   Normal: { label: 'Normal meal', menu: 'The regular mess meal, sent to the room', tone: 'good' },
 };
 /** Who a sick-leave step belongs to, as people say it. */
-export const STEP_ROLE: Record<string, string> = { Floor_Warden: 'Floor Warden', Warden: 'Building in-charge', Hostel_Incharge: 'Building in-charge', Chief_Warden: 'Chief Warden' };
+export const STEP_ROLE: Record<string, string> = { Floor_Warden: 'Floor Manager', Warden: 'Building in-charge', Hostel_Incharge: 'Building in-charge', Chief_Warden: 'Chief Manager' };

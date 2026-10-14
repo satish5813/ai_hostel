@@ -18,7 +18,7 @@ const sum = (hs: H[], k: keyof H) => hs.reduce((a, h) => a + Number(h[k] ?? 0), 
 const rupees = (n: number) => `₹${Math.round(n).toLocaleString('en-IN')}`;
 
 /**
- * Chief Warden overview (CW-01): every hostel of the login on one page, with what waits for the Chief Warden and what needs
+ * Chief Manager overview (CW-01): every hostel of the login on one page, with what waits for the Chief Manager and what needs
  * watching. Every number opens its list for that hostel.
  */
 export default function Overview() {

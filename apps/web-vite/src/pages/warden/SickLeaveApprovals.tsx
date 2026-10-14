@@ -10,9 +10,9 @@ type Leave = { sick_leave_id: number; student_id: string; full_name: string; hos
 const DIET_ROLES = ['Floor_Warden', 'Warden', 'Hostel_Incharge', 'Chief_Warden', 'Director_Hostels'];
 
 /**
- * SCK-02 Sick leave approvals. The Floor Warden visits the student, records what they found, chooses the food to send
+ * SCK-02 Sick leave approvals. The Floor Manager visits the student, records what they found, chooses the food to send
  * (light, liquid or normal) and approves; the building in-charge (Warden) approves next, and meals go to the room.
- * Where a floor has no Floor Warden, or the hostel no Warden, the Chief Warden takes that step.
+ * Where a floor has no Floor Manager, or the hostel no Warden, the Chief Manager takes that step.
  */
 export default function SickLeaveApprovals() {
   const s = useSession()!;
@@ -28,7 +28,7 @@ export default function SickLeaveApprovals() {
   return (
     <div className="klh-stack" style={{ gap: 24 }}>
       <ScreenHeader code="SCK-02" subtitle={visits ? 'Visit the student in the room, record what you found and choose the food to send; then approve. The building in-charge approves next.'
-        : 'The Floor Warden has visited and chosen the food; approve to send meals to the room.'} />
+        : 'The Floor Manager has visited and chosen the food; approve to send meals to the room.'} />
       <div className="klh-grid-4">
         <StatCard color="rose" icon="heart" label="On sick leave now" value={String(counts.Approved ?? 0)} />
         {visits && <StatCard color="orange" icon="pin" label="Waiting for a visit" value={String(toVisit.length)} tone={toVisit.length ? 'warning' : undefined} onClick={() => setTab('visit')} />}

@@ -110,7 +110,7 @@ Legend: ✅ Done · 🟡 Partial · ❌ Not done
 |---|---|---|---|
 | 1 | OIDC sign-in (Keycloak) | 🟡 | `auth.guard.ts` validates against `OIDC_ISSUER`; production refuses to start without it. The realm and client are not provisioned yet (go-live `it-sso`) |
 | 2 | MFA for CW / Dean / Accounts / Security | ❌ | Nothing in code. Must be set in the Keycloak realm |
-| 3 | Role guards (RBAC) and scope | ✅ | `RolesGuard`; Floor Warden scope from `Staff_Space_Assignment`; admin no longer bypasses role checks |
+| 3 | Role guards (RBAC) and scope | ✅ | `RolesGuard`; Floor Manager scope from `Staff_Space_Assignment`; admin no longer bypasses role checks |
 | 4 | Row-level security for the reporting user | ❌ | No `ENABLE ROW LEVEL SECURITY` in any migration |
 | 5 | Aadhaar / PAN / bank never stored | ✅ | Upload drops those columns in the browser (`import.service.ts`) |
 | 6 | Private file storage (MinIO, signed URLs) | ❌ | No storage client. Photos are data URLs in `hostel.student_photo` (stop-gap, see 112). Medical documents and handover photos have nowhere to go |
@@ -139,7 +139,7 @@ Legend: ✅ Done · 🟡 Partial · ❌ Not done
 17 screens built (`apps/mobile/lib/screens`). Compared with the student web portal, these are missing:
 - [ ] Hostel registration, room offer, fee plan (REG-01/03/04): a new student has to use the web
 - [ ] Career goal sheet
-- [ ] Staff apps (Floor Warden, Security gate scan, mess counter scan): web or PWA only today
+- [ ] Staff apps (Floor Manager, Security gate scan, mess counter scan): web or PWA only today
 
 ---
 
@@ -165,7 +165,7 @@ Tracked live in `docs/go-live-checklist.html`: 7 server/services, 10 master uplo
 
 **Tested live, one student, with the demo assistant playing the staff:** 33 of 33 operations pass on the real API and database (registration to check-in, outing with QR pass, sick leave, repair, mess menu and complaint, meal choice and rating, electricity recharge, fees and receipts, caution deposit, room change, renewal, academic record, notifications, contacts).
 
-**Added:** Pay all with a receipt from the university payment portal (photo upload → Floor Warden checks → Chief Warden approves → receipts written, registration verified and approved → office checks in), and the student wallet (migration 123, API `wallet`, app `pay_all_sheet.dart`, portal approvals drawer). Tested end to end on a copy of the live database.
+**Added:** Pay all with a receipt from the university payment portal (photo upload → Floor Manager checks → Chief Manager approves → receipts written, registration verified and approved → office checks in), and the student wallet (migration 123, API `wallet`, app `pay_all_sheet.dart`, portal approvals drawer). Tested end to end on a copy of the live database.
 
 **Not production-ready yet (unchanged from section 3):** university sign-in (Keycloak) not provisioned; Razorpay live keys and SMS provider not set; CORS open; no rate limiting; OTP dev code `000000` accepted in development; the demo assistant must stay off in production (it only runs where demo sign-in is on); workflows I, J, K, M, N and most reports not built.
 

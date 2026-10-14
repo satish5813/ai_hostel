@@ -33,7 +33,7 @@ const bedNo = (code: string) => bedLetter(code);
 
 /**
  * REG-05 Allotment desk. One hostel at a time: its beds on a floor plan, the queue by stage, and the actions of each role.
- * Chief Warden: block and release rooms. Office: offer beds, allot the waiting queue automatically. Wardens: see and check.
+ * Chief Manager: block and release rooms. Office: offer beds, allot the waiting queue automatically. Wardens: see and check.
  */
 export default function Allotment() {
   const s = useSession()!;
@@ -187,7 +187,7 @@ function RoomPanel({ room, hostel, waiting, canBlock, canOffer, onClose, onDone 
     try { await api(`/registrations/${who}/offers`, { method: 'POST', json: { subspace_id: bed } }); await onDone(); toast('Bed offered; the student has 48 hours to accept'); }
     catch (e) { if (e instanceof ApiError && e.status === 409 && (e.body as { needs_cw?: boolean }).needs_cw) { setNeedCw({ text: e.message, kind: String((e.body as { kind?: string }).kind) }); return; } throw e; }
   }, '');
-  const askCw = () => run(() => api('/exceptions', { method: 'POST', json: { kind: needCw!.kind, registration_id: Number(who), subspace_id: bed, reason: why.trim() } }).then(() => { setNeedCw(null); setWhy(''); onClose(); }), 'Sent to the Chief Warden');
+  const askCw = () => run(() => api('/exceptions', { method: 'POST', json: { kind: needCw!.kind, registration_id: Number(who), subspace_id: bed, reason: why.trim() } }).then(() => { setNeedCw(null); setWhy(''); onClose(); }), 'Sent to the Chief Manager');
   return (
     <>
       <Drawer open onClose={onClose} title={`Room ${room.room_code}`} subtitle={`${hostel?.facility_name ?? ''} · ${room.type_name ?? 'No room type'}`}>
@@ -198,7 +198,7 @@ function RoomPanel({ room, hostel, waiting, canBlock, canOffer, onClose, onDone 
             <div><span>Open</span><b>{room.block ? 0 : open.length}</b></div>
             <div><span>Status</span><b>{room.block ? 'Blocked' : words(room.room_status)}</b></div>
           </div>
-          {room.block && <Notice tone="warning" title={`Blocked: ${words(room.block.reason)}`}>{room.block.remarks ? `${room.block.remarks}. ` : ''}By {titleCase(room.block.blocked_by)} on {formatDate(room.block.blocked_on)}. Students cannot choose it and automatic allotment skips it. Offering a bed here needs the Chief Warden's approval.</Notice>}
+          {room.block && <Notice tone="warning" title={`Blocked: ${words(room.block.reason)}`}>{room.block.remarks ? `${room.block.remarks}. ` : ''}By {titleCase(room.block.blocked_by)} on {formatDate(room.block.blocked_on)}. Students cannot choose it and automatic allotment skips it. Offering a bed here needs the Chief Manager's approval.</Notice>}
           <div className="bedlist">
             {room.beds.map((b) => (
               <div key={b.subspace_id}>
@@ -212,13 +212,13 @@ function RoomPanel({ room, hostel, waiting, canBlock, canOffer, onClose, onDone 
             <div className="klh-stack" style={{ gap: 10 }}>
               <p className="klh-overline">Offer a bed by name</p>
               {fits.length ? (<>
-                <Field label="Student" hint="Students who chose this room type come first; another type needs the Chief Warden"><Select value={who} onChange={(e) => { setWho(e.target.value); setNeedCw(null); }} options={[{ value: '', label: 'Choose a student' }, ...fits.map((w) => ({ value: String(w.registration_id), label: `${titleCase(w.full_name)} (${w.student_id})${w.room_type_id !== room.room_type_id ? ` · chose ${w.type_name}` : ''}` }))]} /></Field>
+                <Field label="Student" hint="Students who chose this room type come first; another type needs the Chief Manager"><Select value={who} onChange={(e) => { setWho(e.target.value); setNeedCw(null); }} options={[{ value: '', label: 'Choose a student' }, ...fits.map((w) => ({ value: String(w.registration_id), label: `${titleCase(w.full_name)} (${w.student_id})${w.room_type_id !== room.room_type_id ? ` · chose ${w.type_name}` : ''}` }))]} /></Field>
                 <Field label="Bed"><Select value={bed} onChange={(e) => { setBed(e.target.value); setNeedCw(null); }} options={open.map((b) => ({ value: b.subspace_id, label: `Bed ${bedNo(b.bed_code)}` }))} /></Field>
                 {needCw ? (
                   <div className="klh-stack" style={{ gap: 10 }}>
-                    <Notice tone="warning" title="This needs the Chief Warden">{needCw.text.replace(/^Needs the Chief Warden: /, '')}. Say why, and the request goes to the Chief Warden; the bed is offered as soon as it is approved.</Notice>
+                    <Notice tone="warning" title="This needs the Chief Manager">{needCw.text.replace(/^Needs the Chief Manager: /, '')}. Say why, and the request goes to the Chief Manager; the bed is offered as soon as it is approved.</Notice>
                     <Field label="Reason" required><Input value={why} onChange={(e) => setWhy(e.target.value)} placeholder="For example: sports quota, medical need" /></Field>
-                    <div className="klh-row" style={{ gap: 8 }}><Button variant="primary" loading={busy} blockedReason={why.trim().length < 5 ? 'Write the reason.' : undefined} onClick={askCw}>Send to the Chief Warden</Button><Button variant="ghost" onClick={() => setNeedCw(null)}>Cancel</Button></div>
+                    <div className="klh-row" style={{ gap: 8 }}><Button variant="primary" loading={busy} blockedReason={why.trim().length < 5 ? 'Write the reason.' : undefined} onClick={askCw}>Send to the Chief Manager</Button><Button variant="ghost" onClick={() => setNeedCw(null)}>Cancel</Button></div>
                   </div>
                 ) : <div><Button variant="primary" icon="bed" loading={busy} blockedReason={!who ? 'Choose a student.' : undefined} onClick={offerBed}>Offer bed</Button></div>}
               </>) : <p className="klh-muted" style={{ margin: 0 }}>Nobody waiting has chosen {room.type_name ?? 'this room type'}.</p>}

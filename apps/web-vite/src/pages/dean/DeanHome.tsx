@@ -11,7 +11,7 @@ type Overview = {
   cases_by_type: { incident_type: string; n: number }[];
   careers: { programme: string; summary: { students: number; on_track: number; watch: number; needs_guidance: number; goal_stated: number } } | null;
 };
-export const words = (s: string) => s.replace(/_/g, ' ');
+export const words = (s: string) => (({ Chief_Warden: 'Chief Manager', Floor_Warden: 'Floor Manager' } as Record<string, string>)[s] ?? s).replace(/_/g, ' ');
 const rate = (m: number, a: number) => (m ? Math.round((1000 * a) / m) / 10 : 0);
 
 /**
@@ -28,7 +28,7 @@ export default function DeanHome() {
   const tiles: { label: string; n: string; sub: string; icon: LucideIcon; route: string; hot: boolean }[] = k ? [
     { label: 'Cases for your decision', n: String(k.with_dean), sub: `${k.open_cases} discipline cases open`, icon: ShieldAlert, route: '/discipline', hot: k.with_dean > 0 },
     { label: 'Absent last night', n: String(k.absent_last_night), sub: k.last_roll_call ? `Roll call of ${formatDate(k.last_roll_call)} · ${k.absence_rate_7d ?? 0}% this week` : 'No roll call yet', icon: BedDouble, route: '/absence-report', hot: k.absent_last_night > 0 },
-    { label: 'Weekly reports to read', n: String(k.reports_unread), sub: 'Sent by the Chief Wardens', icon: FileText, route: '/weekly-reports', hot: k.reports_unread > 0 },
+    { label: 'Weekly reports to read', n: String(k.reports_unread), sub: 'Sent by the Chief Managers', icon: FileText, route: '/weekly-reports', hot: k.reports_unread > 0 },
     { label: 'Late returns', n: String(k.late_returns_30d), sub: `Last 30 days · ${k.out_now} out now`, icon: DoorOpen, route: '/absence-report', hot: k.late_returns_30d > 0 },
     { label: 'On sick leave', n: String(k.sick_now), sub: 'Applied or approved now', icon: Stethoscope, route: '/absence-report', hot: false },
     { label: 'Need career guidance', n: String(o.data?.careers?.summary.needs_guidance ?? 0), sub: o.data?.careers ? `${o.data.careers.summary.watch} to watch · ${o.data.careers.summary.students} CSE hostellers` : '', icon: GraduationCap, route: '/career-guidance', hot: (o.data?.careers?.summary.needs_guidance ?? 0) > 0 },
@@ -67,15 +67,15 @@ export default function DeanHome() {
         <header><h2>Hostels</h2><small>Last 30 days</small></header>
         <div className="ov-scroll">
           <table className="ov-table">
-            <thead><tr><th>Hostel</th><th>Residents</th><th>Absence at roll call</th><th>Open cases</th><th>Late returns</th><th>Last weekly report</th></tr></thead>
+            <thead><tr><th>Hostel</th><th>Hostel students</th><th>Absence at roll call</th><th>Open cases</th><th>Late returns</th><th>Last weekly report</th></tr></thead>
             <tbody>{(o.data?.hostels ?? []).map((h) => { const r = Number(h.absence_rate_30d ?? 0); return (
               <tr key={h.facility_id}>
                 <th scope="row"><span className="ov-h"><b>{h.hostel_code}</b><small>{h.facility_name}</small></span></th>
-                <td data-label="Residents">{h.residents}</td>
+                <td data-label="Hostel students">{h.residents}</td>
                 <td data-label="Absence at roll call"><span className="dn-rate"><span className="av-bar"><i style={{ width: `${Math.min(r * 4, 100)}%`, background: r >= 10 ? 'var(--dn-attn)' : undefined }} /></span>{h.absence_rate_30d == null ? '—' : `${h.absence_rate_30d}%`}</span></td>
                 <td data-label="Open cases"><button type="button" className={`ov-n${h.open_cases ? ' ov-hot' : ' ov-zero'}`} onClick={() => navigate('/discipline')}>{h.open_cases}</button></td>
                 <td data-label="Late returns"><span className={`ov-n${h.late_returns_30d ? ' ov-warn' : ' ov-zero'}`}>{h.late_returns_30d}</span></td>
-                <td data-label="Last weekly report">{h.last_report ? <Chip tone={h.last_report === 'Draft' ? 'neu' : h.last_report === 'Sent' ? 'warn' : 'ok'}>{h.last_report === 'Draft' ? 'With Chief Warden' : h.last_report === 'Sent' ? 'Not read' : 'Read'}</Chip> : <span className="klh-muted">None</span>}</td>
+                <td data-label="Last weekly report">{h.last_report ? <Chip tone={h.last_report === 'Draft' ? 'neu' : h.last_report === 'Sent' ? 'warn' : 'ok'}>{h.last_report === 'Draft' ? 'With Chief Manager' : h.last_report === 'Sent' ? 'Not read' : 'Read'}</Chip> : <span className="klh-muted">None</span>}</td>
               </tr>); })}</tbody>
           </table>
         </div>
@@ -95,7 +95,7 @@ export default function DeanHome() {
           <header><h2>Discipline cases this year</h2><button type="button" className="av-link" onClick={() => navigate('/discipline')}>Open the register</button></header>
           {o.data?.cases_by_type.length ? <BarChart label="Cases by type" height={150} showValues data={o.data.cases_by_type.map((x) => ({ label: words(x.incident_type), value: x.n }))} />
             : <p className="ov-none"><AlertTriangle size={14} /> No cases recorded this year.</p>}
-          <p className="dn-foot"><CalendarCheck2 size={13} /> The Chief Warden records and inquires; you decide.</p>
+          <p className="dn-foot"><CalendarCheck2 size={13} /> The Chief Manager records and inquires; you decide.</p>
         </section>
       </div>
     </div>

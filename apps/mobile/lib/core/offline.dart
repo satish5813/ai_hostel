@@ -160,7 +160,7 @@ class Offline {
       final g = {..._copy((_tpl['grievance'] as Map)['open']) as Map, 'grievance_id': ++_seq, 'category': b['category'], 'description': b['description'], 'is_confidential': b['is_confidential'] == true, 'raised_at': _now(), 'status': 'Open'};
       (_w.putIfAbsent('/me/grievances', () => <dynamic>[]) as List).insert(0, g);
       final id = '${g['grievance_id']}';
-      _after(2, () { final x = _find('/me/grievances', 'grievance_id', id); x['status'] = 'In_Review'; x['assigned_name'] = 'Floor Warden'; _notify('Your complaint is being looked into', 'The Floor Warden has taken up your complaint.', 'Grievance'); });
+      _after(2, () { final x = _find('/me/grievances', 'grievance_id', id); x['status'] = 'In_Review'; x['assigned_name'] = 'Floor Manager'; _notify('Your complaint is being looked into', 'The Floor Manager has taken up your complaint.', 'Grievance'); });
       return {'grievance_id': g['grievance_id']};
     }
     if (path == '/me/meal-ratings') return _rate(b);
@@ -276,7 +276,7 @@ class Offline {
     _recharges[d['demand_id'] as int] = amount;
     return {'demand': d, 'order': {'mode': 'dev', 'demand_id': d['demand_id'], 'amount': amount, 'currency': 'INR'}};
   }
-  /// Whether everything the registration or renewal asked for is paid (other dues of a resident do not hold it up).
+  /// Whether everything the registration or renewal asked for is paid (other dues of a hostel student do not hold it up).
   bool get _allPaid {
     final Map? box = (_my['kind'] == 'renewal' ? _w['/me/renewal'] : _w['/students/$_me/demands']) as Map?;
     final list = box?['demands'];
@@ -336,7 +336,7 @@ class Offline {
     _after(1, () {
       final r = _copy((_w['/students/$_me/demands'] as Map)['receipts']);
       _stage(k, 'checked'); (_w['/students/$_me/demands'] as Map)['receipts'] = r;
-      _notify('Fees verified', k == 'renewal' ? 'Room Allotment verified your fees and the Chief Warden approved your renewal.' : 'Room Allotment verified your fees and the Chief Warden approved your room. Come to the hostel office to check in.', 'Registration');
+      _notify('Fees verified', k == 'renewal' ? 'Room Allotment verified your fees and the Chief Manager approved your renewal.' : 'Room Allotment verified your fees and the Chief Manager approved your room. Come to the hostel office to check in.', 'Registration');
     });
     if (k == 'registration') {
       _after(3, () { _stage(k, 'checkedIn'); _notify('Welcome to the hostel', 'You are checked in. Your room, key, mess and electricity meter are ready in the app.', 'Registration'); });
@@ -383,7 +383,7 @@ class Offline {
   }
 
   // ------------------------------------------------------------------ daily life
-  /// A receipt from the university portal: the Floor Warden checks it, then the Chief Warden approves it and the fees are paid.
+  /// A receipt from the university portal: the Floor Manager checks it, then the Chief Manager approves it and the fees are paid.
   dynamic _proof(Map b) {
     final list = _w.putIfAbsent('/me/payment-proofs', () => <dynamic>[]) as List;
     if (list.any((p) => ['Uploaded', 'Checked'].contains((p as Map)['status']))) _fail(422, 'A receipt of yours is still being checked. Wait for it before uploading another.');
@@ -394,8 +394,8 @@ class Offline {
       'steps': <dynamic>[]};
     list.insert(0, p);
     final id = '${p['proof_id']}';
-    _notify('Receipt received', 'Your receipt for ₹${_n(b['amount']).toStringAsFixed(0)} is with the Floor Warden for checking.', 'Payment_Proof');
-    _after(1, () { final x = _find('/me/payment-proofs', 'proof_id', id); x['status'] = 'Checked'; _notify('Receipt checked', 'The Floor Warden checked your receipt ${x['proof_no']}. It now waits for the Chief Warden.', 'Payment_Proof'); });
+    _notify('Receipt received', 'Your receipt for ₹${_n(b['amount']).toStringAsFixed(0)} is with the Floor Manager for checking.', 'Payment_Proof');
+    _after(1, () { final x = _find('/me/payment-proofs', 'proof_id', id); x['status'] = 'Checked'; _notify('Receipt checked', 'The Floor Manager checked your receipt ${x['proof_no']}. It now waits for the Chief Manager.', 'Payment_Proof'); });
     _after(2, () {
       final x = _find('/me/payment-proofs', 'proof_id', id);
       num rest = _n(x['amount']), paid = 0;
@@ -431,7 +431,7 @@ class Offline {
       x['steps'] = [for (final st in (_copy(s['steps']) as List).cast<Map>()) {...st, if (st['on'] != null) 'on': _now()}];
       _notify(subject, text, 'Outpass');
     }
-    _after(1, () => step('l1', 'Outing: Floor Warden approved', '${o['outpass_no']} to ${o['destination']} now waits for the Chief Warden.'));
+    _after(1, () => step('l1', 'Outing: Floor Manager approved', '${o['outpass_no']} to ${o['destination']} now waits for the Chief Manager.'));
     _after(2, () => step('approved', 'Outing approved', '${o['outpass_no']} is approved. Your QR gate pass is ready under Outings.'));
     return o;
   }
@@ -452,7 +452,7 @@ class Offline {
       if (stage == 'approved') x['deliveries'] = [for (final d in (_copy(s['deliveries']) as List? ?? []).cast<Map>()) {...d, 'sick_leave_id': x['sick_leave_id'], 'meal_date': _today}];
       _notify(subject, text, 'Sick_Leave');
     }
-    _after(1, () => step('recommended', 'Sick leave: the Floor Warden visited', 'Your Floor Warden saw you and chose liquid food for you.'));
+    _after(1, () => step('recommended', 'Sick leave: the Floor Manager visited', 'Your Floor Manager saw you and chose liquid food for you.'));
     _after(2, () => step('approved', 'Sick leave approved', 'Meals come to your room until the leave ends.'));
     return l;
   }
@@ -582,7 +582,7 @@ class Offline {
       requests[i] = shape(stage, 'request'); _w['/room-changes/$id'] = shape(stage, 'detail');
       _notify(subject, text, 'Room_Change');
     }
-    _after(1, () => step('pendingCw', 'Room change: Floor Warden approved', '$no now waits for the Chief Warden.'));
+    _after(1, () => step('pendingCw', 'Room change: Floor Manager approved', '$no now waits for the Chief Manager.'));
     _after(2, () => step('approved', 'Room change approved', '$no is approved. The office moves you on the day and settles the fees.'));
     return {'change_id': id, 'change_no': no};
   }

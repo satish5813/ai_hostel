@@ -49,7 +49,7 @@ export default function OccupancyFeesDues() {
             { key: 'status', label: 'Status', render: (v: string) => <StatusChip status={v} /> },
           ]} />
       </Card>
-      <Notice tone="info" title="Scope">Wardens see their own hostel; Hostel Accounts, the Chief Warden and the Pro-VC Finance see all (Report_Visibility).</Notice>
+      <Notice tone="info" title="Scope">Wardens see their own hostel; Hostel Accounts, the Chief Manager and the Pro-VC Finance see all (Report_Visibility).</Notice>
     </div>
   );
 }

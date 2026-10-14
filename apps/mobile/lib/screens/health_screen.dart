@@ -44,7 +44,7 @@ class _HealthScreenState extends State<HealthScreen> {
         final id = sel ?? list.firstOrNull?['report_id'] as int?;
         return MnPage(children: [
           const MnHead(icon: LucideIcons.heartPulse, title: 'My health',
-              sub: "From the gym's health equipment and the laboratory. Your Floor Warden, Warden, the Gym Manager and the Dean can see it."),
+              sub: "From the gym's health equipment and the laboratory. Your Floor Manager, Warden, the Gym Manager and the Dean can see it."),
           if (list.isEmpty) const MnPanel(children: [MnEmpty('No health report yet. Your first check-up at the gym appears here.')]),
           if (list.length > 1) Wrap(spacing: 8, runSpacing: 8, children: [
             for (final x in list) Builder(builder: (_) {
@@ -193,7 +193,7 @@ class _ReportState extends State<_Report> {
               Text('Entered by ${h['entered_by_name'] ?? 'the gym equipment'} · Reference intervals are for young adults and may differ from the laboratory\'s own.'),
               if (views.isNotEmpty) ...[const SizedBox(height: 6), Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
                 const Padding(padding: EdgeInsets.only(top: 1), child: Icon(LucideIcons.eye, size: 13, color: _ink3)), const SizedBox(width: 5),
-                Expanded(child: Text('Seen by ${views.map((v) => '${'${v['role_code']}'.replaceAll('_', ' ')} (${v['n']})').join(', ')}')),
+                Expanded(child: Text('Seen by ${views.map((v) => '${'${v['role_code']}'.replaceAll('Chief_Warden', 'Chief Manager').replaceAll('Floor_Warden', 'Floor Manager').replaceAll('_', ' ')} (${v['n']})').join(', ')}')),
               ])],
               const SizedBox(height: 6),
               const Row(mainAxisAlignment: MainAxisAlignment.center, children: [

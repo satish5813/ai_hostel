@@ -20,12 +20,12 @@ export default function SickLeave() {
   const { run, busy } = useAction();
   return (
     <div className="klh-stack" style={{ gap: 24 }}>
-      <ScreenHeader code="SCK-01" compact subtitle="Your Floor Warden visits you first, then the building in-charge approves. Meals then come to your room, light food if you need it." />
+      <ScreenHeader code="SCK-01" compact subtitle="Your Floor Manager visits you first, then the building in-charge approves. Meals then come to your room, light food if you need it." />
 
       {current && detail.data ? (
         <Card icon="heart" color="rose" title={current.status === 'Approved' ? 'Approved sick leave' : 'Sick leave in progress'} subtitle={`${formatDate(current.from_date)} to ${formatDate(current.to_date)}`} action={<StatusChip status={current.status} />}>
           <p style={{ marginTop: 0 }}>{current.illness_details}</p>
-          {current.status === 'Applied' && !current.visited_by && <Notice tone="info" title="Waiting for the Floor Warden's visit">Stay in your room; the Floor Warden comes to see you and decides what food to send.</Notice>}
+          {current.status === 'Applied' && !current.visited_by && <Notice tone="info" title="Waiting for the Floor Manager's visit">Stay in your room; the Floor Manager comes to see you and decides what food to send.</Notice>}
           {current.visited_by && DIET[detail.data.diet] && <Notice tone="info" title={`Food to your room: ${DIET[detail.data.diet].label}`}>{DIET[detail.data.diet].menu}{detail.data.diet_note ? `. ${detail.data.diet_note}` : ''}</Notice>}
           {current.visited_by && <Notice tone="progress" title={`Visited by ${current.visited_by}`}>{current.visit_remarks}</Notice>}
           <div style={{ marginTop: 16 }}><ApprovalTrail entries={detail.data.steps.map((s) => ({ level: s.level, role: STEP_ROLE[s.approver_role] ?? words(s.approver_role), person: s.acted_by_name ?? s.acted_by ?? undefined, decision: s.decision, at: s.decided_on ?? undefined, remarks: s.remarks ?? undefined }))} /></div>
@@ -36,7 +36,7 @@ export default function SickLeave() {
             </div>)}
           <div className="klh-row" style={{ marginTop: 16, flexWrap: 'wrap', alignItems: 'flex-end' }}>
             <Button variant="soft" icon="check" loading={busy} onClick={() => run(() => api(`/sick-leaves/${current.sick_leave_id}/close`, { method: 'POST', json: {} }).then(() => { list.mutate(); detail.mutate(); }), 'Glad you are better. Leave closed.')}>I am well now</Button>
-            {current.status === 'Approved' && <form className="klh-row" style={{ alignItems: 'flex-end' }} onSubmit={(e) => { e.preventDefault(); run(() => api('/sick-leaves', { method: 'POST', json: { illness_details: `Extension: ${current.illness_details}`, from_date: dayAfter(current.to_date), to_date: extend, extended_from_id: current.sick_leave_id } }).then(() => { list.mutate(); setExtend(''); }), 'Extension requested. Your Floor Warden will visit again.'); }}>
+            {current.status === 'Approved' && <form className="klh-row" style={{ alignItems: 'flex-end' }} onSubmit={(e) => { e.preventDefault(); run(() => api('/sick-leaves', { method: 'POST', json: { illness_details: `Extension: ${current.illness_details}`, from_date: dayAfter(current.to_date), to_date: extend, extended_from_id: current.sick_leave_id } }).then(() => { list.mutate(); setExtend(''); }), 'Extension requested. Your Floor Manager will visit again.'); }}>
               <Field label="Ask for an extension until"><Input type="date" value={extend} min={dayAfter(current.to_date)} onChange={(e) => setExtend(e.target.value)} /></Field>
               <Button type="submit" variant="secondary" blockedReason={!extend ? 'Pick the new end date.' : undefined} loading={busy}>Request extension</Button>
             </form>}
@@ -44,7 +44,7 @@ export default function SickLeave() {
         </Card>
       ) : (
         <Card icon="heart" color="rose" title="Report that you are unwell">
-          <form className="klh-stack" style={{ gap: 20 }} onSubmit={(e) => { e.preventDefault(); run(() => api('/sick-leaves', { method: 'POST', json: f }).then(() => { list.mutate(); setF({ illness_details: '', from_date: '', to_date: '' }); }), 'Reported. Your Floor Warden will come and see you.'); }}>
+          <form className="klh-stack" style={{ gap: 20 }} onSubmit={(e) => { e.preventDefault(); run(() => api('/sick-leaves', { method: 'POST', json: f }).then(() => { list.mutate(); setF({ illness_details: '', from_date: '', to_date: '' }); }), 'Reported. Your Floor Manager will come and see you.'); }}>
             <Field label="What is wrong" required><Textarea rows={3} value={f.illness_details} onChange={(e) => setF({ ...f, illness_details: e.target.value })} required /></Field>
             <div className="klh-grid-2">
               <Field label="From" required><Input type="date" value={f.from_date} onChange={(e) => setF({ ...f, from_date: e.target.value })} required /></Field>

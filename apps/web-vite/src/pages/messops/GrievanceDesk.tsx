@@ -97,7 +97,7 @@ function RaiseDrawer({ messId, d, onClose, onDone }: { messId: number; d: Day; o
   return (
     <Drawer open onClose={onClose} title={`${mealName(d.slot)}, ${day(d.meal_date)}`} subtitle={`${d.students} of ${d.strength} students complained`}
       footer={<Button variant="primary" loading={busy} onClick={save}>{d.raised_to_management_at ? 'Save action' : 'Raise to management'}</Button>}>
-      <Field label="What is being done" hint="The Chief Warden, the Dean and the management reports see this."><Textarea rows={4} value={text} onChange={(e) => setText(e.target.value)} placeholder="For example: backup gas cylinder now kept; menu changes announced on the notice board." /></Field>
+      <Field label="What is being done" hint="The Chief Manager, the Dean and the management reports see this."><Textarea rows={4} value={text} onChange={(e) => setText(e.target.value)} placeholder="For example: backup gas cylinder now kept; menu changes announced on the notice board." /></Field>
     </Drawer>
   );
 }

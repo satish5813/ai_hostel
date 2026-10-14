@@ -7,14 +7,14 @@ type Duty = { zone_id: string | null; space_id: string | null; hostel_role: stri
 type Asg = { staff_id: string; full_name: string; hostel_role: string; zone_id: string | null; space_id: string | null };
 type Cov = { who: string | null; kind: 'home' | 're' | 'none' | 'na'; from?: string | null };
 const ROLES: { k: string; one: string; icon: LucideIcon; bg: string; fg: string; grad: string; glow: string }[] = [
-  { k: 'Floor_Warden', one: 'Floor Warden', icon: ShieldCheck, bg: '#F1ECFF', fg: '#5F3DC4', grad: 'linear-gradient(135deg,#7048E8,#5932D1)', glow: 'rgba(112,72,232,.7)' },
+  { k: 'Floor_Warden', one: 'Floor Manager', icon: ShieldCheck, bg: '#F1ECFF', fg: '#5F3DC4', grad: 'linear-gradient(135deg,#7048E8,#5932D1)', glow: 'rgba(112,72,232,.7)' },
   { k: 'Sweeper', one: 'Sweeper', icon: Brush, bg: '#E5F4E8', fg: '#237A37', grad: 'linear-gradient(135deg,#237A37,#1B5E2B)', glow: 'rgba(35,122,55,.7)' },
   { k: 'Scavenger', one: 'Scavenger', icon: Recycle, bg: '#E6F1FB', fg: '#1971C2', grad: 'linear-gradient(135deg,#1971C2,#1557A0)', glow: 'rgba(25,113,194,.7)' },
 ];
 const TODAY = (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; })();
 
 /**
- * Room mapping (design "Room Allotment"): a room is its students plus its Floor Warden, sweeper and scavenger.
+ * Room mapping (design "Room Allotment"): a room is its students plus its Floor Manager, sweeper and scavenger.
  * Staff come from today's roster when it is built (so an absent person's floor shows who covers it), otherwise from
  * the standing mapping.
  */
@@ -52,7 +52,7 @@ export default function RoomMapping() {
   return (
     <div className="ra-split ra-split-wide">
       <main className="ra-main">
-        <RaHead eyebrow="Room = Students + Floor Warden + Sweeper + Scavenger" tone="#1971C2" title="Room mapping" sub="Each bed is mapped to a student and each floor to its staff. Staff follow today's attendance."
+        <RaHead eyebrow="Room = Students + Floor Manager + Sweeper + Scavenger" tone="#1971C2" title="Room mapping" sub="Each bed is mapped to a student and each floor to its staff. Staff follow today's attendance."
           right={<HostelPills list={H.list} value={H.id} onPick={H.pick} />} />
         <div className="ra-tools">
           <div className="ra-floors" role="tablist" aria-label="Floor">

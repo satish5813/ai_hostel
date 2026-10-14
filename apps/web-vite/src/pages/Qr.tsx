@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { words } from '@/lib/ui';
 import { useParams } from 'react-router';
 import { api } from '@/lib/api';
 
@@ -25,7 +26,7 @@ export default function QrPage() {
             <div className="klh-stack" style={{ gap: 12 }}>
               {page.people.map((p, i) => (
                 <div key={i} className="klh-card" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 12 }}>
-                  <div><div style={{ fontWeight: 700 }}>{p.name}</div><div className="klh-muted" style={{ fontSize: 14 }}>{p.role.replace(/_/g, ' ')} · {p.shift} shift</div></div>
+                  <div><div style={{ fontWeight: 700 }}>{p.name}</div><div className="klh-muted" style={{ fontSize: 14 }}>{words(p.role)} · {p.shift} shift</div></div>
                   <a className="klh-btn klh-btn-primary klh-btn-pill" href={`tel:${p.mobile}`}>Call</a>
                 </div>))}
               {page.people.length === 0 && <div className="klh-card klh-muted">No one is assigned to this place yet.</div>}

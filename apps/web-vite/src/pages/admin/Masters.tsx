@@ -45,7 +45,7 @@ function Split({ table, form, formTitle, formSub, extra }: { table: ReactNode; f
 }
 
 /**
- * The dates students can apply for a hostel (Stage 1), and the earlier renewal window in which this year's residents
+ * The dates students can apply for a hostel (Stage 1), and the earlier renewal window in which this year's hostel students
  * keep their bed or ask for another for the next year. Outside them only the hostel office can register a student.
  */
 const WINDOWS = {
@@ -55,7 +55,7 @@ const WINDOWS = {
 function YearWindow({ kind, years, onSaved }: { kind: keyof typeof WINDOWS; years: Year[]; onSaved: () => void }) {
   const W = WINDOWS[kind];
   const cur = years.find((y) => y.is_current) ?? years[0];
-  // residents renew for the year after the current one
+  // hostel students renew for the year after the current one
   const def = kind === 'renewal' ? years.filter((y) => cur && y.start_date > cur.start_date).sort((a, b) => a.start_date.localeCompare(b.start_date))[0] ?? cur : cur;
   const [year, setYear] = useState('');
   const y = years.find((x) => x.academic_year === year) ?? def;
@@ -86,7 +86,7 @@ function Years() {
         { key: 'start_date', label: 'Starts', render: (v: string) => formatDate(v) },
         { key: 'end_date', label: 'Ends', render: (v: string) => formatDate(v) },
         { key: 'registration_opens', label: 'Students can apply', render: (v: string | null, r: Year) => (v ? `${formatDate(v)} – ${formatDate(r.registration_closes!)}` : <span className="klh-muted">Not open</span>) },
-        { key: 'renewal_opens', label: 'Residents renew', render: (v: string | null, r: Year) => (v ? `${formatDate(v)} – ${formatDate(r.renewal_closes!)}` : <span className="klh-muted">Not open</span>) },
+        { key: 'renewal_opens', label: 'Hostel students renew', render: (v: string | null, r: Year) => (v ? `${formatDate(v)} – ${formatDate(r.renewal_closes!)}` : <span className="klh-muted">Not open</span>) },
         { key: 'is_current', label: 'Current', render: (v: boolean, r: Year) => (v ? <StatusChip status="Active" label="Current year" /> : <Button size="sm" variant="ghost" onClick={() => run(() => api(`/admin/academic-years/${r.academic_year}/current`, { method: 'POST' }).then(() => list.mutate()), `${r.academic_year} is now the current year`)}>Make current</Button>) },
       ]} />}
     form={<form className="klh-stack" style={{ gap: 14 }} onSubmit={(e) => { e.preventDefault(); run(() => api('/admin/academic-years', { method: 'POST', json: f }).then(() => { list.mutate(); setF({ academic_year: '', start_date: '', end_date: '' }); }), 'Academic year added'); }}>
@@ -243,7 +243,7 @@ function StaffTab() {
         <Field label="Gender" required><Select value={f.gender} onChange={(e) => setF({ ...f, gender: e.target.value })} options={['Male', 'Female', 'Other']} /></Field>
         <Field label="Staff type" required><Select value={f.staff_type} onChange={(e) => setF({ ...f, staff_type: e.target.value })} options={['Warden', 'Admin', 'Security', 'Mess', 'Maintenance', 'Housekeeping', 'Faculty', 'Medical', 'Counsellor', 'Other']} /></Field>
       </div>
-      <Field label="Designation" required><Input value={f.designation} onChange={(e) => setF({ ...f, designation: e.target.value })} placeholder="Floor Warden" /></Field>
+      <Field label="Designation" required><Input value={f.designation} onChange={(e) => setF({ ...f, designation: e.target.value })} placeholder="Floor Manager" /></Field>
       <Field label="Department" required><Select value={f.dept_code} onChange={(e) => setF({ ...f, dept_code: e.target.value })} options={(depts.data ?? []).map((d) => ({ value: d.dept_code, label: `${d.dept_name} (${d.dept_code})` }))} /></Field>
       <div className="klh-grid-2" style={{ gap: 12 }}>
         <Field label="Mobile" required hint="10 digits"><Input value={f.mobile_no} onChange={(e) => setF({ ...f, mobile_no: e.target.value })} /></Field>
@@ -266,7 +266,7 @@ function Students() {
           { key: 'full_name', label: 'Name', render: (v: string) => <b style={{ fontWeight: 600 }}>{titleCase(v)}</b> },
           { key: 'programme', label: 'Programme' },
           { key: 'gender', label: 'Gender' },
-          { key: 'room', label: 'Room', render: (v: string | null) => v ?? <span className="klh-muted">Not a resident</span> },
+          { key: 'room', label: 'Room', render: (v: string | null) => v ?? <span className="klh-muted">Not a hostel student</span> },
           { key: 'verified_contacts', label: 'Verified contacts', align: 'right' },
         ]} />
       <div style={{ padding: '0 16px 16px' }}><Notice tone="info" title="Bulk import">The yearly load comes from the ERP student profile export (9,449 rows in the sample). This form is for single additions.</Notice></div>

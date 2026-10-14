@@ -9,11 +9,11 @@ type Metrics = { residents: number; nights_marked: number; absences: number; out
 type Floor = Metrics & { floor_no: number; floor_name: string; on_pass: number; on_sick: number; repeat_absentees: { student_id: string; full_name: string; nights: number }[] };
 type Item = { report_id: number; facility_id: string; hostel_code: string; facility_name: string; week_start: string; metrics: Metrics; status: string; cw_remarks: string | null; sent_at: string | null; read_at: string | null; sent_by_name: string | null };
 type Detail = Item & { week_end: string; floors: Floor[]; generated_at: string; read_by_name: string | null };
-const STATE: Record<string, { label: string; tone: 'neu' | 'warn' | 'ok' }> = { Draft: { label: 'With Chief Warden', tone: 'neu' }, Sent: { label: 'Sent, not read', tone: 'warn' }, Read: { label: 'Read by the Dean', tone: 'ok' } };
+const STATE: Record<string, { label: string; tone: 'neu' | 'warn' | 'ok' }> = { Draft: { label: 'With Chief Manager', tone: 'neu' }, Sent: { label: 'Sent, not read', tone: 'warn' }, Read: { label: 'Read by the Dean', tone: 'ok' } };
 const lastMonday = () => { const d = new Date(); d.setDate(d.getDate() - ((d.getDay() + 6) % 7) - 7); return d.toISOString().slice(0, 10); };
 
 /**
- * RPT-10 Weekly floor report: each Monday the system prepares last week per hostel, floor by floor. The Chief Warden adds
+ * RPT-10 Weekly floor report: each Monday the system prepares last week per hostel, floor by floor. The Chief Manager adds
  * remarks and sends it; the Dean, Students Affairs reads it here (and is told by e-mail and in the app).
  */
 export default function WeeklyReports() {
@@ -26,7 +26,7 @@ export default function WeeklyReports() {
   return (
     <div className="ra-main ov dn">
       <RaHead eyebrow="Weekly floor report" tone="#C2410C" title={cw ? 'Reports for the Dean' : 'Reports from the hostels'}
-        sub={cw ? 'Prepared every Monday for last week. Read it, add your remarks and send it to the Dean, Students Affairs.' : 'Sent each week by the Chief Wardens: absences, outings, sick leave and discipline, floor by floor.'}
+        sub={cw ? 'Prepared every Monday for last week. Read it, add your remarks and send it to the Dean, Students Affairs.' : 'Sent each week by the Chief Managers: absences, outings, sick leave and discipline, floor by floor.'}
         right={cw ? <Button variant="secondary" loading={busy} onClick={() => run(() => api('/weekly-reports/build', { method: 'POST', json: { week: lastMonday() } }).then(() => list.mutate()), 'Last week\'s reports are up to date')}><RefreshCw size={15} /> Refresh last week</Button> : undefined} />
       {list.data && !weeks.length && <section className="ov-card"><p className="ov-none">{cw ? 'No report yet. Refresh last week to prepare one.' : 'No report has been sent yet.'}</p></section>}
       {weeks.map((w) => (
@@ -35,7 +35,7 @@ export default function WeeklyReports() {
           <div className="dn-weeks">{(list.data ?? []).filter((x) => x.week_start === w).map((x) => (
             <button key={x.report_id} type="button" className={`dn-week${x.status === 'Sent' && !cw ? ' dn-week-new' : ''}`} onClick={() => setSel(x.report_id)}>
               <span className="dn-week-top"><b>{x.hostel_code}</b><Chip tone={STATE[x.status].tone}>{STATE[x.status].label}</Chip></span>
-              <small>{x.facility_name} · {x.metrics.residents} residents</small>
+              <small>{x.facility_name} · {x.metrics.residents} hostel students</small>
               <span className="dn-week-m">
                 <span><b className={x.metrics.absences ? 'dn-attn-tx' : ''}>{x.metrics.absences}</b>absences</span>
                 <span><b>{x.metrics.outings}</b>outings</span>
@@ -68,11 +68,11 @@ function ReportPanel({ id, cw, onClose }: { id: number; cw: boolean; onClose: ()
           </div>
           <div className="ov-scroll">
             <table className="ov-table dn-table">
-              <thead><tr><th>Floor</th><th>Residents</th><th>Absent</th><th>On pass</th><th>Sick</th><th>Outings</th><th>Late</th><th>Cases</th></tr></thead>
+              <thead><tr><th>Floor</th><th>Hostel students</th><th>Absent</th><th>On pass</th><th>Sick</th><th>Outings</th><th>Late</th><th>Cases</th></tr></thead>
               <tbody>{d.floors.map((f) => (
                 <tr key={f.floor_no}>
                   <th scope="row">{f.floor_name}{f.repeat_absentees.length > 0 && <small className="dn-names">Absent 2+ nights: {f.repeat_absentees.map((x) => `${x.full_name} (${x.nights})`).join(', ')}</small>}</th>
-                  <td data-label="Residents">{f.residents}</td>
+                  <td data-label="Hostel students">{f.residents}</td>
                   <td data-label="Absent"><span className={f.absences ? 'dn-attn-tx' : 'klh-muted'}>{f.absences}</span><small className="klh-muted"> / {f.nights_marked}</small></td>
                   <td data-label="On pass">{f.on_pass}</td><td data-label="Sick">{f.on_sick}</td><td data-label="Outings">{f.outings}</td>
                   <td data-label="Late"><span className={f.late_returns ? 'dn-attn-tx' : ''}>{f.late_returns}</span></td>
@@ -81,7 +81,7 @@ function ReportPanel({ id, cw, onClose }: { id: number; cw: boolean; onClose: ()
             </table>
           </div>
           {cw && draft ? <Field label="Your remarks for the Dean" hint="What happened, what you did, what you need"><Textarea rows={4} value={remarks} onChange={(e) => setRemarks(e.target.value)} placeholder="For example: two students absent twice; parents called; one late return under inquiry." /></Field>
-            : <div className="dn-block"><small>Chief Warden's remarks</small><p>{d.cw_remarks ?? 'No remarks.'}</p><small>{d.sent_by_name ? `Sent by ${d.sent_by_name}` : ''}{d.sent_at ? ` on ${formatDateTime(d.sent_at)}` : ''}{d.read_at ? ` · read ${formatDateTime(d.read_at)}` : ''}</small></div>}
+            : <div className="dn-block"><small>Chief Manager's remarks</small><p>{d.cw_remarks ?? 'No remarks.'}</p><small>{d.sent_by_name ? `Sent by ${d.sent_by_name}` : ''}{d.sent_at ? ` on ${formatDateTime(d.sent_at)}` : ''}{d.read_at ? ` · read ${formatDateTime(d.read_at)}` : ''}</small></div>}
           <p className="klh-muted" style={{ fontSize: 12 }}>Prepared {formatDateTime(d.generated_at)} from the roll call, gate passes, sick leave and the discipline register.</p>
         </div>)}
     </Drawer>

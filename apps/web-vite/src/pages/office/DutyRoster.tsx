@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { ArrowRightLeft, Brush, CalendarCheck, Lock, Plane, Recycle, ShieldCheck, Sparkles, TriangleAlert, UserCheck, UserX, Users, type LucideIcon } from 'lucide-react';
 import { Button, Drawer, Field, Select } from '@/lib/klh';
 import { api } from '@/lib/api';
-import { toast, useAction, useApi, useSession } from '@/lib/ui';
+import { toast, useAction, useApi, useSession, words } from '@/lib/ui';
 import { can } from '@/app/screens';
 import { HostelPills, RaHead, avc, ini, proper, useHostel } from './ra-kit';
 
@@ -14,7 +14,7 @@ const room = (code: string) => code.replace(/^[A-Z]+\d*-/, '');
 const rangeOf = (x: Duty) => (x.room_from ? (x.room_from === x.room_to ? `Room ${room(x.room_from)}` : `Rooms ${room(x.room_from)}–${room(x.room_to!)}`) : 'Whole floor');
 
 const ROLES: { k: string; label: string; one: string; icon: LucideIcon; bg: string; fg: string }[] = [
-  { k: 'Floor_Warden', label: 'Floor Wardens', one: 'Floor Warden', icon: ShieldCheck, bg: '#F1ECFF', fg: '#5F3DC4' },
+  { k: 'Floor_Warden', label: 'Floor Managers', one: 'Floor Manager', icon: ShieldCheck, bg: '#F1ECFF', fg: '#5F3DC4' },
   { k: 'Sweeper', label: 'Sweepers', one: 'Sweeper', icon: Brush, bg: '#E5F4E8', fg: '#237A37' },
   { k: 'Scavenger', label: 'Scavengers', one: 'Scavenger', icon: Recycle, bg: '#E6F1FB', fg: '#1971C2' },
 ];
@@ -26,7 +26,7 @@ const SEG: [string, string][] = [['Present', 'ok'], ['Absent', 'crit'], ['Leave'
 const isIn = (st?: string | null) => st === 'Present' || st === 'Half_Day';
 
 /**
- * MAP-06 Staff attendance (design "Room Allotment"): mark today's Floor Wardens, sweepers and scavengers; Auto-assign
+ * MAP-06 Staff attendance (design "Room Allotment"): mark today's Floor Managers, sweepers and scavengers; Auto-assign
  * then shares every floor among those present (a floor is split by room ranges when fewer people than floors are in).
  * A cell, or one share of it, can be given to someone else by hand.
  * Past days are read-only.
@@ -69,7 +69,7 @@ export default function DutyRoster() {
     const r = await api<{ open: number; split: boolean; floor_wardens: number; sweepers: number; scavengers: number; floors: number; rooms: number }>('/roster/generate', { method: 'POST', json: { facility_id: H.id, date } });
     await day.mutate();
     const n = (k: number, one: string) => `${k} ${one}${k === 1 ? '' : 's'}`;
-    const who = `${n(r.floor_wardens, 'floor warden')}, ${n(r.sweepers, 'sweeper')}, ${n(r.scavengers, 'scavenger')}`;
+    const who = `${n(r.floor_wardens, 'floor manager')}, ${n(r.sweepers, 'sweeper')}, ${n(r.scavengers, 'scavenger')}`;
     toast(r.open ? `${who} assigned; ${n(r.open, 'place')} wait for someone to be marked present` : `${who} cover all ${r.floors} floors (${r.rooms} rooms)${r.split ? ', rooms shared equally' : ''}`, r.open ? 'warning' : 'success');
   });
 
@@ -117,7 +117,7 @@ export default function DutyRoster() {
                   return (
                     <div key={p.staff_id} className="ra-person-row">
                       <span className="ra-av ra-av-lg" style={{ background: a[0], color: a[1] }}>{ini(p.full_name)}</span>
-                      <span className="ra-row-text"><b>{proper(p.full_name)}</b><small>{floorsOf(p.staff_id).join(', ') || p.roles.replace(/_/g, ' ')} · <em className={isIn(st) ? 'ra-ok-t' : st === 'Leave' ? 'ra-warn-t' : 'ra-crit-t'}>{isIn(st) ? `In ${p.in_time ?? ''}`.trim() : st === 'Leave' ? 'On leave' : st === 'Absent' ? 'Absent' : 'Not marked in'}</em></small></span>
+                      <span className="ra-row-text"><b>{proper(p.full_name)}</b><small>{floorsOf(p.staff_id).join(', ') || words(p.roles)} · <em className={isIn(st) ? 'ra-ok-t' : st === 'Leave' ? 'ra-warn-t' : 'ra-crit-t'}>{isIn(st) ? `In ${p.in_time ?? ''}`.trim() : st === 'Leave' ? 'On leave' : st === 'Absent' ? 'Absent' : 'Not marked in'}</em></small></span>
                       <span className="ra-seg" role="radiogroup" aria-label={`${proper(p.full_name)} attendance`}>
                         {SEG.map(([v, tone]) => <button key={v} type="button" role="radio" aria-checked={st === v} className={st === v ? `ra-${tone}` : ''} disabled={!mark || past || busy} onClick={() => setMark(p.staff_id, v)}>{v}</button>)}
                       </span>
@@ -159,8 +159,8 @@ export default function DutyRoster() {
                   </button>); })}
             </div>))}
           </div>
-          {changes.length > 0 && <div className="ra-changes"><b>Reassigned today</b>{changes.map((x) => <span key={x.duty_id}><ArrowRightLeft size={13} />{x.zone_name}{x.room_from ? ` (${rangeOf(x).toLowerCase()})` : ''} · {x.hostel_role.replace(/_/g, ' ')}: {x.regular_name ? `${proper(x.regular_name)} → ` : ''}{proper(x.full_name)}</span>)}</div>}
-          {others.length > 0 && <div className="ra-others"><span className="ra-cap">Other places today</span>{others.map((x) => <div key={x.duty_id} className="ra-row"><span className="ra-row-text"><b>{x.hostel_role.replace(/_/g, ' ')}{x.shift !== 'General' ? ` · ${x.shift.toLowerCase()}` : ''}</b><small>{x.full_name ? proper(x.full_name) : 'Nobody available'}{x.source === 'Cover' ? ` · for ${proper(x.regular_name)}` : ''}</small></span></div>)}</div>}
+          {changes.length > 0 && <div className="ra-changes"><b>Reassigned today</b>{changes.map((x) => <span key={x.duty_id}><ArrowRightLeft size={13} />{x.zone_name}{x.room_from ? ` (${rangeOf(x).toLowerCase()})` : ''} · {words(x.hostel_role)}: {x.regular_name ? `${proper(x.regular_name)} → ` : ''}{proper(x.full_name)}</span>)}</div>}
+          {others.length > 0 && <div className="ra-others"><span className="ra-cap">Other places today</span>{others.map((x) => <div key={x.duty_id} className="ra-row"><span className="ra-row-text"><b>{words(x.hostel_role)}{x.shift !== 'General' ? ` · ${x.shift.toLowerCase()}` : ''}</b><small>{x.full_name ? proper(x.full_name) : 'Nobody available'}{x.source === 'Cover' ? ` · for ${proper(x.regular_name)}` : ''}</small></span></div>)}</div>}
           <div className="ra-legend ra-legend-sm"><span><i className="ra-lg-home" />Home floor</span><span><i className="ra-lg-re" />Reassigned</span><span><i className="ra-lg-split" />Floor shared by rooms</span><span><i className="ra-lg-un" />Nobody present</span></div>
         </section>
       </div>
@@ -174,11 +174,11 @@ function SlotPanel({ d, people, onClose, onDone }: { d: Duty; people: Person[]; 
   const [who, setWho] = useState(d.staff_id ?? '');
   const { run, busy } = useAction();
   return (
-    <Drawer open onClose={onClose} title={`${d.hostel_role.replace(/_/g, ' ')}${d.shift !== 'General' ? `, ${d.shift.toLowerCase()} shift` : ''}`} subtitle={d.space_code ? `Washroom ${d.space_code}${d.zone_name ? `, ${d.zone_name}` : ''}` : d.zone_name ?? 'Whole hostel'}
+    <Drawer open onClose={onClose} title={`${words(d.hostel_role)}${d.shift !== 'General' ? `, ${d.shift.toLowerCase()} shift` : ''}`} subtitle={d.space_code ? `Washroom ${d.space_code}${d.zone_name ? `, ${d.zone_name}` : ''}` : d.zone_name ?? 'Whole hostel'}
       footer={<Button variant="primary" loading={busy} onClick={() => run(() => api(`/roster/duties/${d.duty_id}`, { method: 'POST', json: { staff_id: who || null } }).then(onDone), who ? 'Place changed; kept when Auto-assign runs again' : 'Place left open')}>Save</Button>}>
       <div className="klh-stack" style={{ gap: 14 }}>
         <p className="klh-muted" style={{ margin: 0 }}>Now: {d.full_name ? proper(d.full_name) : 'nobody'}{d.regular_name ? ` · mapped person ${proper(d.regular_name)}` : ''}</p>
-        <Field label="Give this place to" hint="People marked present today"><Select value={who} onChange={(e) => setWho(e.target.value)} options={[{ value: '', label: 'Nobody (leave open)' }, ...here.map((p) => ({ value: p.staff_id, label: `${proper(p.full_name)} · ${p.main_role.replace(/_/g, ' ')} · ${p.duties} place${p.duties === 1 ? '' : 's'}` }))]} /></Field>
+        <Field label="Give this place to" hint="People marked present today"><Select value={who} onChange={(e) => setWho(e.target.value)} options={[{ value: '', label: 'Nobody (leave open)' }, ...here.map((p) => ({ value: p.staff_id, label: `${proper(p.full_name)} · ${words(p.main_role)} · ${p.duties} place${p.duties === 1 ? '' : 's'}` }))]} /></Field>
       </div>
     </Drawer>
   );

@@ -63,7 +63,7 @@ export class ApprovalsService {
     const [st] = await this.dbs.rows<{ request_type: string; visited: boolean | null }>(sql`select s.request_type::text as request_type,
       (select l.visited_by is not null from hostel.sick_leave l where s.request_type = 'Sick_Leave' and l.sick_leave_id = s.request_id) as visited
       from shared.approval_step s where s.step_id = ${stepId}`);
-    if (st?.request_type === 'Sick_Leave' && decision === 'Approved' && !st.visited) throw new UnprocessableEntityException("Record the Floor Warden's visit first");
+    if (st?.request_type === 'Sick_Leave' && decision === 'Approved' && !st.visited) throw new UnprocessableEntityException("Record the Floor Manager's visit first");
     const [row] = await this.dbs.run(user, (tx) => tx.update(t.approvalStep)
       .set({ decision, acted_by: user.id, remarks: remarks ?? null }).where(eq(t.approvalStep.step_id, stepId)).returning());
     if (!row) throw new NotFoundException('Step not found');

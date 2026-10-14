@@ -58,15 +58,15 @@ export class RegistrationService {
   async offer(user: AuthUser, registrationId: number, subspaceId?: string) {
     const [reg] = await this.dbs.rows<{ facility_id: string }>(sql`select facility_id from hostel.hostel_registration where registration_id = ${registrationId}`);
     assertScope(user, reg?.facility_id);
-    // a bed outside the rules needs the Chief Warden (CW-03); the Chief Warden at the desk decides it at once, on record
+    // a bed outside the rules needs the Chief Manager (CW-03); the Chief Manager at the desk decides it at once, on record
     if (subspaceId && user.kind === 'staff') {
       const need = await exceptionNeeded(this.dbs, registrationId, subspaceId);
       if (need) {
-        if (!isChiefWarden(user)) throw new ConflictException({ message: `Needs the Chief Warden: ${need.text}`, kind: need.kind, needs_cw: true });
+        if (!isChiefWarden(user)) throw new ConflictException({ message: `Needs the Chief Manager: ${need.text}`, kind: need.kind, needs_cw: true });
         return this.dbs.run(user, async (tx) => {
           const [e] = (await tx.execute(sql`insert into hostel.allotment_exception (kind, facility_id, registration_id, subspace_id, reason, requested_by, created_by)
-            values (${need.kind}::hostel.exception_kind, ${reg!.facility_id}, ${registrationId}, ${subspaceId}, ${'Offered by the Chief Warden at the desk: ' + need.text}, ${user.id}, ${user.id}) returning exception_id`)) as unknown as { exception_id: number }[];
-          await tx.execute(sql`update hostel.allotment_exception set status = 'Approved', decided_by = ${user.id}, decision_remarks = 'Decided by the Chief Warden when offering', updated_by = ${user.id} where exception_id = ${e.exception_id}`);
+            values (${need.kind}::hostel.exception_kind, ${reg!.facility_id}, ${registrationId}, ${subspaceId}, ${'Offered by the Chief Manager at the desk: ' + need.text}, ${user.id}, ${user.id}) returning exception_id`)) as unknown as { exception_id: number }[];
+          await tx.execute(sql`update hostel.allotment_exception set status = 'Approved', decided_by = ${user.id}, decision_remarks = 'Decided by the Chief Manager when offering', updated_by = ${user.id} where exception_id = ${e.exception_id}`);
           const [o] = (await tx.execute(sql`select o.* from hostel.room_offer o join hostel.allotment_exception e on e.offer_id = o.offer_id where e.exception_id = ${e.exception_id}`)) as unknown as Record<string, unknown>[];
           return o;
         });
@@ -183,7 +183,7 @@ export class RegistrationService {
     });
   }
 
-  /** Floor Warden / Office: check-in or check-out inspection with the room item list. */
+  /** Floor Manager / Office: check-in or check-out inspection with the room item list. */
   handover(user: AuthUser, allocId: number, dto: {
     handover_type: 'Check_In' | 'Check_Out'; meter_reading: number; key_returned?: boolean; vacate_id?: number; occupant_acknowledged: boolean;
     lines: { asset_id: string; condition: 'Good' | 'Fair' | 'Damaged' | 'Missing'; damage_amount?: number; remarks?: string }[];

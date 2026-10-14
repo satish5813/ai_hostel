@@ -10,7 +10,7 @@ const pad2 = (n: number) => String(n).padStart(2, '0');
 
 /**
  * Administrator portal (Stage 1 of docs/flow-a-to-f.html): the room builder, the readiness check that decides whether
- * registration can open, and the Chief Warden and Room Allotment logins with their hostels (decision D7).
+ * registration can open, and the Chief Manager and Room Allotment logins with their hostels (decision D7).
  */
 @Injectable()
 export class PortalService {
@@ -136,9 +136,9 @@ export class PortalService {
         { key: 'types', label: 'Every room has a room type', ok: n(r.rooms_without_type) === 0, detail: n(r.rooms_without_type) ? `${n(r.rooms_without_type)} rooms have no type` : 'All typed', blocks: true, fix: '/rooms' },
         { key: 'fees', label: `Fees for ${g?.year ?? 'the current year'}`, ok: !r.types_without_fee && n(r.beds) > 0, detail: r.types_without_fee ? `No fee for ${r.types_without_fee}` : 'Every room type has a fee', blocks: true, fix: '/admin/data/fees' },
         { key: 'mess', label: 'Default mess', ok: !!r.has_mess, detail: r.has_mess ? 'Set' : 'No mess: the fee plan cannot raise the mess fee', blocks: true, fix: '/admin/masters?tab=years' },
-        { key: 'cw', label: 'Chief Warden login', ok: n(r.chief_wardens) > 0, detail: n(r.chief_wardens) ? `${n(r.chief_wardens)} with a login` : 'No Chief Warden login: nobody can give the final approval', blocks: true, fix: '/admin/logins' },
+        { key: 'cw', label: 'Chief Manager login', ok: n(r.chief_wardens) > 0, detail: n(r.chief_wardens) ? `${n(r.chief_wardens)} with a login` : 'No Chief Manager login: nobody can give the final approval', blocks: true, fix: '/admin/logins' },
         { key: 'ra', label: 'Room Allotment login', ok: n(r.allotment_staff) > 0, detail: n(r.allotment_staff) ? `${n(r.allotment_staff)} with a login` : 'No Room Allotment login: nobody can verify fees or check students in', blocks: true, fix: '/admin/logins' },
-        { key: 'fw', label: 'Floor Warden on every floor', ok: n(r.floors_without_warden) === 0, detail: n(r.floors_without_warden) ? `${n(r.floors_without_warden)} floors without one` : 'Every floor covered', blocks: false, fix: '/mapping' },
+        { key: 'fw', label: 'Floor Manager on every floor', ok: n(r.floors_without_warden) === 0, detail: n(r.floors_without_warden) ? `${n(r.floors_without_warden)} floors without one` : 'Every floor covered', blocks: false, fix: '/mapping' },
         { key: 'meters', label: 'Meter in every room', ok: n(r.rooms_without_meter) === 0, detail: n(r.rooms_without_meter) ? `${n(r.rooms_without_meter)} rooms without a meter` : 'All metered', blocks: false, fix: '/meters' },
         { key: 'tariff', label: 'Approved electricity tariff', ok: !r.types_without_tariff, detail: r.types_without_tariff ? `None for ${r.types_without_tariff}` : 'In force', blocks: false, fix: '/tariff' },
         { key: 'gate', label: 'Hostel gate registered', ok: n(r.gates) > 0, detail: n(r.gates) ? `${n(r.gates)} gate point(s)` : 'No gate point', blocks: false, fix: '/capture-points' },
@@ -156,7 +156,7 @@ export class PortalService {
     return { year: g?.year ?? null, window: { opens: g?.opens ?? null, closes: g?.closes ?? null, open_now: !!g?.open_now }, global, hostels };
   }
 
-  /* ---------- Chief Warden and Room Allotment logins with their hostels (D7) ---------- */
+  /* ---------- Chief Manager and Room Allotment logins with their hostels (D7) ---------- */
 
   logins() {
     return this.dbs.rows(sql`

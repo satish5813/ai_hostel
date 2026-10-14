@@ -10,7 +10,7 @@ const reasonLabel = (r: string) => REASONS.find(([k]) => k === r)?.[1] ?? r.repl
 const BLOCKERS = ['Chief_Warden', 'Director_Hostels', 'Hostel_Incharge'];
 
 /**
- * Room blocking (design "Room Allotment", step 1): the Chief Warden keeps rooms out of the students' choice before
+ * Room blocking (design "Room Allotment", step 1): the Chief Manager keeps rooms out of the students' choice before
  * room selection opens. A blocked room keeps any student already in it; only its vacant beds are hidden.
  */
 export default function RoomBlocking() {
@@ -53,7 +53,7 @@ export default function RoomBlocking() {
   return (
     <div className="ra-split">
       <main className="ra-main">
-        <RaHead eyebrow="Chief Warden · Step 1 of allotment" tone="#364FC7" title="Room blocking" sub="Block rooms before room selection opens. Students only see the rooms you leave open."
+        <RaHead eyebrow="Chief Manager · Step 1 of allotment" tone="#364FC7" title="Room blocking" sub="Block rooms before room selection opens. Students only see the rooms you leave open."
           right={<HostelPills list={H.list} value={H.id} onPick={H.pick} />} />
         <div className="ra-kpis">
           {kpis.map((k) => { const I = k.icon; return (
@@ -105,7 +105,7 @@ export default function RoomBlocking() {
               <div>{REASONS.map(([k, l]) => <button key={k} type="button" aria-pressed={room.block!.reason === k} disabled={!canBlock || busy} onClick={() => setReason(room.block!.block_id, k)}>{l}</button>)}</div>
               <small>Blocked by {proper(room.block.blocked_by)} · {new Date(room.block.blocked_on).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</small></div>)}
             {room.block && room.beds.some((b) => ['occ', 'held'].includes(bedState(b, room))) && <div className="ra-note ra-info"><Info size={14} />{room.beds.filter((b) => ['occ', 'held'].includes(bedState(b, room))).length} bed(s) are already taken and stay with the student. Only vacant beds are hidden.</div>}
-            {!canBlock && <div className="ra-note ra-info"><Info size={14} />Only the Chief Warden blocks rooms.</div>}
+            {!canBlock && <div className="ra-note ra-info"><Info size={14} />Only the Chief Manager blocks rooms.</div>}
           </div>
           {canBlock && empty.length > 0 && <button type="button" className="ra-outline" disabled={busy} onClick={floorAction}><Layers size={16} />{allBlocked ? `Unblock all rooms on ${f?.floor_name}` : `Block all empty rooms on ${f?.floor_name}`}</button>}
         </>) : <div className="q-empty">Choose a room.</div>}

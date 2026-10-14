@@ -7,11 +7,11 @@ import { ScreenHeader, titleCase, toast, useApi } from '@/lib/ui';
 type Login = { user_id: number; staff_id: string; full_name: string; designation: string | null; mobile_no: string | null; active: boolean; role: 'Chief_Warden' | 'Room_Allotment'; approval_ref: string | null; granted_on: string | null; facilities: string[] };
 type Hostel = { facility_id: string; hostel_code: string; facility_name: string; hostel_gender: string };
 type Staff = { staff_id: string; full_name: string; designation: string | null; dept_code: string | null };
-const ROLE = { Chief_Warden: 'Chief Warden', Room_Allotment: 'Room Allotment' } as const;
+const ROLE = { Chief_Warden: 'Chief Manager', Room_Allotment: 'Room Allotment' } as const;
 type Role = keyof typeof ROLE;
 
 /**
- * Logins and hostels (decision D7). Only two staff logins exist in this release: Chief Warden and Room Allotment.
+ * Logins and hostels (decision D7). Only two staff logins exist in this release: Chief Manager and Room Allotment.
  * Each is given the hostels it may see; the person sees nothing else. Roles are given on a written approval and never to oneself.
  */
 export default function Logins() {
@@ -32,7 +32,7 @@ export default function Logins() {
 
   return (
     <div className="klh-stack" style={{ gap: 16 }}>
-      <ScreenHeader code="ADM-01" title="Logins and hostels" subtitle="The Chief Warden and Room Allotment logins, and the hostels each one covers. A login sees only its hostels. Students sign in with their university ID; parents and the Dean act by link."
+      <ScreenHeader code="ADM-01" title="Logins and hostels" subtitle="The Chief Manager and Room Allotment logins, and the hostels each one covers. A login sees only its hostels. Students sign in with their university ID; parents and the Dean act by link."
         actions={<Button variant="primary" icon="plus" onClick={() => setEdit('new')}>Give a login</Button>} />
       <PillTabs tabs={(Object.keys(ROLE) as Role[]).map((r) => ({ id: r, label: ROLE[r], count: (list.data ?? []).filter((l) => l.role === r).length }))} value={tab} onChange={(v) => setTab(v as Role)} />
       {uncovered.length > 0 && <Notice tone="warning" title={`${uncovered.length} hostel${uncovered.length > 1 ? 's have' : ' has'} no ${ROLE[tab]}`}>{uncovered.map((h) => h.hostel_code).join(', ')}. {tab === 'Chief_Warden' ? 'Nobody can give the final approval there.' : 'Nobody can verify fees or check students in there.'}</Notice>}

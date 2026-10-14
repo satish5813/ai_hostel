@@ -6,7 +6,7 @@ V view · C create · E edit · A approve or reject · X set up. The registry th
 and the rules that apply to every role.
 
 A person sees only the screens of the roles they hold (menu built from the registry) and on each screen only the records in
-their scope (enforced by the API role guards and the database: a Floor Warden's floor from `Staff_Space_Assignment`, a parent's
+their scope (enforced by the API role guards and the database: a Floor Manager's floor from `Staff_Space_Assignment`, a parent's
 child from `Student_Contact`).
 
 ## Screens in this release (Workflows A–F, general, one report, admin)
@@ -56,12 +56,12 @@ child from `Student_Contact`).
 | TRK-07* | Attendance register | `/attendance` | FW, WDN (VC), CW (V) | `GET /attendance`, `POST /attendance/mark` |
 
 \* Additions for this release, not among the document's 87 screens. ADM-04 is where the Data Administrator enters the masters;
-TRK-07 shows each resident against each day (outings, sick leave, night roll call in `hostel.night_attendance`, migration 092).
+TRK-07 shows each hostel student against each day (outings, sick leave, night roll call in `hostel.night_attendance`, migration 092).
 
 ## Admin set-up order (the admin home is this checklist)
 
 1. Academic year (ADM-04) → 2. Hostel buildings and floors (ADM-04) → 3. Rooms and beds (MAP-01: add floor, add rooms by range; beds are created from the room type)
-→ 4. Room types → 5. Fees per hostel and room type → 6. Mess → 7. Staff, then duties (MAP-02, Chief Warden) → 8. Users and roles (ADM-01)
+→ 4. Room types → 5. Fees per hostel and room type → 6. Mess → 7. Staff, then duties (MAP-02, Chief Manager) → 8. Users and roles (ADM-01)
 → 9. Approval rules → 10. Report access (ADM-02) → 11. Students (ERP import, or ADM-04 for single additions).
 `scripts/demo-seed.sh` runs this order through the API and then walks five students to check-in.
 
@@ -74,9 +74,9 @@ CON-01…05 (K), ACA-01…02 (L), DIS-01…06 (M), VAC-01…04 (N), RPT-01…06 
 |---|---|---|---|
 | STU | Student | Student | 2600040010 (new), 2600040012 (checked in) |
 | PAR | Parent or guardian | Parent | contact:5 |
-| FW | Floor Warden | Floor_Warden | S-FW |
+| FW | Floor Manager | Floor_Warden | S-FW |
 | WDN | Warden | Warden (also Assistant_Warden, Hostel_Incharge) | S-WD |
-| CW | Chief Warden (Director, Hostels) | Chief_Warden, Director_Hostels | S-CW |
+| CW | Chief Manager (Director, Hostels) | Chief_Warden, Director_Hostels | S-CW |
 | OFF | Hostel Office Staff | Office_Staff, Room_Allotment | S-OF |
 | HAC | Hostel Accounts section | Accounts_Section | S-AC |
 | SEC | Security | Security_Guard, Security_Officer | S-SG, S-SO |
@@ -107,7 +107,7 @@ chain to Dean, Students Progression (L3) and Pro-VC Finance (L4), adds `approval
 | Roles are given on approval | ADM-01 requires `approval_ref`; the API refuses a grant to oneself |
 | Admin acts in no workflow | `RolesGuard` no longer bypasses role checks for `admin` |
 
-**Floor Warden home** (`/home` for `Floor_Warden`): `GET /floor/today` (floors in charge, residents with tonight's state, alerts, sick visits, outings today, arrivals, floor staff) plus `GET /approvals/inbox`; panels act through `POST /approvals/:id/decide`, `POST /sick-leaves/:id/visit`, `POST /alerts/:id`, `POST /roster/attendance`.
+**Floor Manager home** (`/home` for `Floor_Warden`): `GET /floor/today` (floors in charge, hostel students with tonight's state, alerts, sick visits, outings today, arrivals, floor staff) plus `GET /approvals/inbox`; panels act through `POST /approvals/:id/decide`, `POST /sick-leaves/:id/visit`, `POST /alerts/:id`, `POST /roster/attendance`.
 
 **095 additions**
 | Code | Screen | Route | Who | API |

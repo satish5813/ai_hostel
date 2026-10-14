@@ -55,11 +55,11 @@ class _DepositScreenState extends State<DepositScreen> with AutoRefresh {
     final children = <Widget>[
       _hero(d),
       if (_n(d['to_pay']) > 0) _payPanel(d),
-      if (_n(d['proposed']) > 0) _Note('A deduction of ${_inr(d['proposed'])} has been proposed and is waiting for the Chief Warden. It is taken only if approved.', warn: true),
+      if (_n(d['proposed']) > 0) _Note('A deduction of ${_inr(d['proposed'])} has been proposed and is waiting for the Chief Manager. It is taken only if approved.', warn: true),
       Panel(title: 'Account', child: entries.isEmpty
           ? const Text('No deposit recorded yet.', style: TextStyle(color: _ink3))
           : Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [for (var i = 0; i < entries.length; i++) _LedgerLine(entries[i], last: i == entries.length - 1)])),
-      const _Note("The deposit stays in the university's account. A deduction needs a written reason and the Chief Warden's approval, and you are told when one is made. When you vacate, Accounts sends the balance to your bank account and the reference appears here."),
+      const _Note("The deposit stays in the university's account. A deduction needs a written reason and the Chief Manager's approval, and you are told when one is made. When you vacate, Accounts sends the balance to your bank account and the reference appears here."),
     ];
     return RefreshIndicator(onRefresh: load, child: ListView(physics: const AlwaysScrollableScrollPhysics(), padding: const EdgeInsets.fromLTRB(16, 16, 16, 90),
         children: [for (var i = 0; i < children.length; i++) ...[if (i > 0) const SizedBox(height: 18), children[i]]]));
@@ -167,7 +167,7 @@ class _LedgerLine extends StatelessWidget {
         Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Wrap(spacing: 8, runSpacing: 2, crossAxisAlignment: WrapCrossAlignment.center, children: [
             Text(isDed ? _category[e['category'] ?? 'Other'] ?? 'Other' : label, style: const TextStyle(fontSize: 14.5, fontWeight: FontWeight.w700, color: K.ink)),
-            if (waiting) tag('Waiting for the Chief Warden'),
+            if (waiting) tag('Waiting for the Chief Manager'),
             if (refused) tag('Not approved'),
           ]),
           const SizedBox(height: 2),

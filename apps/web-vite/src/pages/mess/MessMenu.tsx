@@ -20,7 +20,7 @@ const same = (a: Cycle, k: { g: string; r: string; c: string; d: string }) => a.
 /**
  * MES-01 Routine menu. One week of four meals for each kind of student: Boys or Girls hostel, South Indian, North
  * Indian or a country's food (apartments and overseas students), Veg or Non-veg. The administrator changes a menu on a
- * draft; the Chief Warden approves it and the students who eat it see it from then on.
+ * draft; the Chief Manager approves it and the students who eat it see it from then on.
  */
 export default function MessMenu() {
   const s = useSession()!;
@@ -62,7 +62,7 @@ function StaffMenu() {
   return (
     <div className="pg mm">
       <div className="pg-head">
-        <div><p>One week of meals for each kind of student. {s.role === 'admin' ? 'You prepare changes on a draft; the Chief Warden approves them.' : cw ? 'The administrator prepares changes on a draft; you approve them.' : 'Approved menus are what the students see.'}</p></div>
+        <div><p>One week of meals for each kind of student. {s.role === 'admin' ? 'You prepare changes on a draft; the Chief Manager approves them.' : cw ? 'The administrator prepares changes on a draft; you approve them.' : 'Approved menus are what the students see.'}</p></div>
         <div className="pg-actions"><Button variant="secondary" icon="file" onClick={() => window.print()}>Print this week</Button></div>
       </div>
 
@@ -100,7 +100,7 @@ function StaffMenu() {
               onClick={() => run(() => api(`/menus/${d!.cycle_id}/approve`, { method: 'POST' }).then(() => { setSel(null); refresh(); }), 'Menu approved; students see it now')}>Approve menu</Button>}
           </div>
         </header>
-        {isDraft && s.role === 'admin' && <Notice tone="info" title="Draft">Click a meal to change it. Students keep seeing the approved menu until the Chief Warden approves this draft.</Notice>}
+        {isDraft && s.role === 'admin' && <Notice tone="info" title="Draft">Click a meal to change it. Students keep seeing the approved menu until the Chief Manager approves this draft.</Notice>}
         {!d && !list.data && <div className="q-empty">Loading…</div>}
         {!showId && list.data && (
           <div className="mm-empty"><b>No menu for these students yet</b><p>{edit ? 'Start an empty week, or copy a menu that is close and change what differs.' : 'The administrator has not prepared this menu.'}</p>

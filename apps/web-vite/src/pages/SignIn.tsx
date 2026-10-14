@@ -132,7 +132,7 @@ export default function SignIn() {
         </div>
         <div className="login-copy">
           <p className="login-kicker">Hostel Management System</p>
-          <h1>Every room, every resident, <b>one place to look.</b></h1>
+          <h1>Every room, every hostel student, <b>one place to look.</b></h1>
           <ul className="login-covers">{COVERS.map(([icon, label]) => <li key={label}><Icon name={icon} size={14} />{label}</li>)}</ul>
           <div className="login-dots" role="group" aria-label="Photographs">
             {PHOTOS.map((p, n) => <button key={p.src} type="button" aria-label={p.title} aria-pressed={n === photo} onClick={() => setPhoto(n)} />)}

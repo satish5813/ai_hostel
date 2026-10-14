@@ -78,7 +78,7 @@ export class MastersService {
    * The student's own photo, as a small JPEG, PNG or WebP data URL (the browser shrinks it to 320 px first), kept in
    * hostel.student_photo and shown on the profile and in the menu instead of the ERP's photo. null removes it.
    */
-  /** The hostel record (migration 126). The full Aadhaar number only for the Chief Warden and admin; others see the last four digits. */
+  /** The hostel record (migration 126). The full Aadhaar number only for the Chief Manager and admin; others see the last four digits. */
   async kyc(studentId: string, user: AuthUser) {
     if (user.kind === 'student' && user.id !== studentId) throw new ForbiddenException('Own record only');
     const full = user.roles.some((r) => KYC_FULL.includes(r));
@@ -88,11 +88,11 @@ export class MastersService {
     return { ...k, aadhaar_no: full || !aad ? aad : `XXXX XXXX ${aad.slice(-4)}`, aadhaar_photo: full || user.kind === 'student' ? k.aadhaar_photo : null, locked: !!k.submitted_on, can_edit: full || (user.kind === 'student' && !k.submitted_on) };
   }
 
-  /** The student submits it once; after that only the Chief Warden changes it. */
+  /** The student submits it once; after that only the Chief Manager changes it. */
   async submitKyc(user: AuthUser, dto: KycDto) {
     if (user.kind !== 'student') throw new ForbiddenException('Students submit their own record');
     const [k] = await this.dbs.rows<{ submitted_on: string | null }>(sql`select submitted_on from hostel.student_kyc where student_id = ${user.id}`);
-    if (k?.submitted_on) throw new UnprocessableEntityException('Your record is submitted. Ask the Chief Warden to change anything on it.');
+    if (k?.submitted_on) throw new UnprocessableEntityException('Your record is submitted. Ask the Chief Manager to change anything on it.');
     await this.writeKyc(user, user.id, dto, true);
     return this.kyc(user.id, user);
   }
@@ -214,16 +214,16 @@ export class MastersService {
       where a.occupant_type = 'Staff' and ${facWhere('b.facility_id', facilityId, user)} order by a.status, a.allocation_date desc`);
   }
 
-  /** A staff room needs the Chief Warden of that hostel: a Chief Warden allotting is the approver; anyone else names one, who is checked. */
+  /** A staff room needs the Chief Manager of that hostel: a Chief Manager allotting is the approver; anyone else names one, who is checked. */
   async staffAllocate(user: AuthUser, dto: { staff_id: string; subspace_id: string; key_no: string; approved_by: string; remarks?: string }) {
     const [bed] = await this.dbs.rows<{ facility_id: string; hostel_code: string }>(sql`select facility_id, hostel_code from hostel.v_bed where subspace_id = ${dto.subspace_id}`);
     if (!bed) throw new NotFoundException('Bed not found');
     assertScope(user, bed.facility_id);
     const isCw = user.roles.includes('Chief_Warden') || user.roles.includes('Director_Hostels');
-    if (!isCw) throw new ForbiddenException('Send the staff room to the Chief Warden: Exceptions, New request, Staff room');
+    if (!isCw) throw new ForbiddenException('Send the staff room to the Chief Manager: Exceptions, New request, Staff room');
     const approver = user.id;
     const [ok] = await this.dbs.rows<{ ok: boolean }>(sql`select hostel.fn_staff_has_role(${approver}, 'Chief_Warden', ${bed.facility_id}) or exists (select 1 from portal.user_role ur join portal.app_user u on u.user_id = ur.user_id where u.staff_id = ${approver} and ur.role_code = 'Director_Hostels') as ok`);
-    if (!ok?.ok) throw new UnprocessableEntityException(`${approver || 'The approver'} is not the Chief Warden of ${bed.hostel_code}`);
+    if (!ok?.ok) throw new UnprocessableEntityException(`${approver || 'The approver'} is not the Chief Manager of ${bed.hostel_code}`);
     dto = { ...dto, approved_by: approver };
     return this.dbs.run(user, async (tx) => {
       const [row] = await tx.insert(t.allocation).values({ occupant_type: 'Staff', staff_id: dto.staff_id, subspace_id: dto.subspace_id, academic_year: sql`(select academic_year from hostel.academic_year where is_current limit 1)` as never,

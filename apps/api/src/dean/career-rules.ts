@@ -97,7 +97,7 @@ export type Milestone = { label: string; done: boolean };
 
 /**
  * The milestones a second-year student should have reached on their chosen path (or the one their record points to),
- * so progress reads as "4 of 6 done" with the open items named. Shared by the Chief Warden's tracker and EXE-01.
+ * so progress reads as "4 of 6 done" with the open items named. Shared by the Chief Manager's tracker and EXE-01.
  */
 export function milestones(r: CareerRecord, path: Path): Milestone[] {
   const cg = r.cgpa ?? 0, coding = r.coding_pct ?? 0, apt = r.aptitude_pct ?? 0, tech = r.technical_pct ?? 0, crt = r.crt_attendance_pct ?? 0;

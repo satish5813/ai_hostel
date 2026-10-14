@@ -255,7 +255,7 @@ const KINDS: Kind[] = [
     },
   },
   {
-    kind: 'staff', order: 7, title: 'Staff and wardens', target: 'ref.staff_master, portal.app_user', source: 'ERP_Staff', needs: [],
+    kind: 'staff', order: 7, title: 'Staff and managers', target: 'ref.staff_master, portal.app_user', source: 'ERP_Staff', needs: [],
     note: 'Wardens, office, accounts, security, mess and maintenance staff. The ERP employee export uploads as it is; identification, bank and dependent columns are dropped.', count: "select count(*)::int as n from ref.staff_master where status = 'Active'",
     columns: [
       { key: 'staff_id', label: 'Employee ID', required: true, sample: 'E1042', aliases: ['uni id', 'emp id', 'employee id'] },
@@ -265,7 +265,7 @@ const KINDS: Kind[] = [
       { key: 'last_name', label: 'Last name', sample: 'Babu', aliases: ['lastname'] },
       { key: 'gender', label: 'Gender', required: true, hint: 'Male, Female or Other', sample: 'Male', aliases: ['gendershortname'] },
       { key: 'dept_code', label: 'Department', required: true, hint: 'Department code; added if it is new', sample: 'HOSTELS', aliases: ['department', 'dept'] },
-      { key: 'designation', label: 'Designation', required: true, sample: 'Floor Warden' },
+      { key: 'designation', label: 'Designation', required: true, sample: 'Floor Manager' },
       { key: 'staff_type', label: 'Staff type', hint: 'Warden, Admin, Security, Mess, Maintenance, Housekeeping, Faculty…; worked out from the designation if empty', sample: 'Warden' },
       { key: 'mobile_no', label: 'Mobile', required: true, hint: '10 digits', sample: '9000012345', aliases: ['mobile number', 'mobile'] },
       { key: 'official_email', label: 'Official e-mail', sample: 'ramesh.b@kluniversity.in', aliases: ['official email', 'email'] },

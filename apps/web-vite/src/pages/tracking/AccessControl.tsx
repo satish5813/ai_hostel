@@ -15,10 +15,10 @@ type Log = { event_id: string; event_at: string; direction: string; method: stri
 const METHODS = ['QR', 'Face', 'Thumb', 'Card', 'Manual'];
 const M_ICON: Record<string, T.IconName> = { QR: 'qr', Face: 'eye', Thumb: 'key', Card: 'wallet', Manual: 'edit' };
 const TYPE_ICON: Record<string, T.IconName> = { Campus_Gate: 'door', Hostel_Gate: 'building', Room_Corridor: 'bed', Mess: 'utensils', Library: 'file', Gym: 'heart', Facility: 'settings', Academic_Block: 'file' };
-const WHO: Record<string, string> = { Everyone: 'Anyone', All_Hostellers: 'Any hosteller', Own_Hostel: 'Residents of this hostel', Own_Floor: 'Residents of this floor', Staff_Only: 'Staff only' };
-const OUTSIDE: Record<string, string> = { Deny: 'Refuse', Need_Approval: 'Ask for approval', Allow_And_Alert: 'Let in and tell the Floor Warden' };
+const WHO: Record<string, string> = { Everyone: 'Anyone', All_Hostellers: 'Any hosteller', Own_Hostel: 'Hostel students of this hostel', Own_Floor: 'Hostel students of this floor', Staff_Only: 'Staff only' };
+const OUTSIDE: Record<string, string> = { Deny: 'Refuse', Need_Approval: 'Ask for approval', Allow_And_Alert: 'Let in and tell the Floor Manager' };
 const VERDICT: Record<string, { tone: string; label: string; icon: T.IconName }> = {
-  Allowed: { tone: 'ok', label: 'Allowed', icon: 'check' }, Allowed_Alerted: { tone: 'warn', label: 'Allowed, Floor Warden told', icon: 'bell' },
+  Allowed: { tone: 'ok', label: 'Allowed', icon: 'check' }, Allowed_Alerted: { tone: 'warn', label: 'Allowed, Floor Manager told', icon: 'bell' },
   Approval_Needed: { tone: 'warn', label: 'Needs approval', icon: 'clock' }, Denied: { tone: 'bad', label: 'Refused', icon: 'x' },
 };
 const hours = (p: Point) => (p.open_from ? `${p.open_from} to ${p.open_to}` : 'All day');
@@ -26,7 +26,7 @@ const hours = (p: Point) => (p.open_from ? `${p.open_from} to ${p.open_to}` : 'A
 /**
  * TRK-09 Access control (addition). Every gate, floor, mess, library and gym is a capture point: which proofs it takes
  * (QR, face, thumb, card), who may pass and when, whether going out needs an outing pass, and who approves out of hours.
- * A scan is judged on the spot — allowed, allowed with a word to the Floor Warden, needs approval, or refused — and kept.
+ * A scan is judged on the spot — allowed, allowed with a word to the Floor Manager, needs approval, or refused — and kept.
  */
 export default function AccessControl() {
   const s = useSession()!;
@@ -129,7 +129,7 @@ function ScanTest({ points, record, onScanned }: { points: Point[]; record: bool
         {!v ? <div className="q-empty">The verdict appears here: allowed, needs approval, or refused, with the reason.</div> : <>
           <div className="ac-v-head"><span className="ac-v-icon"><Icon name={tone!.icon} size={26} /></span><div><b>{tone!.label}</b><span>{v.reason}</span></div></div>
           {v.student && <div className="facts" style={{ padding: '0 14px 14px' }}>
-            <div><span>Student</span><b>{titleCase(v.student.full_name)}</b></div><div><span>Room</span><b>{v.student.room_code ? `${v.student.hostel_code} ${v.student.room_code}` : 'Not a resident'}</b></div>
+            <div><span>Student</span><b>{titleCase(v.student.full_name)}</b></div><div><span>Room</span><b>{v.student.room_code ? `${v.student.hostel_code} ${v.student.room_code}` : 'Not a hostel student'}</b></div>
             <div><span>Point</span><b>{pt?.point_name}</b></div><div><span>Proof</span><b>{f.method}</b></div></div>}
         </>}
       </section>
@@ -181,7 +181,7 @@ function Enrolment({ canEnrol }: { canEnrol: boolean }) {
   const enrol = (r: Enrol, method: string) => run(() => api('/access/enrol', { method: 'POST', json: { student_id: r.student_id, method, template_ref: `VND-${method}-${r.student_id}` } }).then(() => list.mutate()), `${method} enrolled`);
   return (
     <>
-      <div className="stg stg-static"><div><b>{rows.length}</b><span>Residents</span></div><div><b>{n('card')}</b><span>Card</span></div><div><b>{n('face')}</b><span>Face</span></div><div><b>{n('thumb')}</b><span>Thumb</span></div></div>
+      <div className="stg stg-static"><div><b>{rows.length}</b><span>Hostel students</span></div><div><b>{n('card')}</b><span>Card</span></div><div><b>{n('face')}</b><span>Face</span></div><div><b>{n('thumb')}</b><span>Thumb</span></div></div>
       <p className="klh-muted" style={{ margin: 0, fontSize: 12.5 }}>Face and thumb templates stay on the devices; this list keeps only a reference. Tracking needs the student's consent on record.</p>
       <section className="box"><div className="q">
         {rows.map((r) => (

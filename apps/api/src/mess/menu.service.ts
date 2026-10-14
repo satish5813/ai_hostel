@@ -15,7 +15,7 @@ export const titleOf = (k: Kind) => `${k.hostel_gender === 'Any' ? 'All hostels'
 
 /**
  * MES-01 Routine menu. One week of four meals per kind of student (Boys or Girls hostel, South, North or a country's
- * food, Veg or Non-veg). The administrator prepares a draft (new, or a copy of the approved menu), the Chief Warden
+ * food, Veg or Non-veg). The administrator prepares a draft (new, or a copy of the approved menu), the Chief Manager
  * approves it and the approved one it replaces is retired. Students see the approved menu that fits them
  * (hostel.v_student_menu) and choose their own food style and diet.
  */
@@ -103,9 +103,9 @@ export class MenuService {
     return { ok: true };
   }
 
-  /** The Chief Warden approves a draft; the database retires the menu it replaces. */
+  /** The Chief Manager approves a draft; the database retires the menu it replaces. */
   async approve(user: AuthUser, id: number) {
-    if (!user.roles.some((r) => r === 'Chief_Warden' || r === 'Director_Hostels')) throw new ForbiddenException('Only the Chief Warden approves a menu');
+    if (!user.roles.some((r) => r === 'Chief_Warden' || r === 'Director_Hostels')) throw new ForbiddenException('Only the Chief Manager approves a menu');
     const r = await this.dbs.run(user, (tx) => tx.execute(sql`update hostel.menu_cycle set status = 'Approved', approved_by = ${user.id}, approved_on = now(), updated_by = ${user.id}
       where cycle_id = ${id} and status = 'Draft' returning cycle_id`)) as unknown as unknown[];
     if (!r.length) throw new UnprocessableEntityException('Only a draft can be approved');

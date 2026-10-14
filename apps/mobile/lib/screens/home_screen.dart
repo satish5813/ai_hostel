@@ -139,7 +139,7 @@ class _HomeScreenState extends State<HomeScreen> with AutoRefresh {
 
     // a receipt that the wardens are still checking: the dues are not asked for again
     final checking = _list('proofs').where((p) => ['Uploaded', 'Checked'].contains(p['status'])).firstOrNull;
-    final heroLine = checking != null ? 'Receipt ${checking['proof_no']} is ${checking['status'] == 'Checked' ? 'with the Chief Warden' : 'with the Floor Warden'}. This page moves on by itself.'
+    final heroLine = checking != null ? 'Receipt ${checking['proof_no']} is ${checking['status'] == 'Checked' ? 'with the Chief Manager' : 'with the Floor Manager'}. This page moves on by itself.'
         : reg == null ? 'You have not applied for a hostel room yet.'
         : stage == 3 && reg['student_decision'] == 'Pending' ? 'A bed is held for you until ${dayTime(reg['hold_until'])}. Accept it to continue.'
         : living ? (due > 0 ? '${inr(due)} is due${next != null ? ' by ${day(next['due_date'])}' : ''}.' : 'Everything is paid. Have a good day.')
@@ -317,7 +317,7 @@ class _HomeScreenState extends State<HomeScreen> with AutoRefresh {
           body: (ctx, set) => Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Pill.status(current['status']), const SizedBox(height: 14),
             Text('${current['illness_details']}'), const SizedBox(height: 14),
-            Note(current['visited_by'] != null ? 'Visited: ${current['visit_remarks']}' : 'Stay in your room; your Floor Warden will come and see you.', icon: LucideIcons.shieldCheck),
+            Note(current['visited_by'] != null ? 'Visited: ${current['visit_remarks']}' : 'Stay in your room; your Floor Manager will come and see you.', icon: LucideIcons.shieldCheck),
             if (current['status'] == 'Approved') ...[const SizedBox(height: 14), const Note('Your meals come to your room until the leave ends.', icon: LucideIcons.utensilsCrossed)],
           ]),
           footer: (ctx, set) => KButton('I am well now', block: true, kind: BtnKind.secondary, busy: busy, onPressed: () async {
@@ -334,8 +334,8 @@ class _HomeScreenState extends State<HomeScreen> with AutoRefresh {
       final d = await showDatePicker(context: ctx, initialDate: DateTime.parse(isFrom ? from : until), firstDate: DateTime.now().subtract(const Duration(days: 7)), lastDate: DateTime.now().add(const Duration(days: 60)));
       if (d != null) set(() { if (isFrom) { from = isoDay(d); if (until.compareTo(from) < 0) until = from; } else { until = isoDay(d); } });
     }
-    showKSheet(context, mod: Mod.rose, icon: LucideIcons.heartPulse, title: 'Report that you are unwell', sub: 'Your Floor Warden visits; the building in-charge approves',
-        body: (ctx, set) => sent ? DoneView(title: 'Reported', body: 'Your Floor Warden will come and see you. Rest in your room.', onClose: () => Navigator.pop(ctx)) : Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+    showKSheet(context, mod: Mod.rose, icon: LucideIcons.heartPulse, title: 'Report that you are unwell', sub: 'Your Floor Manager visits; the building in-charge approves',
+        body: (ctx, set) => sent ? DoneView(title: 'Reported', body: 'Your Floor Manager will come and see you. Rest in your room.', onClose: () => Navigator.pop(ctx)) : Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           TextField(controller: what, minLines: 3, maxLines: 3, onChanged: (_) => set(() {}), decoration: const InputDecoration(labelText: 'What is wrong *', hintText: 'Fever since last night', alignLabelWithHint: true)),
           const SizedBox(height: 14),
           _DateField('From *', from, () => pick(ctx, set, true)),
@@ -354,7 +354,7 @@ class _HomeScreenState extends State<HomeScreen> with AutoRefresh {
   }
 
   void _room(Map r) {
-    const role = {'Floor_Warden': 'Floor Warden', 'Chief_Warden': 'Chief Warden', 'Sweeper': 'Sweeper', 'Scavenger': 'Scavenger'};
+    const role = {'Floor_Warden': 'Floor Manager', 'Chief_Warden': 'Chief Manager', 'Sweeper': 'Sweeper', 'Scavenger': 'Scavenger'};
     final mess = r['mess'] as Map?;
     showKSheet(context, mod: Mod.teal, icon: LucideIcons.bedDouble, title: '${r['bed_label']}',
         sub: '${r['hostel_name']} · ${r['floor_name']} · ${r['type_name'] ?? 'Room'}${r['is_ac'] == true ? ' · AC' : ''}',
@@ -381,7 +381,7 @@ class _HomeScreenState extends State<HomeScreen> with AutoRefresh {
                       SelectableText('${p['mobile_no']}', style: const TextStyle(color: K.brand, fontSize: 12.5, fontWeight: FontWeight.w700))]))),
           ]),
           const SizedBox(height: 14),
-          const Note('Report a damaged item to your Floor Warden; it is checked against your room list when you vacate.', icon: LucideIcons.bookOpen),
+          const Note('Report a damaged item to your Floor Manager; it is checked against your room list when you vacate.', icon: LucideIcons.bookOpen),
         ]));
   }
 
@@ -601,7 +601,7 @@ class _RenewalBanner extends StatelessWidget {
     final closes = y['renewal_open'] == true ? y['renewal_closes'] : y['registration_closes'];
     final line = leaving ? 'You told the office you are not staying in ${y['academic_year']}. You can still change your mind while renewal is open.'
         : r == null ? 'Renewal for ${y['academic_year']} is open${closes != null ? ' until ${day(closes)}' : ''}. Keep ${cur['bed_label']}, ask for another room, or tell us you are leaving.'
-        : step == 4 ? 'All paid. Room Allotment moves you into ${y['academic_year']} once the fee check and the Chief Warden are done.'
+        : step == 4 ? 'All paid. Room Allotment moves you into ${y['academic_year']} once the fee check and the Chief Manager are done.'
         : '${r['registration_no']} · next step: ${_steps[step].toLowerCase()}.';
     // a rounded card with a 4 px teal left edge: Flutter cannot round a border whose sides differ, so the edge is painted inside
     return Container(

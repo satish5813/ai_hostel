@@ -4,7 +4,7 @@ import { DbService } from '../db/db.service.js';
 import { facWhere } from '../auth/scope.js';
 import type { AuthUser } from '../auth/auth.types.js';
 
-/** Who works on room changes: the Floor Warden (own floors), the Chief Warden and Warden (own hostels), the Director; Accounts and the Pro-VC Finance see them for refunds. */
+/** Who works on room changes: the Floor Manager (own floors), the Chief Manager and Warden (own hostels), the Director; Accounts and the Pro-VC Finance see them for refunds. */
 export const RC_WARDENS = ['Floor_Warden', 'Chief_Warden', 'Director_Hostels', 'Warden', 'admin'];
 export const RC_VIEW = [...RC_WARDENS, 'Accounts_Section', 'Pro_VC_Finance', 'Room_Allotment', 'Office_Staff'];
 const CW = ['Chief_Warden', 'Director_Hostels', 'admin'];
@@ -22,7 +22,7 @@ const FROM = sql`hostel.room_change rc join ref.student_master sm on sm.student_
 
 /**
  * RCH Room change. The student asks for another room (another room type, or the same type elsewhere) in their hostel;
- * the Floor Warden and then the Chief Warden approve on the shared approval engine; on the day the move is carried out
+ * the Floor Manager and then the Chief Manager approve on the shared approval engine; on the day the move is carried out
  * and the hostel fee and electricity are settled by hostel.fn_room_change_complete (db/migrations/115_room_change.sql).
  */
 @Injectable()
@@ -175,9 +175,9 @@ export class RoomChangeService {
     });
   }
 
-  /* ------------------------------------------------------------ the Chief Warden moves a student */
+  /* ------------------------------------------------------------ the Chief Manager moves a student */
 
-  /** Residents of the Chief Warden's hostels, to choose whom to move. */
+  /** Residents of the Chief Manager's hostels, to choose whom to move. */
   residents(user: AuthUser, q?: string) {
     const term = q ? `%${q.toLowerCase()}%` : null;
     return this.dbs.rows(sql`select b.student_id, initcap(sm.full_name) as name, sm.programme, b.bed_label, b.type_name, b.floor_name, b.facility_id, b.hostel_name

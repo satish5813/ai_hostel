@@ -63,8 +63,8 @@ class _RoomScreenState extends State<RoomScreen> {
   String _stage = '';
   // what the student is told when the page moves on by itself
   static const _said = {
-    'Applied/Uploaded': 'Receipt sent. The Floor Warden is checking it.', 'Applied/Checked': 'Checked by the Floor Warden. Now with the Chief Warden.',
-    'Fee_Paid/': 'Registration fee approved by the Chief Warden. Choose your room.', 'Waitlisted/': 'Registration fee approved. You are on the waiting list.',
+    'Applied/Uploaded': 'Receipt sent. The Floor Manager is checking it.', 'Applied/Checked': 'Checked by the Floor Manager. Now with the Chief Manager.',
+    'Fee_Paid/': 'Registration fee approved by the Chief Manager. Choose your room.', 'Waitlisted/': 'Registration fee approved. You are on the waiting list.',
     'Confirmed/Verified': 'Fees verified and approved. Collect your key at the hostel office.', 'Checked_In/': 'Checked in. Your room is on the Home page.',
   };
 
@@ -209,7 +209,7 @@ class _RoomScreenState extends State<RoomScreen> {
   List<Widget> _journey(Map g) {
     final st = g['status'];
     final items = <Widget>[
-      if (st == 'Applied' && proof != null) _Notice(tone: 'progress', title: proof!['status'] == 'Checked' ? 'Receipt checked by the Floor Warden · with the Chief Warden' : 'Receipt sent · with the Floor Warden',
+      if (st == 'Applied' && proof != null) _Notice(tone: 'progress', title: proof!['status'] == 'Checked' ? 'Receipt checked by the Floor Manager · with the Chief Manager' : 'Receipt sent · with the Floor Manager',
           body: 'Receipt ${proof!['proof_no']} for ${_inr(proof!['amount'])}${proof!['ocr_status'] == 'Matched' ? ' matches what you typed' : proof!['ocr_status'] == 'Mismatch' ? ' is being checked by eye' : ''}. This page moves on by itself when it is approved.')
       else if (st == 'Applied') _Notice(tone: 'info', title: 'Pay the registration fee', body: '${_inr(g['registration_fee'] ?? 0)}, not refundable. The rooms open for you to choose as soon as it is paid. Pay it from the dues on the right.'),
       if (['Fee_Paid', 'Waitlisted'].contains(st)) _chooseRoom(g),
