@@ -41,7 +41,7 @@ export default function ApprovalLink() {
   return (
     <div className="klh klh-comfortable" style={{ minHeight: '100vh', background: 'var(--surface-0)' }}>
       <div className="klh-hero" style={{ borderRadius: 0, padding: '24px 20px' }}>
-        <p className="klh-hero-eyebrow">KL University Hostels · {parent ? 'outing request' : 'outing of a day or more'}</p>
+        <p className="klh-hero-eyebrow">KL Residencies · {parent ? 'outing request' : 'outing of a day or more'}</p>
         <h1 style={{ fontSize: 28, lineHeight: '36px', fontWeight: 800, margin: '4px 0 0', color: 'var(--hero-ink)' }}>{o ? `${o.full_name} wants to go out` : 'Link not recognised'}</h1>
         {v?.who && <p className="klh-hero-sub">For {v.who.name}{v.who.relation ? ` (${words(v.who.relation).toLowerCase()})` : ''}</p>}
       </div>

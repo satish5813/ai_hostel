@@ -152,7 +152,7 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 20),
               Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                 const Icon(LucideIcons.shieldCheck, size: 13, color: _mute), const SizedBox(width: 6),
-                Flexible(child: Text('KL University Hostels · your data stays with the university', textAlign: TextAlign.center, style: TextStyle(fontSize: 11.5, color: _mute.withValues(alpha: .9)))),
+                Flexible(child: Text('KL Residencies · your data stays with the university', textAlign: TextAlign.center, style: TextStyle(fontSize: 11.5, color: _mute.withValues(alpha: .9)))),
               ]),
             ]),
           ),

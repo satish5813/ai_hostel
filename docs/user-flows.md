@@ -1,6 +1,6 @@
 # User-wise flow: who does what, in which order, on which screen
 
-KL University Hostels, release covering Workflows A to F. Screen codes are those of *Roles, Screens and Access Rights*;
+KL Residencies, release covering Workflows A to F. Screen codes are those of *Roles, Screens and Access Rights*;
 ADM-04 and TRK-07 are additions. "Built" means the screen and its API exist and were exercised; "Next release" means the
 workflow pages of the specification (G to N) are still awaited.
 

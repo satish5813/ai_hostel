@@ -34,5 +34,5 @@
     "typescript": "~6.0.2",
     "vite": "^8.3.0"
   },
-  "description": "KL University Hostels — React + Vite + Tailwind front end on the KLH design system"
+  "description": "KL Residencies — React + Vite + Tailwind front end on the KLH design system"
 }

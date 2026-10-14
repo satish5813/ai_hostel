@@ -438,7 +438,7 @@ const __out = {};
     var u = p.user || {};
     return h('div', { className: 'klh klh-shell' },
       h('aside', { className: 'klh-side', 'aria-label': 'Main navigation' },
-        h('div', { className: 'klh-brand' }, h('span', { className: 'klh-brand-mark', 'aria-hidden': 'true' }, 'KL'), h('span', { className: 'klh-brand-name' }, p.productName || 'KL University Hostels', h('small', null, p.productSub || 'Hostel Management'))),
+        h('div', { className: 'klh-brand' }, h('span', { className: 'klh-brand-mark', 'aria-hidden': 'true' }, 'KL'), h('span', { className: 'klh-brand-name' }, p.productName || 'KL Residencies', h('small', null, p.productSub || 'Hostel Management'))),
         h('nav', { className: 'klh-nav' }, (p.nav || []).map(function (g, gi) {
           return h('div', { key: gi, className: 'klh-nav-group' },
             g.heading ? h('div', { className: 'klh-nav-heading' }, g.heading) : null,

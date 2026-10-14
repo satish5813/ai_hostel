@@ -14,7 +14,7 @@ const reactScan = (): Plugin => ({
   transformIndexHtml: () => (process.env.REACT_SCAN === '0' ? [] : [{ tag: 'script', attrs: { src: '/node_modules/react-scan/dist/auto.global.js', crossorigin: 'anonymous' }, injectTo: 'head-prepend' }]),
 });
 
-// KL University Hostels — web front end (React 19 + Vite + Tailwind v4 + KLH design system)
+// KL Residencies — web front end (React 19 + Vite + Tailwind v4 + KLH design system)
 export default defineConfig({
   plugins: [reactScan(), react(), tailwindcss()],
   resolve: { alias: { '@': path.resolve(__dirname, 'src') } },

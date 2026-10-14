@@ -60,7 +60,7 @@ function SignInCard({ data }: { data: Demo }) {
   const shown = data.accounts.filter((a) => (!group || a.group_name === group) && (!q.trim() || `${a.display_name} ${a.username} ${a.description ?? ''}`.toLowerCase().includes(q.trim().toLowerCase())));
   return (
     <div className="login-card">
-      <div className="login-head"><span className="login-hello">Welcome back</span><h2>Sign in to KL Hostels</h2><p>Use your employee or university ID.</p></div>
+      <div className="login-head"><span className="login-hello">Welcome back</span><h2>Sign in to KL Residencies</h2><p>Use your employee or university ID.</p></div>
       {demo && <div className="login-tabs" role="tablist" aria-label="How to sign in">
         <button type="button" role="tab" aria-selected={tab === 'form'} className="login-tab" onClick={() => setTab('form')}><Icon name="lock" size={15} />Sign in</button>
         <button type="button" role="tab" aria-selected={tab === 'demo'} className="login-tab" onClick={() => setTab('demo')}><Icon name="users" size={15} />Demo accounts<span className="login-count">{data.accounts.length}</span></button>

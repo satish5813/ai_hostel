@@ -1,5 +1,5 @@
 /**
- * The screen and role registry, transcribed from "KL University Hostels — Roles, Screens and Access Rights"
+ * The screen and role registry, transcribed from "KL Residencies — Roles, Screens and Access Rights"
  * (1 Oct 2026): 27 roles, 87 screens, access codes V view · C create · E edit · A approve or reject · X set up.
  * A person sees only the screens of the roles they hold (menu built from this file) and only the records in
  * their scope (enforced by the API and the database). Screens without a `route` belong to Workflows G–N and

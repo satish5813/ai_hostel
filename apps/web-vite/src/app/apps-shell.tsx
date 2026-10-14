@@ -17,7 +17,7 @@ const read = <T,>(k: string, d: T): T => { try { const v = localStorage.getItem(
 const write = (k: string, v: unknown) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* private window */ } };
 
 /**
- * Staff frame from the design "KL Hostels Admin": the home is an apps launcher; opening an app shows its operations
+ * Staff frame from the design "KL Residencies Admin": the home is an apps launcher; opening an app shows its operations
  * in a sidebar with a breadcrumb bar on top. Ctrl K jumps to any app or operation. Below 1024 px the sidebar slides in.
  */
 export function AppsShell({ role, user, unread, fill, children }: { role: string; user: { name: string; role: string }; unread: number; fill?: boolean; children: ReactNode }) {
@@ -57,7 +57,7 @@ export function AppsShell({ role, user, unread, fill, children }: { role: string
         <div className="ax-home">
           <header className="ax-bar">
             <div className="ax-bar-row">
-              <span className="ax-brand"><Logo cut="mark" height={36} /><b>KL University Hostels</b></span>
+              <span className="ax-brand"><Logo cut="mark" height={36} /><b>KL Residencies</b></span>
               <span className="ax-grow" />
               <HostelPicker hostels={hostels.data ?? []} value={facility} onPick={pickHostel} />
               <span className="ax-pill ax-hide-sm"><Calendar size={16} className="ax-muted" />AY {s?.year ?? '—'}</span>

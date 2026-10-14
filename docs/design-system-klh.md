@@ -1,4 +1,4 @@
-# KLH design system (KL University Hostels)
+# KLH design system (KL Residencies)
 
 Copied from the design-system artifact by apps/web-vite/scripts/sync-klh.mjs. The bundle lives in apps/web-vite/src/vendor.
 
@@ -110,7 +110,7 @@ A value not in this table renders neutral. Adding a new Enum value means adding 
 
 ## Logo
 
-No university logo has been supplied. Set "KL University Hostels" in Plus Jakarta Sans 800 beside the multi-colour KL monogram tile in the sidebar header and on the login screen until the official mark is provided; do not redraw or approximate the university's emblem.
+No university logo has been supplied. Set "KL Residencies" in Plus Jakarta Sans 800 beside the multi-colour KL monogram tile in the sidebar header and on the login screen until the official mark is provided; do not redraw or approximate the university's emblem.
 
 ## Building screens
 

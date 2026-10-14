@@ -20,7 +20,7 @@ void main() {
   }, (error, stack) => debugPrint('Uncaught: $error\n$stack'));
 }
 
-/// KL University Hostels: the student app. The same features and look as the student web portal.
+/// KL Residencies: the student app. The same features and look as the student web portal.
 /// It opens on the splash for a moment, then on the sign-in page or, when already signed in, on the app.
 class KluHostelsApp extends StatefulWidget {
   const KluHostelsApp({super.key});
@@ -40,7 +40,7 @@ class _KluHostelsAppState extends State<KluHostelsApp> {
 
   @override
   Widget build(BuildContext context) => MaterialApp(
-        title: 'KL Hostels',
+        title: 'KL Residencies',
         debugShowCheckedModeBanner: false,
         theme: K.theme(),
         home: ListenableBuilder(

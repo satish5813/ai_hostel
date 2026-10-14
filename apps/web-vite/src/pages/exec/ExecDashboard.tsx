@@ -82,7 +82,7 @@ function TopBar() {
   const navigate = useNavigate();
   return (
     <header className="xd-top">
-      <button type="button" className="xd-brand" onClick={() => navigate('/exec')}><Logo cut="mark" height={30} /><span><b>KL University Hostels</b><small>Executive view</small></span></button>
+      <button type="button" className="xd-brand" onClick={() => navigate('/exec')}><Logo cut="mark" height={30} /><span><b>KL Residencies</b><small>Executive view</small></span></button>
       <nav className="xd-links" aria-label="More">
         <button type="button" onClick={() => navigate('/reports/mess-sentiment')}><Utensils size={15} />Mess sentiment</button>
         <button type="button" onClick={() => navigate('/home')}><LayoutGrid size={15} />All apps</button>

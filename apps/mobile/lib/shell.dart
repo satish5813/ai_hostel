@@ -135,7 +135,7 @@ class ShellState extends State<Shell> {
   }
 }
 
-/// The phone top bar (sn-bar): menu or back, the KL mark with "KL Hostels", the bell with its red dot.
+/// The phone top bar (sn-bar): menu or back, the KL mark with "KL Residencies", the bell with its red dot.
 class _TopBar extends StatelessWidget {
   final ShellState shell;
   final bool back;
@@ -148,7 +148,7 @@ class _TopBar extends StatelessWidget {
           back ? _FrameIcon(LucideIcons.chevronLeft, 'Back', shell._back) : _FrameIcon(LucideIcons.menu, 'Open menu', () => shell._scaffold.currentState?.openDrawer()),
           Expanded(child: Center(child: InkWell(onTap: () => shell.open('home'), borderRadius: BorderRadius.circular(8), child: Row(mainAxisSize: MainAxisSize.min, children: [
             const KlLogo(height: 26), const SizedBox(width: 8),
-            const Text('KL Hostels', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF1D2939))),
+            const Text('KL Residencies', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF1D2939))),
           ])))),
           _FrameIcon(LucideIcons.bell, shell.unread > 0 ? 'Notifications, ${shell.unread} unread' : 'Notifications', () => shell.open('notifications'), size: 19, dot: shell.unread > 0),
         ]),
@@ -229,7 +229,7 @@ class _SideMenu extends StatelessWidget {
           Expanded(child: InkWell(onTap: () => shell.open('home'), child: const Row(children: [
             KlLogo(height: 30), SizedBox(width: 10),
             Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-              Text('KL Hostels', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF1D2939), height: 1.15)),
+              Text('KL Residencies', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Color(0xFF1D2939), height: 1.15)),
               Text('STUDENT', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: K.brand, letterSpacing: .66, height: 1.15)),
             ]),
           ]))),

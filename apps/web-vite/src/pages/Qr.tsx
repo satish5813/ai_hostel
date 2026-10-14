@@ -14,7 +14,7 @@ export default function QrPage() {
   return (
     <div className="klh klh-comfortable" style={{ minHeight: '100vh', background: 'var(--surface-0)' }}>
       <div className="klh-hero" style={{ borderRadius: 0, padding: '24px 20px' }}>
-        <p className="klh-hero-eyebrow">{page ? `${page.space.facility_name} · ${page.space.zone_name}` : 'KL University Hostels'}</p>
+        <p className="klh-hero-eyebrow">{page ? `${page.space.facility_name} · ${page.space.zone_name}` : 'KL Residencies'}</p>
         <h1 style={{ fontSize: 32, lineHeight: '40px', fontWeight: 800, margin: '4px 0 0', color: 'var(--hero-ink)' }}>{page ? page.space.space_name : 'Label not recognised'}</h1>
         {page && <p className="klh-hero-sub">{page.space.space_category.replace(/_/g, ' ')}</p>}
       </div>

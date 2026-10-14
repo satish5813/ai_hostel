@@ -271,7 +271,7 @@ export class AccountsService {
           if (!a.email) { await this.dbs.rows(sql`update portal.login_account set mail_status = 'No_Email' where account_id = ${a.account_id}`); continue; }
           try {
             const link = await this.freshLink(a.account_id);
-            await this.smtp.sendMail({ from: process.env.MAIL_FROM ?? 'KL Hostels <hostels@kluniversity.in>', to: a.email, ...(await this.letter(a, link)) });
+            await this.smtp.sendMail({ from: process.env.MAIL_FROM ?? 'KL Residencies <hostels@kluniversity.in>', to: a.email, ...(await this.letter(a, link)) });
             await this.dbs.rows(sql`update portal.login_account set mail_status = 'Sent', mailed_on = now(), mail_error = null where account_id = ${a.account_id}`);
           } catch (e) {
             const why = (e instanceof Error ? e.message : String(e)).slice(0, 290);
@@ -290,15 +290,15 @@ export class AccountsService {
     const roles = staff ? await this.rolesOf(a) : [];
     const hostels = staff ? (await this.dbs.rows<{ hostel_name: string }>(sql`select distinct hp.hostel_code as hostel_name from hostel.staff_space_assignment x join hostel.hostel_profile hp on hp.facility_id = x.facility_id where x.staff_id = ${a.user_ref} and x.status = 'Active' order by 1`)).map((h) => h.hostel_name) : [];
     const roleLine = roles.length ? `Your role: ${roles.map((r) => ROLE_INFO.find((i) => i.code === r)?.label ?? r.replace(/_/g, ' ')).join(', ')}${hostels.length ? ` (${hostels.join(', ')})` : ''}.` : '';
-    const where = staff ? `Then sign in on the hostel portal: ${webUrl()}` : 'Then sign in with your university ID in the KL Hostels app on your phone, or on the hostel portal.';
-    const lines = [`Dear ${a.full_name ?? a.username},`, '', 'Your login for the KL University Hostels system is ready.', '', `Username: ${a.username}`, ...(roleLine ? [roleLine] : []), '',
-      `Set your password with this link (it works once, for ${INVITE_DAYS} days):`, link, '', where, '', 'Nobody from the hostel office will ask for your password. If you did not expect this e-mail, ignore it.', '', 'KL University Hostels'];
+    const where = staff ? `Then sign in on the hostel portal: ${webUrl()}` : 'Then sign in with your university ID in the KL Residencies app on your phone, or on the hostel portal.';
+    const lines = [`Dear ${a.full_name ?? a.username},`, '', 'Your login for the KL Residencies system is ready.', '', `Username: ${a.username}`, ...(roleLine ? [roleLine] : []), '',
+      `Set your password with this link (it works once, for ${INVITE_DAYS} days):`, link, '', where, '', 'Nobody from the hostel office will ask for your password. If you did not expect this e-mail, ignore it.', '', 'KL Residencies'];
     const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;');
-    const html = `<div style="font:15px/1.55 Arial,sans-serif;color:#10201E;max-width:560px"><p>Dear ${esc(a.full_name ?? a.username)},</p><p>Your login for the <b>KL University Hostels</b> system is ready.</p>
+    const html = `<div style="font:15px/1.55 Arial,sans-serif;color:#10201E;max-width:560px"><p>Dear ${esc(a.full_name ?? a.username)},</p><p>Your login for the <b>KL Residencies</b> system is ready.</p>
 <table style="border-collapse:collapse;margin:12px 0"><tr><td style="padding:4px 14px 4px 0;color:#4B5D5A">Username</td><td style="padding:4px 0"><b>${esc(a.username)}</b></td></tr>${roleLine ? `<tr><td style="padding:4px 14px 4px 0;color:#4B5D5A">Role</td><td style="padding:4px 0">${esc(roleLine.replace(/^Your role: /, '').replace(/\.$/, ''))}</td></tr>` : ''}</table>
 <p><a href="${link}" style="display:inline-block;padding:12px 22px;border-radius:10px;background:#0B7A71;color:#fff;text-decoration:none;font-weight:bold">Set my password</a></p>
 <p style="color:#4B5D5A;font-size:13px">The link works once, for ${INVITE_DAYS} days. ${esc(where)}</p><p style="color:#4B5D5A;font-size:13px">Nobody from the hostel office will ask for your password. If you did not expect this e-mail, ignore it.</p></div>`;
-    return { subject: 'KL Hostels: your login is ready', text: lines.join('\n'), html };
+    return { subject: 'KL Residencies: your login is ready', text: lines.join('\n'), html };
   }
 
   /** Send the invitation again, or hand back the link to give in person (when there is no e-mail address or no mail server). */

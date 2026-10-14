@@ -105,7 +105,7 @@ class _ReportState extends State<_Report> {
               Row(children: [
                 const KlLogo(height: 40), const SizedBox(width: 12),
                 const Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text('KL University Hostels', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: K.brand)),
+                  Text('KL Residencies', style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: K.brand)),
                   Text('Student Health and Fitness Centre', style: TextStyle(fontSize: 12, color: _ink3)),
                 ])),
               ]),

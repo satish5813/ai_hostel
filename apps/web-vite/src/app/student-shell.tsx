@@ -81,7 +81,7 @@ export function StudentShell({ screens, unread, children, extra }: { screens: Sc
     <div className={`klh klh-comfortable sn${collapsed ? ' sn-folded' : ''}${open ? ' sn-open' : ''}`}>
       <aside className="sn-side" aria-label="Menu">
         <div className="sn-top">
-          <button type="button" className="sn-brand" onClick={() => navigate('/home')} aria-label="Home"><Logo cut="mark" height={30} /><span className="sn-label"><b>KL Hostels</b><small>Student</small></span></button>
+          <button type="button" className="sn-brand" onClick={() => navigate('/home')} aria-label="Home"><Logo cut="mark" height={30} /><span className="sn-label"><b>KL Residencies</b><small>Student</small></span></button>
           <button type="button" className="sn-icon sn-only-phone" aria-label="Close menu" onClick={() => setOpen(false)}><X size={18} /></button>
         </div>
         <button type="button" className="sn-me" onClick={() => navigate('/profile')} title={collapsed ? name : undefined}>
@@ -100,7 +100,7 @@ export function StudentShell({ screens, unread, children, extra }: { screens: Sc
       <div className="sn-body">
         <header className="sn-bar sn-only-phone">
           <button type="button" className="sn-icon" aria-label="Open menu" aria-expanded={open} onClick={() => setOpen(true)}><Menu size={20} /></button>
-          <button type="button" className="sn-brand" onClick={() => navigate('/home')}><Logo cut="mark" height={26} /><b>KL Hostels</b></button>
+          <button type="button" className="sn-brand" onClick={() => navigate('/home')}><Logo cut="mark" height={26} /><b>KL Residencies</b></button>
           <button type="button" className="sn-icon sn-bell" aria-label={`Notifications${unread ? `, ${unread} unread` : ''}`} onClick={() => navigate('/notifications')}>
             <Bell size={19} />{unread > 0 && <i aria-hidden="true" />}</button>
         </header>

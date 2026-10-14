@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// The KL Hostels look, value for value the student web portal (KLH tokens, styles/student*.css):
+/// The KL Residencies look, value for value the student web portal (KLH tokens, styles/student*.css):
 /// campus teal, the yellow-to-coral call to action, Plus Jakarta Sans, white 18-20 px cards on a cool grey ground.
 class K {
   static const brand = Color(0xFF0B7A71);       // --primary

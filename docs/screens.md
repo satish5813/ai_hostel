@@ -1,6 +1,6 @@
 # Screens, roles and access (this release)
 
-Source: *KL University Hostels — Roles, Screens and Access Rights* (1 Oct 2026): 27 roles, 87 screens, access codes
+Source: *KL Residencies — Roles, Screens and Access Rights* (1 Oct 2026): 27 roles, 87 screens, access codes
 V view · C create · E edit · A approve or reject · X set up. The registry that drives the menus is
 `apps/web-vite/src/app/screens.ts`; the screen map in the app (`/screens`) shows the same data live, including the master matrix
 and the rules that apply to every role.

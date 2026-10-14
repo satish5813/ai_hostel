@@ -84,7 +84,7 @@ function ReceiptPrint({ r, studentId, name, onBack }: { r: Receipt; studentId: s
           <dt>Mode</dt><dd>{r.payment_mode}{r.gateway_ref ? ` · ref ${r.gateway_ref}` : ''}{r.collected_by ? ` · collected by ${r.collected_by}` : ''}</dd>
           <dt>Status</dt><dd><StatusChip status={r.gateway_status} /></dd>
         </dl>
-        <p className="klh-muted" style={{ fontSize: 12, marginTop: 24 }}>Computer-generated receipt of KL University Hostels. The registration fee is not refundable. Hostel and mess fees are refundable only as per the vacating rules.</p>
+        <p className="klh-muted" style={{ fontSize: 12, marginTop: 24 }}>Computer-generated receipt of KL Residencies. The registration fee is not refundable. Hostel and mess fees are refundable only as per the vacating rules.</p>
       </div>
     </div>
   );

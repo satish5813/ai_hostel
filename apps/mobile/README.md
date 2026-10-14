@@ -1,6 +1,6 @@
 # klu_hostels
 
-KL University Hostels: the student app
+KL Residencies: the student app
 
 ## Getting Started
 

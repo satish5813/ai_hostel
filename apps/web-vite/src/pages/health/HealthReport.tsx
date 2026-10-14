@@ -47,7 +47,7 @@ export function HealthReport({ id }: { id: number }) {
   return (
     <article className="hr" aria-label={`Health report ${h.report_no}`}>
       <header className="hr-head">
-        <div className="hr-brand"><Logo cut="mark" height={40} /><span><b>KL University Hostels</b><small>Student Health and Fitness Centre</small></span></div>
+        <div className="hr-brand"><Logo cut="mark" height={40} /><span><b>KL Residencies</b><small>Student Health and Fitness Centre</small></span></div>
         <div className="hr-title"><b>Health report</b><small>{h.report_no}</small></div>
       </header>
 

@@ -29,11 +29,11 @@ export default function SetPassword() {
         <div className="login-card">
           <div style={{ marginBottom: 18 }}><Logo cut="full" height={44} /></div>
           {bad ? (<>
-            <div className="login-head"><span className="login-hello">KL Hostels</span><h2>This link cannot be used</h2><p>{bad}</p></div>
+            <div className="login-head"><span className="login-hello">KL Residencies</span><h2>This link cannot be used</h2><p>{bad}</p></div>
             <a className="login-submit" href="/" style={{ textDecoration: 'none' }}>Go to sign in<Icon name="arrow-right" size={17} /></a>
           </>) : done ? (<>
             <div className="login-head"><span className="login-hello">All set</span><h2>Your password is saved</h2>
-              <p>{who?.kind === 'student' ? `Open the KL Hostels app on your phone and sign in with ${who.username} and your new password. You can also use this portal.` : `Sign in with ${who?.username} and your new password.`}</p></div>
+              <p>{who?.kind === 'student' ? `Open the KL Residencies app on your phone and sign in with ${who.username} and your new password. You can also use this portal.` : `Sign in with ${who?.username} and your new password.`}</p></div>
             <a className="login-submit" href="/" style={{ textDecoration: 'none' }}>Sign in<Icon name="arrow-right" size={17} /></a>
           </>) : !who ? <p className="login-hint">Checking your link…</p> : (
           <form onSubmit={(e) => { e.preventDefault(); if (ok) save(); }}>

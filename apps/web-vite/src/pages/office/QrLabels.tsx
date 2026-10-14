@@ -41,7 +41,7 @@ export default function QrLabels() {
       </div>
       {sheet.length > 0 && (
         <div className="klh-print-sheet">
-          {sheet.map((l) => <div key={l.space_id} className="klh-print-label"><img src={l.png_data_url} alt="" /><div className="klh-print-name">{roomLabel(l.space_id)}</div><div className="klh-print-sub">KL University Hostels · scan for help</div></div>)}
+          {sheet.map((l) => <div key={l.space_id} className="klh-print-label"><img src={l.png_data_url} alt="" /><div className="klh-print-name">{roomLabel(l.space_id)}</div><div className="klh-print-sub">KL Residencies · scan for help</div></div>)}
         </div>)}
     </div>
   );

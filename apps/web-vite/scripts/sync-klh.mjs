@@ -46,5 +46,5 @@ writeFileSync(join(vendor, 'klh-tokens.css'), css);
 
 // 3. the guide
 const docs = join(here, '..', '..', '..', 'docs', 'design-system-klh.md');
-writeFileSync(docs, `# KLH design system (KL University Hostels)\n\nCopied from the design-system artifact by apps/web-vite/scripts/sync-klh.mjs. The bundle lives in apps/web-vite/src/vendor.\n\n${readFileSync(join(src, 'README.md'), 'utf8')}`);
+writeFileSync(docs, `# KLH design system (KL Residencies)\n\nCopied from the design-system artifact by apps/web-vite/scripts/sync-klh.mjs. The bundle lives in apps/web-vite/src/vendor.\n\n${readFileSync(join(src, 'README.md'), 'utf8')}`);
 console.log('vendor refreshed:', Object.keys(tok.color.tokens).length, 'colour tokens;', (bundle.match(/\{"name":"/g) ?? []).length, 'components');
