@@ -23,11 +23,20 @@ type Career = {
   second_year: { summary: Sum2; paths: (Sum2 & { path: string; name: string })[]; gaps: { label: string; n: number }[] };
   final_year: { summary: Sum4; by_goal: { goal: string; students: number; secured: number }[]; recruiters: { organisation: string; offers: number; top_ctc: number | null }[]; package_bands: { label: string; n: number }[] };
 };
-type Overview = { settings: { att_min: number; cgpa_watch: number }; buildings: Building[]; mess: { mood: number | null; ratings: number; boys: number | null; girls: number | null }; year: { academic_year: string }; careers: Career; electricity_months: ElecMonth[] };
+type ChoiceHostel = { facility_id: string; hostel_code: string; residents: number; stated: number; product: number; services: number; higher: number; govt: number; startup: number; other: number };
+type CareerChoice = { stated: number; residents: number; by_goal: { goal: string; name: string; n: number }[]; by_hostel: ChoiceHostel[] };
+type Overview = { settings: { att_min: number; cgpa_watch: number }; buildings: Building[]; mess: { mood: number | null; ratings: number; boys: number | null; girls: number | null }; year: { academic_year: string }; careers: Career; career_choice?: CareerChoice; electricity_months: ElecMonth[] };
+type FeeHostel = { facility_id: string; hostel_code: string; facility_name: string; gender: string; students: number; single_plan: number; two_plan: number; paid: number; part_paid: number; unpaid: number; overdue_students: number; no_demand: number; demanded: number; collected: number; outstanding: number; overdue: number };
+type FeeStudent = { student_id: string; name: string; programme: string | null; year_semester: string | null; plan_type: string | null; due: number; paid: number; outstanding: number; state: string; last_paid_on: string | null; receipts: number;
+  career_goal: string | null; career_choice: string | null; cgpa: number | null; backlogs: number };
+type ChoiceStudent = { student_id: string; name: string; programme: string | null; year_semester: string | null; hostel_code: string; goal: string; career_choice: string | null; cgpa: number | null; backlogs: number;
+  due: number; paid: number; outstanding: number; state: string };
+type MatrixRow = { goal: string; name: string; students: number; paid: number; part_paid: number; unpaid: number; overdue_students: number; outstanding: number; overdue: number; avg_cgpa: number | null; backlog_students: number };
 type Detail = {
   building: Building; settings: Overview['settings'];
   performance: { cgpa_bands: { band: string; n: number }[]; attendance_bands: { band: string; n: number }[];
-    watch: { student_id: string; name: string; programme: string | null; year_semester: string | null; term_label: string | null; cgpa: number | null; attendance_pct: number | null; backlogs: number; activities: number }[] };
+    watch: { student_id: string; name: string; programme: string | null; year_semester: string | null; term_label: string | null; cgpa: number | null; attendance_pct: number | null; backlogs: number; activities: number }[];
+    roster: { student_id: string; name: string; programme: string | null; year_semester: string | null; cgpa: number | null; attendance_pct: number | null; backlogs: number }[] };
   activities: { types: { type: string; students: number; entries: number; hours: number }[]; recent: { name: string; type: string; title: string; role: string | null; from_date: string }[]; achievements: { level: string; n: number }[] };
   roll: { date: string; present: number; on_pass: number; sick: number; absent: number }[];
   mess: { meals: { meal: string; mood: number; ratings: number; positive: number; negative: number }[]; dishes: { meal: string; dish: string; ratings: number; mood: number; stars: number }[];
@@ -107,8 +116,8 @@ function Overview() {
       <section className="xd-kpis" aria-label="University">
         <Kpi icon={BedDouble} label="Residents" value={res.toLocaleString('en-IN')} sub={`${pct(sum(b, 'occupied'), sum(b, 'beds'))}% of ${sum(b, 'beds').toLocaleString('en-IN')} beds`} />
         <Kpi icon={GraduationCap} label="Average CGPA" value={cgpa?.toFixed(2) ?? '—'} sub={`${withRes} with results`} t={tone(cgpa, 7, d.settings.cgpa_watch)} />
-        <Kpi icon={BookOpen} label="With backlogs" value={String(sum(b, 'backlog_students'))} sub={`${pct(sum(b, 'backlog_students'), withRes)}% · ${sum(b, 'backlogs')} backlogs`} t={tone(pct(sum(b, 'backlog_students'), withRes), 10, 20, true)} />
-        <Kpi icon={UserCheck} label={`Attendance below ${d.settings.att_min}%`} value={String(sum(b, 'short_students'))} sub={`${pct(sum(b, 'short_students'), withRes)}% of students`} t={tone(pct(sum(b, 'short_students'), withRes), 5, 15, true)} />
+        <Kpi icon={BookOpen} label="With backlogs" value={`${sum(b, 'backlog_students').toLocaleString('en-IN')} of ${res.toLocaleString('en-IN')}`} sub={`${pct(sum(b, 'backlog_students'), res)}% of students · ${sum(b, 'backlogs').toLocaleString('en-IN')} backlogs`} t={tone(pct(sum(b, 'backlog_students'), res), 10, 20, true)} />
+        <Kpi icon={UserCheck} label={`Attendance below ${d.settings.att_min}%`} value={String(sum(b, 'short_students'))} sub={`${pct(sum(b, 'short_students'), res)}% of students`} t={tone(pct(sum(b, 'short_students'), res), 5, 15, true)} />
         <Kpi icon={Trophy} label="In clubs, sports, activities" value={`${pct(sum(b, 'active_students'), res)}%`} sub={`${sum(b, 'active_students')} students · ${sum(b, 'achievements')} achievements`} t={tone(pct(sum(b, 'active_students'), res), 60, 40)} />
         <Kpi icon={Moon} label="Night roll call" value={roll != null ? `${roll.toFixed(1)}%` : '—'} sub="Present or accounted for, 30 days" t={tone(roll, 95, 90)} />
         <Kpi icon={Utensils} label="Mess mood" value={moodText(d.mess.mood)} sub={`Boys ${moodText(d.mess.boys)} · Girls ${moodText(d.mess.girls)} · 30 days`} t={tone(d.mess.mood, 20, 0)} />
@@ -117,8 +126,18 @@ function Overview() {
         <Kpi icon={ShieldAlert} label="Open discipline cases" value={String(sum(b, 'open_cases'))} sub={`${sum(b, 'cases_year')} this year`} t={tone(sum(b, 'open_cases'), 0, 3, true)} />
       </section>
 
-      <h2 className="xd-h2"><Compass size={18} />Careers</h2>
-      <CareerKpis c={d.careers} />
+      <h2 className="xd-h2"><IndianRupee size={18} />Fees and dues</h2>
+      <FeesSection />
+
+      {d.career_choice && d.career_choice.stated > 0 && <>
+        <h2 className="xd-h2"><Compass size={18} />Career choices</h2>
+        <CareerChoiceSection c={d.career_choice} />
+      </>}
+
+      {(d.careers.final_year.summary.secured + d.careers.final_year.summary.in_progress + d.careers.second_year.summary.goal_stated) > 0 && <>
+        <h2 className="xd-h2"><Briefcase size={18} />Career outcomes</h2>
+        <CareerKpis c={d.careers} />
+      </>}
 
       <h2 className="xd-h2"><Zap size={18} />Electricity and repairs</h2>
       <PowerKpis b={b} months={d.electricity_months} />
@@ -134,6 +153,161 @@ function Overview() {
 }
 
 const lpa = (v: number | null | undefined) => (v == null ? '—' : `${v % 1 ? v.toFixed(1) : v} LPA`);
+const num = (v: number) => v.toLocaleString('en-IN');
+
+/** A centred dialog over the dashboard; closes on the backdrop, the button or Escape. */
+function Modal({ title, sub, onClose, children }: { title: string; sub?: string; onClose: () => void; children: ReactNode }) {
+  return (
+    <div className="xd-modal" role="dialog" aria-modal="true" aria-label={title} onClick={onClose} onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }}>
+      <div className="xd-modal-card" onClick={(e) => e.stopPropagation()}>
+        <div className="xd-modal-head"><div><h3>{title}</h3>{sub && <small>{sub}</small>}</div><button type="button" onClick={onClose} autoFocus>Close</button></div>
+        <div className="xd-modal-body">{children}</div>
+      </div>
+    </div>
+  );
+}
+
+/** A number in a table that opens the students behind it. */
+function Cell({ n, onClick }: { n: number; onClick: () => void }) {
+  return n > 0 ? <button type="button" className="xd-cellbtn" onClick={onClick}>{num(n)}</button> : <span className="xd-quiet">0</span>;
+}
+
+const FEE_BUCKET: Record<string, string> = { all: 'All students', single: 'Single instalment (yearly)', two: 'Two instalments', paid: 'Fully paid', part: 'Paid first instalment only', unpaid: 'Not paid', overdue: 'Overdue' };
+const STATE_LABEL: Record<string, string> = { Paid: 'Paid', Part_Paid: '1st instalment', Pending: 'Not paid', Overdue: 'Overdue', 'No demand': 'No fee raised' };
+
+function FeesSection() {
+  const r = useApi<{ hostels: FeeHostel[] }>('/exec/fees');
+  const [open, setOpen] = useState<{ h: FeeHostel; bucket: string } | null>(null);
+  if (!r.data) return <p className="xd-loading">Loading…</p>;
+  const hs = r.data.hostels, t = (k: keyof FeeHostel) => hs.reduce((a, h) => a + Number(h[k] ?? 0), 0);
+  return (
+    <>
+      <section className="xd-kpis" aria-label="Fees">
+        <Kpi icon={IndianRupee} label="Hostel fee demanded" value={inr(t('demanded'))} sub={`${num(t('students'))} students · ${num(t('single_plan'))} single instalment · ${num(t('two_plan'))} two instalments`} />
+        <Kpi icon={CheckCircle2} label="Collected" value={inr(t('collected'))} sub={`${pct(t('collected'), t('demanded'))}% of demand · ${num(t('paid'))} fully paid · ${num(t('part_paid'))} paid 1st instalment`} t={tone(pct(t('collected'), t('demanded')), 50, 40)} />
+        <Kpi icon={Activity} label="Outstanding" value={inr(t('outstanding'))} sub="Mostly 2nd instalments not yet due" />
+        <Kpi icon={AlertTriangle} label="Overdue" value={inr(t('overdue'))} sub={`${num(t('overdue_students'))} students past the due date · ${num(t('unpaid'))} not paid at all`} t={tone(t('overdue_students'), 0, 50, true)} />
+      </section>
+      <div className="xd-table-wrap xd-card-table"><table className="xd-table">
+        <thead><tr><th>Hostel</th><th className="n">Students</th><th className="n">1 instalment</th><th className="n">2 instalments</th><th className="n">Fully paid</th><th className="n">1st instalment only</th><th className="n">Not paid</th><th className="n">Overdue</th><th className="n">Demanded</th><th className="n">Collected</th><th className="n">Outstanding</th></tr></thead>
+        <tbody>{hs.map((h) => (
+          <tr key={h.facility_id}><td><b>{h.facility_name}</b><small>{h.hostel_code} · {h.gender}</small></td>
+            <td className="n"><Cell n={h.students} onClick={() => setOpen({ h, bucket: 'all' })} /></td>
+            <td className="n"><Cell n={h.single_plan} onClick={() => setOpen({ h, bucket: 'single' })} /></td>
+            <td className="n"><Cell n={h.two_plan} onClick={() => setOpen({ h, bucket: 'two' })} /></td>
+            <td className="n"><Cell n={h.paid} onClick={() => setOpen({ h, bucket: 'paid' })} /></td>
+            <td className="n"><Cell n={h.part_paid} onClick={() => setOpen({ h, bucket: 'part' })} /></td>
+            <td className={`n${h.unpaid ? ' xd-flag' : ''}`}><Cell n={h.unpaid} onClick={() => setOpen({ h, bucket: 'unpaid' })} /></td>
+            <td className={`n${h.overdue ? ' xd-flag' : ''}`}>{h.overdue ? <button type="button" className="xd-cellbtn" onClick={() => setOpen({ h, bucket: 'overdue' })}>{inr(h.overdue)}</button> : <span className="xd-quiet">—</span>}</td>
+            <td className="n">{inr(h.demanded)}</td><td className="n">{inr(h.collected)}</td><td className="n"><b>{inr(h.outstanding)}</b></td></tr>))}
+          <tr className="xd-total"><td><b>All hostels</b></td><td className="n"><b>{num(t('students'))}</b></td><td className="n"><b>{num(t('single_plan'))}</b></td><td className="n"><b>{num(t('two_plan'))}</b></td><td className="n"><b>{num(t('paid'))}</b></td><td className="n"><b>{num(t('part_paid'))}</b></td><td className="n"><b>{num(t('unpaid'))}</b></td><td className="n"><b>{inr(t('overdue'))}</b></td><td className="n"><b>{inr(t('demanded'))}</b></td><td className="n"><b>{inr(t('collected'))}</b></td><td className="n"><b>{inr(t('outstanding'))}</b></td></tr>
+        </tbody></table></div>
+      {open && <FeeStudentsModal h={open.h} bucket={open.bucket} onClose={() => setOpen(null)} />}
+    </>
+  );
+}
+
+function FeeStudentsModal({ h, bucket, onClose }: { h: FeeHostel; bucket: string; onClose: () => void }) {
+  const r = useApi<FeeStudent[]>(`/exec/fees/${h.facility_id}/students?bucket=${bucket}`);
+  const list = r.data ?? [];
+  const due = list.reduce((a, s) => a + s.outstanding, 0);
+  return (
+    <Modal title={`${h.facility_name} · ${FEE_BUCKET[bucket] ?? bucket}`} sub={r.data ? `${num(list.length)} students · ${inr(due)} outstanding` : 'Loading…'} onClose={onClose}>
+      <table className="xd-table">
+        <thead><tr><th>Student</th><th>Programme</th><th>Career choice</th><th>Plan</th><th className="n">Demanded</th><th className="n">Paid</th><th className="n">Outstanding</th><th>Status</th><th>Last paid</th><th className="n">CGPA</th></tr></thead>
+        <tbody>{list.map((s) => (
+          <tr key={s.student_id}><td><b>{s.name}</b><small>{s.student_id}</small></td><td>{s.programme ?? '—'}{s.year_semester ? <small>{s.year_semester}</small> : null}</td>
+            <td>{s.career_choice ? <span className="xd-choice">{s.career_choice}</span> : <span className="xd-quiet">Not stated</span>}</td>
+            <td>{s.plan_type === 'Single' ? '1 instalment' : s.plan_type === 'Two_Instalments' ? '2 instalments' : '—'}</td>
+            <td className="n">{inr(s.due)}</td><td className="n">{inr(s.paid)}</td><td className={`n${s.outstanding > 0 ? ' xd-flag' : ''}`}><b>{inr(s.outstanding)}</b></td>
+            <td><span className={`xd-pill xd-pill-${s.state === 'Paid' ? 'good' : s.state === 'Part_Paid' ? 'warn' : 'bad'}`}>{STATE_LABEL[s.state] ?? s.state}</span></td>
+            <td>{s.last_paid_on ? new Date(`${s.last_paid_on}T00:00:00`).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}{s.receipts ? <small>{s.receipts} receipt{s.receipts === 1 ? '' : 's'}</small> : null}</td>
+            <td className="n">{s.cgpa?.toFixed(2) ?? '—'}{s.backlogs ? <small className="xd-flag">{s.backlogs} backlog{s.backlogs === 1 ? '' : 's'}</small> : null}</td></tr>))}
+          {r.data && !list.length && <tr><td colSpan={10} className="xd-none">No students in this bucket.</td></tr>}
+        </tbody></table>
+    </Modal>
+  );
+}
+
+const GOAL_COL: { key: keyof ChoiceHostel; goal: string; label: string }[] = [
+  { key: 'product', goal: 'Placement_Product', label: 'Product companies' }, { key: 'services', goal: 'Placement_Services', label: 'IT services' },
+  { key: 'higher', goal: 'Higher_Studies', label: 'Higher studies' }, { key: 'govt', goal: 'Govt_Exams', label: 'Government' },
+  { key: 'startup', goal: 'Entrepreneurship', label: 'Start-up' }, { key: 'other', goal: 'Core_Other', label: 'Core / other' }];
+
+type Pick = { facility: string; where: string; goal: string; goalLabel: string; bucket: string };
+const BUCKET_LABEL: Record<string, string> = { all: 'all', paid: 'fully paid', part: 'paid 1st instalment only', unpaid: 'not paid', overdue: 'overdue', backlogs: 'with backlogs' };
+
+function CareerChoiceSection({ c }: { c: CareerChoice }) {
+  const [open, setOpen] = useState<Pick | null>(null);
+  const [fac, setFac] = useState('all');
+  const hs = c.by_hostel.filter((h) => h.stated > 0);
+  const where = fac === 'all' ? 'All hostels' : hs.find((h) => h.facility_id === fac)?.hostel_code ?? fac;
+  const m = useApi<MatrixRow[]>(`/exec/careers/matrix?facility=${fac}`);
+  const rows = m.data ?? [];
+  const tot = (k: keyof MatrixRow) => rows.reduce((a, r) => a + Number(r[k] ?? 0), 0);
+  const pick = (goal: string, goalLabel: string, bucket: string) => setOpen({ facility: fac, where, goal, goalLabel, bucket });
+  return (
+    <>
+      <div className="xd-grid">
+        <Block title="What residents plan to do" sub={`${num(c.stated)} of ${num(c.residents)} residents have stated a choice (${pct(c.stated, c.residents)}%) · from the career-choice survey`}>
+          <Bars rows={c.by_goal.map((g) => ({ label: g.name, n: g.n }))} />
+        </Block>
+        <Block wide title="By hostel" sub="Tap a number to see the students">
+          <div className="xd-table-wrap"><table className="xd-table">
+            <thead><tr><th>Hostel</th><th className="n">Residents</th><th className="n">Stated</th>{GOAL_COL.map((g) => <th key={g.key} className="n">{g.label}</th>)}</tr></thead>
+            <tbody>{hs.map((h) => (
+              <tr key={h.facility_id}><td><b>{h.hostel_code}</b></td><td className="n">{num(h.residents)}</td>
+                <td className="n"><Cell n={h.stated} onClick={() => setOpen({ facility: h.facility_id, where: h.hostel_code, goal: 'all', goalLabel: 'All choices', bucket: 'all' })} /></td>
+                {GOAL_COL.map((g) => <td key={g.key} className="n"><Cell n={Number(h[g.key])} onClick={() => setOpen({ facility: h.facility_id, where: h.hostel_code, goal: g.goal, goalLabel: g.label, bucket: 'all' })} /></td>)}</tr>))}
+            </tbody></table></div>
+        </Block>
+        <Block wide title="Career path × fees and results" sub="Each path: how its students stand on hostel fees and results · tap a number to see them">
+          <div className="xd-chips" role="tablist" aria-label="Hostel">
+            <button type="button" role="tab" aria-selected={fac === 'all'} className={fac === 'all' ? 'xd-chip-on' : ''} onClick={() => setFac('all')}>All hostels</button>
+            {hs.map((h) => <button key={h.facility_id} type="button" role="tab" aria-selected={fac === h.facility_id} className={fac === h.facility_id ? 'xd-chip-on' : ''} onClick={() => setFac(h.facility_id)}>{h.hostel_code}<small>{num(h.stated)}</small></button>)}
+          </div>
+          {!m.data ? <p className="xd-loading">Loading…</p> : (
+            <div className="xd-table-wrap"><table className="xd-table">
+              <thead><tr><th>Career path</th><th className="n">Students</th><th className="n">Fully paid</th><th className="n">1st instalment only</th><th className="n">Not paid</th><th className="n">Overdue ₹</th><th className="n">Outstanding</th><th className="n">Avg CGPA</th><th className="n">With backlogs</th></tr></thead>
+              <tbody>{rows.map((r) => (
+                <tr key={r.goal}><td><b>{r.name}</b></td>
+                  <td className="n"><Cell n={r.students} onClick={() => pick(r.goal, r.name, 'all')} /></td>
+                  <td className="n"><Cell n={r.paid} onClick={() => pick(r.goal, r.name, 'paid')} /></td>
+                  <td className="n"><Cell n={r.part_paid} onClick={() => pick(r.goal, r.name, 'part')} /></td>
+                  <td className={`n${r.unpaid ? ' xd-flag' : ''}`}><Cell n={r.unpaid} onClick={() => pick(r.goal, r.name, 'unpaid')} /></td>
+                  <td className={`n${r.overdue ? ' xd-flag' : ''}`}>{r.overdue ? <button type="button" className="xd-cellbtn" onClick={() => pick(r.goal, r.name, 'overdue')}>{inr(r.overdue)}</button> : <span className="xd-quiet">—</span>}</td>
+                  <td className="n">{inr(r.outstanding)}</td>
+                  <td className="n">{r.avg_cgpa?.toFixed(2) ?? '—'}</td>
+                  <td className={`n${r.backlog_students ? ' xd-flag' : ''}`}><Cell n={r.backlog_students} onClick={() => pick(r.goal, r.name, 'backlogs')} /></td></tr>))}
+                <tr className="xd-total"><td><b>All paths</b></td><td className="n"><b>{num(tot('students'))}</b></td><td className="n"><b>{num(tot('paid'))}</b></td><td className="n"><b>{num(tot('part_paid'))}</b></td><td className="n"><b>{num(tot('unpaid'))}</b></td><td className="n"><b>{inr(tot('overdue'))}</b></td><td className="n"><b>{inr(tot('outstanding'))}</b></td><td className="n">—</td><td className="n"><b>{num(tot('backlog_students'))}</b></td></tr>
+              </tbody></table></div>)}
+        </Block>
+      </div>
+      {open && <ChoiceStudentsModal p={open} onClose={() => setOpen(null)} />}
+    </>
+  );
+}
+
+function ChoiceStudentsModal({ p, onClose }: { p: Pick; onClose: () => void }) {
+  const r = useApi<ChoiceStudent[]>(`/exec/careers/${p.facility}/students?goal=${p.goal}&bucket=${p.bucket}`);
+  const list = r.data ?? [];
+  const due = list.reduce((a, s) => a + s.outstanding, 0);
+  const title = `${p.where} · ${p.goalLabel}${p.bucket !== 'all' ? ` · ${BUCKET_LABEL[p.bucket]}` : ''}`;
+  return (
+    <Modal title={title} sub={r.data ? `${num(list.length)} students${due ? ` · ${inr(due)} outstanding` : ''}` : 'Loading…'} onClose={onClose}>
+      <table className="xd-table">
+        <thead><tr><th>Student</th><th>Hostel</th><th>Programme</th><th>Career choice</th><th className="n">CGPA</th><th className="n">Backlogs</th><th className="n">Demanded</th><th className="n">Paid</th><th className="n">Outstanding</th><th>Fee status</th></tr></thead>
+        <tbody>{list.map((s) => (
+          <tr key={s.student_id}><td><b>{s.name}</b><small>{s.student_id}</small></td><td>{s.hostel_code}</td><td>{s.programme ?? '—'}{s.year_semester ? <small>{s.year_semester}</small> : null}</td>
+            <td><span className="xd-choice">{s.career_choice ?? s.goal}</span></td>
+            <td className="n">{s.cgpa?.toFixed(2) ?? '—'}</td><td className={`n${s.backlogs ? ' xd-flag' : ''}`}>{s.backlogs || '—'}</td>
+            <td className="n">{inr(s.due)}</td><td className="n">{inr(s.paid)}</td><td className={`n${s.outstanding > 0 ? ' xd-flag' : ''}`}><b>{inr(s.outstanding)}</b></td>
+            <td><span className={`xd-pill xd-pill-${s.state === 'Paid' ? 'good' : s.state === 'Part_Paid' ? 'warn' : s.state === 'No demand' ? 'neu' : 'bad'}`}>{STATE_LABEL[s.state] ?? s.state}</span></td></tr>))}
+          {r.data && !list.length && <tr><td colSpan={10} className="xd-none">No students here.</td></tr>}
+        </tbody></table>
+    </Modal>
+  );
+}
 
 function PowerKpis({ b, months }: { b: Building[]; months: ElecMonth[] }) {
   const e = (k: keyof NonNullable<Building['electricity']>) => b.reduce((a, x) => a + (x.electricity ? Number(x.electricity[k]) : 0), 0);
@@ -199,8 +373,8 @@ function BuildingCard({ b, settings, onOpen }: { b: Building; settings: Overview
   const empty = !b.residents;
   const rows: [string, string, Tone, number | null][] = empty ? [] : [
     ['In activities', `${pct(b.active_students, b.residents)}%`, tone(pct(b.active_students, b.residents), 60, 40), pct(b.active_students, b.residents)],
-    ['With backlogs', `${b.backlog_students} · ${pct(b.backlog_students, b.with_results)}%`, tone(pct(b.backlog_students, b.with_results), 10, 20, true), pct(b.backlog_students, b.with_results)],
-    [`Attendance < ${settings.att_min}%`, `${b.short_students} · ${pct(b.short_students, b.with_results)}%`, tone(pct(b.short_students, b.with_results), 5, 15, true), pct(b.short_students, b.with_results)],
+    ['With backlogs', `${b.backlog_students} of ${b.residents} · ${pct(b.backlog_students, b.residents)}%`, tone(pct(b.backlog_students, b.residents), 10, 20, true), pct(b.backlog_students, b.residents)],
+    [`Attendance < ${settings.att_min}%`, `${b.short_students} of ${b.residents} · ${pct(b.short_students, b.residents)}%`, tone(pct(b.short_students, b.residents), 5, 15, true), pct(b.short_students, b.residents)],
     ['Night roll call', b.roll_pct != null ? `${b.roll_pct}%` : '—', tone(b.roll_pct, 95, 90), b.roll_pct],
     ["Wardens' attendance", b.warden_pct != null ? `${b.warden_pct}%` : '—', tone(b.warden_pct, 90, 80), b.warden_pct],
     ...(b.career2 ? [['2nd-year career progress', `${b.career2.avg_progress ?? 0}%`, tone(b.career2.avg_progress, 75, 55), b.career2.avg_progress] as [string, string, Tone, number | null]] : []),
@@ -301,28 +475,53 @@ function Block({ title, sub, children, wide }: { title: string; sub?: string; ch
 }
 
 /** Horizontal bars of one hue (magnitude), each labelled with its count. */
-function Bars({ rows, order, alert, alertLabel = 'watch' }: { rows: { label: string; n: number }[]; order?: string[]; alert?: (label: string) => boolean; alertLabel?: string }) {
+function Bars({ rows, order, alert, alertLabel = 'watch', onPick, picked }: { rows: { label: string; n: number }[]; order?: string[]; alert?: (label: string) => boolean; alertLabel?: string; onPick?: (label: string) => void; picked?: string | null }) {
   const list = order ? order.map((o) => rows.find((r) => r.label === o) ?? { label: o, n: 0 }) : rows;
   const max = Math.max(1, ...list.map((r) => r.n));
   if (!list.length) return <p className="xd-none">Nothing recorded.</p>;
   return (
-    <ul className="xd-bars">{list.map((r) => (
-      <li key={r.label} className={alert?.(r.label) ? 'xd-bar-alert' : ''}>
+    <ul className="xd-bars">{list.map((r) => {
+      const inner = <>
         <span>{words(r.label)}{alert?.(r.label) && <em><AlertTriangle size={11} />{alertLabel}</em>}</span>
-        <i><i style={{ width: `${(r.n / max) * 100}%` }} /></i><b>{r.n}</b></li>))}</ul>
+        <i><i style={{ width: `${(r.n / max) * 100}%` }} /></i><b>{r.n}</b></>;
+      const cls = alert?.(r.label) ? 'xd-bar-alert' : '';
+      const clickable = onPick && r.n > 0;
+      return clickable
+        ? <li key={r.label} className={`${cls} xd-bar-btn${picked === r.label ? ' xd-bar-on' : ''}`} role="button" tabIndex={0}
+            aria-expanded={picked === r.label} onClick={() => onPick!(r.label)}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onPick!(r.label); } }}>{inner}</li>
+        : <li key={r.label} className={cls}>{inner}</li>;
+    })}</ul>
   );
 }
 
+const cgpaBandOf = (v: number | null) => v == null ? 'No result' : v < 5 ? 'Below 5' : v < 6 ? '5 – 6' : v < 7 ? '6 – 7' : v < 8 ? '7 – 8' : v < 9 ? '8 – 9' : '9 and above';
+const attBandOf = (v: number | null, at: number) => v == null ? 'No record' : v < 65 ? 'Below 65%' : v < at ? `65% – ${at}%` : v < 85 ? `${at}% – 85%` : '85% and above';
+
 function Academic({ d }: { d: Detail }) {
   const p = d.performance, at = d.settings.att_min;
+  const [pick, setPick] = useState<{ kind: 'cgpa' | 'att'; band: string } | null>(null);
+  const toggle = (kind: 'cgpa' | 'att', band: string) => setPick((cur) => cur && cur.kind === kind && cur.band === band ? null : { kind, band });
+  const picked = pick ? p.roster.filter((r) => pick.kind === 'cgpa' ? cgpaBandOf(r.cgpa) === pick.band : attBandOf(r.attendance_pct, at) === pick.band) : [];
   return (
     <div className="xd-grid">
-      <Block title="CGPA" sub={`Latest term result of ${d.building.with_results} students`}>
-        <Bars rows={p.cgpa_bands.map((x) => ({ label: x.band, n: x.n }))} order={['Below 5', '5 – 6', '6 – 7', '7 – 8', '8 – 9', '9 and above', 'No result']} alert={(l) => l === 'Below 5' || l === '5 – 6'} />
+      <Block title="CGPA" sub={`Latest term result of ${d.building.with_results} students · tap a band to list the students`}>
+        <Bars rows={p.cgpa_bands.map((x) => ({ label: x.band, n: x.n }))} order={['Below 5', '5 – 6', '6 – 7', '7 – 8', '8 – 9', '9 and above', 'No result']} alert={(l) => l === 'Below 5' || l === '5 – 6'}
+          onPick={(l) => toggle('cgpa', l)} picked={pick?.kind === 'cgpa' ? pick.band : null} />
       </Block>
-      <Block title="Cumulative class attendance" sub={`Below ${at}% is a shortfall`}>
-        <Bars rows={p.attendance_bands.map((x) => ({ label: x.band, n: x.n }))} order={['Below 65%', `65% – ${at}%`, `${at}% – 85%`, '85% and above', 'No record']} alert={(l) => l === 'Below 65%' || l === `65% – ${at}%`} alertLabel="shortfall" />
+      <Block title="Cumulative class attendance" sub={`Below ${at}% is a shortfall · tap a band to list the students`}>
+        <Bars rows={p.attendance_bands.map((x) => ({ label: x.band, n: x.n }))} order={['Below 65%', `65% – ${at}%`, `${at}% – 85%`, '85% and above', 'No record']} alert={(l) => l === 'Below 65%' || l === `65% – ${at}%`} alertLabel="shortfall"
+          onPick={(l) => toggle('att', l)} picked={pick?.kind === 'att' ? pick.band : null} />
       </Block>
+      {pick && <Block wide title={`${pick.kind === 'cgpa' ? 'CGPA' : 'Attendance'}: ${pick.band}`} sub={`${picked.length} student${picked.length === 1 ? '' : 's'}`}>
+        <div className="xd-table-wrap"><table className="xd-table">
+          <thead><tr><th>Student</th><th>Programme</th><th className="n">CGPA</th><th className="n">Attendance</th><th className="n">Backlogs</th></tr></thead>
+          <tbody>{picked.map((s) => (
+            <tr key={s.student_id}><td><b>{s.name}</b><small>{s.student_id}</small></td><td>{s.programme ?? '—'}{s.year_semester ? <small>{s.year_semester}</small> : null}</td>
+              <td className={`n${s.cgpa != null && s.cgpa < d.settings.cgpa_watch ? ' xd-flag' : ''}`}>{s.cgpa?.toFixed(2) ?? '—'}</td>
+              <td className={`n${s.attendance_pct != null && s.attendance_pct < at ? ' xd-flag' : ''}`}>{s.attendance_pct != null ? `${s.attendance_pct}%` : '—'}</td>
+              <td className={`n${s.backlogs ? ' xd-flag' : ''}`}>{s.backlogs || '—'}</td></tr>))}</tbody></table></div>
+      </Block>}
       <Block wide title="Students needing attention" sub={`Backlogs, attendance below ${at}%, or CGPA under ${d.settings.cgpa_watch}`}>
         {p.watch.length ? (
           <div className="xd-table-wrap"><table className="xd-table">

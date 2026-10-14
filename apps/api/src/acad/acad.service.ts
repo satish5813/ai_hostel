@@ -27,8 +27,9 @@ export class AcadService {
         sm.is_hosteller, b.hostel_name, b.hostel_code, b.floor_name, b.room_code, b.bed_code, b.type_name, a.allocation_date,
         (select st.full_name from hostel.staff_space_assignment x join ref.staff_master st on st.staff_id = x.staff_id where x.hostel_role = 'Floor_Warden' and x.status = 'Active'
            and x.facility_id = b.facility_id and (x.zone_id is null or x.zone_id = b.zone_id) limit 1) as floor_warden,
-        cs.current_status::text as current_status
+        cs.current_status::text as current_status, cg.goal as career_goal, cg.notes as career_notes
       from ref.student_master sm left join ref.department d on d.dept_code = sm.dept_code
+      left join acad.career_goal cg on cg.student_id = sm.student_id
       left join hostel.hostel_allocation a on a.student_id = sm.student_id and a.status = 'Active'
       left join hostel.v_bed b on b.subspace_id = a.subspace_id
       left join hostel.student_current_status cs on cs.student_id = sm.student_id

@@ -2,6 +2,14 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { sql } from 'drizzle-orm';
 import { DbService } from '../db/db.service.js';
 import { CareerService } from '../career/career.service.js';
+import { PATH_NAME, type Path } from '../dean/career-rules.js';
+
+/** CTE: each resident's hostel-fee standing across their demands (Paid, Part_Paid, Pending, Overdue). */
+const FEE_STATE = sql`per_student as (
+        select d.student_id, sum(d.amount_due) as due, sum(d.amount_paid) as paid,
+               case when bool_and(d.status in ('Paid', 'Waived')) then 'Paid' when bool_or(d.status = 'Overdue') then 'Overdue'
+                    when sum(d.amount_paid) > 0 then 'Part_Paid' else 'Pending' end as state
+        from hostel.fee_demand d where d.fee_head = 'Hostel' group by 1)`;
 import { ElectricityService } from '../repairs/electricity.service.js';
 import { RepairsService } from '../repairs/repairs.service.js';
 
@@ -66,7 +74,102 @@ export class ExecService {
     const withCareer = buildings.map((b) => ({ ...b, career2: y2.buildings.find((x) => x.facility_id === b.facility_id) ?? null, career4: y4.buildings.find((x) => x.facility_id === b.facility_id) ?? null,
       electricity: (elec.by_building as { facility_id: string }[]).find((x) => x.facility_id === b.facility_id) ?? null,
       tickets: (tickets as { facility_id: string }[]).find((x) => x.facility_id === b.facility_id) ?? null }));
-    return { settings, buildings: withCareer, mess, year, careers, electricity_months: elec.by_month, as_of: new Date().toISOString() };
+    // what residents say they want to do after university (career_goal, loaded from the career-choice files)
+    const choiceGoals = await this.dbs.rows<{ goal: Path; n: number }>(sql`select g.goal, count(*)::int as n from acad.career_goal g
+      join hostel.v_resident_snapshot v on v.student_id = g.student_id where g.goal <> 'Undecided' group by 1 order by 2 desc`);
+    const choiceHostels = await this.dbs.rows(sql`select v.facility_id, v.hostel_code, count(*)::int as residents, count(g.goal)::int as stated,
+        count(*) filter (where g.goal = 'Placement_Product')::int as product, count(*) filter (where g.goal = 'Placement_Services')::int as services,
+        count(*) filter (where g.goal = 'Higher_Studies')::int as higher, count(*) filter (where g.goal = 'Govt_Exams')::int as govt,
+        count(*) filter (where g.goal = 'Entrepreneurship')::int as startup, count(*) filter (where g.goal = 'Core_Other')::int as other
+      from hostel.v_resident_snapshot v left join acad.career_goal g on g.student_id = v.student_id and g.goal <> 'Undecided'
+      group by 1, 2 order by residents desc`);
+    const career_choice = { stated: choiceGoals.reduce((a, g) => a + g.n, 0), residents: buildings.reduce((a, b) => a + Number((b as { residents?: number }).residents ?? 0), 0),
+      by_goal: choiceGoals.map((g) => ({ goal: g.goal, name: PATH_NAME[g.goal], n: g.n })), by_hostel: choiceHostels };
+    return { settings, buildings: withCareer, mess, year, careers, career_choice, electricity_months: elec.by_month, as_of: new Date().toISOString() };
+  }
+
+  /** Hostel fees for the executive view: who is on a single or two-instalment plan, who has paid, and the money (EXE-01). */
+  async fees() {
+    const hostels = await this.dbs.rows(sql`
+      with per_student as (
+        select v.student_id, v.facility_id, sum(d.amount_due) as due, sum(d.amount_paid) as paid,
+               case when bool_and(d.status in ('Paid', 'Waived')) then 'Paid' when bool_or(d.status = 'Overdue') then 'Overdue'
+                    when sum(d.amount_paid) > 0 then 'Part_Paid' else 'Pending' end as state
+        from hostel.v_resident_snapshot v join hostel.fee_demand d on d.student_id = v.student_id and d.fee_head = 'Hostel'
+        group by 1, 2),
+      plan as (select r.student_id, fp.plan_type::text as plan_type from hostel.fee_plan fp
+               join hostel.hostel_registration r on r.registration_id = fp.registration_id
+               where r.academic_year = (select academic_year from hostel.academic_year where is_current))
+      select hp.facility_id, hp.hostel_code, f.facility_name, hp.hostel_gender::text as gender,
+        count(v.student_id)::int as students,
+        count(*) filter (where p.plan_type = 'Single')::int as single_plan, count(*) filter (where p.plan_type = 'Two_Instalments')::int as two_plan,
+        count(*) filter (where s.state = 'Paid')::int as paid, count(*) filter (where s.state = 'Part_Paid')::int as part_paid,
+        count(*) filter (where s.state in ('Pending', 'Overdue'))::int as unpaid, count(*) filter (where s.state = 'Overdue')::int as overdue_students,
+        count(*) filter (where s.student_id is null)::int as no_demand,
+        coalesce(sum(s.due), 0)::float as demanded, coalesce(sum(s.paid), 0)::float as collected,
+        coalesce(sum(s.due - s.paid) filter (where s.state <> 'Paid'), 0)::float as outstanding,
+        coalesce(sum(s.due - s.paid) filter (where s.state = 'Overdue'), 0)::float as overdue
+      from hostel.hostel_profile hp join infra.facility f on f.facility_id = hp.facility_id
+      left join hostel.v_resident_snapshot v on v.facility_id = hp.facility_id
+      left join per_student s on s.student_id = v.student_id
+      left join plan p on p.student_id = v.student_id
+      where hp.status = 'Active' and hp.hostel_gender::text <> 'Staff'
+      group by 1, 2, 3, 4 order by demanded desc`);
+    return { hostels, as_of: new Date().toISOString() };
+  }
+
+  /** The students behind one number on the fees table: a hostel and a bucket (paid, part, unpaid, overdue, single, two, all). */
+  async feeStudents(facilityId: string, bucket: string) {
+    const where = { paid: sql`s.state = 'Paid'`, part: sql`s.state = 'Part_Paid'`, unpaid: sql`s.state in ('Pending', 'Overdue')`, overdue: sql`s.state = 'Overdue'`,
+      single: sql`p.plan_type = 'Single'`, two: sql`p.plan_type = 'Two_Instalments'`, all: sql`true` }[bucket] ?? sql`true`;
+    return this.dbs.rows(sql`
+      with per_student as (
+        select d.student_id, sum(d.amount_due) as due, sum(d.amount_paid) as paid, max(fr.paid_on) as last_paid_on, count(fr.receipt_id)::int as receipts,
+               case when bool_and(d.status in ('Paid', 'Waived')) then 'Paid' when bool_or(d.status = 'Overdue') then 'Overdue'
+                    when sum(d.amount_paid) > 0 then 'Part_Paid' else 'Pending' end as state
+        from hostel.fee_demand d left join hostel.fee_receipt fr on fr.demand_id = d.demand_id and fr.gateway_status = 'Success'
+        where d.fee_head = 'Hostel' group by 1),
+      plan as (select r.student_id, fp.plan_type::text as plan_type from hostel.fee_plan fp
+               join hostel.hostel_registration r on r.registration_id = fp.registration_id
+               where r.academic_year = (select academic_year from hostel.academic_year where is_current))
+      select v.student_id, v.name, v.programme, v.year_semester, p.plan_type, coalesce(s.due, 0)::float as due, coalesce(s.paid, 0)::float as paid,
+             coalesce(s.due - s.paid, 0)::float as outstanding, coalesce(s.state, 'No demand') as state, to_char(s.last_paid_on, 'YYYY-MM-DD') as last_paid_on, coalesce(s.receipts, 0)::int as receipts,
+             g.goal as career_goal, regexp_replace(g.notes, '^Career choice \\([^)]*\\):\\s*', '') as career_choice, v.cgpa::float as cgpa, v.backlogs::int as backlogs
+      from hostel.v_resident_snapshot v left join per_student s on s.student_id = v.student_id left join plan p on p.student_id = v.student_id
+      left join acad.career_goal g on g.student_id = v.student_id and g.goal <> 'Undecided'
+      where v.facility_id = ${facilityId} and ${where}
+      order by outstanding desc, v.name`);
+  }
+
+  /** One row per career path: how many residents chose it, how they stand on fees and results. facilityId 'all' = whole campus. */
+  async careerMatrix(facilityId: string) {
+    const rows = await this.dbs.rows<{ goal: Path; students: number; paid: number; part_paid: number; unpaid: number; overdue_students: number; outstanding: number; overdue: number; avg_cgpa: number | null; backlog_students: number }>(sql`
+      with ${FEE_STATE}
+      select g.goal, count(*)::int as students,
+        count(*) filter (where s.state = 'Paid')::int as paid, count(*) filter (where s.state = 'Part_Paid')::int as part_paid,
+        count(*) filter (where s.state in ('Pending', 'Overdue'))::int as unpaid, count(*) filter (where s.state = 'Overdue')::int as overdue_students,
+        coalesce(sum(s.due - s.paid) filter (where s.state <> 'Paid'), 0)::float as outstanding, coalesce(sum(s.due - s.paid) filter (where s.state = 'Overdue'), 0)::float as overdue,
+        round(avg(v.cgpa), 2)::float as avg_cgpa, count(*) filter (where v.backlogs > 0)::int as backlog_students
+      from hostel.v_resident_snapshot v join acad.career_goal g on g.student_id = v.student_id and g.goal <> 'Undecided'
+      left join per_student s on s.student_id = v.student_id
+      where ${facilityId === 'all' ? sql`true` : sql`v.facility_id = ${facilityId}`}
+      group by 1 order by students desc`);
+    return rows.map((r) => ({ ...r, name: PATH_NAME[r.goal] }));
+  }
+
+  /** Residents who chose a career path, with their fee standing; facilityId 'all' = campus, bucket narrows by fee state. */
+  async careerStudents(facilityId: string, goal: string, bucket = 'all') {
+    const fee = { paid: sql`s.state = 'Paid'`, part: sql`s.state = 'Part_Paid'`, unpaid: sql`s.state in ('Pending', 'Overdue')`, overdue: sql`s.state = 'Overdue'`,
+      backlogs: sql`v.backlogs > 0`, all: sql`true` }[bucket] ?? sql`true`;
+    return this.dbs.rows(sql`
+      with ${FEE_STATE}
+      select v.student_id, v.name, v.programme, v.year_semester, v.hostel_code, g.goal, regexp_replace(g.notes, '^Career choice \\([^)]*\\):\\s*', '') as career_choice,
+             v.cgpa::float as cgpa, v.backlogs::int as backlogs,
+             coalesce(s.due, 0)::float as due, coalesce(s.paid, 0)::float as paid, coalesce(s.due - s.paid, 0)::float as outstanding, coalesce(s.state, 'No demand') as state
+      from hostel.v_resident_snapshot v join acad.career_goal g on g.student_id = v.student_id
+      left join per_student s on s.student_id = v.student_id
+      where ${facilityId === 'all' ? sql`true` : sql`v.facility_id = ${facilityId}`} and ${goal === 'all' ? sql`g.goal <> 'Undecided'` : sql`g.goal = ${goal}`} and ${fee}
+      order by outstanding desc, v.cgpa desc nulls last, v.name`);
   }
 
   async building(facilityId: string) {
@@ -82,6 +185,8 @@ export class ExecService {
     const watch = await this.dbs.rows(sql`select student_id, name, programme, year_semester, term_label, cgpa::float, attendance_pct::float, backlogs::int, activities
       from hostel.v_resident_snapshot where facility_id = ${facilityId} and (backlogs > 0 or attendance_pct < ${at} or cgpa < ${settings.cgpa_watch})
       order by backlogs desc, attendance_pct nulls first, cgpa`);
+    const roster = await this.dbs.rows(sql`select student_id, name, programme, year_semester, cgpa::float, attendance_pct::float, backlogs::int
+      from hostel.v_resident_snapshot where facility_id = ${facilityId} order by cgpa nulls last, name`);
     const activityTypes = await this.dbs.rows(sql`select x.activity_type::text as type, count(distinct x.student_id)::int as students, count(*)::int as entries, coalesce(sum(x.hours), 0)::float as hours
       from acad.activity x join hostel.v_resident_snapshot v on v.student_id = x.student_id
       where v.facility_id = ${facilityId} and coalesce(x.to_date, current_date) >= (select start_date from hostel.academic_year where is_current) - 365 group by 1 order by 2 desc`);
@@ -129,7 +234,7 @@ export class ExecService {
       from hostel.discipline_case c join ref.student_master sm on sm.student_id = c.student_id where c.facility_id = ${facilityId} order by c.incident_on desc limit 12`);
     const caseStatus = await this.dbs.rows(sql`select status, count(*)::int as n from hostel.discipline_case where facility_id = ${facilityId} group by 1 order by 2 desc`);
     const caseTypes = await this.dbs.rows(sql`select incident_type as type, count(*)::int as n from hostel.discipline_case where facility_id = ${facilityId} group by 1 order by 2 desc`);
-    return { building: b, settings, performance: { cgpa_bands: cgpaBands, attendance_bands: attBands, watch }, activities: { types: activityTypes, recent: recentActivities, achievements },
+    return { building: b, settings, performance: { cgpa_bands: cgpaBands, attendance_bands: attBands, watch, roster }, activities: { types: activityTypes, recent: recentActivities, achievements },
       roll, mess: { meals: messMeals, dishes: messDishes, choice: choice ?? null }, fees: { heads: feeHeads, defaulters }, wardens, discipline: { cases, status: caseStatus, types: caseTypes },
       career: await this.career.buildingCareer(facilityId) };
   }

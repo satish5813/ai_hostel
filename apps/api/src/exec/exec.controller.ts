@@ -1,4 +1,4 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { ExecService } from './exec.service.js';
 import { Roles } from '../auth/decorators.js';
@@ -13,4 +13,8 @@ export class ExecController {
   constructor(private svc: ExecService) {}
   @Roles(...EXECUTIVES) @Get('overview') overview() { return this.svc.overview(); }
   @Roles(...EXECUTIVES) @Get('buildings/:id') building(@Param('id') id: string) { return this.svc.building(id); }
+  @Roles(...EXECUTIVES) @Get('fees') fees() { return this.svc.fees(); }
+  @Roles(...EXECUTIVES) @Get('fees/:id/students') feeStudents(@Param('id') id: string, @Query('bucket') bucket = 'all') { return this.svc.feeStudents(id, bucket); }
+  @Roles(...EXECUTIVES) @Get('careers/matrix') careerMatrix(@Query('facility') facility = 'all') { return this.svc.careerMatrix(facility); }
+  @Roles(...EXECUTIVES) @Get('careers/:id/students') careerStudents(@Param('id') id: string, @Query('goal') goal = 'all', @Query('bucket') bucket = 'all') { return this.svc.careerStudents(id, goal, bucket); }
 }

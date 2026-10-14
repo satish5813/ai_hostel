@@ -107,6 +107,35 @@
 .xd-bars li > i > i { display: block; height: 100%; border-radius: 4px; background: var(--seq); }
 .xd-bar-alert > i > i { background: var(--neg) !important; }
 .xd-bars li b { text-align: right; color: var(--ink); font-variant-numeric: tabular-nums; }
+.xd-bars li.xd-bar-btn { cursor: pointer; padding: 4px 8px; margin: -4px -8px; border-radius: 7px; transition: background .12s; }
+.xd-bars li.xd-bar-btn:hover { background: #F2F4F7; }
+.xd-bars li.xd-bar-btn:focus-visible { outline: 2px solid var(--seq); outline-offset: 1px; }
+.xd-bars li.xd-bar-on { background: #EAF1FB; box-shadow: inset 0 0 0 1.5px var(--seq); }
+/* fees table + click-through modals */
+.xd-card-table { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 4px 8px; }
+.xd-table tr.xd-total td { border-top: 2px solid var(--line); background: #FAFBFD; }
+.xd-cellbtn { all: unset; cursor: pointer; font-variant-numeric: tabular-nums; font-weight: 700; color: var(--seq); border-bottom: 1.5px dashed rgba(42,120,214,.45); padding-bottom: 1px; }
+.xd-cellbtn:hover, .xd-cellbtn:focus-visible { border-bottom-style: solid; outline: none; }
+.xd-flag .xd-cellbtn { color: var(--neg); border-bottom-color: rgba(227,73,72,.5); }
+.xd-pill { display: inline-block; padding: 2px 9px; border-radius: 999px; font-size: 12px; font-weight: 700; white-space: nowrap; }
+.xd-pill-good { background: #E6F6EE; color: #157347; } .xd-pill-warn { background: #FFF4E0; color: #9A5B00; } .xd-pill-bad { background: #FDE9E9; color: #B42318; } .xd-pill-neu { background: #EEF1F5; color: var(--ink-2); }
+.xd-choice { display: inline-block; padding: 2px 8px; border-radius: 7px; background: var(--seq-bg); color: #1d4f8f; font-size: 12px; font-weight: 600; }
+.xd-chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 2px 0 12px; }
+.xd-chips button { all: unset; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); font-size: 13px; font-weight: 600; color: var(--ink-2); background: var(--card); transition: background .12s, color .12s; }
+.xd-chips button small { font-size: 11px; font-weight: 700; color: var(--ink-3); }
+.xd-chips button:hover { background: var(--bg); }
+.xd-chips button.xd-chip-on { background: var(--seq); border-color: var(--seq); color: #fff; } .xd-chips button.xd-chip-on small { color: rgba(255,255,255,.85); }
+.xd-modal { position: fixed; inset: 0; z-index: 1000; background: rgba(16,24,40,.55); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); display: grid; place-items: center; padding: 24px; animation: xd-fade .14s ease-out; }
+.xd-modal-card { background: var(--card); border-radius: 18px; width: min(1080px, 96vw); max-height: 90vh; display: flex; flex-direction: column; box-shadow: 0 28px 70px rgba(16,24,40,.32); animation: xd-pop .16s ease-out; }
+.xd-modal-head { display: flex; align-items: flex-start; gap: 12px; padding: 16px 20px; border-bottom: 1px solid var(--line); }
+.xd-modal-head h3 { margin: 0; font-size: 17px; font-weight: 800; } .xd-modal-head small { display: block; margin-top: 2px; color: var(--ink-3); }
+.xd-modal-head button { all: unset; cursor: pointer; margin-left: auto; padding: 7px 12px; border-radius: 9px; border: 1px solid var(--line); font-weight: 700; font-size: 13px; }
+.xd-modal-head button:hover { background: var(--bg); }
+.xd-modal-body { overflow: auto; padding: 6px 20px 20px; }
+.xd-modal-body .xd-table thead th { position: sticky; top: 0; background: var(--card); z-index: 1; }
+@keyframes xd-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes xd-pop { from { opacity: 0; transform: translateY(8px) scale(.985); } to { opacity: 1; transform: none; } }
+@media (max-width: 720px) { .xd-modal { padding: 8px; } .xd-modal-card { max-height: 96vh; border-radius: 14px; } }
 .xd-bars-2 li > i { background: transparent; }
 .xd-bars-2 li > i { display: block; height: 14px; border-radius: 4px; background: #F6C7C7; }
 .xd-bars-2 li > i > i { background: var(--seq); }

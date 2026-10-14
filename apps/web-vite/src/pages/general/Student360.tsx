@@ -7,7 +7,7 @@ import { initials } from '@/ui/kit';
 import { can } from '@/app/screens';
 
 type P360 = {
-  student: { student_id: string; full_name: string; gender: string; programme: string; level: string; dept_name: string | null; dept_code: string | null; is_hosteller: boolean; hostel_name: string | null; hostel_code: string | null; floor_name: string | null; room_code: string | null; bed_code: string | null; type_name: string | null; allocation_date: string | null; floor_warden: string | null; current_status: string | null };
+  student: { student_id: string; full_name: string; gender: string; programme: string; level: string; dept_name: string | null; dept_code: string | null; is_hosteller: boolean; hostel_name: string | null; hostel_code: string | null; floor_name: string | null; room_code: string | null; bed_code: string | null; type_name: string | null; allocation_date: string | null; floor_warden: string | null; current_status: string | null; career_goal: string | null; career_notes: string | null };
   hostel: { session_pct: number | null; night_pct: number | null; nights_missed: number; outings: number; late_returns: number; alerts: number; sick_days: number; dues: number };
   terms: { semester_no: number; term_label: string; sgpa: number; cgpa: number; credits: number; attendance_pct: number; backlogs: number }[];
   crt: { attendance: { month: string; held: number; attended: number }[]; tests: { id: number; test_name: string; test_date: string; category: string; score: number; max_score: number; percentile: number }[] };
@@ -56,6 +56,7 @@ export default function Student360({ id: own }: { id?: string }) {
           <div className="s360-chips">
             {st.room_code ? <span className="tag"><Icon name="bed" size={12} />{st.hostel_code} {st.room_code}, {st.floor_name}</span> : <span className="tag">{st.is_hosteller ? 'Hosteller' : 'Day scholar'}</span>}
             {st.current_status && <StatusChip status={st.current_status} label={words(st.current_status)} />}
+            {st.career_goal && st.career_goal !== 'Undecided' && <span className="tag" title="Stated in the career-choice survey">Career: {st.career_notes?.replace(/^Career choice \([^)]*\):\s*/, '') ?? words(st.career_goal)}</span>}
           </div>
         </div>
         <div className="s360-rings">
