@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react';
-import { useNavigate, useParams } from 'react-router';
+import { useLocation, useNavigate, useParams } from 'react-router';
 import { Activity, AlertTriangle, ArrowLeft, BedDouble, BookOpen, Briefcase, Building2, Wrench, Zap, CheckCircle2, ChevronRight, Compass, GraduationCap, IndianRupee, LayoutGrid, LogOut, Moon, Rocket,
   ShieldAlert, Trophy, UserCheck, Utensils, type LucideIcon } from 'lucide-react';
 import { setSession } from '@/lib/api';
@@ -98,6 +98,7 @@ function TopBar() {
 function Overview() {
   const r = useApi<Overview>('/exec/overview');
   const navigate = useNavigate();
+  const [drill, setDrill] = useState<string | null>(null);
   const d = r.data;
   if (!d) return <p className="xd-loading">Loading…</p>;
   const b = d.buildings;
@@ -107,42 +108,52 @@ function Overview() {
   const roll = avgBy(b, 'roll_pct', 'residents');
   const warden = avgBy(b, 'warden_pct', 'wardens');
   const date = new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  const demanded = sum(b, 'demanded'), collected = sum(b, 'collected');
+  const y4 = d.careers.final_year.summary;
+  const go = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   return (
     <>
-      <section className="xd-hero">
-        <div><p className="xd-eyebrow">{date} · academic year {d.year?.academic_year}</p><h1>Hostels at a glance</h1>
-          <p className="xd-lead">{b.length} buildings · {res} students in the hostel. Tap a building for its students, mess, fees, managers and discipline.</p></div>
+      <section className="xd-hero xd-hero-grad">
+        <div className="xd-hero-text"><p className="xd-eyebrow">{date} · academic year {d.year?.academic_year}</p><h1>Hostels at a glance</h1>
+          <p className="xd-lead">{b.length} hostels · {num(res)} students. Every number opens the hostels behind it.</p></div>
+        <div className="xd-pulse" aria-label="Quick view">
+          <button type="button" onClick={() => setDrill('students')}><b>{num(res)}</b><small>students · {pct(sum(b, 'occupied'), sum(b, 'beds'))}% of beds</small></button>
+          <button type="button" onClick={() => go('xd-fees')}><b>{pct(collected, demanded)}%</b><small>fees collected · {inr(collected)}</small></button>
+          <button type="button" onClick={() => setDrill('backlogs')}><b>{pct(sum(b, 'backlog_students'), res)}%</b><small>with backlogs · {num(sum(b, 'backlog_students'))}</small></button>
+          {y4.students > 0 && <button type="button" onClick={() => go('xd-careers')}><b>{pct(y4.placed, y4.students)}%</b><small>final years placed · {num(y4.placed)}</small></button>}
+        </div>
       </section>
       <section className="xd-kpis" aria-label="University">
-        <Kpi icon={BedDouble} label="Hostel students" value={res.toLocaleString('en-IN')} sub={`${pct(sum(b, 'occupied'), sum(b, 'beds'))}% of ${sum(b, 'beds').toLocaleString('en-IN')} beds`} />
-        <Kpi icon={GraduationCap} label="Average CGPA" value={cgpa?.toFixed(2) ?? '—'} sub={`${withRes} with results`} t={tone(cgpa, 7, d.settings.cgpa_watch)} />
-        <Kpi icon={BookOpen} label="With backlogs" value={`${sum(b, 'backlog_students').toLocaleString('en-IN')} of ${res.toLocaleString('en-IN')}`} sub={`${pct(sum(b, 'backlog_students'), res)}% of students · ${sum(b, 'backlogs').toLocaleString('en-IN')} backlogs`} t={tone(pct(sum(b, 'backlog_students'), res), 10, 20, true)} />
-        <Kpi icon={UserCheck} label={`Attendance below ${d.settings.att_min}%`} value={String(sum(b, 'short_students'))} sub={`${pct(sum(b, 'short_students'), res)}% of students`} t={tone(pct(sum(b, 'short_students'), res), 5, 15, true)} />
-        <Kpi icon={Trophy} label="In clubs, sports, activities" value={`${pct(sum(b, 'active_students'), res)}%`} sub={`${sum(b, 'active_students')} students · ${sum(b, 'achievements')} achievements`} t={tone(pct(sum(b, 'active_students'), res), 60, 40)} />
-        <Kpi icon={Moon} label="Night roll call" value={roll != null ? `${roll.toFixed(1)}%` : '—'} sub="Present or accounted for, 30 days" t={tone(roll, 95, 90)} />
-        <Kpi icon={Utensils} label="Mess mood" value={moodText(d.mess.mood)} sub={`Boys ${moodText(d.mess.boys)} · Girls ${moodText(d.mess.girls)} · 30 days`} t={tone(d.mess.mood, 20, 0)} />
-        <Kpi icon={IndianRupee} label="Dues outstanding" value={inr(sum(b, 'demanded') - sum(b, 'collected'))} sub={`${inr(sum(b, 'overdue'))} overdue · ${sum(b, 'students_overdue')} students`} t={tone(sum(b, 'overdue'), 0, 100000, true)} />
-        <Kpi icon={Activity} label="Managers' attendance" value={warden != null ? `${warden.toFixed(1)}%` : '—'} sub="Present, last 30 days" t={tone(warden, 90, 80)} />
-        <Kpi icon={ShieldAlert} label="Open discipline cases" value={String(sum(b, 'open_cases'))} sub={`${sum(b, 'cases_year')} this year`} t={tone(sum(b, 'open_cases'), 0, 3, true)} />
+        <Kpi c="people" icon={BedDouble} label="Hostel students" value={num(res)} sub={`${pct(sum(b, 'occupied'), sum(b, 'beds'))}% of ${num(sum(b, 'beds'))} beds`} spark={sparkOf(b, (x) => x.residents)} onClick={() => setDrill('students')} />
+        <Kpi c="acad" icon={GraduationCap} label="Average CGPA" value={cgpa?.toFixed(2) ?? '—'} sub={`${num(withRes)} with results`} t={tone(cgpa, 7, d.settings.cgpa_watch)} spark={sparkOf(b, (x) => x.avg_cgpa)} onClick={() => setDrill('cgpa')} />
+        <Kpi c="acad" icon={BookOpen} label="With backlogs" value={`${num(sum(b, 'backlog_students'))} of ${num(res)}`} sub={`${pct(sum(b, 'backlog_students'), res)}% of students · ${num(sum(b, 'backlogs'))} backlogs`} t={tone(pct(sum(b, 'backlog_students'), res), 10, 20, true)} spark={sparkOf(b, (x) => x.backlog_students)} onClick={() => setDrill('backlogs')} />
+        <Kpi c="acad" icon={UserCheck} label={`Attendance below ${d.settings.att_min}%`} value={String(sum(b, 'short_students'))} sub={`${pct(sum(b, 'short_students'), res)}% of students`} t={tone(pct(sum(b, 'short_students'), res), 5, 15, true)} spark={sparkOf(b, (x) => x.short_students)} onClick={() => setDrill('attendance')} />
+        <Kpi c="life" icon={Trophy} label="In clubs, sports, activities" value={`${pct(sum(b, 'active_students'), res)}%`} sub={`${num(sum(b, 'active_students'))} students · ${num(sum(b, 'achievements'))} achievements`} t={tone(pct(sum(b, 'active_students'), res), 60, 40)} spark={sparkOf(b, (x) => pct(x.active_students, x.residents))} onClick={() => setDrill('activities')} />
+        <Kpi c="life" icon={Moon} label="Night roll call" value={roll != null ? `${roll.toFixed(1)}%` : '—'} sub="Present or accounted for, 30 days" t={tone(roll, 95, 90)} spark={sparkOf(b, (x) => x.roll_pct)} onClick={() => setDrill('roll')} />
+        <Kpi c="life" icon={Utensils} label="Mess mood" value={moodText(d.mess.mood)} sub={`Boys ${moodText(d.mess.boys)} · Girls ${moodText(d.mess.girls)} · 30 days`} t={tone(d.mess.mood, 20, 0)} spark={sparkOf(b, (x) => x.ratings)} onClick={() => setDrill('mood')} />
+        <Kpi c="money" icon={IndianRupee} label="Dues outstanding" value={inr(demanded - collected)} sub={`${inr(sum(b, 'overdue'))} overdue · ${num(sum(b, 'students_overdue'))} students`} t={tone(sum(b, 'overdue'), 0, 100000, true)} spark={sparkOf(b, (x) => x.demanded - x.collected)} onClick={() => setDrill('dues')} />
+        <Kpi c="ops" icon={Activity} label="Managers' attendance" value={warden != null ? `${warden.toFixed(1)}%` : '—'} sub="Present, last 30 days" t={tone(warden, 90, 80)} spark={sparkOf(b, (x) => x.warden_pct)} onClick={() => setDrill('wardens')} />
+        <Kpi c="risk" icon={ShieldAlert} label="Open discipline cases" value={String(sum(b, 'open_cases'))} sub={`${num(sum(b, 'cases_year'))} this year`} t={tone(sum(b, 'open_cases'), 0, 3, true)} spark={sparkOf(b, (x) => x.open_cases)} onClick={() => setDrill('cases')} />
       </section>
+      {drill && <KpiDrill k={drill} b={b} onClose={() => setDrill(null)} />}
 
-      <h2 className="xd-h2"><IndianRupee size={18} />Fees and dues</h2>
+      <h2 className="xd-h2" id="xd-fees" data-c="money"><span className="xd-ic"><IndianRupee size={16} /></span>Fees and dues</h2>
       <FeesSection />
 
       {d.career_choice && d.career_choice.stated > 0 && <>
-        <h2 className="xd-h2"><Compass size={18} />Career choices</h2>
+        <h2 className="xd-h2" data-c="acad"><span className="xd-ic"><Compass size={16} /></span>Career choices</h2>
         <CareerChoiceSection c={d.career_choice} />
       </>}
 
       {(d.careers.final_year.summary.secured + d.careers.final_year.summary.in_progress + d.careers.second_year.summary.goal_stated) > 0 && <>
-        <h2 className="xd-h2"><Briefcase size={18} />Career outcomes</h2>
+        <h2 className="xd-h2" id="xd-careers" data-c="acad"><span className="xd-ic"><Briefcase size={16} /></span>Career outcomes</h2>
         <CareerKpis c={d.careers} />
       </>}
 
-      <h2 className="xd-h2"><Zap size={18} />Electricity and repairs</h2>
+      <h2 className="xd-h2" data-c="ops"><span className="xd-ic"><Zap size={16} /></span>Electricity and repairs</h2>
       <PowerKpis b={b} months={d.electricity_months} />
 
-      <h2 className="xd-h2"><Building2 size={18} />Buildings</h2>
+      <h2 className="xd-h2" data-c="people"><span className="xd-ic"><Building2 size={16} /></span>Hostels</h2>
       <section className="xd-cards" aria-label="Buildings">
         {b.map((x) => <BuildingCard key={x.facility_id} b={x} settings={d.settings} onOpen={() => navigate(`/exec/${x.facility_id}`)} />)}
       </section>
@@ -183,10 +194,10 @@ function FeesSection() {
   return (
     <>
       <section className="xd-kpis" aria-label="Fees">
-        <Kpi icon={IndianRupee} label="Hostel fee demanded" value={inr(t('demanded'))} sub={`${num(t('students'))} students · ${num(t('single_plan'))} single instalment · ${num(t('two_plan'))} two instalments`} />
-        <Kpi icon={CheckCircle2} label="Collected" value={inr(t('collected'))} sub={`${pct(t('collected'), t('demanded'))}% of demand · ${num(t('paid'))} fully paid · ${num(t('part_paid'))} paid 1st instalment`} t={tone(pct(t('collected'), t('demanded')), 50, 40)} />
-        <Kpi icon={Activity} label="Outstanding" value={inr(t('outstanding'))} sub="Mostly 2nd instalments not yet due" />
-        <Kpi icon={AlertTriangle} label="Overdue" value={inr(t('overdue'))} sub={`${num(t('overdue_students'))} students past the due date · ${num(t('unpaid'))} not paid at all`} t={tone(t('overdue_students'), 0, 50, true)} />
+        <Kpi c="money" icon={IndianRupee} label="Hostel fee demanded" value={inr(t('demanded'))} sub={`${num(t('students'))} students · ${num(t('single_plan'))} single instalment · ${num(t('two_plan'))} two instalments`} />
+        <Kpi c="money" icon={CheckCircle2} label="Collected" value={inr(t('collected'))} sub={`${pct(t('collected'), t('demanded'))}% of demand · ${num(t('paid'))} fully paid · ${num(t('part_paid'))} paid 1st instalment`} t={tone(pct(t('collected'), t('demanded')), 50, 40)} />
+        <Kpi c="money" icon={Activity} label="Outstanding" value={inr(t('outstanding'))} sub="Mostly 2nd instalments not yet due" />
+        <Kpi c="risk" icon={AlertTriangle} label="Overdue" value={inr(t('overdue'))} sub={`${num(t('overdue_students'))} students past the due date · ${num(t('unpaid'))} not paid at all`} t={tone(t('overdue_students'), 0, 50, true)} />
       </section>
       <div className="xd-table-wrap xd-card-table"><table className="xd-table">
         <thead><tr><th>Hostel</th><th className="n">Students</th><th className="n">1 instalment</th><th className="n">2 instalments</th><th className="n">Fully paid</th><th className="n">1st instalment only</th><th className="n">Not paid</th><th className="n">Overdue</th><th className="n">Demanded</th><th className="n">Collected</th><th className="n">Outstanding</th></tr></thead>
@@ -341,8 +352,8 @@ function PowerKpis({ b, months }: { b: Building[]; months: ElecMonth[] }) {
   const max = Math.max(1, ...months.map((m) => m.billed));
   return (
     <section className="xd-kpis" aria-label="Electricity and repairs">
-      <Kpi icon={Zap} label="Electricity paid by students" value={inr(e('collected'))} sub={`Cumulative: room bills and recharges · ${inr(e('billed'))} billed`} t={tone(pct(e('collected'), e('billed')), 85, 70)} />
-      <Kpi icon={IndianRupee} label="Electricity outstanding" value={inr(e('outstanding'))} sub={`${inr(e('overdue'))} overdue · ${e('students_due')} students`} t={tone(e('overdue'), 0, 20000, true)} />
+      <Kpi c="ops" icon={Zap} label="Electricity paid by students" value={inr(e('collected'))} sub={`Cumulative: room bills and recharges · ${inr(e('billed'))} billed`} t={tone(pct(e('collected'), e('billed')), 85, 70)} />
+      <Kpi c="money" icon={IndianRupee} label="Electricity outstanding" value={inr(e('outstanding'))} sub={`${inr(e('overdue'))} overdue · ${e('students_due')} students`} t={tone(e('overdue'), 0, 20000, true)} />
       <div className="xd-kpi xd-kpi-wide">
         <span className="xd-kpi-top"><Activity size={16} /><span>Electricity by month</span></span>
         <ul className="xd-months" aria-label="Billed and paid by month">{months.map((m) => (
@@ -352,7 +363,7 @@ function PowerKpis({ b, months }: { b: Building[]; months: ElecMonth[] }) {
           {!months.length && <li className="xd-none">No bills yet</li>}</ul>
         <span className="xd-legend"><span><i className="xd-paid" />Paid</span><span><i className="xd-due" />Not yet paid</span></span>
       </div>
-      <Kpi icon={Wrench} label="Repair tickets open" value={String(t('open'))} sub={`${t('late')} late · ${t('raised_30d')} raised, ${t('closed_30d')} closed in 30 days`} t={tone(t('late'), 0, 3, true)} />
+      <Kpi c="ops" icon={Wrench} label="Repair tickets open" value={String(t('open'))} sub={`${t('late')} late · ${t('raised_30d')} raised, ${t('closed_30d')} closed in 30 days`} t={tone(t('late'), 0, 3, true)} />
     </section>
   );
 }
@@ -361,25 +372,78 @@ function CareerKpis({ c }: { c: Career }) {
   const y2 = c.second_year.summary, y4 = c.final_year.summary;
   return (
     <section className="xd-kpis" aria-label="Careers">
-      <Kpi icon={Compass} label="Second years on track" value={`${pct(y2.on_track, y2.students)}%`} sub={`${y2.on_track} of ${y2.students} · ${y2.needs_guidance} need guidance`} t={tone(pct(y2.on_track, y2.students), 60, 40)} />
-      <Kpi icon={Activity} label="Progress on chosen career" value={`${y2.avg_progress ?? 0}%`} sub={`${pct(y2.goal_stated, y2.students)}% have chosen a career`} t={tone(y2.avg_progress, 75, 55)} />
-      <Kpi icon={CheckCircle2} label="Final years with an outcome" value={`${pct(y4.secured, y4.students)}%`} sub={`${y4.secured} of ${y4.students} · ${y4.in_progress} in progress`} t={tone(pct(y4.secured, y4.students), 75, 50)} />
-      <Kpi icon={Briefcase} label="Placed · highest package" value={`${y4.placed} · ${lpa(y4.highest_ctc)}`} sub={`${y4.offers} offers · median ${lpa(y4.median_ctc)} · average ${lpa(y4.avg_ctc)}`} />
-      <Kpi icon={Rocket} label="Higher studies · exams · ventures" value={`${y4.higher_admitted} · ${y4.exam_cleared} · ${y4.ventures_registered}`} sub={`${y4.abroad} abroad · ${y4.exam_selected} selected · ${inr(y4.funding_inr)} raised`} />
+      <Kpi c="acad" icon={Compass} label="Second years on track" value={`${pct(y2.on_track, y2.students)}%`} sub={`${y2.on_track} of ${y2.students} · ${y2.needs_guidance} need guidance`} t={tone(pct(y2.on_track, y2.students), 60, 40)} />
+      <Kpi c="acad" icon={Activity} label="Progress on chosen career" value={`${y2.avg_progress ?? 0}%`} sub={`${pct(y2.goal_stated, y2.students)}% have chosen a career`} t={tone(y2.avg_progress, 75, 55)} />
+      <Kpi c="acad" icon={CheckCircle2} label="Final years with an outcome" value={`${pct(y4.secured, y4.students)}%`} sub={`${y4.secured} of ${y4.students} · ${y4.in_progress} in progress`} t={tone(pct(y4.secured, y4.students), 75, 50)} />
+      <Kpi c="acad" icon={Briefcase} label="Placed · highest package" value={`${y4.placed} · ${lpa(y4.highest_ctc)}`} sub={`${y4.offers} offers · median ${lpa(y4.median_ctc)} · average ${lpa(y4.avg_ctc)}`} />
+      <Kpi c="acad" icon={Rocket} label="Higher studies · exams · ventures" value={`${y4.higher_admitted} · ${y4.exam_cleared} · ${y4.ventures_registered}`} sub={`${y4.abroad} abroad · ${y4.exam_selected} selected · ${inr(y4.funding_inr)} raised`} />
     </section>
   );
 }
 
 const moodText = (m: number | null | undefined) => (m == null ? '—' : `${m > 0 ? '+' : ''}${m}`);
 
-function Kpi({ icon: I, label, value, sub, t = 'none' }: { icon: LucideIcon; label: string; value: string; sub?: string; t?: Tone }) {
-  return (
-    <div className={`xd-kpi xd-t-${t}`}>
-      <span className="xd-kpi-top"><I size={16} /><span>{label}</span></span>
+type Domain = 'people' | 'acad' | 'money' | 'life' | 'risk' | 'ops';
+
+/** A headline number. With onClick it is a button that drills down; spark = per-hostel values (0..1) drawn as mini bars. */
+function Kpi({ icon: I, label, value, sub, t = 'none', c = 'ops', onClick, spark, hint = 'By hostel' }:
+  { icon: LucideIcon; label: string; value: string; sub?: string; t?: Tone; c?: Domain; onClick?: () => void; spark?: number[]; hint?: string }) {
+  const body = (
+    <>
+      <span className="xd-kpi-top"><span className="xd-ic"><I size={15} /></span><span>{label}</span></span>
       <b>{value}</b>
       {sub && <small>{sub}</small>}
+      {spark && spark.length > 1 && <span className="xd-spark" aria-hidden>{spark.map((v, i) => <i key={i} style={{ height: `${Math.max(10, Math.round(v * 100))}%` }} />)}</span>}
       {t !== 'none' && <em className="xd-badge"><ToneIcon t={t} />{TONE_LABEL[t]}</em>}
-    </div>
+      {onClick && <span className="xd-kpi-go">{hint}<ChevronRight size={13} /></span>}
+    </>
+  );
+  return onClick
+    ? <button type="button" className={`xd-kpi xd-kpi-btn xd-t-${t}`} data-c={c} onClick={onClick}>{body}</button>
+    : <div className={`xd-kpi xd-t-${t}`} data-c={c}>{body}</div>;
+}
+
+/** Per-hostel values scaled 0..1 for a KPI sparkline (buildings in display order). */
+const sparkOf = (b: Building[], f: (x: Building) => number | null | undefined) => {
+  const v = b.map((x) => Number(f(x) ?? 0)); const m = Math.max(1e-9, ...v); return v.map((x) => x / m);
+};
+
+/** What each headline KPI means per hostel, for the drill-down. */
+type Metric = { label: string; c: Domain; val: (b: Building) => number | null | undefined; fmt: (b: Building) => string; sub: (b: Building) => string; tab: Tab; good?: [number, number, boolean] };
+const METRICS: Record<string, Metric> = {
+  students: { label: 'Hostel students', c: 'people', val: (b) => b.residents, fmt: (b) => num(b.residents), sub: (b) => `${pct(b.occupied, b.beds)}% of ${num(b.beds)} beds`, tab: 'academic' },
+  cgpa: { label: 'Average CGPA', c: 'acad', val: (b) => b.avg_cgpa, fmt: (b) => b.avg_cgpa?.toFixed(2) ?? '—', sub: (b) => `${num(b.with_results)} with results`, tab: 'academic', good: [7.5, 6.5, false] },
+  backlogs: { label: 'With backlogs', c: 'acad', val: (b) => b.backlog_students, fmt: (b) => `${num(b.backlog_students)} of ${num(b.residents)}`, sub: (b) => `${pct(b.backlog_students, b.residents)}% · ${num(b.backlogs)} backlogs`, tab: 'academic', good: [10, 20, true] },
+  attendance: { label: 'Attendance shortfall', c: 'acad', val: (b) => b.short_students, fmt: (b) => `${num(b.short_students)} of ${num(b.residents)}`, sub: (b) => `${pct(b.short_students, b.residents)}% of students`, tab: 'academic', good: [5, 15, true] },
+  activities: { label: 'In clubs, sports, activities', c: 'life', val: (b) => pct(b.active_students, b.residents), fmt: (b) => `${pct(b.active_students, b.residents)}%`, sub: (b) => `${num(b.active_students)} students · ${num(b.achievements)} achievements`, tab: 'activities', good: [60, 40, false] },
+  roll: { label: 'Night roll call', c: 'life', val: (b) => b.roll_pct, fmt: (b) => (b.roll_pct != null ? `${b.roll_pct}%` : '—'), sub: () => 'present or accounted for, 30 days', tab: 'roll', good: [95, 90, false] },
+  mood: { label: 'Mess mood', c: 'life', val: (b) => b.mood, fmt: (b) => moodText(b.mood), sub: (b) => `${b.ratings ?? 0} ratings in 30 days`, tab: 'mess', good: [20, 0, false] },
+  dues: { label: 'Dues outstanding', c: 'money', val: (b) => b.demanded - b.collected, fmt: (b) => inr(b.demanded - b.collected), sub: (b) => `${inr(b.overdue)} overdue · ${num(b.students_overdue)} students · ${pct(b.collected, b.demanded)}% collected`, tab: 'fees' },
+  wardens: { label: "Managers' attendance", c: 'ops', val: (b) => b.warden_pct, fmt: (b) => (b.warden_pct != null ? `${b.warden_pct}%` : '—'), sub: (b) => `${b.wardens ?? 0} managers · last 30 days`, tab: 'wardens', good: [90, 80, false] },
+  cases: { label: 'Open discipline cases', c: 'risk', val: (b) => b.open_cases, fmt: (b) => num(b.open_cases), sub: (b) => `${num(b.cases_year)} this year`, tab: 'discipline', good: [0, 2, true] },
+};
+
+/** One KPI broken down by hostel: ranked, with bars, and a way into the building's own tab. */
+function KpiDrill({ k, b, onClose }: { k: string; b: Building[]; onClose: () => void }) {
+  const m = METRICS[k]; const navigate = useNavigate();
+  const rows = b.filter((x) => x.residents > 0).map((x) => ({ x, v: Number(m.val(x) ?? 0) })).sort((p, q) => q.v - p.v);
+  const max = Math.max(1e-9, ...rows.map((r) => Math.abs(r.v)));
+  return (
+    <Modal title={`${m.label} · by hostel`} sub={`${rows.length} hostels · tap one to open it`} onClose={onClose}>
+      <ul className="xd-drill" data-c={m.c}>{rows.map(({ x, v }) => {
+        const t: Tone = m.good ? tone(m.val(x), m.good[0], m.good[1], m.good[2]) : 'none';
+        return (
+          <li key={x.facility_id}>
+            <button type="button" onClick={() => navigate(`/exec/${x.facility_id}?tab=${m.tab}`)}>
+              <span className={`xd-mono xd-g-${x.gender.toLowerCase()}`}>{x.hostel_code}</span>
+              <span className="xd-drill-name"><b>{x.facility_name}</b><small>{m.sub(x)}</small></span>
+              <i><i style={{ width: `${Math.round((Math.abs(v) / max) * 100)}%` }} /></i>
+              <em className={`xd-t-${t}`}>{m.fmt(x)}{t !== 'none' && <ToneIcon t={t} />}</em>
+              <ChevronRight size={16} className="xd-chev" />
+            </button>
+          </li>);
+      })}</ul>
+    </Modal>
   );
 }
 
@@ -407,7 +471,7 @@ function BuildingCard({ b, settings, onOpen }: { b: Building; settings: Overview
     ...(b.career4 ? [['Final years secured', `${b.career4.secured}/${b.career4.students}`, tone(pct(b.career4.secured, b.career4.students), 75, 50), pct(b.career4.secured, b.career4.students)] as [string, string, Tone, number | null]] : []),
   ];
   return (
-    <button type="button" className={`xd-card${empty ? ' xd-card-empty' : ''}`} onClick={onOpen} aria-label={`${b.hostel_code} ${b.facility_name}: open`}>
+    <button type="button" className={`xd-card${empty ? ' xd-card-empty' : ''}`} data-g={b.gender} onClick={onOpen} aria-label={`${b.hostel_code} ${b.facility_name}: open`}>
       <span className="xd-card-head">
         <span className={`xd-mono xd-g-${b.gender.toLowerCase()}`}>{b.hostel_code}</span>
         <span className="xd-card-title"><b>{b.facility_name}</b><small>{b.gender} · {b.accommodation_type}{b.floors ? ` · ${b.floors} floors` : ''}</small></span>
@@ -439,12 +503,14 @@ function BuildingCard({ b, settings, onOpen }: { b: Building; settings: Overview
 /* ------------------------------------------------------------------ one building */
 
 type Tab = 'academic' | 'choices' | 'y2' | 'y4' | 'activities' | 'roll' | 'mess' | 'fees' | 'power' | 'repairs' | 'wardens' | 'discipline';
+const TAB_DOMAIN: Record<Tab, Domain> = { academic: 'acad', choices: 'acad', y2: 'acad', y4: 'acad', activities: 'life', roll: 'life', mess: 'life', fees: 'money', power: 'money', repairs: 'ops', wardens: 'ops', discipline: 'risk' };
 
 function BuildingView({ id }: { id: string }) {
   const r = useApi<Detail>(`/exec/buildings/${id}`);
   const matrix = useApi<MatrixRow[]>(`/exec/careers/matrix?facility=${id}`);
   const navigate = useNavigate();
-  const [tab, setTab] = useState<Tab>('academic');
+  const wanted = new URLSearchParams(useLocation().search).get('tab') as Tab | null;
+  const [tab, setTab] = useState<Tab>(wanted ?? 'academic');
   const d = r.data;
   if (!d) return <p className="xd-loading">Loading…</p>;
   const b = d.building;
@@ -479,8 +545,8 @@ function BuildingView({ id }: { id: string }) {
       </section>
       <section className="xd-subcards" role="tablist" aria-label="Sections">
         {tabs.map((x) => (
-          <button key={x.k} type="button" role="tab" aria-selected={tab === x.k} className={`xd-sub xd-t-${x.t}`} onClick={() => setTab(x.k)}>
-            <span className="xd-kpi-top"><x.icon size={16} /><span>{x.label}</span></span><b>{x.value}</b><small>{x.sub}</small>
+          <button key={x.k} type="button" role="tab" aria-selected={tab === x.k} className={`xd-sub xd-t-${x.t}`} data-c={TAB_DOMAIN[x.k]} onClick={() => setTab(x.k)}>
+            <span className="xd-kpi-top"><span className="xd-ic"><x.icon size={15} /></span><span>{x.label}</span></span><b>{x.value}</b><small>{x.sub}</small>
             {x.t !== 'none' && <em className="xd-badge"><ToneIcon t={x.t} />{TONE_LABEL[x.t]}</em>}</button>))}
       </section>
       <section className="xd-panel" role="tabpanel">
