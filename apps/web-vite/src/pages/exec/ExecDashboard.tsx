@@ -99,200 +99,67 @@ function Overview() {
   const r = useApi<Overview>('/exec/overview');
   const navigate = useNavigate();
   const [drill, setDrill] = useState<string | null>(null);
-  const [view, setView] = useState<'overview' | 'fees' | 'careers' | 'academics'>('fees');
-  const [gender, setGender] = useState<'All' | 'Boys' | 'Girls'>('All');
-  const [sortBy, setSortBy] = useState<'residents' | 'dues' | 'cgpa' | 'backlogs' | 'overdue'>('residents');
   const d = r.data;
   if (!d) return <p className="xd-loading">Loading…</p>;
   const b = d.buildings;
   const res = sum(b, 'residents');
+  const withRes = sum(b, 'with_results');
+  const cgpa = avgBy(b, 'avg_cgpa', 'with_results');
+  const roll = avgBy(b, 'roll_pct', 'residents');
+  const warden = avgBy(b, 'warden_pct', 'wardens');
   const date = new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-  const outcomes = d.careers.final_year.summary.secured + d.careers.final_year.summary.in_progress + d.careers.second_year.summary.goal_stated;
-  const key = (x: Building) => sortBy === 'residents' ? x.residents : sortBy === 'dues' ? x.demanded - x.collected : sortBy === 'cgpa' ? (x.avg_cgpa ?? -1) : sortBy === 'overdue' ? x.overdue : pct(x.backlog_students, x.residents);
-  const tiles = b.filter((x) => x.residents > 0 && (gender === 'All' || x.gender === gender)).sort((p, q) => key(q) - key(p));
-  const VIEWS: { k: typeof view; label: string; icon: LucideIcon; c: Domain }[] = [
-    { k: 'overview', label: 'Overview', icon: LayoutGrid, c: 'people' }, { k: 'fees', label: 'Fees', icon: IndianRupee, c: 'money' },
-    { k: 'careers', label: 'Careers', icon: Compass, c: 'acad' }, { k: 'academics', label: 'Academics', icon: GraduationCap, c: 'acad' }];
+  const demanded = sum(b, 'demanded'), collected = sum(b, 'collected');
+  const y4 = d.careers.final_year.summary;
+  const go = (id: string) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   return (
     <>
-      <div className="xd-dash">
-        <div className="xd-dash-head">
-          <div><p className="xd-eyebrow">{date}</p><h1>Executive view</h1><small>Academic year {d.year?.academic_year} · {b.length} hostels · {num(res)} students · every number opens the hostels behind it</small></div>
+      <section className="xd-hero xd-hero-grad">
+        <div className="xd-hero-text"><p className="xd-eyebrow">{date} · academic year {d.year?.academic_year}</p><h1>Hostels at a glance</h1>
+          <p className="xd-lead">{b.length} hostels · {num(res)} students. Every number opens the hostels behind it.</p></div>
+        <div className="xd-pulse" aria-label="Quick view">
+          <button type="button" onClick={() => setDrill('students')}><b>{num(res)}</b><small>students · {pct(sum(b, 'occupied'), sum(b, 'beds'))}% of beds</small></button>
+          <button type="button" onClick={() => go('xd-fees')}><b>{pct(collected, demanded)}%</b><small>fees collected · {inr(collected)}</small></button>
+          <button type="button" onClick={() => setDrill('backlogs')}><b>{pct(sum(b, 'backlog_students'), res)}%</b><small>with backlogs · {num(sum(b, 'backlog_students'))}</small></button>
+          {y4.students > 0 && <button type="button" onClick={() => go('xd-careers')}><b>{pct(y4.placed, y4.students)}%</b><small>final years placed · {num(y4.placed)}</small></button>}
         </div>
-
-        <section className="xd-gauges xd-gauges-row" aria-label="Key figures">
-          <KpiGauges d={d} onDrill={setDrill} onView={(v) => { setView(v); document.getElementById('xd-detail')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }} />
-        </section>
-
-        <section className="xd-dash-hostels" aria-label="Hostels">
-          <div className="xd-master-head">
-            <h2><span className="xd-ic" data-c="people"><Building2 size={16} /></span>Hostels<small>{tiles.length} of {b.filter((x) => x.residents > 0).length}</small></h2>
-            <div className="xd-chips xd-chips-sm" role="tablist" aria-label="Hostel type">
-              {(['All', 'Boys', 'Girls'] as const).map((g) => <button key={g} type="button" role="tab" aria-selected={gender === g} className={gender === g ? 'xd-chip-on' : ''} onClick={() => setGender(g)}>{g}</button>)}
-            </div>
-            <label className="xd-sort">Sort<select value={sortBy} onChange={(e) => setSortBy(e.target.value as typeof sortBy)}>
-              <option value="residents">Students</option><option value="dues">Dues</option><option value="overdue">Overdue</option><option value="cgpa">CGPA</option><option value="backlogs">Backlogs %</option></select></label>
-          </div>
-          <div className="xd-master-grid xd-master-grid-page">{tiles.map((x) => <HostelTile key={x.facility_id} b={x} settings={d.settings} onOpen={(tab) => navigate(`/exec/${x.facility_id}${tab ? `?tab=${tab}` : ''}`)} />)}</div>
-        </section>
-
-        <section className="xd-ov-row xd-ov-row-4" aria-label="Charts">
-          <OverviewMinis d={d} onDrill={setDrill} onView={(v) => { setView(v); document.getElementById('xd-detail')?.scrollIntoView({ behavior: 'smooth', block: 'start' }); }} />
-        </section>
-
-        <section className="xd-detail" id="xd-detail" aria-label="Details">
-          <div className="xd-seg" role="tablist" aria-label="Details view">
-            {VIEWS.filter((v) => v.k !== 'overview').map((v) => <button key={v.k} type="button" role="tab" aria-selected={view === v.k} data-c={v.c} onClick={() => setView(v.k)}><v.icon size={14} />{v.label}</button>)}
-          </div>
-          <div className="xd-detail-body">
-            {(view === 'fees' || view === 'overview') && <><FeesSection /><h3 className="xd-h3" data-c="ops"><span className="xd-ic"><Zap size={14} /></span>Electricity and repairs</h3><PowerKpis b={b} months={d.electricity_months} /></>}
-            {view === 'careers' && <>
-              {d.career_choice && d.career_choice.stated > 0 ? <CareerChoiceSection c={d.career_choice} /> : <p className="xd-none">No career-choice survey loaded yet.</p>}
-              {outcomes > 0 && <><h3 className="xd-h3" data-c="acad"><span className="xd-ic"><Briefcase size={14} /></span>Career outcomes</h3><CareerKpis c={d.careers} /></>}
-            </>}
-            {view === 'academics' && <AcademicStats b={b} settings={d.settings} />}
-          </div>
-        </section>
-      </div>
+      </section>
+      <section className="xd-kpis" aria-label="University">
+        <Kpi c="people" icon={BedDouble} label="Hostel students" value={num(res)} sub={`${pct(sum(b, 'occupied'), sum(b, 'beds'))}% of ${num(sum(b, 'beds'))} beds`} spark={sparkOf(b, (x) => x.residents)} onClick={() => setDrill('students')} />
+        <Kpi c="acad" icon={GraduationCap} label="Average CGPA" value={cgpa?.toFixed(2) ?? '—'} sub={`${num(withRes)} with results`} t={tone(cgpa, 7, d.settings.cgpa_watch)} spark={sparkOf(b, (x) => x.avg_cgpa)} onClick={() => setDrill('cgpa')} />
+        <Kpi c="acad" icon={BookOpen} label="With backlogs" value={num(sum(b, 'backlog_students'))} sub={`${pct(sum(b, 'backlog_students'), res)}% of ${num(res)} students · ${num(sum(b, 'backlogs'))} backlogs`} t={tone(pct(sum(b, 'backlog_students'), res), 10, 20, true)} spark={sparkOf(b, (x) => x.backlog_students)} onClick={() => setDrill('backlogs')} />
+        <Kpi c="acad" icon={UserCheck} label={`Attendance below ${d.settings.att_min}%`} value={String(sum(b, 'short_students'))} sub={`${pct(sum(b, 'short_students'), res)}% of students`} t={tone(pct(sum(b, 'short_students'), res), 5, 15, true)} spark={sparkOf(b, (x) => x.short_students)} onClick={() => setDrill('attendance')} />
+        <Kpi c="life" icon={Trophy} label="In clubs, sports, activities" value={`${pct(sum(b, 'active_students'), res)}%`} sub={`${num(sum(b, 'active_students'))} students · ${num(sum(b, 'achievements'))} achievements`} t={tone(pct(sum(b, 'active_students'), res), 60, 40)} spark={sparkOf(b, (x) => pct(x.active_students, x.residents))} onClick={() => setDrill('activities')} />
+        <Kpi c="life" icon={Moon} label="Night roll call" value={roll != null ? `${roll.toFixed(1)}%` : '—'} sub="Present or accounted for, 30 days" t={tone(roll, 95, 90)} spark={sparkOf(b, (x) => x.roll_pct)} onClick={() => setDrill('roll')} />
+        <Kpi c="life" icon={Utensils} label="Mess mood" value={moodText(d.mess.mood)} sub={`Boys ${moodText(d.mess.boys)} · Girls ${moodText(d.mess.girls)} · 30 days`} t={tone(d.mess.mood, 20, 0)} spark={sparkOf(b, (x) => x.ratings)} onClick={() => setDrill('mood')} />
+        <Kpi c="money" icon={IndianRupee} label="Dues outstanding" value={inr(demanded - collected)} sub={`${inr(sum(b, 'overdue'))} overdue · ${num(sum(b, 'students_overdue'))} students`} t={tone(sum(b, 'overdue'), 0, 100000, true)} spark={sparkOf(b, (x) => x.demanded - x.collected)} onClick={() => setDrill('dues')} />
+        <Kpi c="ops" icon={Activity} label="Managers' attendance" value={warden != null ? `${warden.toFixed(1)}%` : '—'} sub="Present, last 30 days" t={tone(warden, 90, 80)} spark={sparkOf(b, (x) => x.warden_pct)} onClick={() => setDrill('wardens')} />
+        <Kpi c="risk" icon={ShieldAlert} label="Open discipline cases" value={String(sum(b, 'open_cases'))} sub={`${num(sum(b, 'cases_year'))} this year`} t={tone(sum(b, 'open_cases'), 0, 3, true)} spark={sparkOf(b, (x) => x.open_cases)} onClick={() => setDrill('cases')} />
+      </section>
       {drill && <KpiDrill k={drill} b={b} onClose={() => setDrill(null)} />}
+
+      <h2 className="xd-h2" id="xd-fees" data-c="money"><span className="xd-ic"><IndianRupee size={16} /></span>Fees and dues</h2>
+      <FeesSection />
+
+      {d.career_choice && d.career_choice.stated > 0 && <>
+        <h2 className="xd-h2" data-c="acad"><span className="xd-ic"><Compass size={16} /></span>Career choices</h2>
+        <CareerChoiceSection c={d.career_choice} />
+      </>}
+
+      {(d.careers.final_year.summary.secured + d.careers.final_year.summary.in_progress + d.careers.second_year.summary.goal_stated) > 0 && <>
+        <h2 className="xd-h2" id="xd-careers" data-c="acad"><span className="xd-ic"><Briefcase size={16} /></span>Career outcomes</h2>
+        <CareerKpis c={d.careers} />
+      </>}
+
+      <h2 className="xd-h2" data-c="ops"><span className="xd-ic"><Zap size={16} /></span>Electricity and repairs</h2>
+      <PowerKpis b={b} months={d.electricity_months} />
+
+      <h2 className="xd-h2" data-c="people"><span className="xd-ic"><Building2 size={16} /></span>Hostels</h2>
+      <section className="xd-cards" aria-label="Buildings">
+        {b.map((x) => <BuildingCard key={x.facility_id} b={x} settings={d.settings} onOpen={() => navigate(`/exec/${x.facility_id}`)} />)}
+      </section>
+      <p className="xd-foot"><span className="xd-t-good"><CheckCircle2 size={12} />Good</span><span className="xd-t-warn"><AlertTriangle size={12} />Watch</span><span className="xd-t-bad"><AlertTriangle size={12} />Act</span>
+        Attendance shortfall is below {d.settings.att_min}% cumulative; CGPA under {d.settings.cgpa_watch} is watched. Thresholds are set by the administrator.</p>
     </>
-  );
-}
-
-/** A ring gauge with its own centre text; a button when it drills down. */
-function Gauge({ value, of, text, label, sub, c, t = 'none', onClick }: { value: number; of: number; text: string; label: string; sub?: string; c: Domain; t?: Tone; onClick?: () => void }) {
-  const p = of ? Math.max(0, Math.min(1, value / of)) : 0, rr = 30, cc = 2 * Math.PI * rr;
-  const inner = (
-    <>
-      <svg className="xd-gauge-svg" viewBox="0 0 76 76" role="img" aria-label={`${label}: ${text}`}>
-        <circle cx="38" cy="38" r={rr} className="xd-gauge-bg" />
-        <circle cx="38" cy="38" r={rr} className="xd-gauge-fg" strokeDasharray={`${p * cc} ${cc}`} transform="rotate(-90 38 38)" />
-        <text x="38" y="42" textAnchor="middle" className="xd-gauge-v">{text}</text>
-      </svg>
-      <span className="xd-gauge-l"><b>{label}</b>{sub && <small>{sub}</small>}</span>
-      {t !== 'none' && <em className={`xd-dot xd-t-${t}`} title={TONE_LABEL[t]} />}
-    </>
-  );
-  return onClick ? <button type="button" className="xd-gauge" data-c={c} onClick={onClick}>{inner}</button> : <div className="xd-gauge" data-c={c}>{inner}</div>;
-}
-
-/** Collected / due later / overdue as one ring. */
-function FeeDonut({ collected, later, overdue, onClick }: { collected: number; later: number; overdue: number; onClick: () => void }) {
-  const total = Math.max(1, collected + later + overdue), rr = 34, cc = 2 * Math.PI * rr;
-  const segs = [{ v: collected, c: 'var(--indigo)', l: 'Collected' }, { v: later, c: 'var(--indigo-bg)', l: 'Due with 2nd instalment' }, { v: overdue, c: 'var(--critical-solid)', l: 'Overdue' }];
-  let acc = 0;
-  return (
-    <button type="button" className="xd-donut" onClick={onClick}>
-      <svg viewBox="0 0 84 84" aria-hidden>
-        <circle cx="42" cy="42" r={rr} fill="none" stroke="#EEF1F6" strokeWidth="11" />
-        {segs.map((sg) => { const len = (sg.v / total) * cc, off = -acc; acc += len;
-          return <circle key={sg.l} cx="42" cy="42" r={rr} fill="none" stroke={sg.c} strokeWidth="11" strokeDasharray={`${len} ${cc}`} strokeDashoffset={off} transform="rotate(-90 42 42)" />; })}
-        <text x="42" y="39" textAnchor="middle" className="xd-donut-v">{pct(collected, total)}%</text>
-        <text x="42" y="52" textAnchor="middle" className="xd-donut-l">collected</text>
-      </svg>
-      <span className="xd-donut-legend">{segs.map((sg) => <span key={sg.l}><i style={{ background: sg.c }} /><small>{sg.l}</small><b>{inr(sg.v)}</b></span>)}</span>
-    </button>
-  );
-}
-
-function KpiGauges({ d, onDrill, onView }: { d: Overview; onDrill: (k: string) => void; onView: (v: 'fees' | 'careers' | 'academics') => void }) {
-  const b = d.buildings, res = sum(b, 'residents'), withRes = sum(b, 'with_results');
-  const cgpa = avgBy(b, 'avg_cgpa', 'with_results'), demanded = sum(b, 'demanded'), collected = sum(b, 'collected');
-  const y4 = d.careers.final_year.summary, backlogs = sum(b, 'backlog_students');
-  return (
-    <>
-        <Gauge c="people" value={sum(b, 'occupied')} of={sum(b, 'beds')} text={`${pct(sum(b, 'occupied'), sum(b, 'beds'))}%`} label="Beds filled" sub={`${num(res)} students`} onClick={() => onDrill('students')} />
-        <Gauge c="acad" value={cgpa ?? 0} of={10} text={cgpa?.toFixed(2) ?? '—'} label="Average CGPA" sub={`${num(withRes)} with results`} t={tone(cgpa, 7, d.settings.cgpa_watch)} onClick={() => onDrill('cgpa')} />
-        <Gauge c="risk" value={backlogs} of={res} text={`${pct(backlogs, res)}%`} label="With backlogs" sub={`${num(backlogs)} students`} t={tone(pct(backlogs, res), 10, 20, true)} onClick={() => onDrill('backlogs')} />
-        <Gauge c="money" value={collected} of={demanded} text={`${pct(collected, demanded)}%`} label="Fees collected" sub={inr(collected)} t={tone(pct(collected, demanded), 50, 40)} onClick={() => onDrill('dues')} />
-        <Gauge c="acad" value={y4.placed} of={y4.students || 1} text={y4.students ? `${pct(y4.placed, y4.students)}%` : '—'} label="Final years placed" sub={y4.students ? `${num(y4.placed)} of ${num(y4.students)}` : 'no data yet'} onClick={() => onView('careers')} />
-        <Gauge c="life" value={sum(b, 'active_students')} of={res} text={`${pct(sum(b, 'active_students'), res)}%`} label="In activities" sub={`${num(sum(b, 'achievements'))} achievements`} t={tone(pct(sum(b, 'active_students'), res), 60, 40)} onClick={() => onDrill('activities')} />
-    </>
-  );
-}
-
-function OverviewMinis({ d, onDrill, onView }: { d: Overview; onDrill: (k: string) => void; onView: (v: 'fees' | 'careers' | 'academics') => void }) {
-  const b = d.buildings, demanded = sum(b, 'demanded'), collected = sum(b, 'collected'), overdue = sum(b, 'overdue');
-  const worst = [...b].filter((x) => x.residents > 0).sort((p, q) => q.overdue - p.overdue).slice(0, 5);
-  return (
-    <>
-
-        <section className="xd-mini" data-c="money">
-          <h3><span className="xd-ic"><IndianRupee size={13} /></span>Hostel fees<button type="button" className="xd-link" onClick={() => onView('fees')}>Details<ChevronRight size={13} /></button></h3>
-          <FeeDonut collected={collected} later={Math.max(0, demanded - collected - overdue)} overdue={overdue} onClick={() => onDrill('dues')} />
-        </section>
-        <section className="xd-mini" data-c="risk">
-          <h3><span className="xd-ic"><AlertTriangle size={13} /></span>Overdue by hostel<button type="button" className="xd-link" onClick={() => onDrill('dues')}>All<ChevronRight size={13} /></button></h3>
-          <ul className="xd-rank">{worst.map((x) => { const w = pct(x.overdue, worst[0].overdue || 1); return (
-            <li key={x.facility_id}><button type="button" onClick={() => onDrill('dues')}><span className={`xd-mono xd-mono-sm xd-g-${x.gender.toLowerCase()}`}>{x.hostel_code}</span><i><i style={{ width: `${w}%` }} /></i><b>{inr(x.overdue)}</b><small>{num(x.students_overdue)}</small></button></li>); })}</ul>
-        </section>
-      
-        <section className="xd-mini" data-c="acad">
-          <h3><span className="xd-ic"><Compass size={13} /></span>Career choices<button type="button" className="xd-link" onClick={() => onView('careers')}>Details<ChevronRight size={13} /></button></h3>
-          {d.career_choice && d.career_choice.stated > 0 ? <>
-            <span className="xd-stack">{d.career_choice.by_goal.map((g, i) => <i key={g.goal} className={`xd-s${i}`} style={{ width: `${pct(g.n, d.career_choice!.stated)}%` }} title={`${g.name}: ${num(g.n)}`} />)}</span>
-            <ul className="xd-stack-legend">{d.career_choice.by_goal.slice(0, 4).map((g, i) => <li key={g.goal}><i className={`xd-s${i}`} /><small>{g.name}</small><b>{num(g.n)}</b></li>)}</ul>
-            <small className="xd-quiet">{num(d.career_choice.stated)} of {num(d.career_choice.residents)} stated a choice</small>
-          </> : <p className="xd-none">No survey loaded.</p>}
-        </section>
-        <section className="xd-mini" data-c="life">
-          <h3><span className="xd-ic"><Moon size={13} /></span>Daily life</h3>
-          <ul className="xd-kv">
-            <li><button type="button" onClick={() => onDrill('roll')}><small>Night roll call</small><b>{avgBy(b, 'roll_pct', 'residents') != null ? `${avgBy(b, 'roll_pct', 'residents')!.toFixed(1)}%` : '—'}</b></button></li>
-            <li><button type="button" onClick={() => onDrill('mood')}><small>Mess mood</small><b>{moodText(d.mess.mood)}</b></button></li>
-            <li><button type="button" onClick={() => onDrill('wardens')}><small>Managers' attendance</small><b>{avgBy(b, 'warden_pct', 'wardens') != null ? `${avgBy(b, 'warden_pct', 'wardens')!.toFixed(1)}%` : '—'}</b></button></li>
-            <li><button type="button" onClick={() => onDrill('cases')}><small>Open discipline cases</small><b>{num(sum(b, 'open_cases'))}</b></button></li>
-          </ul>
-        </section>
-    </>
-  );
-}
-
-function AcademicStats({ b, settings }: { b: Building[]; settings: Overview['settings'] }) {
-  const navigate = useNavigate();
-  const live = b.filter((x) => x.residents > 0);
-  const go = (code: string) => { const x = live.find((y) => y.hostel_code === code); if (x) navigate(`/exec/${x.facility_id}?tab=academic`); };
-  return (
-    <div className="xd-grid xd-grid-1">
-      <Block title="Average CGPA by hostel" sub={`Watch under ${settings.cgpa_watch} · tap a hostel to open it`}>
-        <Bars rows={[...live].sort((p, q) => (q.avg_cgpa ?? 0) - (p.avg_cgpa ?? 0)).map((x) => ({ label: x.hostel_code, n: Number((x.avg_cgpa ?? 0).toFixed(2)) }))} alert={(l) => (live.find((x) => x.hostel_code === l)?.avg_cgpa ?? 10) < settings.cgpa_watch} onPick={go} />
-      </Block>
-      <Block title="Students with backlogs" sub="Share of each hostel's students · tap to open">
-        <Bars rows={[...live].sort((p, q) => pct(q.backlog_students, q.residents) - pct(p.backlog_students, p.residents)).map((x) => ({ label: x.hostel_code, n: pct(x.backlog_students, x.residents) }))} alert={(l) => { const x = live.find((y) => y.hostel_code === l); return !!x && pct(x.backlog_students, x.residents) > 20; }} alertLabel="act" onPick={go} />
-      </Block>
-      <Block title={`Attendance below ${settings.att_min}%`} sub="Students short of attendance · tap to open">
-        <Bars rows={[...live].sort((p, q) => q.short_students - p.short_students).map((x) => ({ label: x.hostel_code, n: x.short_students }))} onPick={go} />
-      </Block>
-    </div>
-  );
-}
-
-/** One hostel on the master side: compact, coloured, and a way into every tab. */
-function HostelTile({ b, settings, onOpen }: { b: Building; settings: Overview['settings']; onOpen: (tab?: Tab) => void }) {
-  const bl = pct(b.backlog_students, b.residents), due = b.demanded - b.collected;
-  const stop = (e: React.MouseEvent, tab: Tab) => { e.stopPropagation(); onOpen(tab); };
-  return (
-    <article className="xd-tile" data-g={b.gender} onClick={() => onOpen()} tabIndex={0} onKeyDown={(e) => { if (e.key === 'Enter') onOpen(); }} aria-label={`${b.facility_name}: open`}>
-      <div className="xd-tile-head">
-        <span className={`xd-mono xd-g-${b.gender.toLowerCase()}`}>{b.hostel_code}</span>
-        <span className="xd-tile-title"><b>{b.facility_name}</b><small>{b.gender} · {b.floors ? `${b.floors} floors · ` : ''}{num(b.beds)} beds</small></span>
-        <ChevronRight size={16} className="xd-chev" />
-      </div>
-      <div className="xd-tile-mid">
-        <Ring value={b.occupied} of={b.beds} label="beds" />
-        <div className="xd-tile-stats">
-          <button type="button" onClick={(e) => stop(e, 'academic')}><b>{num(b.residents)}</b><small>students</small></button>
-          <button type="button" onClick={(e) => stop(e, 'academic')} className={tone(b.avg_cgpa, 7, settings.cgpa_watch) === 'bad' ? 'xd-bad' : ''}><b>{b.avg_cgpa?.toFixed(2) ?? '—'}</b><small>avg CGPA</small></button>
-          <button type="button" onClick={(e) => stop(e, 'academic')} className={bl > 20 ? 'xd-bad' : bl > 10 ? 'xd-warn' : ''}><b>{bl}%</b><small>backlogs</small></button>
-        </div>
-      </div>
-      <div className="xd-tile-foot">
-        <button type="button" data-c="money" onClick={(e) => stop(e, 'fees')}><IndianRupee size={12} />{inr(due)} due</button>
-        {b.overdue > 0 && <button type="button" data-c="risk" onClick={(e) => stop(e, 'fees')}><AlertTriangle size={12} />{inr(b.overdue)} overdue</button>}
-        {b.career4 && b.career4.students > 0 && <button type="button" data-c="acad" onClick={(e) => stop(e, 'y4')}><Briefcase size={12} />{num(b.career4.placed)} placed</button>}
-        {b.open_cases > 0 && <button type="button" data-c="risk" onClick={(e) => stop(e, 'discipline')}><ShieldAlert size={12} />{b.open_cases} case{b.open_cases === 1 ? '' : 's'}</button>}
-      </div>
-    </article>
   );
 }
 
