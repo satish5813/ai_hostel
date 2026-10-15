@@ -19,7 +19,7 @@ const todayIso = () => new Date(Date.now() + 330 * 60_000).toISOString().slice(0
 
 /**
  * TKT-05 Checklists. Staff fill the daily or weekly checklist of their role (floor check, mess kitchen hygiene, store);
- * a failed item with a trade opens a repair ticket at once; the reviewer (Chief Manager, Mess In-charge) signs it.
+ * a failed item with a trade opens a repair ticket at once; the reviewer (Chief Manager, Rasoi In-charge) signs it.
  */
 export default function Checklists() {
   const r = useApi<{ fill: Fill[]; submissions: Sub[] }>('/checklists');

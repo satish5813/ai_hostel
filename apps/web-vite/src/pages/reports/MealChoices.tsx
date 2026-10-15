@@ -46,7 +46,7 @@ export default function MealChoices() {
           <Button variant="secondary" icon="upload" disabled={!d} onClick={exportCsv}>Export CSV</Button></div>} />
 
       <div className="klh-row rc-pick" style={{ gap: 12, flexWrap: 'wrap', alignItems: 'flex-end' }}>
-        <label className="rc-label">Mess and week
+        <label className="rc-label">Rasoi and week
           <Select value={sel ? String(sel.week_id) : ''} onChange={(e) => setId(Number(e.target.value))}
             options={weeks.map((w) => ({ value: String(w.week_id), label: `${w.mess_name} · ${weekLabel(w.week_start)}${w.is_open ? ' · open' : ''}` }))} /></label>
         {d && <StatusChip status={d.is_open ? 'Active' : 'Inactive'} label={d.is_open ? `Open until ${dueLabel(d.choices_close_at)}` : 'Closed; defaults filled in'} />}

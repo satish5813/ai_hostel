@@ -78,7 +78,7 @@ export default function MessSentiment() {
             <label>From<Input type="date" value={range.from} max={range.to} onChange={(e) => e.target.value && setRange({ ...range, from: e.target.value })} /></label>
             <label>To<Input type="date" value={range.to} min={range.from} max={TODAY} onChange={(e) => e.target.value && setRange({ ...range, to: e.target.value })} /></label>
           </div>)}
-        <label className="sd-sel">Mess<Select value={mess} onChange={(e) => setMess(e.target.value)} options={[{ value: '', label: 'All messes' }, ...(d?.messes ?? []).map((m) => ({ value: String(m.mess_id), label: m.mess_name }))]} /></label>
+        <label className="sd-sel">Rasoi<Select value={mess} onChange={(e) => setMess(e.target.value)} options={[{ value: '', label: 'All messes' }, ...(d?.messes ?? []).map((m) => ({ value: String(m.mess_id), label: m.mess_name }))]} /></label>
         <SegmentedControl label="Students" value={gender} onChange={(v) => setGender(v as typeof gender)} options={[{ value: 'All', label: 'All' }, { value: 'Boys', label: 'Boys' }, { value: 'Girls', label: 'Girls' }]} />
       </section>
 

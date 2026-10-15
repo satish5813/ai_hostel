@@ -132,7 +132,7 @@ export default function AllotmentApprovals() {
             {c.stage === 'fee' && <div className="ra-note ra-warn-n"><Lock size={15} />Verification opens after the student pays. {rs(dueOf(c))} due.</div>}
             {c.stage === 'allotted' && <div className="ra-note ra-ok-n"><CircleCheck size={15} />Bed approved at both levels. The office issues the key at Check-in.</div>}
             {c.stage === 'verify' && canL1 && !returning && <button type="button" role="checkbox" aria-checked={checked} className="ra-check" onClick={() => setChecked(!checked)}><i>{checked && <Check size={13} />}</i>I checked every receipt against Accounts</button>}
-            {returning && (<div className="ra-return"><label>Remarks for the student <em>*</em></label><textarea rows={3} value={remarks} onChange={(e) => setRemarks(e.target.value)} placeholder="e.g. Mess fee receipt does not match Accounts" />
+            {returning && (<div className="ra-return"><label>Remarks for the student <em>*</em></label><textarea rows={3} value={remarks} onChange={(e) => setRemarks(e.target.value)} placeholder="e.g. Rasoi fee receipt does not match Accounts" />
               <div><button type="button" className="ra-outline" onClick={() => setReturning(false)}>Cancel</button><button type="button" className="ra-danger" disabled={!remarks.trim() || busy} onClick={doReturn}>Return to student</button></div></div>)}
             {!returning && ((c.stage === 'verify' && canL1) || (c.stage === 'approve' && canL2)) && (<>
               {c.stage === 'verify' && !checked && <span className="ra-hint"><Info size={13} />Tick the receipt check to enable Verify.</span>}

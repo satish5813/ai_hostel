@@ -61,7 +61,7 @@ export default function MonthlyReport() {
         actions={<div className="klh-row" style={{ gap: 8, alignItems: 'flex-end', flexWrap: 'wrap' }}>{picker}
           <label className="mo-pick">Month<Input type="month" value={month} max={todayIso().slice(0, 7)} onChange={(e) => setMonth(e.target.value)} /></label>
           <Button variant="secondary" icon="download" disabled={!d} onClick={csv}>Download CSV</Button></div>} />
-      {d && t && !t.days_recorded && <div className="box mm-empty"><b>No daily records for {month}</b><p>The report fills in from the Mess daily record (MES-06).</p></div>}
+      {d && t && !t.days_recorded && <div className="box mm-empty"><b>No daily records for {month}</b><p>The report fills in from the Rasoi daily record (MES-06).</p></div>}
       {d && t && t.days_recorded > 0 && (
         <>
           <div className="klh-grid-4">

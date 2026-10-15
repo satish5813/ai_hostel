@@ -22,7 +22,7 @@ export function useMess() {
   const mess = messes.find((m) => m.mess_id === id) ?? messes[0];
   useEffect(() => { if (mess) try { localStorage.setItem('klu.mess', String(mess.mess_id)); } catch { /* private window */ } }, [mess]);
   const picker = messes.length > 1 ? (
-    <label className="mo-pick">Mess<Select value={mess ? String(mess.mess_id) : ''} onChange={(e) => setId(Number(e.target.value))}
+    <label className="mo-pick">Rasoi<Select value={mess ? String(mess.mess_id) : ''} onChange={(e) => setId(Number(e.target.value))}
       options={messes.map((m) => ({ value: String(m.mess_id), label: `${m.mess_name} · ${m.strength} students` }))} /></label>) : null;
   return { mess, messes, picker };
 }

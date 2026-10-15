@@ -38,7 +38,7 @@ export default function EnterChoices() {
     <div className="klh-stack ec" style={{ gap: 16 }}>
       <ScreenHeader code="MES-10" subtitle="Enter a student's dishes from a paper slip, or for a student without a phone, until the week begins. Each entry is recorded under your name." />
       <section className="box wm-pick" aria-label="Which week">
-        {list.data && list.data.messes.length > 1 && <SegmentedControl label="Mess" value={String(mess)} onChange={(v) => { setMessId(Number(v)); setWeekId(null); setSid(null); }} options={list.data.messes.map((m) => ({ value: String(m.mess_id), label: m.mess_name }))} />}
+        {list.data && list.data.messes.length > 1 && <SegmentedControl label="Rasoi" value={String(mess)} onChange={(v) => { setMessId(Number(v)); setWeekId(null); setSid(null); }} options={list.data.messes.map((m) => ({ value: String(m.mess_id), label: m.mess_name }))} />}
         <div className="wm-weeks" role="tablist" aria-label="Week">{weeks.map((w) => (
           <button key={w.week_id} type="button" role="tab" aria-selected={w.week_id === week?.week_id} onClick={() => { setWeekId(w.week_id); setSid(null); }}>
             <b>{weekLabel(w.week_start)}</b><small><StatusChip status={w.is_open ? 'Active' : 'Inactive'} label={w.is_open ? `Students choose until ${dueLabel(w.choices_close_at)}` : 'Students\' choices closed'} /></small></button>))}

@@ -56,7 +56,7 @@ export default function WeeklyMenu() {
         actions={<Button variant="secondary" icon="file" onClick={() => navigate('/reports/meal-choices')}>Choice report</Button>} />
 
       <section className="box wm-pick" aria-label="Which week">
-        {l && l.messes.length > 1 && <SegmentedControl label="Mess" value={String(mess)} onChange={(v) => { setMessId(Number(v)); setWeekId(null); }} options={l.messes.map((m) => ({ value: String(m.mess_id), label: m.mess_name }))} />}
+        {l && l.messes.length > 1 && <SegmentedControl label="Rasoi" value={String(mess)} onChange={(v) => { setMessId(Number(v)); setWeekId(null); }} options={l.messes.map((m) => ({ value: String(m.mess_id), label: m.mess_name }))} />}
         <div className="wm-weeks" role="tablist" aria-label="Week">
           {weeks.slice(0, 6).map((w) => (
             <button key={w.week_id} type="button" role="tab" aria-selected={w.week_id === shown?.week_id} onClick={() => { setWeekId(w.week_id); setDay(1); }}>
