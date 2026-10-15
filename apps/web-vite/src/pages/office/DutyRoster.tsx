@@ -108,7 +108,7 @@ export default function DutyRoster() {
         <section className="ra-card-s">
           <div className="ra-card-h"><h2>Roster</h2>{mark && !past && <button type="button" className="ra-small" disabled={busy || !people.length} onClick={markRest}>Mark rest present</button>}</div>
           {!d && <div className="q-empty">Loading…</div>}
-          {d && !people.length && <div className="q-empty">Nobody is mapped to this hostel yet. Map staff in the Mapping centre.</div>}
+          {d && !people.length && <div className="q-empty">Nobody is mapped to this residency yet. Map staff in the Mapping centre.</div>}
           {groups.map((g) => { const I = g.icon;
             return (
               <div key={g.k} className="ra-group">

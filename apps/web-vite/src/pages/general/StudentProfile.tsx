@@ -151,7 +151,7 @@ export default function StudentProfile() {
 
         {/* ---------------- side column ---------------- */}
         <div className="sp-col">
-          <Card icon={BedDouble} title="Hostel stay" action={<Go onClick={() => navigate('/registration')} />}>
+          <Card icon={BedDouble} title="Residency stay" action={<Go onClick={() => navigate('/registration')} />}>
             {room.data ? (
               <>
                 <div className="sp-room"><b>{room.data.bed_label}</b><small>{room.data.hostel_name}</small></div>

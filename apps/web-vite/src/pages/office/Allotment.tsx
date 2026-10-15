@@ -116,7 +116,7 @@ export default function Allotment() {
             {floors.map((f) => <button key={f.zone_id} role="tab" className="fl-tab" aria-selected={floor === f.zone_id} onClick={() => setFloor(f.zone_id)}>{f.floor_name}<small>{openOf(f)} open</small></button>)}
           </div>
           {!board.data && <div className="q-empty">Loading rooms…</div>}
-          {board.data && floors.length === 0 && <div className="q-empty">No rooms in this hostel yet. The Data Administrator adds them under Rooms and beds.</div>}
+          {board.data && floors.length === 0 && <div className="q-empty">No rooms in this residency yet. The Data Administrator adds them under Rooms and beds.</div>}
           {shown.map((f) => (
             <div key={f.zone_id}>
               {floor === 'all' && <div style={{ padding: '10px 14px 0', fontSize: 12, fontWeight: 600, color: 'var(--ink-muted)' }}>{f.floor_name}</div>}

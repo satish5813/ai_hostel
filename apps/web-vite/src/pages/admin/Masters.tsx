@@ -122,7 +122,7 @@ function Hostels() {
         <Field label="Floors" required><Input type="number" min={1} max={30} value={f.floors} onChange={(e) => setF({ ...f, floors: e.target.value })} /></Field>
         <Field label="Gate closes"><Input type="time" value={f.gate_close_time} onChange={(e) => setF({ ...f, gate_close_time: e.target.value })} /></Field>
       </div>
-      <div className="klh-row"><Button type="submit" variant="primary" icon="plus" loading={busy} blockedReason={!f.facility_name ? 'Name the hostel.' : !/^[A-Z0-9]{2,8}$/.test(f.hostel_code) ? 'Code: 2 to 8 letters or digits.' : undefined}>Add hostel</Button><Button variant="ghost" icon="building" onClick={() => navigate('/rooms')}>Room management</Button></div>
+      <div className="klh-row"><Button type="submit" variant="primary" icon="plus" loading={busy} blockedReason={!f.facility_name ? 'Name the hostel.' : !/^[A-Z0-9]{2,8}$/.test(f.hostel_code) ? 'Code: 2 to 8 letters or digits.' : undefined}>Add residency</Button><Button variant="ghost" icon="building" onClick={() => navigate('/rooms')}>Room management</Button></div>
     </form>} />;
 }
 
@@ -186,7 +186,7 @@ function Fees() {
         <Field label="Electricity caution deposit (₹)" hint="Refundable; on joining only"><Input type="number" min={0} value={f.elec_caution_deposit} onChange={(e) => setF({ ...f, elec_caution_deposit: e.target.value })} /></Field>
         <Field label="Electricity meter charge a year (₹)" hint="Every year, also on renewal"><Input type="number" min={0} value={f.meter_charge} onChange={(e) => setF({ ...f, meter_charge: e.target.value })} /></Field>
       </div>
-      <p className="klh-muted" style={{ margin: 0, fontSize: 13 }}>Joining: registration, both deposits, hostel fee, mess fee and meter charge. Renewal: hostel fee, mess fee and meter charge only.</p>
+      <p className="klh-muted" style={{ margin: 0, fontSize: 13 }}>Joining: registration, both deposits, residency fee, mess fee and meter charge. Renewal: residency fee, mess fee and meter charge only.</p>
       <Field label="Second instalment" derived value={f.hostel_fee ? formatINR(Number(f.hostel_fee) * (100 - Number(f.instalment_1_pct)) / 100) : '—'} />
       <div><Button type="submit" variant="primary" loading={busy} blockedReason={!f.facility_id || !f.room_type_id ? 'Choose residency and room type.' : !f.hostel_fee ? 'Enter the residency fee.' : !f.instalment_2_due_date ? 'Set the second due date.' : undefined}>Save fee</Button></div>
     </form>} />;
@@ -266,7 +266,7 @@ function Students() {
           { key: 'full_name', label: 'Name', render: (v: string) => <b style={{ fontWeight: 600 }}>{titleCase(v)}</b> },
           { key: 'programme', label: 'Programme' },
           { key: 'gender', label: 'Gender' },
-          { key: 'room', label: 'Room', render: (v: string | null) => v ?? <span className="klh-muted">Not a hostel student</span> },
+          { key: 'room', label: 'Room', render: (v: string | null) => v ?? <span className="klh-muted">Not a residency student</span> },
           { key: 'verified_contacts', label: 'Verified contacts', align: 'right' },
         ]} />
       <div style={{ padding: '0 16px 16px' }}><Notice tone="info" title="Bulk import">The yearly load comes from the ERP student profile export (9,449 rows in the sample). This form is for single additions.</Notice></div>

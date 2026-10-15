@@ -70,7 +70,7 @@ export default function RoomBlocking() {
           <div className="ra-legend"><span><i className="ra-bed-free" />Vacant</span><span><i className="ra-bed-occ" />Occupied</span><span><i className="ra-bed-held" />Held</span><span><i className="ra-bed-blocked" />Blocked</span></div>
         </div>
         {!board.data && <div className="q-empty">Loading rooms…</div>}
-        {board.data && !floors.length && <div className="q-empty">No rooms in this hostel yet.</div>}
+        {board.data && !floors.length && <div className="q-empty">No rooms in this residency yet.</div>}
         <div className="ra-rooms">
           {rooms.map((r) => { const st = r.beds.map((b) => bedState(b, r)); const free = st.filter((x) => x === 'free').length, held = st.filter((x) => x === 'held').length; const on = room?.space_id === r.space_id;
             return (

@@ -19,7 +19,7 @@ export default function QrPage() {
         {page && <p className="klh-hero-sub">{page.space.space_category.replace(/_/g, ' ')}</p>}
       </div>
       <div style={{ maxWidth: 480, margin: '0 auto', padding: 20 }}>
-        {!page ? <p className="klh-muted">Ask the hostel office for a new label.</p> : (
+        {!page ? <p className="klh-muted">Ask the residency office for a new label.</p> : (
           <>
             {page.status !== 'Active' && <div className="klh-notice klh-notice-warning" style={{ marginBottom: 16 }}><div className="klh-notice-body"><div className="klh-notice-title">This label has been replaced</div>The names below may be out of date.</div></div>}
             <p className="klh-overline">Who to call</p>
@@ -31,7 +31,7 @@ export default function QrPage() {
                 </div>))}
               {page.people.length === 0 && <div className="klh-card klh-muted">No one is assigned to this place yet.</div>}
             </div>
-            <p className="klh-muted" style={{ marginTop: 24, fontSize: 14 }}>For a repair, call the person above or raise a ticket in the hostel app.</p>
+            <p className="klh-muted" style={{ marginTop: 24, fontSize: 14 }}>For a repair, call the person above or raise a ticket in the residency app.</p>
           </>)}
       </div>
     </div>

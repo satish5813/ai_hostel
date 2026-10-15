@@ -46,7 +46,7 @@ export default function ApprovalLink() {
         {v?.who && <p className="klh-hero-sub">For {v.who.name}{v.who.relation ? ` (${words(v.who.relation).toLowerCase()})` : ''}</p>}
       </div>
       <div style={{ maxWidth: 520, margin: '0 auto', padding: 20 }} className="klh-stack">
-        {!v || !o ? <p className="klh-muted">This link is not valid. Ask the student or the hostel office to send a new one.</p> : (
+        {!v || !o ? <p className="klh-muted">This link is not valid. Ask the student or the residency office to send a new one.</p> : (
           <>
             <dl className="klh-dl">
               <dt>Student</dt><dd>{o.full_name} · {o.student_id}{o.programme ? ` · ${o.programme}` : ''}</dd>

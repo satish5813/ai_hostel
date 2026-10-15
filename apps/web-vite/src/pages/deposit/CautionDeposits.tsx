@@ -42,7 +42,7 @@ export default function CautionDeposits() {
       {h.length > 1 && (
         <section className="box cd-hostels">
           <table>
-            <thead><tr><th>Hostel</th><th className="r">Hostel students</th><th className="r">Held</th><th className="r">Deducted</th><th className="r">Refunded</th><th className="r">Waiting</th><th className="r">To refund</th></tr></thead>
+            <thead><tr><th>Residency</th><th className="r">Residency students</th><th className="r">Held</th><th className="r">Deducted</th><th className="r">Refunded</th><th className="r">Waiting</th><th className="r">To refund</th></tr></thead>
             <tbody>{h.map((x) => (
               <tr key={x.facility_id} className={fac === x.facility_id ? 'cd-sel' : ''} onClick={() => setFac(fac === x.facility_id ? '' : x.facility_id)}>
                 <td><b>{x.hostel_name}</b></td><td className="r">{x.residents}</td><td className="r">{inr(x.held)}</td><td className="r">{inr(x.deducted)}</td><td className="r">{inr(x.refunded)}</td>

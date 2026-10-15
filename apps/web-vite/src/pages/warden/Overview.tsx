@@ -73,7 +73,7 @@ export default function Overview() {
                   <td data-label="Overdue fees">{h.fees_overdue ? <button type="button" className="ov-n ov-warn" onClick={() => go('/dues', h.facility_id)}>{rupees(Number(h.fees_overdue_amount))}<small> · {h.fees_overdue}</small></button> : cell(h, 0, '/dues')}</td>
                   <td data-label="Duties open">{cell(h, h.open_places, '/duty-roster', 'warn')}</td>
                 </tr>))}
-              {o.data && !hs.length && <tr><td colSpan={12} className="ov-empty">No hostel is given to your login yet. Ask the Administrator.</td></tr>}
+              {o.data && !hs.length && <tr><td colSpan={12} className="ov-empty">No residency is given to your login yet. Ask the Administrator.</td></tr>}
             </tbody>
           </table>
         </div>
@@ -99,7 +99,7 @@ export default function Overview() {
           ) : <p className="ov-none">No open alerts.</p>}
         </section>
       </div>
-      <p className="ov-foot"><BedDouble size={14} />Room blocking, staff attendance and the hostel allotment view are in the Rooms and People apps.</p>
+      <p className="ov-foot"><BedDouble size={14} />Room blocking, staff attendance and the residency allotment view are in the Rooms and People apps.</p>
     </div>
   );
 }

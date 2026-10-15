@@ -55,7 +55,7 @@ export default function StaffMapping() {
             { key: 'show_on_qr', label: 'On labels', render: (v: boolean) => (v ? <StatusChip status="Active" label="Shown" /> : '—') },
           ]} />
       </Card>
-      <ConfirmDialog open={!!end} title={`End this duty for ${titleCase(end?.full_name)}?`} body={end ? `${words(end.hostel_role)} · ${end.zone_id ?? end.space_id ?? 'whole hostel'} · ${end.shift} shift. The person's screens for this scope disappear the same day.` : undefined} tone="danger" confirmLabel="End duty" onCancel={() => setEnd(null)} onConfirm={() => { const a = end!; setEnd(null); run(() => api(`/assignments/${a.assignment_id}/end`, { method: 'POST', json: {} }).then(() => { list.mutate(); floors.mutate(); }), 'Duty ended'); }} />
+      <ConfirmDialog open={!!end} title={`End this duty for ${titleCase(end?.full_name)}?`} body={end ? `${words(end.hostel_role)} · ${end.zone_id ?? end.space_id ?? 'whole residency'} · ${end.shift} shift. The person's screens for this scope disappear the same day.` : undefined} tone="danger" confirmLabel="End duty" onCancel={() => setEnd(null)} onConfirm={() => { const a = end!; setEnd(null); run(() => api(`/assignments/${a.assignment_id}/end`, { method: 'POST', json: {} }).then(() => { list.mutate(); floors.mutate(); }), 'Duty ended'); }} />
     </div>
   );
 }

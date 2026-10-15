@@ -27,7 +27,7 @@ export function RoomChangeStatement({ s, final }: { s: Statement; final?: boolea
           <tbody>
             <tr><td>{h.old_type}<small>{inr(h.old_fee)} a year · {s.days_old} days in the old room</small></td><td className="r">{inr(h.old_part)}</td></tr>
             <tr><td>{h.new_type}<small>{inr(h.new_fee)} a year · {s.days_new} days in the new room</small></td><td className="r">{inr(h.new_part)}</td></tr>
-            <tr className="rc-st-sum"><td>Hostel fee for the year after the change</td><td className="r">{inr(h.year_total)}</td></tr>
+            <tr className="rc-st-sum"><td>Residency fee for the year after the change</td><td className="r">{inr(h.year_total)}</td></tr>
             <tr><td>Billed before the change<small>Paid {inr(h.paid)}{Number(h.unpaid) > 0 ? ` · unpaid ${inr(h.unpaid)}` : ''}</small></td><td className="r">{inr(h.billed)}</td></tr>
             <tr className={`rc-st-adj ${adj > 0 ? 'rc-up' : adj < 0 ? 'rc-down' : ''}`}>
               <td>{adj > 0 ? 'Difference to pay (added to your fees)' : adj < 0 ? 'Difference in your favour' : 'No difference: same room type'}

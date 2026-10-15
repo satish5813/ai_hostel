@@ -139,7 +139,7 @@ function StaffMenu() {
           <ul className="mm-res">{(list.data?.residents ?? []).slice().sort((a, b) => b.n - a.n).map((x, i) => (
             <li key={i}><button type="button" onClick={() => { setK({ g: x.hostel_gender, r: x.region, c: x.country ?? '', d: x.diet }); setSel(null); }}>
               <span>{x.hostel_gender} · {x.is_foreign ? 'Foreign' : 'Local'} · {x.region === 'International' ? x.country : FOOD.find((f) => f.value === x.region)!.label} · {x.diet === 'Veg' ? 'Veg' : 'Non-veg'}</span><b title="This week">{x.n}</b><small className={x.next_week !== x.n ? 'mm-warn' : 'mm-next'} title="From next Monday">next week {x.next_week}</small>{x.no_menu > 0 && <small className="mm-warn">{x.no_menu} without a menu</small>}</button></li>))}
-            {list.data && !list.data.residents.length && <li className="q-empty">No one lives in a hostel yet.</li>}</ul>
+            {list.data && !list.data.residents.length && <li className="q-empty">No one lives in a residency yet.</li>}</ul>
         </section>
         <section className="box mm-panel" aria-label="Apartments">
           <h2>Apartments</h2>

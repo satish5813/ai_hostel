@@ -112,7 +112,7 @@ function ChangeDrawer({ id, onClose, onDone }: { id: number; onClose: () => void
                   <Input inputMode="decimal" value={reading} onChange={(e) => setReading(e.target.value)} placeholder="kWh now" /></Field>}
                 <Field label={<><KeyRound size={14} /> New room key no.</>} hint="Leave blank to keep the key number"><Input value={key} onChange={(e) => setKey(e.target.value)} placeholder="K-208" /></Field>
               </div>
-              <p className="rc-small">Moving frees the old bed, gives the new one, and settles the hostel fee and the electricity below at once.</p>
+              <p className="rc-small">Moving frees the old bed, gives the new one, and settles the residency fee and the electricity below at once.</p>
             </div>)}
           {c.statement && <><h4 className="rc-h3">{c.status === 'Moved' ? 'Settlement' : 'Fee and electricity if moved today'}</h4><RoomChangeStatement s={c.statement as Statement} final={c.status === 'Moved'} /></>}
         </div>)}
@@ -154,7 +154,7 @@ function MoveDrawer({ onClose, onDone }: { onClose: () => void; onDone: (changeI
             <ul className="rc-people">{(people.data ?? []).map((p) => (
               <li key={p.student_id}><button type="button" onClick={() => setSid(p.student_id)}>
                 <b>{p.name}</b><small>{p.student_id} · {p.bed_label} · {p.type_name} · {p.floor_name}</small></button></li>))}
-              {people.data && !people.data.length && <li className="rc-small">No hostel student matches.</li>}</ul>
+              {people.data && !people.data.length && <li className="rc-small">No residency student matches.</li>}</ul>
           </>) : opt.data && (
           <>
             <div className="rc-det-move">

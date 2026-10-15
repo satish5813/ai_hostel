@@ -35,7 +35,7 @@ export default function MealChoicePage() {
   const [version, setVersion] = useState(0);   // the choices are kept on the page; a fill reloads them from the server
 
   if (!d) return <div className="st"><p className="st-empty">Loading…</p></div>;
-  if (!d.me) return <div className="st"><section className="st-panel"><h2>Choose my meals</h2><p className="st-empty">You choose your meals once you live in a hostel and eat at its mess.</p></section></div>;
+  if (!d.me) return <div className="st"><section className="st-panel"><h2>Choose my meals</h2><p className="st-empty">You choose your meals once you live in a residency and eat at its mess.</p></section></div>;
   const w = d.weeks.find((x) => x.week_id === (weekId ?? firstOpen)) ?? d.weeks[0];
   const me = d.me;
 

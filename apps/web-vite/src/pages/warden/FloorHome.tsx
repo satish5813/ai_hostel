@@ -88,7 +88,7 @@ export default function FloorHome() {
           <h1>{greeting()}, {name}</h1>
           <p>{hostel ? `Floor Manager, ${hostel} · ${d!.floors.map((f) => f.floor_name).join(', ')}` : 'No floor is assigned to you yet. The Chief Manager maps Floor Managers in the Mapping centre.'}</p>
         </div>
-        <div className="pg-actions"><Button variant="primary" icon="check" blockedReason={!res.length ? 'No hostel students on your floors.' : undefined} onClick={() => navigate('/roll-call')}>{marked && marked === res.length ? 'Roll call done' : 'Take roll call'}</Button></div>
+        <div className="pg-actions"><Button variant="primary" icon="check" blockedReason={!res.length ? 'No residency students on your floors.' : undefined} onClick={() => navigate('/roll-call')}>{marked && marked === res.length ? 'Roll call done' : 'Take roll call'}</Button></div>
       </div>
 
       {(d?.floors.length ?? 0) > 1 && (

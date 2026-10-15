@@ -181,7 +181,7 @@ function Enrolment({ canEnrol }: { canEnrol: boolean }) {
   const enrol = (r: Enrol, method: string) => run(() => api('/access/enrol', { method: 'POST', json: { student_id: r.student_id, method, template_ref: `VND-${method}-${r.student_id}` } }).then(() => list.mutate()), `${method} enrolled`);
   return (
     <>
-      <div className="stg stg-static"><div><b>{rows.length}</b><span>Hostel students</span></div><div><b>{n('card')}</b><span>Card</span></div><div><b>{n('face')}</b><span>Face</span></div><div><b>{n('thumb')}</b><span>Thumb</span></div></div>
+      <div className="stg stg-static"><div><b>{rows.length}</b><span>Residency students</span></div><div><b>{n('card')}</b><span>Card</span></div><div><b>{n('face')}</b><span>Face</span></div><div><b>{n('thumb')}</b><span>Thumb</span></div></div>
       <p className="klh-muted" style={{ margin: 0, fontSize: 12.5 }}>Face and thumb templates stay on the devices; this list keeps only a reference. Tracking needs the student's consent on record.</p>
       <section className="box"><div className="q">
         {rows.map((r) => (

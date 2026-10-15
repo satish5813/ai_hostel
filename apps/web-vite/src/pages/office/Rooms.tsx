@@ -35,7 +35,7 @@ export default function Rooms() {
   return (
     <div className="klh-stack" style={{ gap: 18 }}>
       <ScreenHeader code="MAP-01" subtitle={builds ? 'Add a floor, then its rooms. A room gets one bed for each sharing place of its room type.' : 'Buildings, floors, rooms and beds. View only for your role.'}
-        actions={s.role === 'admin' ? <Button variant="accent" icon="plus" onClick={() => navigate('/admin/masters?tab=hostels')}>Add hostel</Button> : undefined} />
+        actions={s.role === 'admin' ? <Button variant="accent" icon="plus" onClick={() => navigate('/admin/masters?tab=hostels')}>Add residency</Button> : undefined} />
       {hostels.data?.length === 0 && <Notice tone="warning" title="No hostel building yet">The Data Administrator adds the first residency under Masters.</Notice>}
       {hostels.data?.map((h) => <HostelBlock key={h.facility_id} hostel={h} builds={builds} onAdd={(floor, category) => setAdd({ hostel: h, floor, category })} onEdit={(floor, space) => setEdit({ hostel: h, floor, space })} onChange={() => hostels.mutate()} />)}
       {add && <AddRooms ctx={add} types={types.data ?? []} onClose={() => setAdd(null)} onDone={() => { hostels.mutate(); setAdd(null); }} />}

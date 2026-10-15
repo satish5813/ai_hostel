@@ -62,7 +62,7 @@ export default function ElectricityBills() {
                       <td className="rc-n">{x.opening} → {x.closing}</td><td className="rc-n">{x.units}</td><td className="rc-n">{x.included} + {x.recharged}</td>
                       <td className="rc-n">{x.billable}</td><td className="rc-n">₹{x.rate}</td><td className="rc-n"><b>{inr(x.amount)}</b></td>
                       <td>{x.shares.length ? <>{x.shares.length} student{x.shares.length > 1 ? 's' : ''} · <span className={paid === x.shares.length ? 'eb-ok' : 'eb-due'}>{paid} paid</span></>
-                        : <span className="klh-muted">No one lived here: borne by the hostel</span>}</td>
+                        : <span className="klh-muted">No one lived here: borne by the residency</span>}</td>
                     </tr>
                     {open === x.bill_id && (
                       <tr className="ct-open"><td colSpan={8}>

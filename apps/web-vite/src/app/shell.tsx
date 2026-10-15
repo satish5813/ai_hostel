@@ -19,7 +19,7 @@ import { DATA_KINDS } from '@/admin/registry';
  * A person never sees a menu item they cannot use: the menu is derived from screens.ts, not typed per page.
  */
 export function Brand({ cut = 'mark', height = 30 }: { cut?: 'mark' | 'full'; height?: number }) {
-  return <span className="ui-brand"><Logo cut={cut} height={height} /><span className="ui-brand-name">Hostels</span></span>;
+  return <span className="ui-brand"><Logo cut={cut} height={height} /><span className="ui-brand-name">Residencies</span></span>;
 }
 
 /** Menu label from a screen name: "My profile and contacts" -> "Profile", "My outings" -> "Outings". */

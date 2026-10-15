@@ -55,7 +55,7 @@ export default function SetPassword() {
             </ul>
             <button type="submit" className="login-submit" disabled={!ok || busy}>{busy ? 'Saving…' : 'Save my password'}<Icon name="arrow-right" size={17} /></button>
           </form>)}
-          <p className="login-foot"><Icon name="lock" size={13} />This link works once. If it has expired, ask the hostel office to send a new one.</p>
+          <p className="login-foot"><Icon name="lock" size={13} />This link works once. If it has expired, ask the residency office to send a new one.</p>
         </div>
       </section>
     </div>

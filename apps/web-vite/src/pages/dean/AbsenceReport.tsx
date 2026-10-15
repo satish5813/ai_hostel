@@ -57,7 +57,7 @@ export default function AbsenceReport() {
             <span className="av-bar"><i style={{ width: `${Math.min((x.rate ?? 0) * 4, 100)}%`, background: (x.rate ?? 0) >= 10 ? 'var(--dn-attn)' : undefined }} /></span>
             <em>{x.rate == null ? '—' : `${x.rate}%`}</em>
           </div>))}
-          {r.data && !r.data.floors.length && <p className="ov-none">No hostel students in this hostel.</p>}</div>
+          {r.data && !r.data.floors.length && <p className="ov-none">No residency students in this hostel.</p>}</div>
       </section>
 
       <section className="ov-card" aria-label="Students">

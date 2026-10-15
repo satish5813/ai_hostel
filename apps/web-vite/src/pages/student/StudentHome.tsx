@@ -106,7 +106,7 @@ export default function StudentHome() {
     { label: 'Repairs', sub: 'Room, mess or common facility', icon: Wrench, mod: 'orange', go: () => navigate('/my-tickets') },
     { label: 'Rate my meals', sub: 'Tell the mess what you liked', icon: Star, mod: 'amber', go: () => navigate('/rate-meals') },
     { label: 'Receipts', sub: `${dues.data?.receipts.length ?? 0} on record`, icon: Receipt, mod: 'orange', go: () => setSheet('receipts') },
-    { label: 'Hostel journey', sub: reg ? reg.registration_no : 'Apply for a room', icon: Sparkles, mod: 'indigo', go: () => navigate('/registration') },
+    { label: 'Residency journey', sub: reg ? reg.registration_no : 'Apply for a room', icon: Sparkles, mod: 'indigo', go: () => navigate('/registration') },
     { label: 'Academic record', sub: 'Attendance, marks', icon: GraduationCap, mod: 'sky', go: () => navigate('/academics') },
     { label: 'My career goal', sub: goal.data ? GOALS.find((g) => g.value === goal.data!.goal)?.label ?? 'Set' : 'Tell us what you aim for', icon: Sparkles, mod: 'indigo', go: () => setSheet('goal') },
     { label: 'Parents and profile', sub: `${me.data?.contacts.filter((c) => c.is_verified).length ?? 0} verified contacts`, icon: IdCard, mod: 'em', go: () => navigate('/profile') },
@@ -201,7 +201,7 @@ export default function StudentHome() {
 
       {reg && (
         <section className="st-panel" aria-label="Hostel journey">
-          <div className="st-panel-head"><h2>Your hostel journey</h2><span className="st-muted">{reg.registration_no}</span><button type="button" className="st-link" onClick={() => navigate('/registration')}>Open<ArrowRight size={14} /></button></div>
+          <div className="st-panel-head"><h2>Your residency journey</h2><span className="st-muted">{reg.registration_no}</span><button type="button" className="st-link" onClick={() => navigate('/registration')}>Open<ArrowRight size={14} /></button></div>
           <Stepper steps={steps} />
         </section>)}
 
@@ -470,7 +470,7 @@ function RenewalSheet({ rn, demands, onClose, onDone }: { rn: Renewal; demands: 
     } else if (step === 3 && !r.fee_plan_id) {
       action = (
         <div className="st-stack">
-          <div><span className="st-label">How will you pay the hostel fee?</span>
+          <div><span className="st-label">How will you pay the residency fee?</span>
             <div className="st-presets">{([['Single', 'In one payment'], ['Two_Instalments', 'In two instalments']] as const).map(([v, l]) => <button key={v} type="button" aria-pressed={plan === v} onClick={() => setPlan(v)}>{l}</button>)}</div></div>
           <div><span className="st-label">Mess for next year</span>
             <div className="st-presets">{[['South_Indian', 'South Indian'], ['North_Indian', 'North Indian'], ['Special_Diet', 'Special diet']].map(([v, l]) => <button key={v} type="button" aria-pressed={cuisine === v} onClick={() => setCuisine(v)}>{l}</button>)}</div></div>

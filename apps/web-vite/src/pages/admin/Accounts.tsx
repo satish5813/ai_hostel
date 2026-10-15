@@ -158,7 +158,7 @@ function OnePanel({ roles, hostels, onClose, onSaved }: { roles: RoleInfo[]; hos
               options={[{ value: '', label: 'Keep the roles they already hold' }, ...roles.map((r) => ({ value: r.code, label: `${r.group} · ${r.label}` }))]} />
           </Field>
           {info?.hostel && (
-            <fieldset className="lg-hostels"><legend>Hostels this login covers</legend>
+            <fieldset className="lg-hostels"><legend>Residencies this login covers</legend>
               {hostels.map((h) => <Checkbox key={h.facility_id} label={`${h.hostel_code} · ${h.facility_name}`} description={h.hostel_gender} checked={picked.includes(h.facility_id)} onChange={(v) => setPicked(v ? [...picked, h.facility_id] : picked.filter((x) => x !== h.facility_id))} />)}
             </fieldset>)}
           {role && <Field label="Written approval" required hint="Order or letter number, for example HO/2026/ROLES/12"><Input value={ref} onChange={(e) => setRef(e.target.value)} /></Field>}

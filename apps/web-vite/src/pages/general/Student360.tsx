@@ -188,7 +188,7 @@ function HostelRecord({ id, canEdit }: { id: string; canEdit: boolean }) {
     await api(`/students/${id}/kyc`, { method: 'PUT', json: body }); await k.mutate(); setEdit(null);
   }, 'Residency record updated');
   return (
-    <section className="box"><div className="box-head"><h2>Hostel record</h2>
+    <section className="box"><div className="box-head"><h2>Residency record</h2>
       <span style={{ marginLeft: 'auto', display: 'flex', gap: 8, alignItems: 'center' }}>
         {d.submitted_on ? <StatusChip status="Submitted" tone="success" label={`Submitted by the student · ${formatDate(d.submitted_on)}`} /> : <StatusChip status="Pending" label="Not submitted yet" />}
         {canEdit && !edit && <Button variant="secondary" onClick={() => setEdit(Object.fromEntries(KYC_FIELDS.map(([key]) => [key, text(key)])))}>Edit</Button>}

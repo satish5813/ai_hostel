@@ -35,7 +35,7 @@ export function StaffShell({ nav, screens, user, unread, title, crumb, fill, chi
   return (
     <div className="ss klh">
       <aside className={`ss-side${menu ? ' ss-side-open' : ''}`} aria-label="Main menu">
-        <div className="ss-brand"><Logo cut="mark" height={30} /><span>Hostels</span>
+        <div className="ss-brand"><Logo cut="mark" height={30} /><span>Residencies</span>
           <button type="button" className="ss-iconbtn ss-only-small" aria-label="Close menu" onClick={() => setMenu(false)}><Icon name="x" size={18} /></button></div>
         <nav className="ss-nav">
           {nav.map((g) => (

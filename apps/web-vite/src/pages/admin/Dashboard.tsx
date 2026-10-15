@@ -125,7 +125,7 @@ function ReadinessBoard() {
   const navigate = useNavigate();
   const r = useApi<Readiness>('/admin/readiness');
   const d = r.data;
-  if (!d) return <section className="rd" aria-busy="true"><p className="klh-muted">Checking every hostel…</p></section>;
+  if (!d) return <section className="rd" aria-busy="true"><p className="klh-muted">Checking every residency…</p></section>;
   const ready = d.hostels.filter((h) => h.ready).length;
   const g = d.global.filter((x) => !x.ok);
   return (

@@ -114,8 +114,8 @@ function Overview() {
   return (
     <>
       <section className="xd-hero xd-hero-grad">
-        <div className="xd-hero-text"><p className="xd-eyebrow">{date} · academic year {d.year?.academic_year}</p><h1>Hostels at a glance</h1>
-          <p className="xd-lead">{b.length} hostels · {num(res)} students. Every number opens the hostels behind it.</p></div>
+        <div className="xd-hero-text"><p className="xd-eyebrow">{date} · academic year {d.year?.academic_year}</p><h1>Residencies at a glance</h1>
+          <p className="xd-lead">{b.length} residencies · {num(res)} students. Every number opens the residencies behind it.</p></div>
         <div className="xd-pulse" aria-label="Quick view">
           <button type="button" onClick={() => setDrill('students')}><b>{num(res)}</b><small>students · {pct(sum(b, 'occupied'), sum(b, 'beds'))}% of beds</small></button>
           <button type="button" onClick={() => go('xd-fees')}><b>{pct(collected, demanded)}%</b><small>fees collected · {inr(collected)}</small></button>
@@ -124,7 +124,7 @@ function Overview() {
         </div>
       </section>
       <section className="xd-kpis" aria-label="University">
-        <Kpi c="people" icon={BedDouble} label="Hostel students" value={num(res)} sub={`${pct(sum(b, 'occupied'), sum(b, 'beds'))}% of ${num(sum(b, 'beds'))} beds`} spark={sparkOf(b, (x) => x.residents)} onClick={() => setDrill('students')} />
+        <Kpi c="people" icon={BedDouble} label="Residency students" value={num(res)} sub={`${pct(sum(b, 'occupied'), sum(b, 'beds'))}% of ${num(sum(b, 'beds'))} beds`} spark={sparkOf(b, (x) => x.residents)} onClick={() => setDrill('students')} />
         <Kpi c="acad" icon={GraduationCap} label="Average CGPA" value={cgpa?.toFixed(2) ?? '—'} sub={`${num(withRes)} with results`} t={tone(cgpa, 7, d.settings.cgpa_watch)} spark={sparkOf(b, (x) => x.avg_cgpa)} onClick={() => setDrill('cgpa')} />
         <Kpi c="acad" icon={BookOpen} label="With backlogs" value={num(sum(b, 'backlog_students'))} sub={`${pct(sum(b, 'backlog_students'), res)}% of ${num(res)} students · ${num(sum(b, 'backlogs'))} backlogs`} t={tone(pct(sum(b, 'backlog_students'), res), 10, 20, true)} spark={sparkOf(b, (x) => x.backlog_students)} onClick={() => setDrill('backlogs')} />
         <Kpi c="acad" icon={UserCheck} label={`Attendance below ${d.settings.att_min}%`} value={String(sum(b, 'short_students'))} sub={`${pct(sum(b, 'short_students'), res)}% of students`} t={tone(pct(sum(b, 'short_students'), res), 5, 15, true)} spark={sparkOf(b, (x) => x.short_students)} onClick={() => setDrill('attendance')} />
@@ -153,7 +153,7 @@ function Overview() {
       <h2 className="xd-h2" data-c="ops"><span className="xd-ic"><Zap size={16} /></span>Electricity and repairs</h2>
       <PowerKpis b={b} months={d.electricity_months} />
 
-      <h2 className="xd-h2" data-c="people"><span className="xd-ic"><Building2 size={16} /></span>Hostels</h2>
+      <h2 className="xd-h2" data-c="people"><span className="xd-ic"><Building2 size={16} /></span>Residencies</h2>
       <section className="xd-cards" aria-label="Buildings">
         {b.map((x) => <BuildingCard key={x.facility_id} b={x} settings={d.settings} onOpen={() => navigate(`/exec/${x.facility_id}`)} />)}
       </section>
@@ -194,13 +194,13 @@ function FeesSection() {
   return (
     <>
       <section className="xd-kpis" aria-label="Fees">
-        <Kpi c="money" icon={IndianRupee} label="Hostel fee demanded" value={inr(t('demanded'))} sub={`${num(t('students'))} students · ${num(t('single_plan'))} single instalment · ${num(t('two_plan'))} two instalments`} />
+        <Kpi c="money" icon={IndianRupee} label="Residency fee demanded" value={inr(t('demanded'))} sub={`${num(t('students'))} students · ${num(t('single_plan'))} single instalment · ${num(t('two_plan'))} two instalments`} />
         <Kpi c="money" icon={CheckCircle2} label="Collected" value={inr(t('collected'))} sub={`${pct(t('collected'), t('demanded'))}% of demand · ${num(t('paid'))} fully paid · ${num(t('part_paid'))} paid 1st instalment`} t={tone(pct(t('collected'), t('demanded')), 50, 40)} />
         <Kpi c="money" icon={Activity} label="Outstanding" value={inr(t('outstanding'))} sub="Mostly 2nd instalments not yet due" />
         <Kpi c="risk" icon={AlertTriangle} label="Overdue" value={inr(t('overdue'))} sub={`${num(t('overdue_students'))} students past the due date · ${num(t('unpaid'))} not paid at all`} t={tone(t('overdue_students'), 0, 50, true)} />
       </section>
       <div className="xd-table-wrap xd-card-table"><table className="xd-table">
-        <thead><tr><th>Hostel</th><th className="n">Students</th><th className="n">1 instalment</th><th className="n">2 instalments</th><th className="n">Fully paid</th><th className="n">1st instalment only</th><th className="n">Not paid</th><th className="n">Overdue</th><th className="n">Demanded</th><th className="n">Collected</th><th className="n">Outstanding</th></tr></thead>
+        <thead><tr><th>Residency</th><th className="n">Students</th><th className="n">1 instalment</th><th className="n">2 instalments</th><th className="n">Fully paid</th><th className="n">1st instalment only</th><th className="n">Not paid</th><th className="n">Overdue</th><th className="n">Demanded</th><th className="n">Collected</th><th className="n">Outstanding</th></tr></thead>
         <tbody>{hs.map((h) => (
           <tr key={h.facility_id}><td><b>{h.facility_name}</b><small>{h.hostel_code} · {h.gender}</small></td>
             <td className="n"><Cell n={h.students} onClick={() => setOpen({ h, bucket: 'all' })} /></td>
@@ -211,7 +211,7 @@ function FeesSection() {
             <td className={`n${h.unpaid ? ' xd-flag' : ''}`}><Cell n={h.unpaid} onClick={() => setOpen({ h, bucket: 'unpaid' })} /></td>
             <td className={`n${h.overdue ? ' xd-flag' : ''}`}>{h.overdue ? <button type="button" className="xd-cellbtn" onClick={() => setOpen({ h, bucket: 'overdue' })}>{inr(h.overdue)}</button> : <span className="xd-quiet">—</span>}</td>
             <td className="n">{inr(h.demanded)}</td><td className="n">{inr(h.collected)}</td><td className="n"><b>{inr(h.outstanding)}</b></td></tr>))}
-          <tr className="xd-total"><td><b>All hostels</b></td><td className="n"><b>{num(t('students'))}</b></td><td className="n"><b>{num(t('single_plan'))}</b></td><td className="n"><b>{num(t('two_plan'))}</b></td><td className="n"><b>{num(t('paid'))}</b></td><td className="n"><b>{num(t('part_paid'))}</b></td><td className="n"><b>{num(t('unpaid'))}</b></td><td className="n"><b>{inr(t('overdue'))}</b></td><td className="n"><b>{inr(t('demanded'))}</b></td><td className="n"><b>{inr(t('collected'))}</b></td><td className="n"><b>{inr(t('outstanding'))}</b></td></tr>
+          <tr className="xd-total"><td><b>All residencies</b></td><td className="n"><b>{num(t('students'))}</b></td><td className="n"><b>{num(t('single_plan'))}</b></td><td className="n"><b>{num(t('two_plan'))}</b></td><td className="n"><b>{num(t('paid'))}</b></td><td className="n"><b>{num(t('part_paid'))}</b></td><td className="n"><b>{num(t('unpaid'))}</b></td><td className="n"><b>{inr(t('overdue'))}</b></td><td className="n"><b>{inr(t('demanded'))}</b></td><td className="n"><b>{inr(t('collected'))}</b></td><td className="n"><b>{inr(t('outstanding'))}</b></td></tr>
         </tbody></table></div>
       {open && <FeeStudentsModal h={open.h} bucket={open.bucket} onClose={() => setOpen(null)} />}
     </>
@@ -252,7 +252,7 @@ function CareerChoiceSection({ c }: { c: CareerChoice }) {
   const [open, setOpen] = useState<Pick | null>(null);
   const [fac, setFac] = useState('all');
   const hs = c.by_hostel.filter((h) => h.stated > 0);
-  const where = fac === 'all' ? 'All hostels' : hs.find((h) => h.facility_id === fac)?.hostel_code ?? fac;
+  const where = fac === 'all' ? 'All residencies' : hs.find((h) => h.facility_id === fac)?.hostel_code ?? fac;
   const m = useApi<MatrixRow[]>(`/exec/careers/matrix?facility=${fac}`);
   const rows = m.data ?? [];
   const tot = (k: keyof MatrixRow) => rows.reduce((a, r) => a + Number(r[k] ?? 0), 0);
@@ -265,7 +265,7 @@ function CareerChoiceSection({ c }: { c: CareerChoice }) {
         </Block>
         <Block wide title="By residency" sub="Tap a number to see the students">
           <div className="xd-table-wrap"><table className="xd-table">
-            <thead><tr><th>Hostel</th><th className="n">Hostel students</th><th className="n">Stated</th>{GOAL_COL.map((g) => <th key={g.key} className="n">{g.label}</th>)}</tr></thead>
+            <thead><tr><th>Residency</th><th className="n">Residency students</th><th className="n">Stated</th>{GOAL_COL.map((g) => <th key={g.key} className="n">{g.label}</th>)}</tr></thead>
             <tbody>{hs.map((h) => (
               <tr key={h.facility_id}><td><b>{h.hostel_code}</b></td><td className="n">{num(h.residents)}</td>
                 <td className="n"><Cell n={h.stated} onClick={() => setOpen({ facility: h.facility_id, where: h.hostel_code, goal: 'all', goalLabel: 'All choices', bucket: 'all' })} /></td>
@@ -274,7 +274,7 @@ function CareerChoiceSection({ c }: { c: CareerChoice }) {
         </Block>
         <Block wide title="Career path × fees and results" sub="Each path: how its students stand on hostel fees and results · tap a number to see them">
           <div className="xd-chips" role="tablist" aria-label="Hostel">
-            <button type="button" role="tab" aria-selected={fac === 'all'} className={fac === 'all' ? 'xd-chip-on' : ''} onClick={() => setFac('all')}>All hostels</button>
+            <button type="button" role="tab" aria-selected={fac === 'all'} className={fac === 'all' ? 'xd-chip-on' : ''} onClick={() => setFac('all')}>All residencies</button>
             {hs.map((h) => <button key={h.facility_id} type="button" role="tab" aria-selected={fac === h.facility_id} className={fac === h.facility_id ? 'xd-chip-on' : ''} onClick={() => setFac(h.facility_id)}>{h.hostel_code}<small>{num(h.stated)}</small></button>)}
           </div>
           {!m.data ? <p className="xd-loading">Loading…</p> : <MatrixTable rows={rows} pick={pick} />}
@@ -333,7 +333,7 @@ function ChoiceStudentsModal({ p, onClose }: { p: Pick; onClose: () => void }) {
   return (
     <Modal title={title} sub={r.data ? `${num(list.length)} students${due ? ` · ${inr(due)} outstanding` : ''}` : 'Loading…'} onClose={onClose}>
       <table className="xd-table">
-        <thead><tr><th>Student</th><th>Hostel</th><th>Programme</th><th>Career choice</th><th className="n">CGPA</th><th className="n">Backlogs</th><th className="n">Demanded</th><th className="n">Paid</th><th className="n">Outstanding</th><th>Fee status</th></tr></thead>
+        <thead><tr><th>Student</th><th>Residency</th><th>Programme</th><th>Career choice</th><th className="n">CGPA</th><th className="n">Backlogs</th><th className="n">Demanded</th><th className="n">Paid</th><th className="n">Outstanding</th><th>Fee status</th></tr></thead>
         <tbody>{list.map((s) => (
           <tr key={s.student_id}><td><b>{s.name}</b><small>{s.student_id}</small></td><td>{s.hostel_code}</td><td>{s.programme ?? '—'}{s.year_semester ? <small>{s.year_semester}</small> : null}</td>
             <td><span className="xd-choice">{s.career_choice ?? s.goal}</span></td>
@@ -386,7 +386,7 @@ const moodText = (m: number | null | undefined) => (m == null ? '—' : `${m > 0
 type Domain = 'people' | 'acad' | 'money' | 'life' | 'risk' | 'ops';
 
 /** A headline number. With onClick it is a button that drills down; spark = per-hostel values (0..1) drawn as mini bars. */
-function Kpi({ icon: I, label, value, sub, t = 'none', c = 'ops', onClick, spark, hint = 'By hostel' }:
+function Kpi({ icon: I, label, value, sub, t = 'none', c = 'ops', onClick, spark, hint = 'By residency' }:
   { icon: LucideIcon; label: string; value: string; sub?: string; t?: Tone; c?: Domain; onClick?: () => void; spark?: number[]; hint?: string }) {
   const body = (
     <>

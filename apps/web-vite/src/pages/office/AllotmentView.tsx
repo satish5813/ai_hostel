@@ -91,7 +91,7 @@ export default function AllotmentView() {
         <button type="button" className="av-link" onClick={() => setOpen(new Set())}>Close all</button>
       </div>
 
-      {!board.data && H.id && <div className="q-empty">Loading the hostel…</div>}
+      {!board.data && H.id && <div className="q-empty">Loading the residency…</div>}
       {board.data && !shown.length && <div className="q-empty">Nothing matches. Clear the search or choose All rooms.</div>}
 
       <div className="av-floors">

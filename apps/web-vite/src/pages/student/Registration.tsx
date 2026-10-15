@@ -70,14 +70,14 @@ function Apply({ onDone }: { onDone: () => void }) {
   const { run, busy } = useAction();
   return (
     <div className="klh-stack" style={{ gap: 16 }}>
-      <section className="box"><div className="box-head"><h2>1. Hostel</h2></div>
+      <section className="box"><div className="box-head"><h2>1. Residency</h2></div>
         <div className="box-body opts">
           {(cat.data ?? []).map((h) => (
             <button key={h.facility_id} type="button" className="opt" aria-pressed={hostel?.facility_id === h.facility_id} onClick={() => { setHostel(h); setType(null); }}>
               <span className="opt-row"><b>{h.facility_name}</b><span className="tag">{h.hostel_code}</span></span>
               <span className="opt-row"><span>{h.types.length} room type{h.types.length === 1 ? '' : 's'}</span><span className={h.open_beds ? 'tag tag-ok' : 'tag tag-warn'}>{h.open_beds ? `${h.open_beds} beds open` : 'Waiting list only'}</span></span>
             </button>))}
-          {cat.data && !cat.data.length && <p className="klh-muted">No hostel has fees set for this year yet.</p>}
+          {cat.data && !cat.data.length && <p className="klh-muted">No residency has fees set for this year yet.</p>}
         </div>
       </section>
       {hostel && (

@@ -138,7 +138,7 @@ function RecordPanel({ onClose, onDone }: { onClose: () => void; onDone: (id: nu
       <div className="klh-stack" style={{ gap: 14 }}>
         {who ? <div className="dn-block"><small>Student</small><p><b>{who.full_name}</b> · {who.student_id} · {who.bed_label}</p><button type="button" className="av-link" onClick={() => { setWho(null); setQ(''); }}>Change</button></div> : (
           <Field label="Student" required hint="Name or ID"><Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Arjun or 2600040012" />
-            {found.data && <ul className="dn-pick">{found.data.map((x) => <li key={x.student_id}><button type="button" onClick={() => setWho(x)}><b>{x.full_name}</b><small>{x.student_id} · {x.bed_label}</small></button></li>)}{!found.data.length && <li className="klh-muted">No hostel student found.</li>}</ul>}
+            {found.data && <ul className="dn-pick">{found.data.map((x) => <li key={x.student_id}><button type="button" onClick={() => setWho(x)}><b>{x.full_name}</b><small>{x.student_id} · {x.bed_label}</small></button></li>)}{!found.data.length && <li className="klh-muted">No residency student found.</li>}</ul>}
           </Field>)}
         <div className="klh-grid-2">
           <Field label="When" required><Input type="datetime-local" value={f.incident_on} onChange={(e) => setF({ ...f, incident_on: e.target.value })} /></Field>

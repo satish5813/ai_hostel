@@ -28,7 +28,7 @@ export default function MyMenuPage() {
   const [day, setDay] = useState<number | null>(null);
   const d = m.data;
   if (!d) return <div className="st"><p className="st-empty">Loading…</p></div>;
-  if (!d.me) return <div className="st"><section className="st-panel"><h2>Mess menu</h2><p className="st-empty">Your menu appears here once you live in a hostel and have a mess subscription.</p></section></div>;
+  if (!d.me) return <div className="st"><section className="st-panel"><h2>Mess menu</h2><p className="st-empty">Your menu appears here once you live in a residency and have a mess subscription.</p></section></div>;
   const me = d.me;
   const showNext = week === 'next' && !!me.pending_change_id;
   const items = showNext ? d.next_items : d.items;
@@ -73,7 +73,7 @@ export default function MyMenuPage() {
           {items.length ? (
             <ul className="st-meals mn-meals">{MEAL_SLOTS.map((s) => (
               <li key={s.id}><span className="st-meal-ico"><s.icon size={16} /></span><span className="st-line-tx"><b>{s.label}</b><small>{meal(s.id) ?? 'Not set'}</small></span></li>))}</ul>
-          ) : <p className="st-empty">There is no approved menu for this group yet. The hostel office prepares it.</p>}
+          ) : <p className="st-empty">There is no approved menu for this group yet. The residency office prepares it.</p>}
         </section>
         <FoodChoice m={d} onDone={() => { m.mutate(); setWeek('next'); setDay(null); }} />
       </div>

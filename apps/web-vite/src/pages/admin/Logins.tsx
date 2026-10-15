@@ -46,7 +46,7 @@ export default function Logins() {
                   <td><b>{titleCase(l.full_name)}</b><small className="lg-sub">{l.staff_id}{l.designation ? ` · ${l.designation}` : ''}</small></td>
                   <td>{l.facilities.length ? <span className="lg-chips">{l.facilities.map((f) => <span key={f} className="lg-chip">{code(f)}</span>)}</span> : <span className="klh-muted">No hostel: sees nothing</span>}</td>
                   <td className="klh-muted">{l.approval_ref ?? '—'}</td>
-                  <td className="lg-act"><Button size="sm" variant="ghost" onClick={() => setEdit(l)}>Hostels</Button><Button size="sm" variant="ghost" onClick={() => setOff(l)}>Remove</Button></td>
+                  <td className="lg-act"><Button size="sm" variant="ghost" onClick={() => setEdit(l)}>Residencies</Button><Button size="sm" variant="ghost" onClick={() => setOff(l)}>Remove</Button></td>
                 </tr>))}
             </tbody>
           </table>)}
@@ -97,9 +97,9 @@ function LoginPanel({ login, role: defRole, hostels, onClose, onSaved }: { login
                 {found.length > 0 && <div className="lg-found">{found.map((s) => <button key={s.staff_id} type="button" onClick={() => { setStaff(s); setQ(''); }}><b>{titleCase(s.full_name)}</b><small>{s.staff_id}{s.designation ? ` · ${s.designation}` : ''}</small></button>)}</div>}
               </Field>)}
           </>)}
-        <fieldset className="lg-hostels"><legend>Hostels</legend>
+        <fieldset className="lg-hostels"><legend>Residencies</legend>
           {hostels.map((h) => <Checkbox key={h.facility_id} label={`${h.hostel_code} · ${h.facility_name}`} description={h.hostel_gender} checked={picked.includes(h.facility_id)} onChange={(v) => setPicked(v ? [...picked, h.facility_id] : picked.filter((x) => x !== h.facility_id))} />)}
-          <div className="klh-row" style={{ gap: 8 }}><Button size="sm" variant="ghost" onClick={() => setPicked(hostels.map((h) => h.facility_id))}>All hostels</Button><Button size="sm" variant="ghost" onClick={() => setPicked([])}>None</Button></div>
+          <div className="klh-row" style={{ gap: 8 }}><Button size="sm" variant="ghost" onClick={() => setPicked(hostels.map((h) => h.facility_id))}>All residencies</Button><Button size="sm" variant="ghost" onClick={() => setPicked([])}>None</Button></div>
         </fieldset>
         <Field label="Written approval" required hint="Order or letter number, for example HO/2026/CW/04"><Input value={ref} onChange={(e) => setRef(e.target.value)} /></Field>
       </div>
