@@ -272,7 +272,7 @@ function CareerChoiceSection({ c }: { c: CareerChoice }) {
                 {GOAL_COL.map((g) => <td key={g.key} className="n"><Cell n={Number(h[g.key])} onClick={() => setOpen({ facility: h.facility_id, where: h.hostel_code, goal: g.goal, goalLabel: g.label, bucket: 'all' })} /></td>)}</tr>))}
             </tbody></table></div>
         </Block>
-        <Block wide title="Career path × fees and results" sub="Each path: how its students stand on hostel fees and results · tap a number to see them">
+        <Block wide title="Career path × fees and results" sub="Each path: how its students stand on residency fees and results · tap a number to see them">
           <div className="xd-chips" role="tablist" aria-label="Hostel">
             <button type="button" role="tab" aria-selected={fac === 'all'} className={fac === 'all' ? 'xd-chip-on' : ''} onClick={() => setFac('all')}>All residencies</button>
             {hs.map((h) => <button key={h.facility_id} type="button" role="tab" aria-selected={fac === h.facility_id} className={fac === h.facility_id ? 'xd-chip-on' : ''} onClick={() => setFac(h.facility_id)}>{h.hostel_code}<small>{num(h.stated)}</small></button>)}
@@ -307,7 +307,7 @@ function MatrixTable({ rows, pick }: { rows: MatrixRow[]; pick: (goal: string, l
   );
 }
 
-/** One building's career choices: what its hostel students chose, and how each path stands on fees and results. */
+/** One building's career choices: what its residency students chose, and how each path stands on fees and results. */
 function BuildingCareer({ b, rows, loading }: { b: Building; rows: MatrixRow[]; loading: boolean }) {
   const [open, setOpen] = useState<Pick | null>(null);
   const stated = rows.reduce((a, r) => a + r.students, 0);
@@ -477,7 +477,7 @@ function BuildingCard({ b, settings, onOpen }: { b: Building; settings: Overview
         <span className="xd-card-title"><b>{b.facility_name}</b><small>{b.gender} · {b.accommodation_type === 'Hostel' ? 'Residency' : b.accommodation_type}{b.floors ? ` · ${b.floors} floors` : ''}</small></span>
         <ChevronRight size={18} className="xd-chev" />
       </span>
-      {empty ? <span className="xd-card-none">No students in the hostel yet · {b.beds.toLocaleString('en-IN')} beds</span> : (
+      {empty ? <span className="xd-card-none">No students in the residency yet · {b.beds.toLocaleString('en-IN')} beds</span> : (
         <>
           <span className="xd-card-mid">
             <Ring value={b.occupied} of={b.beds} label="beds" />
