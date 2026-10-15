@@ -77,7 +77,7 @@ export default function Dues() {
               </Card>
             </>)}
         </>)}
-      <Drawer open={!!sel} onClose={() => setSel(null)} title={sel ? `${words(sel.fee_head)}${sel.fee_head === 'Hostel' ? `, instalment ${sel.instalment_no}` : ''}` : ''} subtitle={student.data ? `${titleCase(student.data.full_name)} · ${q}` : undefined}>
+      <Drawer open={!!sel} onClose={() => setSel(null)} title={sel ? `${words(sel.fee_head)}${sel.fee_head === 'Residency' ? `, instalment ${sel.instalment_no}` : ''}` : ''} subtitle={student.data ? `${titleCase(student.data.full_name)} · ${q}` : undefined}>
         {sel && (
           <div className="klh-stack" style={{ gap: 20 }}>
             <Money amount={Number(sel.amount_due) - Number(sel.amount_paid)} dueDate={sel.due_date} status={sel.status} paise />

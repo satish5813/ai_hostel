@@ -50,7 +50,7 @@ export default function ApprovalLink() {
           <>
             <dl className="klh-dl">
               <dt>Student</dt><dd>{o.full_name} · {o.student_id}{o.programme ? ` · ${o.programme}` : ''}</dd>
-              {o.hostel_name && <><dt>Hostel</dt><dd>{o.hostel_name}, room {o.room_code}</dd></>}
+              {o.hostel_name && <><dt>Residency</dt><dd>{o.hostel_name}, room {o.room_code}</dd></>}
               <dt>Going to</dt><dd>{o.destination}</dd>
               <dt>Reason</dt><dd>{o.reason}</dd>
               <dt>Leaves</dt><dd>{formatDateTime(o.leave_from)}</dd>

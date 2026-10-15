@@ -133,7 +133,7 @@ function RecordPanel({ onClose, onDone }: { onClose: () => void; onDone: (id: nu
   const { run, busy } = useAction();
   const save = () => run(() => api<{ case_id: number }>('/discipline', { method: 'POST', json: { student_id: who!.student_id, incident_on: new Date(f.incident_on).toISOString(), incident_type: f.incident_type, description: f.description, student_statement: f.student_statement || null } }).then((x) => onDone(x.case_id)), 'Case recorded');
   return (
-    <Drawer open onClose={onClose} title="Record a case" subtitle="An incident by a student of your hostels"
+    <Drawer open onClose={onClose} title="Record a case" subtitle="An incident by a student of your residencies"
       footer={<Button variant="primary" loading={busy} blockedReason={!who ? 'Choose the student.' : !f.incident_on ? 'When did it happen?' : new Date(f.incident_on) > new Date() ? 'The time is in the future.' : f.description.trim().length < 10 ? 'Describe what happened.' : undefined} onClick={save}>Record case</Button>}>
       <div className="klh-stack" style={{ gap: 14 }}>
         {who ? <div className="dn-block"><small>Student</small><p><b>{who.full_name}</b> · {who.student_id} · {who.bed_label}</p><button type="button" className="av-link" onClick={() => { setWho(null); setQ(''); }}>Change</button></div> : (

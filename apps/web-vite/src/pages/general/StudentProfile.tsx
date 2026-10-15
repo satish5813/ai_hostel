@@ -166,7 +166,7 @@ export default function StudentProfile() {
             {dues.data ? <Fees d={dues.data} onPay={() => navigate('/fees')} /> : <Empty text="Loading…" />}
           </Card>
 
-          <Card icon={DoorOpen} title="Hostel life" sub="This term">
+          <Card icon={DoorOpen} title="Residency life" sub="This term">
             {d ? (
               <ul className="sp-life">
                 <li><Moon size={15} /><span>Night roll call</span><b>{d.hostel.night_pct != null ? `${d.hostel.night_pct}%` : '—'}</b></li>

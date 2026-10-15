@@ -72,7 +72,7 @@ export default function AllotmentView() {
 
   return (
     <div className="ra-main av">
-      <RaHead eyebrow="Whole hostel · floors, rooms, beds and staff" tone="#0B7A71" title="Hostel allotment"
+      <RaHead eyebrow="Whole residency · floors, rooms, beds and staff" tone="#0B7A71" title="Hostel allotment"
         sub={chief.length ? `Chief Manager: ${chief.map((c) => proper(c.full_name)).join(', ')}` : 'Every bed with its student, every floor with the staff responsible for it today.'}
         right={<HostelPills list={H.list} value={H.id} onPick={H.pick} />} />
 

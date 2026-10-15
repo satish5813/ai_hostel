@@ -40,7 +40,7 @@ export default function DeanHome() {
   return (
     <div className="ra-main ov dn">
       <RaHead eyebrow={today()} tone="#C2410C" title={`${greeting()}${name ? `, ${name}` : ''}`}
-        sub={k ? `${k.residents.toLocaleString('en-IN')} students live in ${o.data!.hostels.length} hostels · ${k.with_dean ? `${k.with_dean} case${k.with_dean === 1 ? '' : 's'} wait for you` : 'nothing waits for your decision'}` : 'Loading the hostels…'} />
+        sub={k ? `${k.residents.toLocaleString('en-IN')} students live in ${o.data!.hostels.length} residencies · ${k.with_dean ? `${k.with_dean} case${k.with_dean === 1 ? '' : 's'} wait for you` : 'nothing waits for your decision'}` : 'Loading the hostels…'} />
 
       <div className="ov-tiles">
         {tiles.map((t) => { const I = t.icon; return (
@@ -64,14 +64,14 @@ export default function DeanHome() {
       </div>
 
       <section className="ov-card" aria-label="Hostels">
-        <header><h2>Hostels</h2><small>Last 30 days</small></header>
+        <header><h2>Residencies</h2><small>Last 30 days</small></header>
         <div className="ov-scroll">
           <table className="ov-table">
-            <thead><tr><th>Hostel</th><th>Hostel students</th><th>Absence at roll call</th><th>Open cases</th><th>Late returns</th><th>Last weekly report</th></tr></thead>
+            <thead><tr><th>Residency</th><th>Residency students</th><th>Absence at roll call</th><th>Open cases</th><th>Late returns</th><th>Last weekly report</th></tr></thead>
             <tbody>{(o.data?.hostels ?? []).map((h) => { const r = Number(h.absence_rate_30d ?? 0); return (
               <tr key={h.facility_id}>
                 <th scope="row"><span className="ov-h"><b>{h.hostel_code}</b><small>{h.facility_name}</small></span></th>
-                <td data-label="Hostel students">{h.residents}</td>
+                <td data-label="Residency students">{h.residents}</td>
                 <td data-label="Absence at roll call"><span className="dn-rate"><span className="av-bar"><i style={{ width: `${Math.min(r * 4, 100)}%`, background: r >= 10 ? 'var(--dn-attn)' : undefined }} /></span>{h.absence_rate_30d == null ? '—' : `${h.absence_rate_30d}%`}</span></td>
                 <td data-label="Open cases"><button type="button" className={`ov-n${h.open_cases ? ' ov-hot' : ' ov-zero'}`} onClick={() => navigate('/discipline')}>{h.open_cases}</button></td>
                 <td data-label="Late returns"><span className={`ov-n${h.late_returns_30d ? ' ov-warn' : ' ov-zero'}`}>{h.late_returns_30d}</span></td>

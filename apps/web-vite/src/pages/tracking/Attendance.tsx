@@ -47,7 +47,7 @@ export default function Attendance() {
   return (
     <div className="klh-stack" style={{ gap: 18 }}>
       <ScreenHeader code="TRK-07" subtitle="Outings and sick leave come from the approved requests. You take the night roll call; an absence with no pass raises a Not Seen alert."
-        actions={canMark ? <Button variant="primary" icon="check" onClick={() => setRoll(true)} blockedReason={!d?.students.length ? 'No hostel students in your scope.' : undefined}>Take tonight's roll call</Button> : undefined} />
+        actions={canMark ? <Button variant="primary" icon="check" onClick={() => setRoll(true)} blockedReason={!d?.students.length ? 'No residency students in your scope.' : undefined}>Take tonight's roll call</Button> : undefined} />
       {d && (
         <div className="ad-stats">
           <Stat icon="users" color="brand" label="Hostel students" value={String(d.students.length)} />
@@ -65,7 +65,7 @@ export default function Attendance() {
         </div>}>
         <div className="ui-att">
           <div className="ui-att-grid">
-            <div style={{ fontSize: 12.5, color: 'var(--ink-muted)', alignSelf: 'end', padding: '0 0 8px 4px' }}>Hostel students</div>
+            <div style={{ fontSize: 12.5, color: 'var(--ink-muted)', alignSelf: 'end', padding: '0 0 8px 4px' }}>Residency students</div>
             <div className="ui-att-days" style={cols}>
               {days.map((day) => { const w = day.getDay() === 0 || day.getDay() === 6; const t = iso(day) === todayIso; return (
                 <div key={iso(day)} className={`ui-att-day${t ? ' ui-att-day-today' : w ? ' ui-att-day-off' : ''}`}>{day.toLocaleDateString('en-IN', { weekday: 'short' })}<b>{day.getDate()}</b></div>); })}
@@ -126,7 +126,7 @@ function RollCall({ date, facility, students, existing, away, sick, onClose, onD
   const { run, busy } = useAction();
   const absent = Object.values(marks).filter((v) => v === 'Absent').length;
   return (
-    <Drawer open onClose={onClose} title="Night roll call" subtitle={`${formatDate(date)} · ${students.length} hostel students`}
+    <Drawer open onClose={onClose} title="Night roll call" subtitle={`${formatDate(date)} · ${students.length} residency students`}
       footer={<Button variant="primary" icon="check" loading={busy} onClick={() => run(() => api('/attendance/mark', { method: 'POST', json: { att_date: date, facility_id: facility, marks: students.map((st) => ({ student_id: st.student_id, status: marks[st.student_id] })) } }).then(onDone), absent ? `Roll call saved. ${absent} Not Seen alert${absent > 1 ? 's' : ''} raised.` : 'Roll call saved. Everyone accounted for.')}>Save roll call</Button>}>
       <div className="klh-stack" style={{ gap: 4 }}>
         {students.map((st) => { const auto = away(st) ? 'On an approved pass' : sick(st) ? 'On sick leave, in room' : null; return (

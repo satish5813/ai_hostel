@@ -28,7 +28,7 @@ export default function Users() {
         <StatCard color="orange" icon="alert" label="Users with no role" value={String(users.data?.filter((u) => !u.roles.length).length ?? 0)} />
       </div>
       <Card padding={0}>
-        <DataTable caption="Users" rowKey="user_id" rows={users.data ?? []} loading={!users.data} searchable searchPlaceholder="Search name, ID or e-mail" onRowClick={(r) => { setSel(r as User); setF({ role_code: '', scope_dept: (r as User).home_dept ?? 'HOSTELS', approval_ref: '' }); }} selectedKey={sel?.user_id} empty={<EmptyState icon="users" title="No users" />}
+        <DataTable caption="Users" rowKey="user_id" rows={users.data ?? []} loading={!users.data} searchable searchPlaceholder="Search name, ID or e-mail" onRowClick={(r) => { setSel(r as User); setF({ role_code: '', scope_dept: (r as User).home_dept ?? 'RESIDENCIES', approval_ref: '' }); }} selectedKey={sel?.user_id} empty={<EmptyState icon="users" title="No users" />}
           columns={[
             { key: 'full_name', label: 'Person', render: (v: string, u: User) => <Person name={titleCase(v)} sub={`${u.staff_id ?? ''} · ${u.title ?? ''}`} /> },
             { key: 'home_dept', label: 'Department' },

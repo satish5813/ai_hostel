@@ -458,7 +458,7 @@ class Offline {
   }
   dynamic _ticket(Map b) {
     final box = _w['/me/tickets'] as Map?;
-    if (box == null) _fail(422, 'Repairs open after you check in to the hostel');
+    if (box == null) _fail(422, 'Repairs open after you check in to the residency');
     final item = (box['items'] as List).cast<Map>().firstWhere((i) => i['item_code'] == b['item_code'], orElse: () => _fail(422, 'Pick what is wrong'));
     final t = _tpl['ticket'] as Map;
     final id = ++_seq;
@@ -549,7 +549,7 @@ class Offline {
   dynamic _food(Map? b) {
     final menu = _w['/me/menu'] as Map?;
     final me = menu?['me'] as Map?;
-    if (me == null) _fail(422, 'You are not taking meals in a hostel mess');
+    if (me == null) _fail(422, 'You are not taking meals in a residency mess');
     if (b == null) {
       me['pending_change_id'] = null; me['change_from'] = null; me['next_region'] = me['region']; me['next_diet'] = me['diet']; me['next_country'] = me['country']; me['next_title'] = me['menu_title'];
       return {};
@@ -562,7 +562,7 @@ class Offline {
   dynamic _roomChange(Map b) {
     final box = _w['/me/room-change'] as Map?;
     final t = _tpl['roomChange'] as Map?;
-    if (box == null || t == null) _fail(422, 'You can ask for another room once you live in a hostel');
+    if (box == null || t == null) _fail(422, 'You can ask for another room once you live in a residency');
     final requests = box['requests'] as List;
     if (requests.any((q) => ['Pending_FW', 'Pending_CW', 'Approved'].contains((q as Map)['status']))) _fail(422, 'You already have a room change request open');
     final type = (box['types'] as List).cast<Map>().firstWhere((x) => x['room_type_id'] == b['to_room_type_id'], orElse: () => _fail(422, 'Choose the room type'));

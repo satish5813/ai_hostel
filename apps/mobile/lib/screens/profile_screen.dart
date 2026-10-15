@@ -95,7 +95,7 @@ class _ProfileScreenState extends State<ProfileScreen> with AutoRefresh {
     ];
 
     return RefreshIndicator(onRefresh: load, child: ListView(physics: const AlwaysScrollableScrollPhysics(), padding: const EdgeInsets.fromLTRB(16, 16, 16, 90), children: [
-      _Hero(m: m, name: name, room: room, goal: goal, stats: stats, onPhoto: load, stay: room != null ? '${room['bed_label']}' : reg != null ? (reg['hostel_code'] != null ? '${reg['hostel_code']} · joining' : 'Joining the hostel') : 'Hosteller'), // everyone in this app is a hosteller, or about to be
+      _Hero(m: m, name: name, room: room, goal: goal, stats: stats, onPhoto: load, stay: room != null ? '${room['bed_label']}' : reg != null ? (reg['hostel_code'] != null ? '${reg['hostel_code']} · joining' : 'Joining the residency') : 'Hosteller'), // everyone in this app is a hosteller, or about to be
       const SizedBox(height: 18),
 
       // ---------------- main column
@@ -154,7 +154,7 @@ class _ProfileScreenState extends State<ProfileScreen> with AutoRefresh {
       const SizedBox(height: 18),
 
       // ---------------- side column
-      _Card(icon: LucideIcons.bedDouble, title: 'Hostel stay', go: () => openPlace(context, 'room'), children: room == null ? [const _Empty('Your room appears here after check-in.')] : [
+      _Card(icon: LucideIcons.bedDouble, title: 'Residency stay', go: () => openPlace(context, 'room'), children: room == null ? [const _Empty('Your room appears here after check-in.')] : [
         Container(padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             decoration: BoxDecoration(borderRadius: BorderRadius.circular(16), gradient: K.primaryGradient),
             child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -167,7 +167,7 @@ class _ProfileScreenState extends State<ProfileScreen> with AutoRefresh {
       _Card(icon: LucideIcons.indianRupee, title: 'Fees', go: () => openPlace(context, 'fees'),
           children: dues == null ? [const _Empty('Loading…')] : _fees(dues)),
       const SizedBox(height: 18),
-      _Card(icon: LucideIcons.doorOpen, title: 'Hostel life', sub: 'This term', children: [
+      _Card(icon: LucideIcons.doorOpen, title: 'Residency life', sub: 'This term', children: [
         if (hostel == null) const _Empty('Loading…') else Column(children: [
           for (final (i, (icon, label, value, red)) in <(IconData, String, String, bool)>[
             (LucideIcons.moon, 'Night roll call', night != null ? '${_js(night)}%' : '—', false),
@@ -195,7 +195,7 @@ class _ProfileScreenState extends State<ProfileScreen> with AutoRefresh {
             ])),
       ]),
       const SizedBox(height: 18),
-      _Card(icon: LucideIcons.idCard, title: 'My hostel record', sub: kyc?['locked'] == true ? 'Submitted ${day(kyc!['submitted_on'])}. Only the Chief Manager can change it now.' : 'Aadhaar, address, parents and emergency contact. Fill it once; after that the Chief Manager changes it.',
+      _Card(icon: LucideIcons.idCard, title: 'My residency record', sub: kyc?['locked'] == true ? 'Submitted ${day(kyc!['submitted_on'])}. Only the Chief Manager can change it now.' : 'Aadhaar, address, parents and emergency contact. Fill it once; after that the Chief Manager changes it.',
           children: [_Kyc(k: kyc, m: m, onChange: load)]),
       const SizedBox(height: 18),
       _Card(icon: LucideIcons.users, title: 'Family contacts', sub: 'Verify each number. One parent or guardian recommends your outings.',
@@ -699,7 +699,7 @@ class _Kyc extends StatelessWidget {
               keyboardType: key.endsWith('mobile') || key == 'aadhaar_no' || key == 'pincode' ? TextInputType.number : TextInputType.text,
               decoration: InputDecoration(hintText: hint)),
     ]));
-    showKSheet(context, mod: Mod.teal, icon: LucideIcons.idCard, title: 'My hostel record', sub: 'Submitted once; the Chief Manager changes it after that',
+    showKSheet(context, mod: Mod.teal, icon: LucideIcons.idCard, title: 'My residency record', sub: 'Submitted once; the Chief Manager changes it after that',
         body: (ctx, set) => Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
           for (final (key, label, hint) in _kycFields) field(key, label, hint, set),
           const KLabel('Photo of the Aadhaar card'),

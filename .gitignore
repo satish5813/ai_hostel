@@ -11,9 +11,7 @@ transfer/
 apps/api/.env.bak.*
 *.tsbuildinfo
 # database backups hold personal data: kept on the server and on this Mac, never in git
-db/*.dump
 db/*.sql.gz
-*.dump
 # build output of the web app
 apps/web-vite/dist/
 

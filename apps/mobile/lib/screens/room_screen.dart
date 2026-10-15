@@ -157,14 +157,14 @@ class _RoomScreenState extends State<RoomScreen> {
   List<Widget> _apply() {
     final h = hostel, t = type;
     return [
-      _Box(title: '1. Hostel', children: [
+      _Box(title: '1. Residency', children: [
         for (final (i, x) in (catalogue ?? []).indexed) Padding(padding: EdgeInsets.only(top: i == 0 ? 0 : 8), child: _Opt(on: h?['facility_id'] == x['facility_id'],
             onTap: () => setState(() { hostel = x; type = null; }), children: [
           _optRow(Text('${x['facility_name']}', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: _muted)), _tag('${x['hostel_code']}')),
           _optRow(Text('${(x['types'] as List).length} room type${(x['types'] as List).length == 1 ? '' : 's'}', style: const TextStyle(fontSize: 12.5, color: _muted)),
               _tag(_n(x['open_beds']) > 0 ? '${x['open_beds']} beds open' : 'Waiting list only', tone: _n(x['open_beds']) > 0 ? 'ok' : 'warn')),
         ])),
-        if (catalogue != null && catalogue!.isEmpty) const Text('No hostel has fees set for this year yet.', style: TextStyle(color: _muted)),
+        if (catalogue != null && catalogue!.isEmpty) const Text('No residency has fees set for this year yet.', style: TextStyle(color: _muted)),
       ]),
       if (h != null) _Box(title: '2. Room type in ${h['hostel_code']}', children: [
         for (final (i, x) in (h['types'] as List).cast<Map>().indexed) Padding(padding: EdgeInsets.only(top: i == 0 ? 0 : 8), child: _Opt(on: t?['room_type_id'] == x['room_type_id'],
@@ -178,7 +178,7 @@ class _RoomScreenState extends State<RoomScreen> {
           Text('${x['sharing_count']} per room${x['is_ac'] == true ? ' · AC' : ''}${x['attached_bath'] == true ? ' · attached bath' : ''}', style: const TextStyle(fontSize: 12.5, color: _muted)),
           Text.rich(TextSpan(style: const TextStyle(fontSize: 12.5, height: 1.45, color: _muted), children: [
             TextSpan(text: 'On joining ${_inr(_joining(x))}\n', style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w600, color: K.ink)),
-            TextSpan(text: 'registration ${_inr(x['registration_fee'])} · caution deposit ${_inr(x['caution_deposit'])} · electricity deposit ${_inr(x['elec_caution_deposit'])} · hostel ${_inr(x['hostel_fee'])}${x['mess_fee'] != null ? ' · mess ${_inr(x['mess_fee'])}' : ''} · meter ${_inr(x['meter_charge'])}'),
+            TextSpan(text: 'registration ${_inr(x['registration_fee'])} · caution deposit ${_inr(x['caution_deposit'])} · electricity deposit ${_inr(x['elec_caution_deposit'])} · residency ${_inr(x['hostel_fee'])}${x['mess_fee'] != null ? ' · mess ${_inr(x['mess_fee'])}' : ''} · meter ${_inr(x['meter_charge'])}'),
           ])),
         ])),
       ]),
@@ -188,11 +188,11 @@ class _RoomScreenState extends State<RoomScreen> {
           Padding(padding: const EdgeInsets.only(top: 2), child: SizedBox(width: 16, height: 16, child: Checkbox(value: ok, onChanged: (v) => setState(() => ok = v ?? false),
               materialTapTargetSize: MaterialTapTargetSize.shrinkWrap, visualDensity: VisualDensity.compact, activeColor: const Color(0xFF0075FF)))),
           const SizedBox(width: 10),
-          Expanded(child: Text('I accept the hostel rules, including that the registration fee of ${_inr(t['registration_fee'])} is not refundable. The caution deposit (${_inr(t['caution_deposit'])}) and electricity caution deposit (${_inr(t['elec_caution_deposit'])}) are returned when I leave, less approved deductions. On renewal only the hostel fee, mess fee and meter charge are paid.',
+          Expanded(child: Text('I accept the residency rules, including that the registration fee of ${_inr(t['registration_fee'])} is not refundable. The caution deposit (${_inr(t['caution_deposit'])}) and electricity caution deposit (${_inr(t['elec_caution_deposit'])}) are returned when I leave, less approved deductions. On renewal only the residency fee, mess fee and meter charge are paid.',
               style: const TextStyle(fontSize: 14))),
         ])),
         const SizedBox(height: 12),
-        Align(alignment: Alignment.centerLeft, child: _Blocked(reason: ok ? null : 'Accept the hostel rules to apply.', child: _AccentButton('Apply for ${t['type_name']}', iconRight: LucideIcons.arrowRight, large: true, busy: busy,
+        Align(alignment: Alignment.centerLeft, child: _Blocked(reason: ok ? null : 'Accept the residency rules to apply.', child: _AccentButton('Apply for ${t['type_name']}', iconRight: LucideIcons.arrowRight, large: true, busy: busy,
             onPressed: ok ? () => _run(() => api.post('/registrations', {'facility_id': h['facility_id'], 'room_type_id': t['room_type_id'], 'rules_accepted': true}).then((_) => load()), 'Applied. Pay the registration fee next.') : null))),
       ]),
     ];
@@ -218,7 +218,7 @@ class _RoomScreenState extends State<RoomScreen> {
       if (st == 'Accepted' && g['fee_plan_id'] != null) _Notice(tone: 'info', title: 'Pay the hostel and mess fees',
           body: 'Room ${_roomLabel(_roomOf(g['subspace_id']))}, bed ${_bedOf(g['subspace_id'])} is kept for you. Pay the demands on the right; a Warden then checks them.'),
       if (st == 'Confirmed' && g['fee_check_status'] == 'Pending') const _Notice(tone: 'progress', title: 'Fees paid; the Warden is checking them', body: 'This page changes as soon as the fees are verified. Then collect your key at the hostel office.'),
-      if (st == 'Confirmed' && g['fee_check_status'] == 'Query') _Notice(tone: 'critical', title: 'The Warden has a query on your fees', body: '${g['fee_check_remarks']} Visit the hostel accounts desk with your receipts.'),
+      if (st == 'Confirmed' && g['fee_check_status'] == 'Query') _Notice(tone: 'critical', title: 'The Warden has a query on your fees', body: '${g['fee_check_remarks']} Visit the residency accounts desk with your receipts.'),
       if (st == 'Confirmed' && g['fee_check_status'] == 'Verified') _Notice(tone: 'success', title: 'All set. Collect your key', body: 'Visit the hostel office with your ID card. Your bed: ${_bedLabel(g['subspace_id'])}.'),
       if (g['subspace_id'] != null || st == 'Checked_In') _myBed(g),
     ];
@@ -287,7 +287,7 @@ class _RoomScreenState extends State<RoomScreen> {
               const SizedBox(height: 10),
               _Blocked(reason: b == null ? 'Pick an open bed first.' : null, child: KButton('Take this bed', icon: LucideIcons.bedDouble, kind: BtnKind.accent, pill: true, busy: busy,
                   onPressed: b == null ? null : () async {
-                    final yes = await _confirm(context, title: 'Take room ${b.$2}, bed ${b.$3}?', body: 'The bed is kept for you while you choose your fee plan and pay the hostel and mess fees. To change it later, ask the hostel office.', confirmLabel: 'Take bed');
+                    final yes = await _confirm(context, title: 'Take room ${b.$2}, bed ${b.$3}?', body: 'The bed is kept for you while you choose your fee plan and pay the residency and mess fees. To change it later, ask the residency office.', confirmLabel: 'Take bed');
                     if (yes != null) _run(() => api.post('/registrations/${g['registration_id']}/choose', {'subspace_id': b.$1}).then((_) => load()), 'Bed is yours. Choose the fee plan next.');
                   })),
             ])),
@@ -301,7 +301,7 @@ class _RoomScreenState extends State<RoomScreen> {
           if (g['hold_until'] != null) _Countdown(until: '${g['hold_until']}', label: 'Hold ends in'),
         ]),
         children: [
-          Text('The hostel office offered you this bed. Accept before ${dayTime(g['hold_until'])} or it is released.', style: const TextStyle(color: _muted)),
+          Text('The residency office offered you this bed. Accept before ${dayTime(g['hold_until'])} or it is released.', style: const TextStyle(color: _muted)),
           const SizedBox(height: 12),
           Wrap(spacing: 8, runSpacing: 8, children: [
             KButton('Accept room', icon: LucideIcons.check, kind: BtnKind.accent, pill: true, busy: busy,

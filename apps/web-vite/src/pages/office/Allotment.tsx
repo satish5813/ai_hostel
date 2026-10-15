@@ -249,7 +249,7 @@ function RegPanel({ reg, canOffer, onClose, onDone }: { reg: Reg; canOffer: bool
     <Drawer open onClose={onClose} title={titleCase(reg.full_name)} subtitle={`${reg.registration_no} · ${reg.student_id} · ${reg.programme}`}>
       <div className="klh-stack" style={{ gap: 16 }}>
         <div className="facts">
-          <div><span>Hostel</span><b>{reg.hostel_code}</b></div>
+          <div><span>Residency</span><b>{reg.hostel_code}</b></div>
           <div><span>Room type</span><b>{reg.type_name}</b></div>
           <div><span>Bed</span><b>{reg.subspace_id ? bedLabel(reg.subspace_id) : '—'}</b></div>
           <div><span>Fees paid</span><b>{reg.plan_status ? `₹${Number(reg.plan_amount_paid).toLocaleString('en-IN')}` : '—'}</b></div>
@@ -260,7 +260,7 @@ function RegPanel({ reg, canOffer, onClose, onDone }: { reg: Reg; canOffer: bool
           : <Notice tone="info" title="Waiting for a room">The student can choose a room now; otherwise the office allots one.</Notice>)}
         {reg.status === 'Applied' && <Notice tone="warning" title="Registration fee not paid">The room choice opens once the registration fee is paid.</Notice>}
         {reg.status === 'Allotted' && <Notice tone="progress" title="Waiting for the student">Bed {bedLabel(reg.subspace_id)} is held until {formatDateTime(reg.hold_until)}.</Notice>}
-        {reg.status === 'Accepted' && <Notice tone="warning" title="Hostel fees not fully paid">{reg.self_chosen ? 'The student chose this bed. ' : ''}Check-in opens once every demand is paid and a Warden has checked the fees.</Notice>}
+        {reg.status === 'Accepted' && <Notice tone="warning" title="Residency fees not fully paid">{reg.self_chosen ? 'The student chose this bed. ' : ''}Check-in opens once every demand is paid and a Warden has checked the fees.</Notice>}
         {reg.status === 'Confirmed' && reg.fee_check_status !== 'Verified' && <Notice tone={reg.fee_check_status === 'Query' ? 'critical' : 'progress'} title={reg.fee_check_status === 'Query' ? 'Warden raised a query' : 'Waiting for the Warden’s fee check'}>{reg.fee_check_remarks ?? 'Fees are paid. A Warden checks them under Fee check before the key is issued.'}</Notice>}
         {reg.status === 'Confirmed' && reg.fee_check_status === 'Verified' && <Notice tone="success" title="Ready to check in">Fees paid and checked. Issue the key under Check-in and room handover.</Notice>}
         {reg.status === 'Checked_In' && <Notice tone="success" title="Checked in">Key {reg.key_no}.</Notice>}

@@ -102,7 +102,7 @@ class _LoginScreenState extends State<LoginScreen> {
             const Spacer(),
             const Text('KL STUDENT', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w800, letterSpacing: 2, color: _lit)),
             const SizedBox(height: 8),
-            const Text.rich(TextSpan(children: [TextSpan(text: 'Your hostel,\n'), TextSpan(text: 'in your pocket.', style: TextStyle(fontWeight: FontWeight.w800))]),
+            const Text.rich(TextSpan(children: [TextSpan(text: 'Your residency,\n'), TextSpan(text: 'in your pocket.', style: TextStyle(fontWeight: FontWeight.w800))]),
                 style: TextStyle(fontSize: 34, height: 1.08, fontWeight: FontWeight.w300, letterSpacing: -1, color: Colors.white)),
             const SizedBox(height: 12),
             Row(children: [for (var i = 0; i < _photos.length; i++) AnimatedContainer(duration: const Duration(milliseconds: 300), margin: const EdgeInsets.only(right: 5), height: 4, width: i == _photo ? 22 : 6,

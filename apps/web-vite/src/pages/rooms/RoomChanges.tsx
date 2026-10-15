@@ -145,7 +145,7 @@ function MoveDrawer({ onClose, onDone }: { onClose: () => void; onDone: (changeI
   };
   const blocked = !sid ? 'Choose the student.' : !bed ? 'Choose the bed.' : reason.trim().length < 10 ? 'Write the reason.' : now && opt.data?.meter && !reading ? 'Enter the meter reading of the old room.' : undefined;
   return (
-    <Drawer open onClose={onClose} title="Move a student" subtitle="Any hostel student of your building to any free bed, without waiting for a request"
+    <Drawer open onClose={onClose} title="Move a student" subtitle="Any residency student of your building to any free bed, without waiting for a request"
       footer={<Button variant="primary" icon="check" loading={busy} blockedReason={blocked} onClick={save}>{now ? 'Move now and settle' : 'Approve; move later'}</Button>}>
       <div className="rc-det">
         {!sid ? (

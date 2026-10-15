@@ -36,7 +36,7 @@ export default function Rooms() {
     <div className="klh-stack" style={{ gap: 18 }}>
       <ScreenHeader code="MAP-01" subtitle={builds ? 'Add a floor, then its rooms. A room gets one bed for each sharing place of its room type.' : 'Buildings, floors, rooms and beds. View only for your role.'}
         actions={s.role === 'admin' ? <Button variant="accent" icon="plus" onClick={() => navigate('/admin/masters?tab=hostels')}>Add hostel</Button> : undefined} />
-      {hostels.data?.length === 0 && <Notice tone="warning" title="No hostel building yet">The Data Administrator adds the first hostel under Masters.</Notice>}
+      {hostels.data?.length === 0 && <Notice tone="warning" title="No hostel building yet">The Data Administrator adds the first residency under Masters.</Notice>}
       {hostels.data?.map((h) => <HostelBlock key={h.facility_id} hostel={h} builds={builds} onAdd={(floor, category) => setAdd({ hostel: h, floor, category })} onEdit={(floor, space) => setEdit({ hostel: h, floor, space })} onChange={() => hostels.mutate()} />)}
       {add && <AddRooms ctx={add} types={types.data ?? []} onClose={() => setAdd(null)} onDone={() => { hostels.mutate(); setAdd(null); }} />}
       {edit && <EditRoom ctx={edit} types={types.data ?? []} editable={builds} onClose={() => setEdit(null)} onDone={() => { hostels.mutate(); setEdit(null); }} />}
@@ -124,7 +124,7 @@ function EditRoom({ ctx, types, editable, onClose, onDone }: { ctx: { hostel: Ho
           {typeChanged && <Notice tone="warning" title="Beds are not changed">Changing the room type changes the fee band only. The room keeps its {x.beds} beds.</Notice>}
           <Field label="Reserved for"><Select value={f.reserved_for} onChange={(e) => setF({ ...f, reserved_for: e.target.value })} options={['None', 'Staff', 'Guest', 'Medical']} /></Field>
           <Checkbox label="Accessible room" checked={f.is_accessible} onChange={(v) => setF({ ...f, is_accessible: v })} />
-          <Field label="Approved by" hint="Employee ID of the Chief Manager, when the Hostel Office corrects a room"><Input value={f.approved_by} onChange={(e) => setF({ ...f, approved_by: e.target.value })} placeholder="S-CW" /></Field>
+          <Field label="Approved by" hint="Employee ID of the Chief Manager, when the Residency Office corrects a room"><Input value={f.approved_by} onChange={(e) => setF({ ...f, approved_by: e.target.value })} placeholder="S-CW" /></Field>
         </>) : <dl className="klh-dl"><dt>Room type</dt><dd>{x.type_name ?? 'Not set'}</dd><dt>Reserved for</dt><dd>{x.reserved_for}</dd><dt>Accessible</dt><dd>{x.is_accessible ? 'Yes' : 'No'}</dd></dl>)}
         <Notice tone="info" title="Blocking a bed or a room">Use REG-08 Occupancy board to block a bed or mark the room under maintenance; it needs a reason and is audited.</Notice>
       </div>

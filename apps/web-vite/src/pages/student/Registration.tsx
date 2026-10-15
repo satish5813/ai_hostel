@@ -36,7 +36,7 @@ export default function Registration() {
   return (
     <div className="pg">
       <div className="pg-head">
-        <div><h1>{reg ? `${reg.hostel_name ?? reg.hostel_code}, ${reg.type_name}` : 'Apply for a hostel room'}</h1><p>{reg ? `Registration ${reg.registration_no} · applied ${formatDate(reg.applied_on)}` : 'Hostels for you, with the fee and the beds still open in each room type.'}</p></div>
+        <div><h1>{reg ? `${reg.hostel_name ?? reg.hostel_code}, ${reg.type_name}` : 'Apply for a residency room'}</h1><p>{reg ? `Registration ${reg.registration_no} · applied ${formatDate(reg.applied_on)}` : 'Residencies for you, with the fee and the beds still open in each room type.'}</p></div>
         {reg && <StatusChip status={reg.status} />}
       </div>
       <div className="steps" aria-label="Progress">
@@ -50,8 +50,8 @@ export default function Registration() {
             {['Fee_Paid', 'Waitlisted'].includes(reg.status) && <ChooseRoom reg={reg} onDone={refresh} />}
             {reg.status === 'Allotted' && <Offer reg={reg} onDone={refresh} />}
             {reg.status === 'Accepted' && !reg.fee_plan_id && <FeePlan reg={reg} onDone={refresh} />}
-            {reg.status === 'Accepted' && reg.fee_plan_id && <Notice tone="info" title="Pay the hostel and mess fees">Room {roomLabel(reg.subspace_id?.replace(/-B\d+$/, ''))}, bed {bedOf(reg.subspace_id)} is kept for you. Pay the demands on the right; a Warden then checks them.</Notice>}
-            {reg.status === 'Confirmed' && reg.fee_check_status === 'Pending' && <Notice tone="progress" title="Fees paid; the Warden is checking them">This page changes as soon as the fees are verified. Then collect your key at the hostel office.</Notice>}
+            {reg.status === 'Accepted' && reg.fee_plan_id && <Notice tone="info" title="Pay the residency and mess fees">Room {roomLabel(reg.subspace_id?.replace(/-B\d+$/, ''))}, bed {bedOf(reg.subspace_id)} is kept for you. Pay the demands on the right; a Warden then checks them.</Notice>}
+            {reg.status === 'Confirmed' && reg.fee_check_status === 'Pending' && <Notice tone="progress" title="Fees paid; the Warden is checking them">This page changes as soon as the fees are verified. Then collect your key at the residency office.</Notice>}
             {reg.status === 'Confirmed' && reg.fee_check_status === 'Query' && <Notice tone="critical" title="The Warden has a query on your fees">{reg.fee_check_remarks} Visit the hostel accounts desk with your receipts.</Notice>}
             {reg.status === 'Confirmed' && reg.fee_check_status === 'Verified' && <Notice tone="success" title="All set. Collect your key">Visit the hostel office with your ID card. Your bed: {bedLabel(reg.subspace_id)}.</Notice>}
             {(reg.subspace_id || reg.status === 'Checked_In') && <MyBed reg={reg} />}
@@ -96,7 +96,7 @@ function Apply({ onDone }: { onDone: () => void }) {
         <section className="box"><div className="box-body klh-stack" style={{ gap: 12 }}>
           {!type.open_beds && <Notice tone="warning" title="No bed open in this room type">You can still apply; you join the waiting list in order of application.</Notice>}
           <label className="klh-row" style={{ alignItems: 'flex-start', gap: 10, fontSize: 14 }}><input type="checkbox" checked={ok} onChange={(e) => setOk(e.target.checked)} style={{ marginTop: 4 }} /> <span>I accept the hostel rules, including that the registration fee of {formatINR(type.registration_fee)} is not refundable. The caution deposit ({formatINR(type.caution_deposit)}) and electricity caution deposit ({formatINR(type.elec_caution_deposit)}) are returned when I leave, less approved deductions. On renewal only the hostel fee, mess fee and meter charge are paid.</span></label>
-          <div><Button variant="accent" pill size="lg" iconRight="arrow-right" loading={busy} blockedReason={!ok ? 'Accept the hostel rules to apply.' : undefined}
+          <div><Button variant="accent" pill size="lg" iconRight="arrow-right" loading={busy} blockedReason={!ok ? 'Accept the residency rules to apply.' : undefined}
             onClick={() => run(() => api('/registrations', { method: 'POST', json: { facility_id: hostel!.facility_id, room_type_id: type.room_type_id, rules_accepted: true } }).then(onDone), 'Applied. Pay the registration fee next.')}>Apply for {type.type_name}</Button></div>
         </div></section>)}
     </div>
@@ -135,7 +135,7 @@ function ChooseRoom({ reg, onDone }: { reg: Reg; onDone: () => void }) {
         <span style={{ flex: 1, fontSize: 13, color: 'var(--ink-muted)' }}>{bed ? `Room ${bed.room}, bed ${bed.no} selected.` : 'Pick an open bed. You can also wait for the office to allot one.'}</span>
         <Button variant="accent" pill icon="bed" loading={busy} blockedReason={!bed ? 'Pick an open bed first.' : undefined} onClick={() => setAsk(true)}>Take this bed</Button>
       </div>
-      <ConfirmDialog open={ask} title={`Take room ${bed?.room}, bed ${bed?.no}?`} body="The bed is kept for you while you choose your fee plan and pay the hostel and mess fees. To change it later, ask the hostel office." confirmLabel="Take bed"
+      <ConfirmDialog open={ask} title={`Take room ${bed?.room}, bed ${bed?.no}?`} body="The bed is kept for you while you choose your fee plan and pay the residency and mess fees. To change it later, ask the residency office." confirmLabel="Take bed"
         onCancel={() => setAsk(false)} onConfirm={() => { setAsk(false); run(() => api(`/registrations/${reg.registration_id}/choose`, { method: 'POST', json: { subspace_id: bed!.id } }).then(onDone), 'Bed is yours. Choose the fee plan next.'); }} />
     </section>
   );
@@ -165,7 +165,7 @@ function FeePlan({ reg, onDone }: { reg: Reg; onDone: () => void }) {
     <section className="box">
       <div className="box-head"><h2>Fee plan and mess</h2></div>
       <div className="box-body klh-stack" style={{ gap: 14 }}>
-        <RadioGroup label="Hostel fee" variant="cards" value={plan} onChange={setPlan} options={[{ value: 'Single', label: 'Single payment', description: 'Due within 7 days' }, { value: 'Two_Instalments', label: 'Two instalments', description: 'First part now, second on the due date' }]} />
+        <RadioGroup label="Residency fee" variant="cards" value={plan} onChange={setPlan} options={[{ value: 'Single', label: 'Single payment', description: 'Due within 7 days' }, { value: 'Two_Instalments', label: 'Two instalments', description: 'First part now, second on the due date' }]} />
         <RadioGroup label="Mess cuisine" variant="cards" value={cuisine} onChange={setCuisine} options={[{ value: 'South_Indian', label: 'South Indian' }, { value: 'North_Indian', label: 'North Indian' }, { value: 'Special_Diet', label: 'Continental / special diet' }]} />
         <div><Button variant="accent" pill loading={busy} onClick={() => run(() => api(`/registrations/${reg.registration_id}/fee-plan`, { method: 'POST', json: { plan_type: plan, cuisine } }).then(onDone), 'Fees are ready to pay')}>Confirm plan</Button></div>
       </div>

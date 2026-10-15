@@ -13,7 +13,7 @@ type Readiness = { year: string | null; window: { opens: string | null; closes: 
   hostels: { facility_id: string; hostel_code: string; facility_name: string; hostel_gender: string; beds: number; ready: boolean; blockers: number; warnings: number; checks: Check[] }[] };
 type Op = { key: string; title: string; icon: T.IconName; color: T.TileColor; group: string; about: string; count?: number; unit: string; open: string; data?: string; warn?: string };
 const n = (v?: number) => (v ?? 0).toLocaleString('en-IN');
-const GROUPS = ['Hostel set-up', 'Room inventory', 'People', 'Rules and records'];
+const GROUPS = ['Residency set-up', 'Room inventory', 'People', 'Rules and records'];
 
 /**
  * Data Administrator home: every operation as an icon card, grouped. A card opens a side panel with what can be done:
@@ -30,12 +30,12 @@ export default function AdminDashboard() {
 
   const ops: Op[] = [
     { key: 'years', title: 'Academic years', icon: 'calendar', color: 'brand', group: 'Hostel set-up', about: 'The year registrations and fees belong to', count: c?.years, unit: c?.current_year ? `${c.current_year} current` : 'none current', open: '/admin/masters?tab=years', warn: c && !c.current_year ? 'No current year' : undefined },
-    ...DATA_KINDS.filter((d) => d.group === 'Hostel set-up').map((d) => ({ key: d.kind, title: d.title, icon: d.icon, color: d.color, group: d.group, about: d.about, count: rec(d.kind)?.records, unit: 'records', open: `/admin/data/${d.kind}`, data: d.kind,
+    ...DATA_KINDS.filter((d) => d.group === 'Residency set-up').map((d) => ({ key: d.kind, title: d.title, icon: d.icon, color: d.color, group: d.group, about: d.about, count: rec(d.kind)?.records, unit: 'records', open: `/admin/data/${d.kind}`, data: d.kind,
       warn: d.kind === 'rooms' && c?.rooms_without_type ? `${c.rooms_without_type} rooms without a type` : undefined })),
     { key: 'builder', title: 'Room builder', icon: 'building', color: 'cyan', group: 'Hostel set-up', about: 'A whole hostel in one step: floors, rooms, beds', count: c?.rooms, unit: 'rooms', open: '/admin/room-builder' },
     { key: 'roommap', title: 'Room map', icon: 'building', color: 'indigo', group: 'Hostel set-up', about: 'Floors and room tiles for each hostel', count: c?.rooms, unit: 'rooms', open: '/rooms' },
     { key: 'mess', title: 'Mess', icon: 'utensils', color: 'cyan', group: 'Hostel set-up', about: 'Messes, in-charge and yearly fee', count: c?.messes, unit: 'messes', open: '/admin/masters?tab=mess' },
-    ...DATA_KINDS.filter((d) => d.group !== 'Hostel set-up').map((d) => ({ key: d.kind, title: d.title, icon: d.icon, color: d.color, group: d.group, about: d.about, count: rec(d.kind)?.records, unit: 'records', open: `/admin/data/${d.kind}`, data: d.kind,
+    ...DATA_KINDS.filter((d) => d.group !== 'Residency set-up').map((d) => ({ key: d.kind, title: d.title, icon: d.icon, color: d.color, group: d.group, about: d.about, count: rec(d.kind)?.records, unit: 'records', open: `/admin/data/${d.kind}`, data: d.kind,
       warn: d.kind === 'duties' && c?.floors_without_warden ? `${c.floors_without_warden} floor without a Floor Manager` : undefined })),
     { key: 'logins', title: 'Logins and hostels', icon: 'key', color: 'rose', group: 'People', about: 'Chief Manager and Room Allotment logins, and their hostels', unit: 'two logins', open: '/admin/logins' },
     { key: 'users', title: 'Users and roles', icon: 'shield', color: 'violet', group: 'People', about: 'Give and remove roles, on written approval', count: c?.users, unit: 'users', open: '/admin/users', warn: c && c.users_with_role < c.users ? `${c.users - c.users_with_role} users hold no role` : undefined },

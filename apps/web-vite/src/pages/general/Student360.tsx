@@ -64,7 +64,7 @@ export default function Student360({ id: own }: { id?: string }) {
           <Ring v={last?.cgpa ?? 0} max={10} label={last ? last.cgpa.toFixed(2) : '—'} sub="CGPA" color="violet" />
           <Ring v={last?.attendance_pct ?? 0} max={100} label={num(last?.attendance_pct)} sub="Class %" color="sky" />
           <Ring v={crtPct ?? 0} max={100} label={num(crtPct)} sub="CRT %" color="coral" />
-          <Ring v={h.night_pct ?? 0} max={100} label={num(h.night_pct)} sub="Hostel %" color="green" />
+          <Ring v={h.night_pct ?? 0} max={100} label={num(h.night_pct)} sub="Residency %" color="green" />
         </div>
       </section>
 
@@ -186,7 +186,7 @@ function HostelRecord({ id, canEdit }: { id: string; canEdit: boolean }) {
     const body: Record<string, string | null> = {};
     for (const [key] of KYC_FIELDS) { const v = (edit![key] ?? '').trim(); if (key === 'aadhaar_no' && (v === '' || v.startsWith('X'))) continue; body[key] = v || null; }
     await api(`/students/${id}/kyc`, { method: 'PUT', json: body }); await k.mutate(); setEdit(null);
-  }, 'Hostel record updated');
+  }, 'Residency record updated');
   return (
     <section className="box"><div className="box-head"><h2>Hostel record</h2>
       <span style={{ marginLeft: 'auto', display: 'flex', gap: 8, alignItems: 'center' }}>

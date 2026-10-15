@@ -45,7 +45,7 @@ function Board() {
   return (
     <div className="pg">
       <div className="pg-head">
-        <p>Every hosteller's results, CRT, skills and hostel conduct in one table. Figures below the mark are shown in red; open a student for the full page.</p>
+        <p>Every hosteller's results, CRT, skills and residency conduct in one table. Figures below the mark are shown in red; open a student for the full page.</p>
         <div className="pg-actions"><select className="dm-filter" aria-label="Hostel" value={facility} onChange={(e) => setFacility(e.target.value)}><option value="">All hostels</option>{(hostels.data ?? []).map((h) => <option key={h.facility_id} value={h.facility_id}>{h.facility_name}</option>)}</select></div>
       </div>
       <div className="stg stg-static">

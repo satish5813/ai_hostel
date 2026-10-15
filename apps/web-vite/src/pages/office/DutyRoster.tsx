@@ -174,7 +174,7 @@ function SlotPanel({ d, people, onClose, onDone }: { d: Duty; people: Person[]; 
   const [who, setWho] = useState(d.staff_id ?? '');
   const { run, busy } = useAction();
   return (
-    <Drawer open onClose={onClose} title={`${words(d.hostel_role)}${d.shift !== 'General' ? `, ${d.shift.toLowerCase()} shift` : ''}`} subtitle={d.space_code ? `Washroom ${d.space_code}${d.zone_name ? `, ${d.zone_name}` : ''}` : d.zone_name ?? 'Whole hostel'}
+    <Drawer open onClose={onClose} title={`${words(d.hostel_role)}${d.shift !== 'General' ? `, ${d.shift.toLowerCase()} shift` : ''}`} subtitle={d.space_code ? `Washroom ${d.space_code}${d.zone_name ? `, ${d.zone_name}` : ''}` : d.zone_name ?? 'Whole residency'}
       footer={<Button variant="primary" loading={busy} onClick={() => run(() => api(`/roster/duties/${d.duty_id}`, { method: 'POST', json: { staff_id: who || null } }).then(onDone), who ? 'Place changed; kept when Auto-assign runs again' : 'Place left open')}>Save</Button>}>
       <div className="klh-stack" style={{ gap: 14 }}>
         <p className="klh-muted" style={{ margin: 0 }}>Now: {d.full_name ? proper(d.full_name) : 'nobody'}{d.regular_name ? ` · mapped person ${proper(d.regular_name)}` : ''}</p>

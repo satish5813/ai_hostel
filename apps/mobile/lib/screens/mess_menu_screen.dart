@@ -223,7 +223,7 @@ class _MessMenuScreenState extends State<MessMenuScreen> {
         if (me == null) {
           return const MnPage(children: [MnPanel(children: [
             Padding(padding: EdgeInsets.only(bottom: 10), child: MnH2('Mess menu', size: 15.5)),
-            MnEmpty('Your menu appears here once you live in a hostel and have a mess subscription.'),
+            MnEmpty('Your menu appears here once you live in a residency and have a mess subscription.'),
           ])]);
         }
         final pending = me['pending_change_id'] != null;
@@ -235,7 +235,7 @@ class _MessMenuScreenState extends State<MessMenuScreen> {
 
         return MnPage(children: [
           MnHead(icon: LucideIcons.utensilsCrossed, title: 'Mess menu', sub: '${me['mess_name'] ?? me['hostel_code']}', chips: [
-            (LucideIcons.users, '${me['hostel_gender']} hostel'),
+            (LucideIcons.users, '${me['hostel_gender']} residency'),
             (LucideIcons.earth, me['is_foreign'] == true ? 'Foreign student' : 'Local student'),
             (LucideIcons.utensilsCrossed, _foodName(me['region'], me['country'])),
             (LucideIcons.leaf, me['diet'] == 'Veg' ? 'Veg' : 'Non-veg'),
@@ -270,7 +270,7 @@ class _MessMenuScreenState extends State<MessMenuScreen> {
                   ])),
                 ])),
             ])
-            else const MnEmpty('There is no approved menu for this group yet. The hostel office prepares it.'),
+            else const MnEmpty('There is no approved menu for this group yet. The residency office prepares it.'),
           ]),
           _FoodChoice(m: d, onDone: () async { await reload(); if (mounted) setState(() { week = 'next'; sel = null; }); }),
         ]);

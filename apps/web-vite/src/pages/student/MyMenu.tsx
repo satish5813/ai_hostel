@@ -101,7 +101,7 @@ function FoodChoice({ m, onDone }: { m: MyMenu; onDone: () => void }) {
       <h2>Change my food</h2>
       <p className="st-note"><CalendarClock size={14} />Every week you can change your food. A change applies from Monday {formatDate(m.next_monday!)}, so the mess can plan.</p>
       <div className="mn-group">
-        <span><small>Hostel</small><b>{me.hostel_gender}</b></span>
+        <span><small>Residency</small><b>{me.hostel_gender}</b></span>
         <span><small>Student</small><b>{me.is_foreign ? 'Foreign' : 'Local'}</b></span>
       </div>
       <div><span className="st-label">Food</span>

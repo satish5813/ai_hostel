@@ -33,7 +33,7 @@ export default function QrLabels() {
           </div>
           {label && <div className="klh-label-print" style={{ marginTop: 16, textAlign: 'center' }}><img src={label.png_data_url} alt="Door label QR" style={{ width: 200, height: 200 }} /><p style={{ fontWeight: 700, fontSize: 18, margin: '8px 0 0' }}>{roomLabel(label.space_id)}</p><p className="klh-muted klh-code" style={{ wordBreak: 'break-all', fontSize: 12 }}>{label.url}</p><Button variant="ghost" icon="download" onClick={() => { setSheet([label]); setTimeout(() => window.print(), 300); }}>Print</Button></div>}
         </Card>
-        <Card icon="download" color="brand" title="Print sheet" subtitle={`All ${rooms.length} rooms of this hostel on one sheet`}>
+        <Card icon="download" color="brand" title="Print sheet" subtitle={`All ${rooms.length} rooms of this residency on one sheet`}>
           <Notice tone="info" title="Stick one label per door">Each label carries a token that cannot be guessed. Reprinting uses the same token; only "New label" replaces it.</Notice>
           <div style={{ marginTop: 16 }}><Button variant="primary" icon="download" loading={busy} blockedReason={!rooms.length ? 'No rooms in this hostel.' : undefined} onClick={printAll}>Prepare and print {rooms.length} labels</Button></div>
           {sheet.length > 0 && <p className="klh-muted" style={{ marginTop: 12 }}>{sheet.length} labels prepared <StatusChip status="Active" label="Ready" /></p>}

@@ -9,7 +9,7 @@ type Receipt = { receipt_id: number; receipt_no: string; demand_id: number; fee_
 /** What a demand is for; the hostel-fee difference and the electricity share settled on a room change are named as such. */
 const forWhat = (d: { fee_head: string; instalment_no: number; reference_type?: string | null }) =>
   d.reference_type === 'room_change' ? (d.fee_head === 'Hostel' ? 'Hostel fee difference (room change)' : `${words(d.fee_head)} up to the room change`)
-    : `${words(d.fee_head)}${d.fee_head === 'Hostel' ? `, instalment ${d.instalment_no}` : ''}`;
+    : `${words(d.fee_head)}${d.fee_head === 'Residency' ? `, instalment ${d.instalment_no}` : ''}`;
 type Dues = { demands: Demand[]; totals: { fee_head: string; balance: string }[]; receipts: Receipt[] };
 
 /** REG-02 Fees and receipts. Student: pay online, download receipts. Parent and Hostel Accounts: view. */

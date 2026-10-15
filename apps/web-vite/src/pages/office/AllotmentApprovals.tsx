@@ -23,7 +23,7 @@ const L1 = ['Room_Allotment', 'Office_Staff', 'Warden', 'Assistant_Warden', 'Hos
 const L2 = ['Chief_Warden', 'Director_Hostels'];
 const when = (d?: string | null) => (d ? new Date(d).toLocaleString('en-IN', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'Not yet');
 const dueOf = (c: Card) => c.fees.reduce((a, f) => a + Math.max(0, f.due - f.paid), 0);
-const headLabel = (f: Fee) => (f.head === 'Hostel' ? `Hostel fee · instalment ${f.inst}` : `${f.head} fee`);
+const headLabel = (f: Fee) => (f.head === 'Hostel' ? `Residency fee · instalment ${f.inst}` : `${f.head} fee`);
 
 /**
  * Allotment approvals (design "Room Allotment", steps 5 and 6). The student pays first; Room Allotment checks every receipt

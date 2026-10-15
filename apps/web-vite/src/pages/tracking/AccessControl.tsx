@@ -129,7 +129,7 @@ function ScanTest({ points, record, onScanned }: { points: Point[]; record: bool
         {!v ? <div className="q-empty">The verdict appears here: allowed, needs approval, or refused, with the reason.</div> : <>
           <div className="ac-v-head"><span className="ac-v-icon"><Icon name={tone!.icon} size={26} /></span><div><b>{tone!.label}</b><span>{v.reason}</span></div></div>
           {v.student && <div className="facts" style={{ padding: '0 14px 14px' }}>
-            <div><span>Student</span><b>{titleCase(v.student.full_name)}</b></div><div><span>Room</span><b>{v.student.room_code ? `${v.student.hostel_code} ${v.student.room_code}` : 'Not a hostel student'}</b></div>
+            <div><span>Student</span><b>{titleCase(v.student.full_name)}</b></div><div><span>Room</span><b>{v.student.room_code ? `${v.student.hostel_code} ${v.student.room_code}` : 'Not a residency student'}</b></div>
             <div><span>Point</span><b>{pt?.point_name}</b></div><div><span>Proof</span><b>{f.method}</b></div></div>}
         </>}
       </section>

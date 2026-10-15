@@ -144,7 +144,7 @@ function NewRequest({ facility, hostelCode, cw, onClose, onDone }: { facility: s
       <div className="klh-stack" style={{ gap: 16 }}>
         {problem && <Notice tone="critical" title="Not sent">{problem}</Notice>}
         <div className="lg-roles" role="radiogroup" aria-label="Request">
-          <button type="button" role="radio" aria-checked={kind === 'Transfer'} onClick={() => { setKind('Transfer'); setQ(''); setStaff(null); }}><b>Move a student</b><small>To another bed in this hostel</small></button>
+          <button type="button" role="radio" aria-checked={kind === 'Transfer'} onClick={() => { setKind('Transfer'); setQ(''); setStaff(null); }}><b>Move a student</b><small>To another bed in this residency</small></button>
           <button type="button" role="radio" aria-checked={kind === 'Staff_Room'} onClick={() => { setKind('Staff_Room'); setQ(''); setStay(null); }}><b>Staff room</b><small>A bed for resident faculty or staff</small></button>
         </div>
         {who ? (

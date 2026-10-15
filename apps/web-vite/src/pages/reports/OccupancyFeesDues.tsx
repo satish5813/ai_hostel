@@ -27,7 +27,7 @@ export default function OccupancyFeesDues() {
         <Card icon="wallet" color="orange" title="Collection by hostel">{h.length ? <BarChart data={h.map((x) => ({ label: x.hostel_code, value: Number(x.collected), highlight: Number(x.overdue) > 0 }))} unit="₹" showValues label="Collected by hostel" /> : <EmptyState icon="wallet" title="No hostels" />}</Card>
       </div>
       <Card padding={0}>
-        <DataTable caption="Per hostel" rowKey="facility_id" rows={h} loading={!r.data} empty={<EmptyState icon="building" title="No hostels" />}
+        <DataTable caption="Per residency" rowKey="facility_id" rows={h} loading={!r.data} empty={<EmptyState icon="building" title="No hostels" />}
           columns={[
             { key: 'hostel_name', label: 'Hostel', render: (v: string, x: H) => <span style={{ whiteSpace: 'nowrap' }}>{v} ({x.hostel_code})</span> },
             { key: 'occupied_beds', label: 'Occupied / total', align: 'right', render: (v: string, x: H) => <span className="klh-num">{v} / {x.total_beds}</span> },
@@ -49,7 +49,7 @@ export default function OccupancyFeesDues() {
             { key: 'status', label: 'Status', render: (v: string) => <StatusChip status={v} /> },
           ]} />
       </Card>
-      <Notice tone="info" title="Scope">Wardens see their own hostel; Hostel Accounts, the Chief Manager and the Pro-VC Finance see all (Report_Visibility).</Notice>
+      <Notice tone="info" title="Scope">Wardens see their own residency; Residency Accounts, the Chief Manager and the Pro-VC Finance see all (Report_Visibility).</Notice>
     </div>
   );
 }

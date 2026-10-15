@@ -40,7 +40,7 @@ type Renewal = {
 
 const OPEN = ['Pending', 'Part_Paid', 'Overdue'];
 const balance = (d: Demand) => Number(d.amount_due) - Number(d.amount_paid);
-const headOf = (d: { fee_head: string; instalment_no: number }) => `${words(d.fee_head)}${d.fee_head === 'Hostel' ? `, instalment ${d.instalment_no}` : ''}`;
+const headOf = (d: { fee_head: string; instalment_no: number }) => `${words(d.fee_head)}${d.fee_head === 'Residency' ? `, instalment ${d.instalment_no}` : ''}`;
 const STAGE = (r?: Reg) => (!r ? 0 : r.status === 'Applied' ? 1 : ['Fee_Paid', 'Waitlisted'].includes(r.status) ? 2 : r.status === 'Allotted' ? 3 : r.status === 'Accepted' ? 4 : r.status === 'Confirmed' ? 5 : 6);
 const trail = (st: Step) => ({ level: st.level === 0 ? 'P' : st.level, role: words(st.role), person: st.by, decision: st.decision, at: st.on, remarks: st.remarks });
 const ROLE: Record<string, string> = { Floor_Warden: 'Floor Manager', Chief_Warden: 'Chief Manager', Sweeper: 'Sweeper', Scavenger: 'Scavenger' };
@@ -126,7 +126,7 @@ export default function StudentHome() {
         <div className="st-hero-main">
           <span className="st-hero-date">{today()}{reg ? ` · ${reg.hostel_code}` : ''}</span>
           <h1>{first ? `${greeting()}, ${first}` : 'Welcome'}</h1>
-          <p>{!reg ? 'You have not applied for a hostel room yet.' : stage === 3 && reg.student_decision === 'Pending' ? `A bed is held for you until ${formatDateTime(reg.hold_until)}. Accept it to continue.` : living ? (due ? `${formatINR(due)} is due${next ? ` by ${formatDate(next.due_date)}` : ''}.` : 'Everything is paid. Have a good day.') : stage === 2 ? 'The hostel office is choosing a bed for you.' : stage < 3 ? 'Pay the registration fee to be allotted a bed.' : 'Pay the hostel and mess fees to check in.'}</p>
+          <p>{!reg ? 'You have not applied for a residency room yet.' : stage === 3 && reg.student_decision === 'Pending' ? `A bed is held for you until ${formatDateTime(reg.hold_until)}. Accept it to continue.` : living ? (due ? `${formatINR(due)} is due${next ? ` by ${formatDate(next.due_date)}` : ''}.` : 'Everything is paid. Have a good day.') : stage === 2 ? 'The hostel office is choosing a bed for you.' : stage < 3 ? 'Pay the registration fee to be allotted a bed.' : 'Pay the hostel and mess fees to check in.'}</p>
           <div className="st-hero-chips">
             {reg && <span className="st-chip"><CheckCircle2 size={13} />{words(reg.status)}</span>}
             {livePass && <span className="st-chip"><DoorOpen size={13} />Pass {livePass.outpass_no}</span>}
@@ -435,7 +435,7 @@ function RenewalSheet({ rn, demands, onClose, onDone }: { rn: Renewal; demands: 
         {!windowOpen && <p className="st-note"><CalendarClock size={14} />Renewal for {y.academic_year} {y.renewal_opens ? `opens on ${formatDate(y.renewal_opens)}` : 'is not open yet'}. You can choose then.</p>}
         <div className="st-choices" role="radiogroup" aria-label="Next year">
           {([
-            { v: 'Keep', icon: KeyRound, t: `Keep ${cur.bed_label}`, s: fee ? `Same bed and key. ${formatINR(fee.hostel_fee)} hostel${fee.mess_fee != null ? ` + ${formatINR(fee.mess_fee)} mess` : ''} + ${formatINR(fee.meter_charge)} meter charge for the year. No registration fee or deposits on renewal.` : `Same bed. The ${y.academic_year} fee for this room is not set yet.` },
+            { v: 'Keep', icon: KeyRound, t: `Keep ${cur.bed_label}`, s: fee ? `Same bed and key. ${formatINR(fee.hostel_fee)} residency${fee.mess_fee != null ? ` + ${formatINR(fee.mess_fee)} mess` : ''} + ${formatINR(fee.meter_charge)} meter charge for the year. No registration fee or deposits on renewal.` : `Same bed. The ${y.academic_year} fee for this room is not set yet.` },
             { v: 'Change', icon: BedDouble, t: 'Move to another room', s: 'Choose a hostel and room type. The office offers a bed from those free next year.' },
             { v: 'Leave', icon: DoorOpen, t: 'I am not staying', s: `Your bed is released for ${y.academic_year}. Nothing to pay.` },
           ] as const).map((o) => (

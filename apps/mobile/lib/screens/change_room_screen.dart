@@ -491,11 +491,11 @@ class _Statement extends StatelessWidget {
             : 'Worked out as if the move were today (${_day(s['move_date'])}). The final figures use the day of the move and the meter reading taken then.', style: const TextStyle(fontSize: 13, color: _ink2))),
       ]),
       const SizedBox(height: 12),
-      box(LucideIcons.bedDouble, 'Hostel fee ${s['academic_year']}', [
+      box(LucideIcons.bedDouble, 'Residency fee ${s['academic_year']}', [
         table([
           row('${h['old_type']}', _inr(h['old_part']), subText: '${_inr(h['old_fee'])} a year · ${s['days_old']} days in the old room'),
           row('${h['new_type']}', _inr(h['new_part']), subText: '${_inr(h['new_fee'])} a year · ${s['days_new']} days in the new room'),
-          row('Hostel fee for the year after the change', _inr(h['year_total']), weight: FontWeight.w700),
+          row('Residency fee for the year after the change', _inr(h['year_total']), weight: FontWeight.w700),
           row('Billed before the change', _inr(h['billed']), subText: 'Paid ${_inr(h['paid'])}${_n(h['unpaid']) > 0 ? ' · unpaid ${_inr(h['unpaid'])}' : ''}'),
           adjRow,
         ]),

@@ -51,7 +51,7 @@ class _MealChoiceScreenState extends State<MealChoiceScreen> {
         if (me == null) {
           return const MnPage(gap: 12, children: [MnPanel(children: [
             Padding(padding: EdgeInsets.only(bottom: 10), child: MnH2('Choose my meals', size: 15.5)),
-            MnEmpty('You choose your meals once you live in a hostel and eat at its mess.'),
+            MnEmpty('You choose your meals once you live in a residency and eat at its mess.'),
           ])]);
         }
         final weeks = ((d['weeks'] as List?) ?? []).cast<Map>();

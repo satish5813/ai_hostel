@@ -1,0 +1,15 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "central",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["central-portal/serve.mjs", "8088"],
+      "port": 8088
+    },
+    {
+      "name": "web",
+      "url": "http://localhost:5180"
+    }
+  ]
+}

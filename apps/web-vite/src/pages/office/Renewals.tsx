@@ -40,7 +40,7 @@ export default function Renewals() {
   return (
     <div className="pg">
       <div className="pg-head">
-        <div><p>{board.data?.next_year ? `Renewal for ${board.data.next_year}. Hostel students keep their bed, ask for another room or tell you they are leaving. ` : 'The next academic year is not set up yet. '}
+        <div><p>{board.data?.next_year ? `Renewal for ${board.data.next_year}. Residency students keep their bed, ask for another room or tell you they are leaving. ` : 'The next academic year is not set up yet. '}
           {board.data?.continue_from ? `Continue stay opens on ${formatDate(board.data.continue_from)}.` : ''}</p></div>
         <div className="pg-actions"><select className="dm-filter" aria-label="Hostel" value={facility} onChange={(e) => setFacility(e.target.value)}><option value="">All my hostels</option>{(hostels.data ?? []).map((h) => <option key={h.facility_id} value={h.facility_id}>{h.facility_name}</option>)}</select></div>
       </div>

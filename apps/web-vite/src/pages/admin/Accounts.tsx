@@ -54,7 +54,7 @@ export default function Accounts() {
 
       {s && (
         <div className="klh-grid-4">
-          <StatCard color="brand" icon="users" label="Students with a login" value={`${s.student_logins} of ${s.students}`} sub={`${s.residents} live in a hostel now`} />
+          <StatCard color="brand" icon="users" label="Students with a login" value={`${s.student_logins} of ${s.students}`} sub={`${s.residents} live in a residency now`} />
           <StatCard color="violet" icon="shield" label="Staff with a login" value={`${s.staff_logins} of ${s.staff_with_role}`} sub="staff who hold a role" />
           <StatCard color="sky" icon="clock" label="Waiting for a password" value={String(s.invited)} sub={`${s.active} active · ${s.disabled} disabled`} />
           <StatCard color={s.mail_failed || s.no_email ? 'orange' : 'green'} icon="mail" label="Invitations" value={s.mail_queued ? `${s.mail_queued} in the queue` : 'Queue empty'} sub={`${s.mail_failed} failed · ${s.no_email} with no address`} />
@@ -93,7 +93,7 @@ export default function Accounts() {
       <Panel flush>
         {list.data && !list.data.length ? <EmptyState icon="shield" title="No logins here yet" body="Create one, or create many at once for the students and staff already loaded." /> : (
           <table className="klh-table lg-table">
-            <thead><tr><th>Person</th><th>Role and hostels</th><th>Login</th><th>Invitation</th><th aria-label="Actions" /></tr></thead>
+            <thead><tr><th>Person</th><th>Role and residencies</th><th>Login</th><th>Invitation</th><th aria-label="Actions" /></tr></thead>
             <tbody>
               {(list.data ?? []).map((a) => (
                 <tr key={a.account_id}>
@@ -209,7 +209,7 @@ function ManyPanel({ sum, hostels, onClose, onSaved }: { sum: Summary; hostels: 
             {OPTIONS.map(([v, t, d]) => <button key={v} type="button" role="radio" aria-checked={scope === v} onClick={() => setScope(v)}><b>{t}</b><small>{d}</small></button>)}
           </div>
           {scope !== 'list' && (
-            <Field label="Only this hostel" hint={scope === 'students' ? 'With a hostel chosen: its hostel students and the students who have applied to it' : 'Leave empty for all hostels'}>
+            <Field label="Only this residency" hint={scope === 'students' ? 'With a hostel chosen: its hostel students and the students who have applied to it' : 'Leave empty for all hostels'}>
               <Select value={fac} onChange={(e) => setFac(e.target.value)} options={[{ value: '', label: 'All hostels' }, ...hostels.map((h) => ({ value: h.facility_id, label: `${h.hostel_code} · ${h.facility_name}` }))]} />
             </Field>)}
           {scope === 'list' && (<>

@@ -39,7 +39,7 @@ export default function Logins() {
       <Panel flush>
         {list.data && !rows.length ? <EmptyState icon="shield" title={`No ${ROLE[tab]} login yet`} body="Give one to a staff member and choose their hostels." /> : (
           <table className="klh-table lg-table">
-            <thead><tr><th>Person</th><th>Hostels</th><th>Approval</th><th aria-label="Actions" /></tr></thead>
+            <thead><tr><th>Person</th><th>Residencies</th><th>Approval</th><th aria-label="Actions" /></tr></thead>
             <tbody>
               {rows.map((l) => (
                 <tr key={`${l.staff_id}-${l.role}`}>
@@ -52,7 +52,7 @@ export default function Logins() {
           </table>)}
       </Panel>
       {edit && <LoginPanel login={edit === 'new' ? null : edit} role={tab} hostels={hostels.data ?? []} onClose={() => setEdit(null)} onSaved={() => list.mutate()} />}
-      <ConfirmDialog open={!!off} title={off ? `Remove ${titleCase(off.full_name)}'s ${ROLE[off.role]} login?` : ''} body="Their hostels end today and the role is taken away. The audit log keeps the record." tone="danger" confirmLabel="Remove login" onCancel={() => setOff(null)} onConfirm={disable} />
+      <ConfirmDialog open={!!off} title={off ? `Remove ${titleCase(off.full_name)}'s ${ROLE[off.role]} login?` : ''} body="Their residencies end today and the role is taken away. The audit log keeps the record." tone="danger" confirmLabel="Remove login" onCancel={() => setOff(null)} onConfirm={disable} />
     </div>
   );
 }
@@ -75,13 +75,13 @@ function LoginPanel({ login, role: defRole, hostels, onClose, onSaved }: { login
     setBusy(true); setProblem('');
     try {
       await api('/admin/logins', { method: 'POST', json: { staff_id: staff!.staff_id, role, facility_ids: picked, approval_ref: ref.trim() } });
-      toast(login ? 'Hostels saved' : `${titleCase(staff!.full_name)} can now sign in as ${ROLE[role]}`); onSaved(); onClose();
+      toast(login ? 'Residencies saved' : `${titleCase(staff!.full_name)} can now sign in as ${ROLE[role]}`); onSaved(); onClose();
     } catch (e) { setProblem(e instanceof ApiError ? e.message : String(e)); } finally { setBusy(false); }
   };
   return (
-    <Drawer open onClose={onClose} title={login ? `${titleCase(login.full_name)} · ${ROLE[login.role]}` : 'Give a login'} subtitle="A login sees only the hostels ticked here"
+    <Drawer open onClose={onClose} title={login ? `${titleCase(login.full_name)} · ${ROLE[login.role]}` : 'Give a login'} subtitle="A login sees only the residencies ticked here"
       footer={<div className="dm-panel-foot"><span style={{ flex: 1 }} /><Button variant="ghost" size="sm" onClick={onClose}>Cancel</Button>
-        <Button variant="primary" size="sm" loading={busy} blockedReason={!staff ? 'Choose the staff member.' : ref.trim().length < 3 ? 'Quote the written approval.' : undefined} onClick={save}>{login ? 'Save hostels' : 'Give login'}</Button></div>}>
+        <Button variant="primary" size="sm" loading={busy} blockedReason={!staff ? 'Choose the staff member.' : ref.trim().length < 3 ? 'Quote the written approval.' : undefined} onClick={save}>{login ? 'Save residencies' : 'Give login'}</Button></div>}>
       <div className="klh-stack" style={{ gap: 16 }}>
         {problem && <Notice tone="critical" title="Not saved">{problem}</Notice>}
         {!login && (

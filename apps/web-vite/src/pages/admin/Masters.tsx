@@ -103,7 +103,7 @@ function Hostels() {
   const list = useApi<Hostel[]>('/structure');
   const [f, setF] = useState({ hostel_code: '', facility_name: '', hostel_gender: 'Boys', floors: '4', gate_close_time: '21:30' });
   const { run, busy } = useAction();
-  return <Split formTitle="Add a hostel building" formSub="Creates the building and its floors. Rooms are added in Room management."
+  return <Split formTitle="Add a residency building" formSub="Creates the building and its floors. Rooms are added in Room management."
     table={<DataTable caption="Hostels" rowKey="facility_id" rows={list.data ?? []} loading={!list.data} onRowClick={() => navigate('/rooms')} empty={<EmptyState icon="building" title="No hostel yet" body="Add the first building on the right." />}
       columns={[
         { key: 'hostel_code', label: 'Code', render: (v: string) => <span className="klh-code">{v}</span> },
@@ -115,7 +115,7 @@ function Hostels() {
         { key: 'gate_close_time', label: 'Gate closes', render: (v: string | null) => v?.slice(0, 5) ?? '—' },
       ]} />}
     form={<form className="klh-stack" style={{ gap: 14 }} onSubmit={(e) => { e.preventDefault(); run(() => api('/admin/hostels', { method: 'POST', json: { ...f, floors: Number(f.floors) } }).then(() => { list.mutate(); setF({ hostel_code: '', facility_name: '', hostel_gender: 'Boys', floors: '4', gate_close_time: '21:30' }); }), 'Hostel added. Add its rooms next.'); }}>
-      <Field label="Hostel name" required><Input value={f.facility_name} onChange={(e) => setF({ ...f, facility_name: e.target.value })} placeholder="Boys Hostel 2" /></Field>
+      <Field label="Residency name" required><Input value={f.facility_name} onChange={(e) => setF({ ...f, facility_name: e.target.value })} placeholder="Boys Residency 2" /></Field>
       <div className="klh-grid-2" style={{ gap: 12 }}>
         <Field label="Code" required hint="Prefix of room IDs"><Input value={f.hostel_code} onChange={(e) => setF({ ...f, hostel_code: e.target.value.toUpperCase() })} placeholder="BH2" /></Field>
         <Field label="For" required><Select value={f.hostel_gender} onChange={(e) => setF({ ...f, hostel_gender: e.target.value })} options={['Boys', 'Girls', 'Staff']} /></Field>
@@ -156,7 +156,7 @@ function Fees() {
   const list = useApi<Fee[]>(y ? `/admin/room-type-fees?academic_year=${y}` : null);
   const [f, setF] = useState({ facility_id: '', room_type_id: '', registration_fee: '5000', hostel_fee: '', instalment_1_pct: '60', instalment_2_due_date: '', caution_deposit: '10000', elec_caution_deposit: '2000', meter_charge: '500' });
   const { run, busy } = useAction();
-  return <Split formTitle={`Set a fee for ${y}`} formSub="One row per hostel and room type. Saving again replaces the amounts."
+  return <Split formTitle={`Set a fee for ${y}`} formSub="One row per residency and room type. Saving again replaces the amounts."
     table={<DataTable caption="Fees" rowKey="fee_id" rows={list.data ?? []} loading={!list.data} searchable
       onRowClick={(r) => { const x = r as Fee; setF({ facility_id: x.facility_id, room_type_id: String(x.room_type_id), registration_fee: String(Number(x.registration_fee)), hostel_fee: String(Number(x.hostel_fee)), instalment_1_pct: String(Number(x.instalment_1_pct)), instalment_2_due_date: x.instalment_2_due_date,
         caution_deposit: String(Number(x.caution_deposit)), elec_caution_deposit: String(Number(x.elec_caution_deposit)), meter_charge: String(Number(x.meter_charge)) }); }}
@@ -179,7 +179,7 @@ function Fees() {
       <Field label="Room type" required><Select value={f.room_type_id} onChange={(e) => setF({ ...f, room_type_id: e.target.value })} options={[{ value: '', label: 'Choose' }, ...(types.data ?? []).map((t) => ({ value: String(t.room_type_id), label: t.type_name }))]} /></Field>
       <div className="klh-grid-2" style={{ gap: 12 }}>
         <Field label="Registration fee (₹)" required hint="Not refundable"><Input type="number" value={f.registration_fee} onChange={(e) => setF({ ...f, registration_fee: e.target.value })} /></Field>
-        <Field label="Hostel fee a year (₹)" required><Input type="number" value={f.hostel_fee} onChange={(e) => setF({ ...f, hostel_fee: e.target.value })} /></Field>
+        <Field label="Residency fee a year (₹)" required><Input type="number" value={f.hostel_fee} onChange={(e) => setF({ ...f, hostel_fee: e.target.value })} /></Field>
         <Field label="First instalment (%)" required><Input type="number" min={1} max={100} value={f.instalment_1_pct} onChange={(e) => setF({ ...f, instalment_1_pct: e.target.value })} /></Field>
         <Field label="Second instalment due" required><Input type="date" value={f.instalment_2_due_date} onChange={(e) => setF({ ...f, instalment_2_due_date: e.target.value })} /></Field>
         <Field label="Caution deposit (₹)" hint="Refundable; on joining only"><Input type="number" min={0} value={f.caution_deposit} onChange={(e) => setF({ ...f, caution_deposit: e.target.value })} /></Field>
@@ -188,7 +188,7 @@ function Fees() {
       </div>
       <p className="klh-muted" style={{ margin: 0, fontSize: 13 }}>Joining: registration, both deposits, hostel fee, mess fee and meter charge. Renewal: hostel fee, mess fee and meter charge only.</p>
       <Field label="Second instalment" derived value={f.hostel_fee ? formatINR(Number(f.hostel_fee) * (100 - Number(f.instalment_1_pct)) / 100) : '—'} />
-      <div><Button type="submit" variant="primary" loading={busy} blockedReason={!f.facility_id || !f.room_type_id ? 'Choose hostel and room type.' : !f.hostel_fee ? 'Enter the hostel fee.' : !f.instalment_2_due_date ? 'Set the second due date.' : undefined}>Save fee</Button></div>
+      <div><Button type="submit" variant="primary" loading={busy} blockedReason={!f.facility_id || !f.room_type_id ? 'Choose residency and room type.' : !f.hostel_fee ? 'Enter the residency fee.' : !f.instalment_2_due_date ? 'Set the second due date.' : undefined}>Save fee</Button></div>
     </form>} />;
 }
 
@@ -197,7 +197,7 @@ function Messes() {
   const hostels = useApi<Hostel[]>('/structure');
   const [f, setF] = useState({ mess_name: '', facility_id: '', incharge_id: '', capacity: '400', annual_fee: '48000' });
   const { run, busy } = useAction();
-  return <Split formTitle="Add a mess" formSub="The mess fee is demanded with the hostel fee when the student picks a cuisine"
+  return <Split formTitle="Add a mess" formSub="The mess fee is demanded with the residency fee when the student picks a cuisine"
     table={<DataTable caption="Messes" rowKey="mess_id" rows={list.data ?? []} loading={!list.data} empty={<EmptyState icon="utensils" title="No mess yet" />}
       columns={[
         { key: 'mess_name', label: 'Mess', render: (v: string) => <b style={{ fontWeight: 600 }}>{v}</b> },

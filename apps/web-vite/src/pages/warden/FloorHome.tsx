@@ -27,7 +27,7 @@ export const stateOf = (b: FloorBed) => {
   if (b.current_status === 'Not_Seen' || b.current_status === 'Outside_No_Pass' || b.current_status === 'Overdue') return 'absent';
   return 'in';
 };
-const STATE_LABEL: Record<string, string> = { in: 'In hostel', pass: 'On a pass', sick: 'Sick leave', absent: 'Not seen', empty: 'Empty bed' };
+const STATE_LABEL: Record<string, string> = { in: 'In residency', pass: 'On a pass', sick: 'Sick leave', absent: 'Not seen', empty: 'Empty bed' };
 const iso = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; };
 
 type Op = { key: string; title: string; about: string; icon: T.IconName; color: T.TileColor; count?: number; unit: string; warn?: string; go?: string };
@@ -98,8 +98,8 @@ export default function FloorHome() {
         </div>)}
 
       <div className="stg stg-static" aria-label="Tonight">
-        <div><b>{res.length}</b><span>Hostel students</span></div>
-        <div><b>{count('in')}</b><span>In hostel</span></div>
+        <div><b>{res.length}</b><span>Residency students</span></div>
+        <div><b>{count('in')}</b><span>In residency</span></div>
         <div><b>{count('pass')}</b><span>On a pass</span></div>
         <div><b>{count('sick')}</b><span>Sick leave</span></div>
         <div className={count('absent') ? 'stg-warn' : undefined}><b>{count('absent')}</b><span>Not seen</span></div>
@@ -291,7 +291,7 @@ function AccessPanel({ list, onClose, onDone }: { list: AccessReq[]; onClose: ()
   const [why, setWhy] = useState<Record<number, string>>({});
   const decide = (id: number, approve: boolean) => run(() => api(`/access/requests/${id}/decide`, { method: 'POST', json: { approve, remarks: why[id] || undefined } }).then(onDone), approve ? 'Let in for the next hour' : 'Refused');
   return (
-    <Drawer open onClose={onClose} title="Entry approvals" subtitle="Your hostel students at a gate or the gym out of hours">
+    <Drawer open onClose={onClose} title="Entry approvals" subtitle="Your residency students at a gate or the gym out of hours">
       {!list.length && <p className="klh-muted">Nobody is waiting.</p>}
       <div className="klh-stack" style={{ gap: 10 }}>
         {list.map((r) => (

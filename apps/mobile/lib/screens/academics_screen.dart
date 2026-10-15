@@ -83,7 +83,7 @@ class _AcademicsScreenState extends State<AcademicsScreen> {
                   ].indexed) Padding(padding: EdgeInsets.only(top: i == 0 ? 0 : 10), child: t),
                 ]),
               'Before KL' => _Box(head: [const _H2('Before KL'), const Spacer(), KButton(prior.isEmpty ? 'Add' : 'Add or update', small: true, icon: LucideIcons.plus, onPressed: () => _addPrior(reload, wanted, prior))], children: [
-                  if (prior.isEmpty) const Padding(padding: EdgeInsets.fromLTRB(14, 12, 14, 12), child: Text('Add the marks and a photo of each certificate. The hostel office checks them against your admission file.', style: TextStyle(fontSize: 14, color: _muted))),
+                  if (prior.isEmpty) const Padding(padding: EdgeInsets.fromLTRB(14, 12, 14, 12), child: Text('Add the marks and a photo of each certificate. The residency office checks them against your admission file.', style: TextStyle(fontSize: 14, color: _muted))),
                   for (final p in prior) Container(
                     padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10), decoration: const BoxDecoration(border: Border(bottom: BorderSide(color: _line))),
                     child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -350,7 +350,7 @@ class _Hero extends StatelessWidget {
             _Ring(_n(last?['cgpa']).toDouble(), 10, last != null ? _n(last!['cgpa']).toStringAsFixed(2) : '—', 'CGPA', _violet),
             _Ring(_n(last?['attendance_pct']).toDouble(), 100, _num(last?['attendance_pct']), 'Class %', _sky),
             _Ring((crtPct ?? 0).toDouble(), 100, _num(crtPct), 'CRT %', _coral),
-            _Ring(_n(nightPct).toDouble(), 100, _num(nightPct), 'Hostel %', _green),
+            _Ring(_n(nightPct).toDouble(), 100, _num(nightPct), 'Residency %', _green),
           ]),
         ]),
       );

@@ -39,7 +39,7 @@ export default function LookUpLog() {
             { key: 'alert_id', label: 'Alert', render: (v: number | null) => (v ? <span className="klh-code">{v}</span> : '—') },
           ]} />
       </Card>
-      <Notice tone="info" title="What to look for">Repeated routine look-ups of the same student by one person, look-ups outside the viewer's floor or hostel, and emergencies without a matching alert.</Notice>
+      <Notice tone="info" title="What to look for">Repeated routine look-ups of the same student by one person, look-ups outside the viewer's floor or residency, and emergencies without a matching alert.</Notice>
     </div>
   );
 }

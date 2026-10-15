@@ -108,7 +108,7 @@ export const APPS: App[] = [
     { label: 'Academic years and registration window', route: '/admin/masters?tab=years', icon: CalendarRange, roles: ['admin'] },
     { label: 'Room builder', route: '/admin/room-builder', icon: Building2, roles: ['admin'] },
     { label: 'Hostel allotment', route: '/allotment-view', icon: BedDouble, roles: ['admin'], own: true },
-    ...ADMIN_DATA('Hostel set-up', Building2),
+    ...ADMIN_DATA('Residency set-up', Building2),
     { label: 'Room map', route: '/rooms', icon: MapIcon, roles: ['admin'] },
     ...ADMIN_DATA('Room inventory', Database),
   ] },

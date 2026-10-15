@@ -157,7 +157,7 @@ function HostelPicker({ hostels, value, onPick, short }: { hostels: Hostel[]; va
     <label className={`ax-pill ax-picker${short ? ' ax-hide-sm' : ''}`}>
       <Building2 size={16} className="ax-teal" />
       <select value={value} onChange={(e) => onPick(e.target.value)} aria-label="Hostel">
-        <option value="">All hostels</option>
+        <option value="">All residencies</option>
         {hostels.map((h) => <option key={h.facility_id} value={h.facility_id}>{short ? h.hostel_code : `${h.facility_name}`}</option>)}
       </select>
       <ChevronDown size={16} className="ax-muted" />

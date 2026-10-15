@@ -166,7 +166,7 @@ function RefundForm({ d, busy, onCancel, onSave }: { d: Detail; busy: boolean; o
   const [mode, setMode] = useState('NEFT');
   const [ref, setRef] = useState('');
   const [acct, setAcct] = useState('');
-  const [reason, setReason] = useState('Balance of caution deposit refunded on leaving the hostel');
+  const [reason, setReason] = useState('Balance of caution deposit refunded on leaving the residency');
   const n = Number(amount);
   return (
     <section className="cd-box cd-form"><h4>Refund the deposit</h4>

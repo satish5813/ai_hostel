@@ -52,7 +52,7 @@ class _ComplaintsScreenState extends State<ComplaintsScreen> with AutoRefresh {
       ])),
       const SizedBox(height: 18),
       Panel(child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        _Kind(LucideIcons.utensils, 'A problem with a meal', m != null ? 'Goes to the ${m['mess_name']} in-charge' : messLoaded ? 'You are not taking meals in a hostel mess' : 'Loading…',
+        _Kind(LucideIcons.utensils, 'A problem with a meal', m != null ? 'Goes to the ${m['mess_name']} in-charge' : messLoaded ? 'You are not taking meals in a residency mess' : 'Loading…',
             kind == 'meal', m == null ? null : () => setState(() => kind = 'meal')),
         const SizedBox(height: 12),
         _Kind(LucideIcons.messageSquareWarning, 'Something else', 'Room-mate, staff, discipline, ragging, safety', kind == 'other', () => setState(() => kind = 'other')),

@@ -68,11 +68,11 @@ function ReportPanel({ id, cw, onClose }: { id: number; cw: boolean; onClose: ()
           </div>
           <div className="ov-scroll">
             <table className="ov-table dn-table">
-              <thead><tr><th>Floor</th><th>Hostel students</th><th>Absent</th><th>On pass</th><th>Sick</th><th>Outings</th><th>Late</th><th>Cases</th></tr></thead>
+              <thead><tr><th>Floor</th><th>Residency students</th><th>Absent</th><th>On pass</th><th>Sick</th><th>Outings</th><th>Late</th><th>Cases</th></tr></thead>
               <tbody>{d.floors.map((f) => (
                 <tr key={f.floor_no}>
                   <th scope="row">{f.floor_name}{f.repeat_absentees.length > 0 && <small className="dn-names">Absent 2+ nights: {f.repeat_absentees.map((x) => `${x.full_name} (${x.nights})`).join(', ')}</small>}</th>
-                  <td data-label="Hostel students">{f.residents}</td>
+                  <td data-label="Residency students">{f.residents}</td>
                   <td data-label="Absent"><span className={f.absences ? 'dn-attn-tx' : 'klh-muted'}>{f.absences}</span><small className="klh-muted"> / {f.nights_marked}</small></td>
                   <td data-label="On pass">{f.on_pass}</td><td data-label="Sick">{f.on_sick}</td><td data-label="Outings">{f.outings}</td>
                   <td data-label="Late"><span className={f.late_returns ? 'dn-attn-tx' : ''}>{f.late_returns}</span></td>

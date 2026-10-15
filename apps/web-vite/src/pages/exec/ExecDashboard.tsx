@@ -263,7 +263,7 @@ function CareerChoiceSection({ c }: { c: CareerChoice }) {
         <Block title="What residents plan to do" sub={`${num(c.stated)} of ${num(c.residents)} residents have stated a choice (${pct(c.stated, c.residents)}%) · from the career-choice survey`}>
           <Bars rows={c.by_goal.map((g) => ({ label: g.name, n: g.n }))} />
         </Block>
-        <Block wide title="By hostel" sub="Tap a number to see the students">
+        <Block wide title="By residency" sub="Tap a number to see the students">
           <div className="xd-table-wrap"><table className="xd-table">
             <thead><tr><th>Hostel</th><th className="n">Hostel students</th><th className="n">Stated</th>{GOAL_COL.map((g) => <th key={g.key} className="n">{g.label}</th>)}</tr></thead>
             <tbody>{hs.map((h) => (
@@ -411,7 +411,7 @@ const sparkOf = (b: Building[], f: (x: Building) => number | null | undefined) =
 /** What each headline KPI means per hostel, for the drill-down. */
 type Metric = { label: string; c: Domain; val: (b: Building) => number | null | undefined; fmt: (b: Building) => string; sub: (b: Building) => string; tab: Tab; good?: [number, number, boolean] };
 const METRICS: Record<string, Metric> = {
-  students: { label: 'Hostel students', c: 'people', val: (b) => b.residents, fmt: (b) => num(b.residents), sub: (b) => `${pct(b.occupied, b.beds)}% of ${num(b.beds)} beds`, tab: 'academic' },
+  students: { label: 'Residency students', c: 'people', val: (b) => b.residents, fmt: (b) => num(b.residents), sub: (b) => `${pct(b.occupied, b.beds)}% of ${num(b.beds)} beds`, tab: 'academic' },
   cgpa: { label: 'Average CGPA', c: 'acad', val: (b) => b.avg_cgpa, fmt: (b) => b.avg_cgpa?.toFixed(2) ?? '—', sub: (b) => `${num(b.with_results)} with results`, tab: 'academic', good: [7.5, 6.5, false] },
   backlogs: { label: 'With backlogs', c: 'acad', val: (b) => b.backlog_students, fmt: (b) => `${num(b.backlog_students)} of ${num(b.residents)}`, sub: (b) => `${pct(b.backlog_students, b.residents)}% · ${num(b.backlogs)} backlogs`, tab: 'academic', good: [10, 20, true] },
   attendance: { label: 'Attendance shortfall', c: 'acad', val: (b) => b.short_students, fmt: (b) => `${num(b.short_students)} of ${num(b.residents)}`, sub: (b) => `${pct(b.short_students, b.residents)}% of students`, tab: 'academic', good: [5, 15, true] },
@@ -429,7 +429,7 @@ function KpiDrill({ k, b, onClose }: { k: string; b: Building[]; onClose: () => 
   const rows = b.filter((x) => x.residents > 0).map((x) => ({ x, v: Number(m.val(x) ?? 0) })).sort((p, q) => q.v - p.v);
   const max = Math.max(1e-9, ...rows.map((r) => Math.abs(r.v)));
   return (
-    <Modal title={`${m.label} · by hostel`} sub={`${rows.length} hostels · tap one to open it`} onClose={onClose}>
+    <Modal title={`${m.label} · by residency`} sub={`${rows.length} residencies · tap one to open it`} onClose={onClose}>
       <ul className="xd-drill" data-c={m.c}>{rows.map(({ x, v }) => {
         const t: Tone = m.good ? tone(m.val(x), m.good[0], m.good[1], m.good[2]) : 'none';
         return (
@@ -474,7 +474,7 @@ function BuildingCard({ b, settings, onOpen }: { b: Building; settings: Overview
     <button type="button" className={`xd-card${empty ? ' xd-card-empty' : ''}`} data-g={b.gender} onClick={onOpen} aria-label={`${b.hostel_code} ${b.facility_name}: open`}>
       <span className="xd-card-head">
         <span className={`xd-mono xd-g-${b.gender.toLowerCase()}`}>{b.hostel_code}</span>
-        <span className="xd-card-title"><b>{b.facility_name}</b><small>{b.gender} · {b.accommodation_type}{b.floors ? ` · ${b.floors} floors` : ''}</small></span>
+        <span className="xd-card-title"><b>{b.facility_name}</b><small>{b.gender} · {b.accommodation_type === 'Hostel' ? 'Residency' : b.accommodation_type}{b.floors ? ` · ${b.floors} floors` : ''}</small></span>
         <ChevronRight size={18} className="xd-chev" />
       </span>
       {empty ? <span className="xd-card-none">No students in the hostel yet · {b.beds.toLocaleString('en-IN')} beds</span> : (
@@ -540,7 +540,7 @@ function BuildingView({ id }: { id: string }) {
       <button type="button" className="xd-back" onClick={() => navigate('/exec')}><ArrowLeft size={16} />All buildings</button>
       <section className="xd-hero xd-hero-b">
         <span className={`xd-mono xd-mono-lg xd-g-${b.gender.toLowerCase()}`}>{b.hostel_code}</span>
-        <div><p className="xd-eyebrow">{b.gender} · {b.accommodation_type}{b.floors ? ` · ${b.floors} floors` : ''}</p><h1>{b.facility_name}</h1>
+        <div><p className="xd-eyebrow">{b.gender} · {b.accommodation_type === 'Hostel' ? 'Residency' : b.accommodation_type}{b.floors ? ` · ${b.floors} floors` : ''}</p><h1>{b.facility_name}</h1>
           <p className="xd-lead">{b.residents} students in {b.occupied} of {b.beds} beds ({pct(b.occupied, b.beds)}%) · {b.wardens ?? 0} managers</p></div>
       </section>
       <section className="xd-subcards" role="tablist" aria-label="Sections">

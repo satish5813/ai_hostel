@@ -31,7 +31,7 @@ export default function MappingCentre() {
     { key: 'Sweeper', title: 'Sweepers', about: 'Floors and corridors, morning shift', icon: 'sparkle', color: 'cyan', done: t.sw, of: t.floors, unit: 'floors covered', kind: 'duties', role: 'Sweeper' },
     { key: 'Scavenger', title: 'Scavengers', about: 'Washroom blocks, morning shift', icon: 'door', color: 'sky', done: t.sc, of: t.wr, unit: 'washrooms covered', kind: 'duties', role: 'Scavenger' },
     { key: 'Security_Guard', title: 'Security guards', about: 'Morning, evening and night at each hostel', icon: 'lock', color: 'orange', done: t.gs, of: hostels * 3, unit: 'shifts covered', kind: 'duties', role: 'Security_Guard' },
-    { key: 'Warden', title: 'Managers', about: 'Warden and Chief Manager of each hostel', icon: 'users', color: 'brand', done: t.wd, of: hostels, unit: 'hostels covered', kind: 'duties', role: 'Warden' },
+    { key: 'Warden', title: 'Managers', about: 'Warden and Chief Manager of each hostel', icon: 'users', color: 'brand', done: t.wd, of: hostels, unit: 'residencies covered', kind: 'duties', role: 'Warden' },
   ];
   return (
     <div className="pg">
@@ -50,8 +50,8 @@ export default function MappingCentre() {
             </button>);
         })}
       </div>
-      <section aria-label="By hostel">
-        <h2 style={{ margin: '4px 0 8px 2px', fontSize: 12.5, fontWeight: 600, color: 'var(--ink-muted)' }}>By hostel</h2>
+      <section aria-label="By residency">
+        <h2 style={{ margin: '4px 0 8px 2px', fontSize: 12.5, fontWeight: 600, color: 'var(--ink-muted)' }}>By residency</h2>
         <div className="mc-hostels">
           {(sum.data ?? []).map((h) => (
             <div key={h.facility_id} className="mc-h">

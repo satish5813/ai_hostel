@@ -43,7 +43,7 @@ export default function Overview() {
   return (
     <div className="ra-main ov">
       <RaHead eyebrow={today()} tone="#5F3DC4" title={`${greeting()}${name ? `, ${name}` : ''}`}
-        sub={o.data ? `${hs.length} hostel${hs.length === 1 ? '' : 's'} in your charge · ${occ.toLocaleString('en-IN')} of ${beds.toLocaleString('en-IN')} beds occupied${beds ? ` (${Math.round((occ / beds) * 100)}%)` : ''}` : 'Loading your hostels…'} />
+        sub={o.data ? `${hs.length} residency${hs.length === 1 ? '' : 's'} in your charge · ${occ.toLocaleString('en-IN')} of ${beds.toLocaleString('en-IN')} beds occupied${beds ? ` (${Math.round((occ / beds) * 100)}%)` : ''}` : 'Loading your residencies…'} />
 
       <div className="ov-tiles">
         {tiles.map((t) => { const I = t.icon; return (
@@ -53,10 +53,10 @@ export default function Overview() {
       </div>
 
       <section className="ov-card" aria-label="Hostels">
-        <header><h2>Hostels</h2><small>Tap a number to open that list for the hostel</small></header>
+        <header><h2>Residencies</h2><small>Tap a number to open that list for the residency</small></header>
         <div className="ov-scroll">
           <table className="ov-table">
-            <thead><tr><th>Hostel</th><th>Beds</th><th>Waiting for a bed</th><th>Fees to verify</th><th>To approve</th><th>Exceptions</th><th>Outings</th><th>Sick leave</th><th>Out now · late</th><th>Alerts</th><th>Overdue fees</th><th>Duties open</th></tr></thead>
+            <thead><tr><th>Residency</th><th>Beds</th><th>Waiting for a bed</th><th>Fees to verify</th><th>To approve</th><th>Exceptions</th><th>Outings</th><th>Sick leave</th><th>Out now · late</th><th>Alerts</th><th>Overdue fees</th><th>Duties open</th></tr></thead>
             <tbody>
               {hs.map((h) => (
                 <tr key={h.facility_id}>

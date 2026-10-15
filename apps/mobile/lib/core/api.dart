@@ -45,7 +45,7 @@ class Api {
     try {
       r = await call().timeout(const Duration(seconds: 20));
     } catch (_) {
-      throw ApiError(0, 'Cannot reach the hostel server. Check your internet connection.');
+      throw ApiError(0, 'Cannot reach the residency server. Check your internet connection.');
     }
     final text = utf8.decode(r.bodyBytes);
     final body = text.isEmpty ? null : _tryJson(text);

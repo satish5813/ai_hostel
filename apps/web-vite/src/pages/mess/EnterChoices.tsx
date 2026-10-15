@@ -50,7 +50,7 @@ export default function EnterChoices() {
         <div className="ec-cols">
           <section className="box ec-list" aria-label="Students">
             <div className="ec-tools">
-              <Input aria-label="Find a student" placeholder="Name, ID or hostel" value={q} onChange={(e) => setQ(e.target.value)} />
+              <Input aria-label="Find a student" placeholder="Name, ID or residency" value={q} onChange={(e) => setQ(e.target.value)} />
               <SegmentedControl label="Show" value={show} onChange={(v) => setShow(v as 'todo' | 'all')} options={[{ value: 'todo', label: 'Not finished' }, { value: 'all', label: 'Everyone' }]} />
             </div>
             <ul>{students.map((s) => {

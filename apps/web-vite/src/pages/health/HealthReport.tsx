@@ -59,7 +59,7 @@ export function HealthReport({ id }: { id: number }) {
           <div><dt>Age / Gender</dt><dd>{age(h.date_of_birth)} years / {h.gender}</dd></div>
           <div><dt>Blood group</dt><dd>{h.blood_group ?? '—'}</dd></div>
           <div><dt>Programme</dt><dd>{h.programme}</dd></div>
-          <div><dt>Hostel / Room</dt><dd>{h.hostel_name ?? '—'}{h.bed_label ? ` · ${h.bed_label}` : ''}</dd></div>
+          <div><dt>Residency / Room</dt><dd>{h.hostel_name ?? '—'}{h.bed_label ? ` · ${h.bed_label}` : ''}</dd></div>
           <div><dt>Collected</dt><dd>{dt(h.collected_at)}</dd></div>
           <div><dt>Reported</dt><dd>{dt(h.reported_at)}</dd></div>
           <div><dt>Source</dt><dd>{h.source === 'Device' ? 'Gym equipment' : h.source}{h.device_ref ? ` · ${h.device_ref}` : ''}{h.lab_name ? ` · ${h.lab_name}` : ''}</dd></div>

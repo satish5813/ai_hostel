@@ -124,7 +124,7 @@ class _HomeScreenState extends State<HomeScreen> with AutoRefresh {
       ('Repairs', 'Room, mess or common facility', LucideIcons.wrench, Mod.orange, () => openPlace(context, 'repairs'), needRoom),
       ('Rate my meals', 'Tell the mess what you liked', LucideIcons.star, Mod.amber, () => openPlace(context, 'rate_meals'), needRoom),
       ('Receipts', '${receipts.length} on record', LucideIcons.receipt, Mod.orange, () => _receipts(receipts), null),
-      ('Hostel journey', reg != null ? '${reg['registration_no']}' : 'Apply for a room', LucideIcons.sparkles, Mod.indigo, () => openPlace(context, 'room'), null),
+      ('Residency journey', reg != null ? '${reg['registration_no']}' : 'Apply for a room', LucideIcons.sparkles, Mod.indigo, () => openPlace(context, 'room'), null),
       ('Academic record', 'Attendance, marks', LucideIcons.graduationCap, Mod.sky, () => openPlace(context, 'academics'), null),
       ('My career goal', goal != null ? _goals.where((g) => g.$1 == goal['goal']).firstOrNull?.$2 ?? 'Set' : 'Tell us what you aim for', LucideIcons.sparkles, Mod.indigo, () => _goal(goal), null),
       ('Parents and profile', '${((student?['contacts'] as List?) ?? []).where((c) => c['is_verified'] == true).length} verified contacts', LucideIcons.idCard, Mod.em, () => openPlace(context, 'profile'), null),
@@ -140,10 +140,10 @@ class _HomeScreenState extends State<HomeScreen> with AutoRefresh {
     // a receipt that the wardens are still checking: the dues are not asked for again
     final checking = _list('proofs').where((p) => ['Uploaded', 'Checked'].contains(p['status'])).firstOrNull;
     final heroLine = checking != null ? 'Receipt ${checking['proof_no']} is ${checking['status'] == 'Checked' ? 'with the Chief Manager' : 'with the Floor Manager'}. This page moves on by itself.'
-        : reg == null ? 'You have not applied for a hostel room yet.'
+        : reg == null ? 'You have not applied for a residency room yet.'
         : stage == 3 && reg['student_decision'] == 'Pending' ? 'A bed is held for you until ${dayTime(reg['hold_until'])}. Accept it to continue.'
         : living ? (due > 0 ? '${inr(due)} is due${next != null ? ' by ${day(next['due_date'])}' : ''}.' : 'Everything is paid. Have a good day.')
-        : stage == 2 ? 'Registration fee paid. Choose your bed: the rooms are open for you.' : stage < 3 ? 'Pay the registration fee to be allotted a bed.' : 'Pay the hostel and mess fees to check in.';
+        : stage == 2 ? 'Registration fee paid. Choose your bed: the rooms are open for you.' : stage < 3 ? 'Pay the registration fee to be allotted a bed.' : 'Pay the residency and mess fees to check in.';
 
     return RefreshIndicator(onRefresh: load, child: ListView(physics: const AlwaysScrollableScrollPhysics(), padding: const EdgeInsets.fromLTRB(16, 16, 16, 24), children: [
       // banner
@@ -221,7 +221,7 @@ class _HomeScreenState extends State<HomeScreen> with AutoRefresh {
       ])),
       if (reg != null) ...[
         const SizedBox(height: 18),
-        Panel(title: 'Your hostel journey', sub: '${reg['registration_no']}', link: Align(alignment: Alignment.centerRight, widthFactor: 1, child: KLink('Open', () => openPlace(context, 'room'))),
+        Panel(title: 'Your residency journey', sub: '${reg['registration_no']}', link: Align(alignment: Alignment.centerRight, widthFactor: 1, child: KLink('Open', () => openPlace(context, 'room'))),
             child: Column(children: [
               for (var i = 0; i < steps.length; i++) _Step(steps[i], stage >= 6 || i < stage - 1 ? 'done' : i == stage - 1 ? 'current' : 'upcoming', last: i == steps.length - 1),
             ])),

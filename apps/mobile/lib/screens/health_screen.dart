@@ -134,7 +134,7 @@ class _ReportState extends State<_Report> {
                   item('Age / Gender', Text('$age years / ${h['gender']}')),
                   item('Blood group', Text('${h['blood_group'] ?? '—'}')),
                   item('Programme', Text('${h['programme']}')),
-                  item('Hostel / Room', Text('${h['hostel_name'] ?? '—'}${h['bed_label'] != null ? ' · ${h['bed_label']}' : ''}')),
+                  item('Residency / Room', Text('${h['hostel_name'] ?? '—'}${h['bed_label'] != null ? ' · ${h['bed_label']}' : ''}')),
                   item('Collected', Text(_dt(h['collected_at']))),
                   item('Reported', Text(_dt(h['reported_at']))),
                   item('Source', Text(source)),

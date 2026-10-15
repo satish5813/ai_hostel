@@ -85,7 +85,7 @@ class _SplashScreenState extends State<_PhotoSplash> with SingleTickerProviderSt
       backgroundColor: const Color(0xFF04271F),
       body: AnimatedBuilder(animation: _c, builder: (context, _) => Stack(fit: StackFit.expand, children: [
         // the photograph, drawing back from a slight close-up
-        Transform.scale(scale: 1.14 - .14 * _zoom.value, child: Image.asset(SplashScreen.photo, fit: BoxFit.cover, alignment: const Alignment(0, -.3), semanticLabel: 'A KL University hostel block')),
+        Transform.scale(scale: 1.14 - .14 * _zoom.value, child: Image.asset(SplashScreen.photo, fit: BoxFit.cover, alignment: const Alignment(0, -.3), semanticLabel: 'A KL University residency block')),
         // green from the top for the status bar, and rising from the bottom to carry the name
         const DecoratedBox(decoration: BoxDecoration(gradient: LinearGradient(begin: Alignment.topCenter, end: Alignment.bottomCenter,
             colors: [Color(0xB304271F), Color(0x2604271F), Color(0x9904271F), Color(0xF204271F), Color(0xFF04271F)], stops: [0, .28, .52, .74, 1]))),
@@ -93,7 +93,7 @@ class _SplashScreenState extends State<_PhotoSplash> with SingleTickerProviderSt
           const SizedBox(height: 14),
           Opacity(opacity: _name.value, child: Row(children: [
             Container(width: 7, height: 7, decoration: const BoxDecoration(color: Color(0xFFFFD166), shape: BoxShape.circle)), const SizedBox(width: 8),
-            const Text('KL UNIVERSITY · HOSTELS', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, letterSpacing: 1.6, color: Color(0xE6FFFFFF))),
+            const Text('KL UNIVERSITY · RESIDENCIES', style: TextStyle(fontSize: 11.5, fontWeight: FontWeight.w700, letterSpacing: 1.6, color: Color(0xE6FFFFFF))),
           ])),
           const Spacer(),
           Transform.scale(alignment: Alignment.centerLeft, scale: .86 + .14 * _logo.value, child: Opacity(opacity: _logo.value.clamp(0, 1), child: Container(
@@ -105,7 +105,7 @@ class _SplashScreenState extends State<_PhotoSplash> with SingleTickerProviderSt
               TextSpan(children: [TextSpan(text: 'KL '), TextSpan(text: 'Student', style: TextStyle(color: Color(0xFFFFD166)))]),
               style: TextStyle(fontSize: 46, height: 1.02, fontWeight: FontWeight.w800, letterSpacing: -1.6, color: Colors.white)))),
           const SizedBox(height: 10),
-          Transform.translate(offset: Offset(0, 16 * (1 - _tag.value)), child: Opacity(opacity: _tag.value, child: const Text('Your hostel, in your pocket.\nRoom, fees, mess, outings and more.',
+          Transform.translate(offset: Offset(0, 16 * (1 - _tag.value)), child: Opacity(opacity: _tag.value, child: const Text('Your residency, in your pocket.\nRoom, fees, mess, outings and more.',
               style: TextStyle(fontSize: 16, height: 1.45, color: Color(0xD9FFFFFF))))),
           const SizedBox(height: 34),
           Semantics(label: 'Opening', child: ClipRRect(borderRadius: BorderRadius.circular(3), child: SizedBox(height: 4, child: Stack(children: [

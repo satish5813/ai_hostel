@@ -27,7 +27,7 @@ export default function ParentRecommendation() {
             <Button variant="danger" size="lg" onClick={() => setRefuse(i)}>No</Button>
           </div>
         </Card>))}
-      <Notice tone="info" title="Recommendation, not approval">The hostel decides. You cannot approve on behalf of the hostel, and you do not see your child's live location.</Notice>
+      <Notice tone="info" title="Recommendation, not approval">The residency decides. You cannot approve on behalf of the residency, and you do not see your child's live location.</Notice>
       <Card icon="clock" color="violet" title="Earlier outings" padding={0}>
         {!history.data ? null : history.data.length === 0 ? <EmptyState icon="door" title="No outings yet" /> : (
           <div className="klh-stack" style={{ gap: 0 }}>{history.data.slice(0, 10).map((o) => (
