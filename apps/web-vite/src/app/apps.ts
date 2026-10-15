@@ -99,7 +99,7 @@ export const APPS: App[] = [
   { k: 'reports', name: 'Reports', mod: 'em', icon: ChartColumn, stat: () => 'Occupancy, fees, meal choices', ops: [
     { label: 'Occupancy, fees and dues', route: '/reports/occupancy-fees-dues', icon: ChartColumn, code: 'RPT-07' },
     { label: 'Weekly meal choices', route: '/reports/meal-choices', icon: ChartColumn, code: 'RPT-11' },
-    { label: 'Mess sentiment', route: '/reports/mess-sentiment', icon: Activity, code: 'RPT-12' },
+    { label: 'Rasoi sentiment', route: '/reports/mess-sentiment', icon: Activity, code: 'RPT-12' },
     { label: 'Executive dashboard', route: '/exec', icon: Gauge, code: 'EXE-01' },
   ] },
   // the Data Administrator's apps
@@ -137,11 +137,11 @@ export const APPS: App[] = [
     { label: 'Career guidance', route: '/career-guidance', icon: GraduationCap, code: 'ACA-03', own: true },
   ] },
   { k: 'mess', name: 'Mess', mod: 'em', icon: Utensils, stat: () => 'Weekly menu, students\' choices, routine menus', ops: [
-    { label: 'Mess sentiment', route: '/reports/mess-sentiment', icon: Activity, code: 'RPT-12' },
+    { label: 'Rasoi sentiment', route: '/reports/mess-sentiment', icon: Activity, code: 'RPT-12' },
     { label: 'Mess repair tickets', route: '/repair-desk', icon: Wrench, code: 'TKT-03' },
     { label: 'Weekly menu', route: '/weekly-menu', icon: CalendarSync, code: 'MES-08' },
     { label: 'Meal scan', route: '/meal-scan', icon: ScanLine, code: 'MES-04' },
-    { label: 'Mess store', route: '/mess-store', icon: ClipboardList, code: 'MES-05' },
+    { label: 'Rasoi store', route: '/mess-store', icon: ClipboardList, code: 'MES-05' },
     { label: 'Mess daily record', route: '/mess-daily', icon: CalendarCheck, code: 'MES-06' },
     { label: 'Mess complaints', route: '/mess-grievances', icon: ShieldAlert, code: 'MES-03' },
     { label: 'Mess monthly report', route: '/mess-monthly', icon: ChartColumn, code: 'MES-07' },

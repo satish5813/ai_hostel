@@ -15,7 +15,7 @@ const ITEM: Record<string, { label: string; icon: LucideIcon; group: string }> =
   '/electricity': { label: 'Electricity', icon: Zap, group: 'My stay' },
   '/my-deposit': { label: 'Caution deposit', icon: ShieldCheck, group: 'My stay' },
   '/my-tickets': { label: 'Repairs', icon: Wrench, group: 'My stay' },
-  '/mess-menu': { label: 'Mess menu', icon: Utensils, group: 'Mess' },
+  '/mess-menu': { label: 'Rasoi menu', icon: Utensils, group: 'Mess' },
   '/my-meals': { label: 'Choose my meals', icon: ChefHat, group: 'Mess' },
   '/rate-meals': { label: 'Rate my meals', icon: Star, group: 'Mess' },
   '/outings': { label: 'Outings', icon: DoorOpen, group: 'Daily life' },
