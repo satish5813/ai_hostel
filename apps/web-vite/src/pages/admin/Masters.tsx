@@ -207,7 +207,7 @@ function Messes() {
         { key: 'annual_fee', label: 'Fee a year', align: 'right', render: (v: string) => <span className="klh-num">{formatINR(v)}</span> },
         { key: 'status', label: 'Status', render: (v: string) => <StatusChip status={v} /> },
       ]} />}
-    form={<form className="klh-stack" style={{ gap: 14 }} onSubmit={(e) => { e.preventDefault(); run(() => api('/admin/messes', { method: 'POST', json: { ...f, capacity: Number(f.capacity), annual_fee: Number(f.annual_fee), incharge_id: f.incharge_id || undefined } }).then(() => { list.mutate(); setF({ ...f, mess_name: '' }); }), 'Mess added'); }}>
+    form={<form className="klh-stack" style={{ gap: 14 }} onSubmit={(e) => { e.preventDefault(); run(() => api('/admin/messes', { method: 'POST', json: { ...f, capacity: Number(f.capacity), annual_fee: Number(f.annual_fee), incharge_id: f.incharge_id || undefined } }).then(() => { list.mutate(); setF({ ...f, mess_name: '' }); }), 'Rasoi added'); }}>
       <Field label="Rasoi name" required><Input value={f.mess_name} onChange={(e) => setF({ ...f, mess_name: e.target.value })} placeholder="Boys Residency 2 Rasoi" /></Field>
       <Field label="Serves hostel" required><Select value={f.facility_id} onChange={(e) => setF({ ...f, facility_id: e.target.value })} options={[{ value: '', label: 'Choose' }, ...(hostels.data ?? []).map((h) => ({ value: h.facility_id, label: h.facility_name }))]} /></Field>
       <Field label="In-charge" hint="Employee ID"><Input value={f.incharge_id} onChange={(e) => setF({ ...f, incharge_id: e.target.value })} placeholder="S-MS" /></Field>

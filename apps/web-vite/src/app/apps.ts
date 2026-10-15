@@ -143,7 +143,7 @@ export const APPS: App[] = [
     { label: 'Meal scan', route: '/meal-scan', icon: ScanLine, code: 'MES-04' },
     { label: 'Rasoi store', route: '/mess-store', icon: ClipboardList, code: 'MES-05' },
     { label: 'Mess daily record', route: '/mess-daily', icon: CalendarCheck, code: 'MES-06' },
-    { label: 'Mess complaints', route: '/mess-grievances', icon: ShieldAlert, code: 'MES-03' },
+    { label: 'Rasoi complaints', route: '/mess-grievances', icon: ShieldAlert, code: 'MES-03' },
     { label: 'Mess monthly report', route: '/mess-monthly', icon: ChartColumn, code: 'MES-07' },
     { label: 'Checklists', route: '/checklists', icon: ClipboardCheck, code: 'TKT-05' },
     { label: 'Enter choices for students', route: '/meal-entry', icon: ClipboardList, code: 'MES-10' },
