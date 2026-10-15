@@ -502,7 +502,7 @@ class Offline {
       final x = _find('/me/mess-grievances', 'feedback_id', id, 'grievances'), r = t['replied'] as Map;
       x['status'] = r['status']; x['action_taken'] = 'Sorry about the ${'${x['slot']}'.replaceAll('_', ' ').toLowerCase()}. The cook has been told and the dish is checked before serving from today.';
       x['action_by_name'] = r['action_by_name']; x['closed_at'] = _now();
-      _notify('The mess replied to your complaint', '${x['action_taken']}', 'Mess');
+      _notify('The rasoi replied to your complaint', '${x['action_taken']}', 'Mess');
     });
     return {'feedback_id': g['feedback_id']};
   }
@@ -549,7 +549,7 @@ class Offline {
   dynamic _food(Map? b) {
     final menu = _w['/me/menu'] as Map?;
     final me = menu?['me'] as Map?;
-    if (me == null) _fail(422, 'You are not taking meals in a residency mess');
+    if (me == null) _fail(422, 'You are not taking meals in a residency rasoi');
     if (b == null) {
       me['pending_change_id'] = null; me['change_from'] = null; me['next_region'] = me['region']; me['next_diet'] = me['diet']; me['next_country'] = me['country']; me['next_title'] = me['menu_title'];
       return {};

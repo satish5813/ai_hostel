@@ -398,7 +398,7 @@ class _ReceiptPrint extends StatelessWidget {
           Expanded(child: DefaultTextStyle.merge(style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w500), child: rows[i].$2)),
         ])),
         const SizedBox(height: 24),
-        const Text('Computer-generated receipt of KL Residencies. The registration fee is not refundable. Residency and mess fees are refundable only as per the vacating rules.',
+        const Text('Computer-generated receipt of KL Residencies. The registration fee is not refundable. Residency and rasoi fees are refundable only as per the vacating rules.',
             style: TextStyle(fontSize: 12, color: _muted)),
       ])),
     ]);

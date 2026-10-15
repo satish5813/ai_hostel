@@ -94,17 +94,17 @@ export default function StudentHome() {
     { key: 'power', mod: 'amber', icon: Zap, title: 'Electricity', value: meter.data ? `${Math.max(left, 0).toFixed(0)} units left` : '—', sub: meter.data ? `${used.toFixed(0)} of ${included.toFixed(0)} used this month` : 'Linked at check-in', cta: 'Recharge', alert: !!meter.data && left < 10, off: meter.error ? 'After check-in' : undefined },
     { key: 'outing', mod: 'violet', icon: DoorOpen, title: 'Outing', value: livePass ? words(livePass.status) : pending ? 'In approval' : 'At hostel', sub: livePass ? `${livePass.destination} · back by ${formatDateTime(livePass.return_by)}` : pending ? `${pending.destination} · ${words(pending.status).toLowerCase()}` : `${passes.data?.length ?? 0} outings this year`, cta: 'Ask permission', alt: livePass ? { label: 'Show pass', key: 'outing' } : pending ? { label: 'See status', key: 'outing' } : undefined, off: living ? undefined : 'After check-in' },
     { key: 'repair', mod: 'orange', icon: Wrench, title: 'Repairs', value: openTickets ? `${openTickets} open` : 'Nothing open',
-      sub: toConfirm ? `${toConfirm} repaired: please confirm` : 'Room, mess or common facility', cta: toConfirm ? 'Confirm repair' : 'Report a problem', alert: toConfirm > 0,
+      sub: toConfirm ? `${toConfirm} repaired: please confirm` : 'Room, rasoi or common facility', cta: toConfirm ? 'Confirm repair' : 'Report a problem', alert: toConfirm > 0,
       off: room.data ? undefined : 'After check-in', go: () => navigate('/my-tickets') },
     { key: 'sick', mod: 'rose', icon: HeartPulse, title: 'Sick leave', value: curSick ? words(curSick.status) : 'Feeling well', sub: curSick ? `${formatDate(curSick.from_date)} to ${formatDate(curSick.to_date)}` : 'Report if you are unwell', cta: curSick ? 'View' : 'Report', off: living ? undefined : 'After check-in' },
   ];
   const todayLunch = menu.data?.items.find((i) => i.day_no === menu.data?.today && i.meal === 'Lunch')?.dishes.split(', ').slice(0, 3).join(', ');
   const tiles: { label: string; sub: string; icon: LucideIcon; mod: Mod; go: () => void }[] = [
     { label: 'My room', sub: room.data ? room.data.bed_label : 'Not yet', icon: BedDouble, mod: 'teal', go: () => (room.data ? setSheet('room') : navigate('/registration')) },
-    { label: 'Mess menu', sub: todayLunch ? `Lunch: ${todayLunch}` : menu.data?.me ? 'This week' : 'After check-in', icon: UtensilsCrossed, mod: 'em', go: () => navigate('/mess-menu') },
-    { label: 'Choose my meals', sub: openWeek ? (mealsLeft ? `${mealsLeft} to choose by ${dueLabel(openWeek.choices_close_at)}` : 'Next week chosen') : 'When the mess publishes next week', icon: ChefHat, mod: 'orange', go: () => navigate('/my-meals') },
+    { label: 'Rasoi menu', sub: todayLunch ? `Lunch: ${todayLunch}` : menu.data?.me ? 'This week' : 'After check-in', icon: UtensilsCrossed, mod: 'em', go: () => navigate('/mess-menu') },
+    { label: 'Choose my meals', sub: openWeek ? (mealsLeft ? `${mealsLeft} to choose by ${dueLabel(openWeek.choices_close_at)}` : 'Next week chosen') : 'When the rasoi publishes next week', icon: ChefHat, mod: 'orange', go: () => navigate('/my-meals') },
     { label: 'Repairs', sub: 'Room, mess or common facility', icon: Wrench, mod: 'orange', go: () => navigate('/my-tickets') },
-    { label: 'Rate my meals', sub: 'Tell the mess what you liked', icon: Star, mod: 'amber', go: () => navigate('/rate-meals') },
+    { label: 'Rate my meals', sub: 'Tell the rasoi what you liked', icon: Star, mod: 'amber', go: () => navigate('/rate-meals') },
     { label: 'Receipts', sub: `${dues.data?.receipts.length ?? 0} on record`, icon: Receipt, mod: 'orange', go: () => setSheet('receipts') },
     { label: 'Residency journey', sub: reg ? reg.registration_no : 'Apply for a room', icon: Sparkles, mod: 'indigo', go: () => navigate('/registration') },
     { label: 'Academic record', sub: 'Attendance, marks', icon: GraduationCap, mod: 'sky', go: () => navigate('/academics') },
@@ -340,7 +340,7 @@ function RoomSheet({ r, onClose }: { r: Room; onClose: () => void }) {
         <div className="st-facts">
           <span><KeyRound size={15} /><small>Key</small><b>{r.key_no}</b></span>
           <span><CalendarClock size={15} /><small>Since</small><b>{formatDate(r.allocation_date)}</b></span>
-          <span><UtensilsCrossed size={15} /><small>Mess</small><b>{r.mess ? `${r.mess.mess_name}${r.mess.cuisine ? ` · ${words(r.mess.cuisine)}` : ''}` : '—'}</b></span>
+          <span><UtensilsCrossed size={15} /><small>Rasoi</small><b>{r.mess ? `${r.mess.mess_name}${r.mess.cuisine ? ` · ${words(r.mess.cuisine)}` : ''}` : '—'}</b></span>
         </div>
         <div><span className="st-label">In this room</span>
           <ul className="st-list">{r.mates.map((m) => (
@@ -435,7 +435,7 @@ function RenewalSheet({ rn, demands, onClose, onDone }: { rn: Renewal; demands: 
         {!windowOpen && <p className="st-note"><CalendarClock size={14} />Renewal for {y.academic_year} {y.renewal_opens ? `opens on ${formatDate(y.renewal_opens)}` : 'is not open yet'}. You can choose then.</p>}
         <div className="st-choices" role="radiogroup" aria-label="Next year">
           {([
-            { v: 'Keep', icon: KeyRound, t: `Keep ${cur.bed_label}`, s: fee ? `Same bed and key. ${formatINR(fee.hostel_fee)} residency${fee.mess_fee != null ? ` + ${formatINR(fee.mess_fee)} mess` : ''} + ${formatINR(fee.meter_charge)} meter charge for the year. No registration fee or deposits on renewal.` : `Same bed. The ${y.academic_year} fee for this room is not set yet.` },
+            { v: 'Keep', icon: KeyRound, t: `Keep ${cur.bed_label}`, s: fee ? `Same bed and key. ${formatINR(fee.hostel_fee)} residency${fee.mess_fee != null ? ` + ${formatINR(fee.mess_fee)} rasoi` : ''} + ${formatINR(fee.meter_charge)} meter charge for the year. No registration fee or deposits on renewal.` : `Same bed. The ${y.academic_year} fee for this room is not set yet.` },
             { v: 'Change', icon: BedDouble, t: 'Move to another room', s: 'Choose a hostel and room type. The office offers a bed from those free next year.' },
             { v: 'Leave', icon: DoorOpen, t: 'I am not staying', s: `Your bed is released for ${y.academic_year}. Nothing to pay.` },
           ] as const).map((o) => (
@@ -472,7 +472,7 @@ function RenewalSheet({ rn, demands, onClose, onDone }: { rn: Renewal; demands: 
         <div className="st-stack">
           <div><span className="st-label">How will you pay the residency fee?</span>
             <div className="st-presets">{([['Single', 'In one payment'], ['Two_Instalments', 'In two instalments']] as const).map(([v, l]) => <button key={v} type="button" aria-pressed={plan === v} onClick={() => setPlan(v)}>{l}</button>)}</div></div>
-          <div><span className="st-label">Mess for next year</span>
+          <div><span className="st-label">Rasoi for next year</span>
             <div className="st-presets">{[['South_Indian', 'South Indian'], ['North_Indian', 'North Indian'], ['Special_Diet', 'Special diet']].map(([v, l]) => <button key={v} type="button" aria-pressed={cuisine === v} onClick={() => setCuisine(v)}>{l}</button>)}</div></div>
         </div>);
       footer = <Button variant="primary" loading={busy} onClick={() => run(() => api(`/registrations/${r.registration_id}/fee-plan`, { method: 'POST', json: { plan_type: plan, cuisine } }).then(onDone), 'Your fees are ready to pay')}>Confirm fee plan</Button>;

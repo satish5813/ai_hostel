@@ -222,8 +222,8 @@ class _MessMenuScreenState extends State<MessMenuScreen> {
         final me = d['me'] as Map?;
         if (me == null) {
           return const MnPage(children: [MnPanel(children: [
-            Padding(padding: EdgeInsets.only(bottom: 10), child: MnH2('Mess menu', size: 15.5)),
-            MnEmpty('Your menu appears here once you live in a residency and have a mess subscription.'),
+            Padding(padding: EdgeInsets.only(bottom: 10), child: MnH2('Rasoi menu', size: 15.5)),
+            MnEmpty('Your menu appears here once you live in a residency and have a rasoi subscription.'),
           ])]);
         }
         final pending = me['pending_change_id'] != null;
@@ -234,7 +234,7 @@ class _MessMenuScreenState extends State<MessMenuScreen> {
         String? meal(String slot) => items.where((i) => i['day_no'] == dayNo && i['meal'] == slot).firstOrNull?['dishes'];
 
         return MnPage(children: [
-          MnHead(icon: LucideIcons.utensilsCrossed, title: 'Mess menu', sub: '${me['mess_name'] ?? me['hostel_code']}', chips: [
+          MnHead(icon: LucideIcons.utensilsCrossed, title: 'Rasoi menu', sub: '${me['mess_name'] ?? me['hostel_code']}', chips: [
             (LucideIcons.users, '${me['hostel_gender']} residency'),
             (LucideIcons.earth, me['is_foreign'] == true ? 'Foreign student' : 'Local student'),
             (LucideIcons.utensilsCrossed, _foodName(me['region'], me['country'])),

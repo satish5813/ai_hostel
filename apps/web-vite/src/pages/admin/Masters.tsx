@@ -186,7 +186,7 @@ function Fees() {
         <Field label="Electricity caution deposit (₹)" hint="Refundable; on joining only"><Input type="number" min={0} value={f.elec_caution_deposit} onChange={(e) => setF({ ...f, elec_caution_deposit: e.target.value })} /></Field>
         <Field label="Electricity meter charge a year (₹)" hint="Every year, also on renewal"><Input type="number" min={0} value={f.meter_charge} onChange={(e) => setF({ ...f, meter_charge: e.target.value })} /></Field>
       </div>
-      <p className="klh-muted" style={{ margin: 0, fontSize: 13 }}>Joining: registration, both deposits, residency fee, mess fee and meter charge. Renewal: residency fee, mess fee and meter charge only.</p>
+      <p className="klh-muted" style={{ margin: 0, fontSize: 13 }}>Joining: registration, both deposits, residency fee, rasoi fee and meter charge. Renewal: residency fee, rasoi fee and meter charge only.</p>
       <Field label="Second instalment" derived value={f.hostel_fee ? formatINR(Number(f.hostel_fee) * (100 - Number(f.instalment_1_pct)) / 100) : '—'} />
       <div><Button type="submit" variant="primary" loading={busy} blockedReason={!f.facility_id || !f.room_type_id ? 'Choose residency and room type.' : !f.hostel_fee ? 'Enter the residency fee.' : !f.instalment_2_due_date ? 'Set the second due date.' : undefined}>Save fee</Button></div>
     </form>} />;
@@ -197,7 +197,7 @@ function Messes() {
   const hostels = useApi<Hostel[]>('/structure');
   const [f, setF] = useState({ mess_name: '', facility_id: '', incharge_id: '', capacity: '400', annual_fee: '48000' });
   const { run, busy } = useAction();
-  return <Split formTitle="Add a mess" formSub="The mess fee is demanded with the residency fee when the student picks a cuisine"
+  return <Split formTitle="Add a rasoi" formSub="The rasoi fee is demanded with the residency fee when the student picks a cuisine"
     table={<DataTable caption="Messes" rowKey="mess_id" rows={list.data ?? []} loading={!list.data} empty={<EmptyState icon="utensils" title="No mess yet" />}
       columns={[
         { key: 'mess_name', label: 'Mess', render: (v: string) => <b style={{ fontWeight: 600 }}>{v}</b> },
@@ -208,14 +208,14 @@ function Messes() {
         { key: 'status', label: 'Status', render: (v: string) => <StatusChip status={v} /> },
       ]} />}
     form={<form className="klh-stack" style={{ gap: 14 }} onSubmit={(e) => { e.preventDefault(); run(() => api('/admin/messes', { method: 'POST', json: { ...f, capacity: Number(f.capacity), annual_fee: Number(f.annual_fee), incharge_id: f.incharge_id || undefined } }).then(() => { list.mutate(); setF({ ...f, mess_name: '' }); }), 'Mess added'); }}>
-      <Field label="Mess name" required><Input value={f.mess_name} onChange={(e) => setF({ ...f, mess_name: e.target.value })} placeholder="BH2 Mess" /></Field>
+      <Field label="Rasoi name" required><Input value={f.mess_name} onChange={(e) => setF({ ...f, mess_name: e.target.value })} placeholder="Boys Residency 2 Rasoi" /></Field>
       <Field label="Serves hostel" required><Select value={f.facility_id} onChange={(e) => setF({ ...f, facility_id: e.target.value })} options={[{ value: '', label: 'Choose' }, ...(hostels.data ?? []).map((h) => ({ value: h.facility_id, label: h.facility_name }))]} /></Field>
       <Field label="In-charge" hint="Employee ID"><Input value={f.incharge_id} onChange={(e) => setF({ ...f, incharge_id: e.target.value })} placeholder="S-MS" /></Field>
       <div className="klh-grid-2" style={{ gap: 12 }}>
         <Field label="Seats" required><Input type="number" value={f.capacity} onChange={(e) => setF({ ...f, capacity: e.target.value })} /></Field>
         <Field label="Fee a year (₹)" required><Input type="number" value={f.annual_fee} onChange={(e) => setF({ ...f, annual_fee: e.target.value })} /></Field>
       </div>
-      <div><Button type="submit" variant="primary" icon="plus" loading={busy} blockedReason={f.mess_name.length < 3 ? 'Name the mess.' : !f.facility_id ? 'Choose the hostel.' : undefined}>Add mess</Button></div>
+      <div><Button type="submit" variant="primary" icon="plus" loading={busy} blockedReason={f.mess_name.length < 3 ? 'Name the mess.' : !f.facility_id ? 'Choose the hostel.' : undefined}>Add rasoi</Button></div>
     </form>} />;
 }
 

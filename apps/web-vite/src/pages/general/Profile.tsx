@@ -24,7 +24,7 @@ function ParentProfile() {
         <Card icon="phone" color="brand" title="Your contact details" subtitle="Changed by your child from their profile"><dl className="klh-dl"><dt>Name</dt><dd>{d.contact_name}</dd><dt>Relation</dt><dd>{d.relation}</dd><dt>Mobile</dt><dd className="klh-num">{mobile(d.mobile_no)}</dd></dl></Card>
         <Card icon="bed" color="indigo" title="Your child" subtitle={d.programme}><dl className="klh-dl"><dt>Name</dt><dd>{titleCase(d.student_name)}</dd><dt>University ID</dt><dd className="klh-code">{d.student_id}</dd><dt>Residency</dt><dd>{d.hostel_code ?? 'Not a hosteller yet'}</dd>{d.space_id && <><dt>Room</dt><dd>{roomLabel(d.space_id)}-{bedLabel(d.subspace_id).slice(-1)}</dd></>}</dl></Card>
       </div>
-      <Notice tone="info" title="What you can see">Your child's outing requests, fee dues and receipts. Not their live location, tickets, grievances or mess feedback.</Notice>
+      <Notice tone="info" title="What you can see">Your child's outing requests, fee dues and receipts. Not their live location, tickets, grievances or rasoi feedback.</Notice>
     </div>
   );
 }

@@ -19,7 +19,7 @@ const IssueDto = z.object({ mess_id: z.number().int(), issue_date: Day, meal: Me
 const DailyDto = z.object({ mess_id: z.number().int(), record_date: Day, meals: z.array(z.object({ meal: Meal, meals_planned: z.number().nonnegative(), meals_served: z.number().nonnegative().nullable().optional(),
   prep_wastage_kg: z.number().nonnegative(), plate_wastage_kg: z.number().nonnegative(), menu_followed: z.boolean(), deviation_reason: z.string().max(300).nullable().optional() })).min(1).max(4) });
 
-@ApiTags('G · mess operations')
+@ApiTags('G · rasoi operations')
 @ApiBearerAuth()
 @Controller()
 export class MessOpsController {

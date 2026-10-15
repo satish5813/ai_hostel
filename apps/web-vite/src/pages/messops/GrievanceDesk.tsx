@@ -39,7 +39,7 @@ export default function GrievanceDesk() {
       {sig.length > 0 && (
         <section className="box mo-sig">
           <h3><AlertTriangle size={17} />Significant meals</h3>
-          <p className="mo-muted">A meal is significant when 5 students or a tenth of the mess complain about it.</p>
+          <p className="mo-muted">A meal is significant when 5 students or a tenth of the rasoi complain about it.</p>
           <ul>{sig.map((x) => (
             <li key={x.meal_date + x.slot}>
               <span><b>{mealName(x.slot)}, {day(x.meal_date)}</b><small>{x.students} of {x.strength} students · mostly {x.main_aspect?.toLowerCase()} · {x.open} open</small>
@@ -79,7 +79,7 @@ function ReplyDrawer({ g, canAct, onClose, onDone }: { g: G; canAct: boolean; on
         <p className="mo-quote">“{g.details}”</p>
         <p className="mo-muted">{g.aspect === 'Both' ? 'Quality and quantity' : g.aspect}{g.rating ? ` · rated ${g.rating} of 5` : ''} · sent {new Date(g.submitted_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' })}</p>
         {canAct && g.status !== 'Closed'
-          ? <Field label={<><MessageSquareReply size={14} /> Reply to the student</>} hint="Say what happened and what the mess has done. The student sees this."><Textarea rows={4} value={text} onChange={(e) => setText(e.target.value)} /></Field>
+          ? <Field label={<><MessageSquareReply size={14} /> Reply to the student</>} hint="Say what happened and what the rasoi has done. The student sees this."><Textarea rows={4} value={text} onChange={(e) => setText(e.target.value)} /></Field>
           : g.action_taken && <div className="mo-reply"><b>Reply{g.action_by_name ? ` from ${g.action_by_name}` : ''}</b><p>{g.action_taken}</p></div>}
       </div>
     </Drawer>

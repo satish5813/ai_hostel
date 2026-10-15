@@ -52,7 +52,7 @@ export default function MealChoicePage() {
         </div>
       </section>
 
-      {!w ? <section className="st-panel"><p className="st-empty">The mess has not published a weekly menu yet. You will get a message when it does.</p></section> : (
+      {!w ? <section className="st-panel"><p className="st-empty">The rasoi has not published a weekly menu yet. You will get a message when it does.</p></section> : (
         <>
           {d.weeks.length > 1 && (
             <div className="st-presets mc-weeks" role="tablist" aria-label="Week">{d.weeks.map((x) => (

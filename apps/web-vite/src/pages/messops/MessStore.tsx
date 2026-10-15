@@ -115,7 +115,7 @@ function StoreForm({ kind, messId, strength, stock, onClose, onDone }: { kind: '
             <button type="button" className="mo-x" onClick={() => setLines(lines.filter((_, j) => j !== i))} aria-label="Remove line" disabled={lines.length === 1}><Trash2 size={16} /></button>
           </div>); })}</div>
         <Button variant="ghost" size="sm" onClick={() => setLines([...lines, { sku: '', qty: '', rate: '', expiry_date: '' }])}><Plus size={14} /> Add item</Button>
-        {kind === 'issue' && <p className="mo-muted"><PackageCheck size={14} /> The Mess Supervisor acknowledges what reached the kitchen.</p>}
+        {kind === 'issue' && <p className="mo-muted"><PackageCheck size={14} /> The Rasoi Supervisor acknowledges what reached the kitchen.</p>}
       </div>
     </Drawer>
   );

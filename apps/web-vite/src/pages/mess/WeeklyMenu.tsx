@@ -51,8 +51,8 @@ export default function WeeklyMenu() {
 
   return (
     <div className="klh-stack wm" style={{ gap: 16 }}>
-      <ScreenHeader code="MES-08" subtitle={make ? (canPublish ? 'Write next week\'s dishes with the chef, then publish so students can choose before Friday.' : 'Write next week\'s dishes; the Mess In-charge publishes them for students to choose.')
-        : 'The menu each mess offers, and how many students chose each dish.'}
+      <ScreenHeader code="MES-08" subtitle={make ? (canPublish ? 'Write next week\'s dishes with the chef, then publish so students can choose before Friday.' : 'Write next week\'s dishes; the Rasoi In-charge publishes them for students to choose.')
+        : 'The menu each rasoi offers, and how many students chose each dish.'}
         actions={<Button variant="secondary" icon="file" onClick={() => navigate('/reports/meal-choices')}>Choice report</Button>} />
 
       <section className="box wm-pick" aria-label="Which week">
@@ -86,7 +86,7 @@ export default function WeeklyMenu() {
                 onClick={() => run(() => api(`/weekly-menus/${shown.week_id}/publish`, { method: 'POST' }).then(refresh), 'Published; students have been told to choose')}>Publish for choice</Button>}
             </div>
           </header>
-          {shown.status === 'Draft' && make && !canPublish && <Notice tone="info" title="Draft">When the week is ready, ask the Mess In-charge to publish it.</Notice>}
+          {shown.status === 'Draft' && make && !canPublish && <Notice tone="info" title="Draft">When the week is ready, ask the Rasoi In-charge to publish it.</Notice>}
           {shown.status !== 'Draft' && editable && <Notice tone="info" title="Students are choosing">You can add dishes and correct names. A dish someone has chosen keeps its style and diet, and cannot be removed.</Notice>}
 
           <div className="mm-days wm-days" role="tablist" aria-label="Day">{WEEK_DAYS.map((n, i) => {

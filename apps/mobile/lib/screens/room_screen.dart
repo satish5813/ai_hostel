@@ -188,7 +188,7 @@ class _RoomScreenState extends State<RoomScreen> {
           Padding(padding: const EdgeInsets.only(top: 2), child: SizedBox(width: 16, height: 16, child: Checkbox(value: ok, onChanged: (v) => setState(() => ok = v ?? false),
               materialTapTargetSize: MaterialTapTargetSize.shrinkWrap, visualDensity: VisualDensity.compact, activeColor: const Color(0xFF0075FF)))),
           const SizedBox(width: 10),
-          Expanded(child: Text('I accept the residency rules, including that the registration fee of ${_inr(t['registration_fee'])} is not refundable. The caution deposit (${_inr(t['caution_deposit'])}) and electricity caution deposit (${_inr(t['elec_caution_deposit'])}) are returned when I leave, less approved deductions. On renewal only the residency fee, mess fee and meter charge are paid.',
+          Expanded(child: Text('I accept the residency rules, including that the registration fee of ${_inr(t['registration_fee'])} is not refundable. The caution deposit (${_inr(t['caution_deposit'])}) and electricity caution deposit (${_inr(t['elec_caution_deposit'])}) are returned when I leave, less approved deductions. On renewal only the residency fee, rasoi fee and meter charge are paid.',
               style: const TextStyle(fontSize: 14))),
         ])),
         const SizedBox(height: 12),
@@ -287,7 +287,7 @@ class _RoomScreenState extends State<RoomScreen> {
               const SizedBox(height: 10),
               _Blocked(reason: b == null ? 'Pick an open bed first.' : null, child: KButton('Take this bed', icon: LucideIcons.bedDouble, kind: BtnKind.accent, pill: true, busy: busy,
                   onPressed: b == null ? null : () async {
-                    final yes = await _confirm(context, title: 'Take room ${b.$2}, bed ${b.$3}?', body: 'The bed is kept for you while you choose your fee plan and pay the residency and mess fees. To change it later, ask the residency office.', confirmLabel: 'Take bed');
+                    final yes = await _confirm(context, title: 'Take room ${b.$2}, bed ${b.$3}?', body: 'The bed is kept for you while you choose your fee plan and pay the residency and rasoi fees. To change it later, ask the residency office.', confirmLabel: 'Take bed');
                     if (yes != null) _run(() => api.post('/registrations/${g['registration_id']}/choose', {'subspace_id': b.$1}).then((_) => load()), 'Bed is yours. Choose the fee plan next.');
                   })),
             ])),
@@ -314,10 +314,10 @@ class _RoomScreenState extends State<RoomScreen> {
         ],
       );
 
-  Widget _feePlan(Map g) => _Box(title: 'Fee plan and mess', children: [
+  Widget _feePlan(Map g) => _Box(title: 'Fee plan and rasoi', children: [
         _RadioCards(value: plan, onChanged: (v) => setState(() => plan = v), options: const [('Single', 'Single payment', 'Due within 7 days'), ('Two_Instalments', 'Two instalments', 'First part now, second on the due date')]),
         const SizedBox(height: 14),
-        const Padding(padding: EdgeInsets.only(top: 6, bottom: 4), child: Text('Mess food', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: K.ink2))),
+        const Padding(padding: EdgeInsets.only(top: 6, bottom: 4), child: Text('Rasoi food', style: TextStyle(fontSize: 13, fontWeight: FontWeight.w700, color: K.ink2))),
         // one spinner: food style and diet together (non-veg is chicken and egg only)
         DropdownButtonFormField<String>(
           initialValue: '$region/$diet', isExpanded: true,

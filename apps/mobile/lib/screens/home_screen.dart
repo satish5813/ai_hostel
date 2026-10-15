@@ -118,11 +118,11 @@ class _HomeScreenState extends State<HomeScreen> with AutoRefresh {
     final needRoom = living ? null : 'After check-in'; // mess, meals and repairs open once the student has a room
     final tiles = <(String, String, IconData, Mod, VoidCallback, String?)>[
       ('My room', room != null ? '${room['bed_label']}' : 'Not yet', LucideIcons.bedDouble, Mod.teal, () => room != null ? _room(room) : openPlace(context, 'room'), null),
-      ('Mess menu', todayLunch != null ? 'Lunch: $todayLunch' : menuMe != null ? 'This week' : 'After check-in', LucideIcons.utensilsCrossed, Mod.em, () => openPlace(context, 'mess_menu'), needRoom),
+      ('Rasoi menu', todayLunch != null ? 'Lunch: $todayLunch' : menuMe != null ? 'This week' : 'After check-in', LucideIcons.utensilsCrossed, Mod.em, () => openPlace(context, 'mess_menu'), needRoom),
       ('Choose my meals', openWeek != null ? (mealsLeft > 0 ? '$mealsLeft to choose by ${_dueLabel(openWeek['choices_close_at'])}' : 'Next week chosen') : 'When the mess publishes next week',
           LucideIcons.chefHat, Mod.orange, () => openPlace(context, 'meal_choice'), needRoom),
       ('Repairs', 'Room, mess or common facility', LucideIcons.wrench, Mod.orange, () => openPlace(context, 'repairs'), needRoom),
-      ('Rate my meals', 'Tell the mess what you liked', LucideIcons.star, Mod.amber, () => openPlace(context, 'rate_meals'), needRoom),
+      ('Rate my meals', 'Tell the rasoi what you liked', LucideIcons.star, Mod.amber, () => openPlace(context, 'rate_meals'), needRoom),
       ('Receipts', '${receipts.length} on record', LucideIcons.receipt, Mod.orange, () => _receipts(receipts), null),
       ('Residency journey', reg != null ? '${reg['registration_no']}' : 'Apply for a room', LucideIcons.sparkles, Mod.indigo, () => openPlace(context, 'room'), null),
       ('Academic record', 'Attendance, marks', LucideIcons.graduationCap, Mod.sky, () => openPlace(context, 'academics'), null),
@@ -143,7 +143,7 @@ class _HomeScreenState extends State<HomeScreen> with AutoRefresh {
         : reg == null ? 'You have not applied for a residency room yet.'
         : stage == 3 && reg['student_decision'] == 'Pending' ? 'A bed is held for you until ${dayTime(reg['hold_until'])}. Accept it to continue.'
         : living ? (due > 0 ? '${inr(due)} is due${next != null ? ' by ${day(next['due_date'])}' : ''}.' : 'Everything is paid. Have a good day.')
-        : stage == 2 ? 'Registration fee paid. Choose your bed: the rooms are open for you.' : stage < 3 ? 'Pay the registration fee to be allotted a bed.' : 'Pay the residency and mess fees to check in.';
+        : stage == 2 ? 'Registration fee paid. Choose your bed: the rooms are open for you.' : stage < 3 ? 'Pay the registration fee to be allotted a bed.' : 'Pay the residency and rasoi fees to check in.';
 
     return RefreshIndicator(onRefresh: load, child: ListView(physics: const AlwaysScrollableScrollPhysics(), padding: const EdgeInsets.fromLTRB(16, 16, 16, 24), children: [
       // banner
@@ -362,7 +362,7 @@ class _HomeScreenState extends State<HomeScreen> with AutoRefresh {
           Facts([
             ('Key', '${r['key_no'] ?? '—'}', LucideIcons.keyRound),
             ('Since', day(r['allocation_date']), LucideIcons.calendarClock),
-            ('Mess', mess != null ? '${mess['mess_name']}${mess['cuisine'] != null ? ' · ${words(mess['cuisine'])}' : ''}' : '—', LucideIcons.utensilsCrossed),
+            ('Rasoi', mess != null ? '${mess['mess_name']}${mess['cuisine'] != null ? ' · ${words(mess['cuisine'])}' : ''}' : '—', LucideIcons.utensilsCrossed),
           ]),
           const SizedBox(height: 6),
           const KLabel('In this room'),

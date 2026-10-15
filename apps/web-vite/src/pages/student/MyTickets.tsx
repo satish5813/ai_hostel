@@ -46,7 +46,7 @@ export default function MyTickets() {
     setBusy(true);
     try {
       const t = await api<{ ticket_id: number }>('/me/tickets', { method: 'POST', json: { item_code: item!.item_code, description: text, location_note: where || null } });
-      toast(`Ticket ${t.ticket_id} raised; the ${item!.area === 'Mess' ? 'mess in-charge' : 'floor manager'} will check it`); reset(); r.mutate();
+      toast(`Ticket ${t.ticket_id} raised; the ${item!.area === 'Mess' ? 'rasoi in-charge' : 'floor manager'} will check it`); reset(); r.mutate();
     } catch (e) { toast((e as Error).message, 'critical'); } finally { setBusy(false); }
   };
   return (

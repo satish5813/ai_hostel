@@ -28,7 +28,7 @@ class RateMealsScreen extends StatelessWidget {
         final rated = dishes.where((x) => x['rating'] != null && x['rating'] != 0).length;
         final today = _todayIst();
         return MnPage(gap: 12, children: [
-          MnHead(icon: LucideIcons.star, title: 'Rate my meals', sub: 'Your stars tell the mess what to cook again. Nobody sees your name.',
+          MnHead(icon: LucideIcons.star, title: 'Rate my meals', sub: 'Your stars tell the rasoi what to cook again. Nobody sees your name.',
               chips: [if (dishes.isNotEmpty) (null, '$rated of ${dishes.length} dishes rated')]),
           if (days.isEmpty) const MnPanel(children: [MnEmpty('Meals you eat appear here once they are served, for three days.')]),
           for (final d in days) MnPanel(children: [

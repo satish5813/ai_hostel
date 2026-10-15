@@ -222,7 +222,7 @@ class _Account extends StatelessWidget {
   final String? busy;
   final VoidCallback? onTap;
   const _Account({required this.a, required this.busy, this.onTap});
-  /// "Renewal: Nabin Shrestha, BH2" -> NS; "New registration: new student" -> NR
+  /// "Renewal: Nabin Shrestha, Boys Residency 2" -> NS; "New registration: new student" -> NR
   static String _initials(String name) {
     final who = name.contains(': ') && RegExp(r': [A-Z]').hasMatch(name) ? name.split(': ').last : name;
     final w = who.split(RegExp(r'[ ,:]+')).where((x) => x.isNotEmpty).toList();

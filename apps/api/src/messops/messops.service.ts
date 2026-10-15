@@ -47,7 +47,7 @@ export class MessOpsService {
       select 'Grievance', ${user.id}, s.mess_id, ${dto.meal_date}::date, ${dto.slot}, ${dto.aspect}, ${dto.rating ?? null}, ${dto.details}, ${user.id}
       from hostel.mess_subscription s where s.student_id = ${user.id} and s.status = 'Active' order by s.subscription_id desc limit 1
       returning feedback_id::int as feedback_id`);
-    if (!rows.length) throw new UnprocessableEntityException('You are not taking meals in a hostel mess');
+    if (!rows.length) throw new UnprocessableEntityException('You are not taking meals in a hostel rasoi');
     return rows[0];
   }
 
@@ -210,7 +210,7 @@ export class MessOpsService {
   async monthly(messId: number, month: string) {
     const m0 = sql`${month + '-01'}::date`, m1 = sql`(${month + '-01'}::date + interval '1 month')::date`;
     const [mess] = await this.dbs.rows(sql`select mess_id::int as mess_id, mess_name, (select count(*)::int from hostel.mess_subscription s where s.mess_id = m.mess_id and s.status = 'Active') as strength from hostel.mess_master m where mess_id = ${messId}`);
-    if (!mess) throw new NotFoundException('Mess not found');
+    if (!mess) throw new NotFoundException('Rasoi not found');
     const [t] = await this.dbs.rows(sql`select count(distinct record_date)::int as days_recorded, coalesce(sum(meals_planned), 0)::float as planned, coalesce(sum(meals_served), 0)::float as served,
         coalesce(sum(prep_wastage_kg), 0)::float as prep_kg, coalesce(sum(plate_wastage_kg), 0)::float as plate_kg, count(*) filter (where not menu_followed)::int as deviations
       from hostel.mess_daily_record where mess_id = ${messId} and record_date >= ${m0} and record_date < ${m1}`);

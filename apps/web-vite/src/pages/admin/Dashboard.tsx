@@ -34,7 +34,7 @@ export default function AdminDashboard() {
       warn: d.kind === 'rooms' && c?.rooms_without_type ? `${c.rooms_without_type} rooms without a type` : undefined })),
     { key: 'builder', title: 'Room builder', icon: 'building', color: 'cyan', group: 'Hostel set-up', about: 'A whole hostel in one step: floors, rooms, beds', count: c?.rooms, unit: 'rooms', open: '/admin/room-builder' },
     { key: 'roommap', title: 'Room map', icon: 'building', color: 'indigo', group: 'Hostel set-up', about: 'Floors and room tiles for each hostel', count: c?.rooms, unit: 'rooms', open: '/rooms' },
-    { key: 'mess', title: 'Mess', icon: 'utensils', color: 'cyan', group: 'Hostel set-up', about: 'Messes, in-charge and yearly fee', count: c?.messes, unit: 'messes', open: '/admin/masters?tab=mess' },
+    { key: 'mess', title: 'Mess', icon: 'utensils', color: 'cyan', group: 'Hostel set-up', about: 'Messes, in-charge and yearly fee', count: c?.rasois, unit: 'messes', open: '/admin/masters?tab=mess' },
     ...DATA_KINDS.filter((d) => d.group !== 'Residency set-up').map((d) => ({ key: d.kind, title: d.title, icon: d.icon, color: d.color, group: d.group, about: d.about, count: rec(d.kind)?.records, unit: 'records', open: `/admin/data/${d.kind}`, data: d.kind,
       warn: d.kind === 'duties' && c?.floors_without_warden ? `${c.floors_without_warden} floor without a Floor Manager` : undefined })),
     { key: 'logins', title: 'Logins and hostels', icon: 'key', color: 'rose', group: 'People', about: 'Chief Manager and Room Allotment logins, and their hostels', unit: 'two logins', open: '/admin/logins' },

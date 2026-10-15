@@ -151,7 +151,7 @@ export class WeeklyMenuService {
 
   /** The Mess In-charge publishes; every resident of the mess is told the week is open for choice. */
   async publish(user: AuthUser, id: number) {
-    if (!user.roles.some((r) => PUBLISHERS.includes(r))) throw new ForbiddenException('The Mess In-charge publishes the weekly menu');
+    if (!user.roles.some((r) => PUBLISHERS.includes(r))) throw new ForbiddenException('The Rasoi In-charge publishes the weekly menu');
     await this.dbs.run(user, async (tx) => {
       const r = (await tx.execute(sql`update hostel.weekly_menu set status = 'Published', published_by = ${user.id}, updated_by = ${user.id}
         where week_id = ${id} and status = 'Draft' returning week_id`)) as unknown as unknown[];

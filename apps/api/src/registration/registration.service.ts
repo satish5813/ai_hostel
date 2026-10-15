@@ -127,7 +127,7 @@ export class RegistrationService {
       let subscription = null;
       if (dto.cuisine) {
         const messId = dto.mess_id ?? (await tx.select({ m: t.hostelProfile.default_mess_id }).from(t.hostelProfile).where(eq(t.hostelProfile.facility_id, r.facility_id)))[0]?.m;
-        if (!messId) throw new UnprocessableEntityException('No mess for this hostel; pass mess_id');
+        if (!messId) throw new UnprocessableEntityException('No rasoi for this hostel; pass mess_id');
         const [mess] = await tx.select().from(t.messMaster).where(eq(t.messMaster.mess_id, messId));
         const [demand] = await tx.insert(t.feeDemand).values({
           student_id: r.student_id, fee_plan_id: plan.fee_plan_id, fee_head: 'Mess', instalment_no: 1,

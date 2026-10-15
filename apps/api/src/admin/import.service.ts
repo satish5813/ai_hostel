@@ -535,7 +535,7 @@ const KINDS: Kind[] = [
   },
   {
     kind: 'mess_subscriptions', order: 14, title: 'Mess for each student', target: 'hostel.mess_subscription', source: 'Mess_Subscription', needs: ['students', 'messes', 'years'],
-    note: 'Which mess each resident eats in, and their food: south or north Indian, veg or non-veg. Loading a student again moves them to the mess and food in the file. The mess fee itself goes in "Fees already due and paid".',
+    note: 'Which rasoi each resident eats in, and their food: south or north Indian, veg or non-veg. Loading a student again moves them to the rasoi and food in the file. The rasoi fee itself goes in "Fees already due and paid".',
     count: "select count(*)::int as n from hostel.mess_subscription where status = 'Active'",
     columns: [
       { key: 'student_id', label: 'University ID', required: true, sample: '2600040011', aliases: ['university id', 'id'] },

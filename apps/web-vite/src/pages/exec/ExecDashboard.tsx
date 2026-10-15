@@ -84,7 +84,7 @@ function TopBar() {
     <header className="xd-top">
       <button type="button" className="xd-brand" onClick={() => navigate('/exec')}><Logo cut="mark" height={30} /><span><b>KL Residencies</b><small>Executive view</small></span></button>
       <nav className="xd-links" aria-label="More">
-        <button type="button" onClick={() => navigate('/reports/mess-sentiment')}><Utensils size={15} />Mess sentiment</button>
+        <button type="button" onClick={() => navigate('/reports/mess-sentiment')}><Utensils size={15} />Rasoi sentiment</button>
         <button type="button" onClick={() => navigate('/home')}><LayoutGrid size={15} />All apps</button>
       </nav>
       <span className="xd-user"><span><b>{p.data?.full_name ?? s.id}</b><small>{words(s.role)}</small></span>
@@ -417,7 +417,7 @@ const METRICS: Record<string, Metric> = {
   attendance: { label: 'Attendance shortfall', c: 'acad', val: (b) => b.short_students, fmt: (b) => `${num(b.short_students)} of ${num(b.residents)}`, sub: (b) => `${pct(b.short_students, b.residents)}% of students`, tab: 'academic', good: [5, 15, true] },
   activities: { label: 'In clubs, sports, activities', c: 'life', val: (b) => pct(b.active_students, b.residents), fmt: (b) => `${pct(b.active_students, b.residents)}%`, sub: (b) => `${num(b.active_students)} students · ${num(b.achievements)} achievements`, tab: 'activities', good: [60, 40, false] },
   roll: { label: 'Night roll call', c: 'life', val: (b) => b.roll_pct, fmt: (b) => (b.roll_pct != null ? `${b.roll_pct}%` : '—'), sub: () => 'present or accounted for, 30 days', tab: 'roll', good: [95, 90, false] },
-  mood: { label: 'Mess mood', c: 'life', val: (b) => b.mood, fmt: (b) => moodText(b.mood), sub: (b) => `${b.ratings ?? 0} ratings in 30 days`, tab: 'mess', good: [20, 0, false] },
+  mood: { label: 'Rasoi mood', c: 'life', val: (b) => b.mood, fmt: (b) => moodText(b.mood), sub: (b) => `${b.ratings ?? 0} ratings in 30 days`, tab: 'mess', good: [20, 0, false] },
   dues: { label: 'Dues outstanding', c: 'money', val: (b) => b.demanded - b.collected, fmt: (b) => inr(b.demanded - b.collected), sub: (b) => `${inr(b.overdue)} overdue · ${num(b.students_overdue)} students · ${pct(b.collected, b.demanded)}% collected`, tab: 'fees' },
   wardens: { label: "Managers' attendance", c: 'ops', val: (b) => b.warden_pct, fmt: (b) => (b.warden_pct != null ? `${b.warden_pct}%` : '—'), sub: (b) => `${b.wardens ?? 0} managers · last 30 days`, tab: 'wardens', good: [90, 80, false] },
   cases: { label: 'Open discipline cases', c: 'risk', val: (b) => b.open_cases, fmt: (b) => num(b.open_cases), sub: (b) => `${num(b.cases_year)} this year`, tab: 'discipline', good: [0, 2, true] },
@@ -484,7 +484,7 @@ function BuildingCard({ b, settings, onOpen }: { b: Building; settings: Overview
             <span className="xd-card-stats">
               <span><b>{b.residents}</b><small>students</small></span>
               <span><b>{b.avg_cgpa?.toFixed(2) ?? '—'}</b><small>avg CGPA</small></span>
-              <span><b>{moodText(b.mood)}</b><small>mess mood</small></span>
+              <span><b>{moodText(b.mood)}</b><small>rasoi mood</small></span>
             </span>
           </span>
           <span className="xd-rows">{rows.map(([l, v, t, p]) => (

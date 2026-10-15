@@ -50,7 +50,7 @@ export default function Registration() {
             {['Fee_Paid', 'Waitlisted'].includes(reg.status) && <ChooseRoom reg={reg} onDone={refresh} />}
             {reg.status === 'Allotted' && <Offer reg={reg} onDone={refresh} />}
             {reg.status === 'Accepted' && !reg.fee_plan_id && <FeePlan reg={reg} onDone={refresh} />}
-            {reg.status === 'Accepted' && reg.fee_plan_id && <Notice tone="info" title="Pay the residency and mess fees">Room {roomLabel(reg.subspace_id?.replace(/-B\d+$/, ''))}, bed {bedOf(reg.subspace_id)} is kept for you. Pay the demands on the right; a Warden then checks them.</Notice>}
+            {reg.status === 'Accepted' && reg.fee_plan_id && <Notice tone="info" title="Pay the residency and rasoi fees">Room {roomLabel(reg.subspace_id?.replace(/-B\d+$/, ''))}, bed {bedOf(reg.subspace_id)} is kept for you. Pay the demands on the right; a Warden then checks them.</Notice>}
             {reg.status === 'Confirmed' && reg.fee_check_status === 'Pending' && <Notice tone="progress" title="Fees paid; the Warden is checking them">This page changes as soon as the fees are verified. Then collect your key at the residency office.</Notice>}
             {reg.status === 'Confirmed' && reg.fee_check_status === 'Query' && <Notice tone="critical" title="The Warden has a query on your fees">{reg.fee_check_remarks} Visit the hostel accounts desk with your receipts.</Notice>}
             {reg.status === 'Confirmed' && reg.fee_check_status === 'Verified' && <Notice tone="success" title="All set. Collect your key">Visit the hostel office with your ID card. Your bed: {bedLabel(reg.subspace_id)}.</Notice>}
@@ -135,7 +135,7 @@ function ChooseRoom({ reg, onDone }: { reg: Reg; onDone: () => void }) {
         <span style={{ flex: 1, fontSize: 13, color: 'var(--ink-muted)' }}>{bed ? `Room ${bed.room}, bed ${bed.no} selected.` : 'Pick an open bed. You can also wait for the office to allot one.'}</span>
         <Button variant="accent" pill icon="bed" loading={busy} blockedReason={!bed ? 'Pick an open bed first.' : undefined} onClick={() => setAsk(true)}>Take this bed</Button>
       </div>
-      <ConfirmDialog open={ask} title={`Take room ${bed?.room}, bed ${bed?.no}?`} body="The bed is kept for you while you choose your fee plan and pay the residency and mess fees. To change it later, ask the residency office." confirmLabel="Take bed"
+      <ConfirmDialog open={ask} title={`Take room ${bed?.room}, bed ${bed?.no}?`} body="The bed is kept for you while you choose your fee plan and pay the residency and rasoi fees. To change it later, ask the residency office." confirmLabel="Take bed"
         onCancel={() => setAsk(false)} onConfirm={() => { setAsk(false); run(() => api(`/registrations/${reg.registration_id}/choose`, { method: 'POST', json: { subspace_id: bed!.id } }).then(onDone), 'Bed is yours. Choose the fee plan next.'); }} />
     </section>
   );
@@ -163,10 +163,10 @@ function FeePlan({ reg, onDone }: { reg: Reg; onDone: () => void }) {
   const { run, busy } = useAction();
   return (
     <section className="box">
-      <div className="box-head"><h2>Fee plan and mess</h2></div>
+      <div className="box-head"><h2>Fee plan and rasoi</h2></div>
       <div className="box-body klh-stack" style={{ gap: 14 }}>
         <RadioGroup label="Residency fee" variant="cards" value={plan} onChange={setPlan} options={[{ value: 'Single', label: 'Single payment', description: 'Due within 7 days' }, { value: 'Two_Instalments', label: 'Two instalments', description: 'First part now, second on the due date' }]} />
-        <RadioGroup label="Mess cuisine" variant="cards" value={cuisine} onChange={setCuisine} options={[{ value: 'South_Indian', label: 'South Indian' }, { value: 'North_Indian', label: 'North Indian' }, { value: 'Special_Diet', label: 'Continental / special diet' }]} />
+        <RadioGroup label="Rasoi cuisine" variant="cards" value={cuisine} onChange={setCuisine} options={[{ value: 'South_Indian', label: 'South Indian' }, { value: 'North_Indian', label: 'North Indian' }, { value: 'Special_Diet', label: 'Continental / special diet' }]} />
         <div><Button variant="accent" pill loading={busy} onClick={() => run(() => api(`/registrations/${reg.registration_id}/fee-plan`, { method: 'POST', json: { plan_type: plan, cuisine } }).then(onDone), 'Fees are ready to pay')}>Confirm plan</Button></div>
       </div>
     </section>

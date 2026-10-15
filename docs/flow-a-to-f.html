@@ -116,7 +116,7 @@ td small { display: block; color: var(--muted); font-size: 12.5px; }
     <div class="login first"><span>Built first</span><b>Administrator</b><p>Sets up hostels, floors, rooms, beds, fees, students, staff, meters and rules. Gives the other logins and their hostels. Approves nothing.</p></div>
     <div class="login"><span>Second</span><b>Chief Manager</b><p>Gives the final approval for allotments, outings and sick leave. Handles exceptions, blocking and alerts. Sees every hostel in their scope.</p></div>
     <div class="login"><span>Third</span><b>Room Allotment</b><p>The hostel office. Works the allotment queue, verifies fees (first level), checks students in with the key, the handover list and the meter reading.</p></div>
-    <div class="login"><span>Fourth</span><b>Student</b><p>Registers, pays, accepts a room, chooses the fee plan and mess, confirms check-in. Also electricity, outings and sick leave.</p></div>
+    <div class="login"><span>Fourth</span><b>Student</b><p>Registers, pays, accepts a room, chooses the fee plan and rasoi, confirms check-in. Also electricity, outings and sick leave.</p></div>
   </div>
   <p class="note">Parents and the Dean act through one-time links sent by SMS or email, without an account (decisions D2 and D3, built).</p>
 </section>
@@ -134,7 +134,7 @@ td small { display: block; color: var(--muted); font-size: 12.5px; }
   <h3>What that size changes</h3>
   <ul>
     <li><b>Rooms are generated, not typed.</b> The Administrator builds a hostel in one step: floors G to 12, rooms per floor, which room numbers are which room type. Beds come from the room type. An Excel upload does the same for buildings that don't follow a pattern.</li>
-    <li><b>One numbering rule everywhere.</b> Floor plus two-digit room number, then the bed letter. For example, <code>BH3-1207-B</code> is hostel BH3, floor 12, room 07, bed B, and ground-floor rooms are <code>G01</code> to <code>G40</code>. The same code appears on the screens, the QR label and the key tag.</li>
+    <li><b>One numbering rule everywhere.</b> Floor plus two-digit room number, then the bed letter. For example, <code>Boys Residency 3-1207-B</code> is hostel Boys Residency 3, floor 12, room 07, bed B, and ground-floor rooms are <code>G01</code> to <code>G40</code>. The same code appears on the screens, the QR label and the key tag.</li>
     <li><b>Screens work one floor at a time.</b> A floor board has at most 40 rooms and about 160 beds. Hostel and estate totals are counted in the database, so no screen loads 20,000 beds.</li>
     <li><b>Search reaches everything.</b> A student ID, name or room code finds the bed in under half a second, across all hostels.</li>
     <li><b>The registration rush is planned for.</b> Up to 20,000 students may apply within a few days. Payment confirmations can arrive twice without harm. A bed can be held by only one offer, which the database enforces, so two officers can't give the same bed away. Expired holds are released every few minutes.</li>
@@ -201,7 +201,7 @@ flowchart LR
       <tr><td class="id">A</td><td>Allot room and bed</td><td>Software; Room Allotment; Warden for exceptions</td><td class="who">System + Room Allotment <small>exceptions: Chief Manager</small></td></tr>
       <tr><td class="id">A</td><td>Show the room for physical verification</td><td>Floor Manager</td><td class="who">Room Allotment <span class="chip c-moved">moved</span><small>optional "room shown" tick</small></td></tr>
       <tr><td class="id">A</td><td>Accept or decline the room</td><td>Student</td><td class="who">Student</td></tr>
-      <tr><td class="id">A</td><td>Fee plan, hostel and mess fees, cuisine</td><td>Student; Accounts checks</td><td class="who">Student <small>Room Allotment verifies (level 1), Chief Manager approves (level 2)</small></td></tr>
+      <tr><td class="id">A</td><td>Fee plan, hostel and rasoi fees, cuisine</td><td>Student; Accounts checks</td><td class="who">Student <small>Room Allotment verifies (level 1), Chief Manager approves (level 2)</small></td></tr>
       <tr><td class="id">A</td><td>Check-in: key, handover list, opening meter reading</td><td>Office Staff, Floor Manager; Warden approves</td><td class="who">Room Allotment <span class="chip c-moved">moved</span><small>student confirms on the phone</small></td></tr>
       <tr><td class="id">A</td><td>Follow up an overdue instalment</td><td>Accounts; Chief Manager</td><td class="who">Room Allotment <span class="chip c-moved">moved</span><small>escalates to the Chief Manager</small></td></tr>
       <tr><td class="id">B</td><td>Create buildings, floors, rooms, beds, room types</td><td>Office Staff; Chief Manager checks</td><td class="who">Administrator <span class="chip c-moved">moved</span></td></tr>
@@ -224,7 +224,7 @@ flowchart LR
       <tr><td class="id">F</td><td>Apply for sick leave</td><td>Student</td><td class="who">Student</td></tr>
       <tr><td class="id">F</td><td>Visit in person and recommend</td><td>Floor Manager</td><td class="who">Chief Manager records the visit <span class="chip c-moved">moved</span><small>decision D4</small></td></tr>
       <tr><td class="id">F</td><td>Approve; extend</td><td>Chief Manager</td><td class="who">Chief Manager</td></tr>
-      <tr><td class="id">F</td><td>Sick list for the mess; food to the room</td><td>Mess In-charge</td><td class="who">System sends the list <small>decision D6</small></td></tr>
+      <tr><td class="id">F</td><td>Sick list for the rasoi; food to the room</td><td>Rasoi In-charge</td><td class="who">System sends the list <small>decision D6</small></td></tr>
     </tbody>
   </table></div>
 </section>
@@ -240,9 +240,9 @@ flowchart LR
       <tbody>
         <tr><td>Set-up board</td><td>Readiness of each hostel: floors, rooms, beds, fees, staff, meters, QR. Shows what blocks registration from opening.</td><td><span class="chip c-rework">rework</span></td></tr>
         <tr><td>Academic year and policy</td><td>Year, registration window, bed hold period, instalment due dates, approval levels.</td><td><span class="chip c-rework">rework</span></td></tr>
-        <tr><td>Hostels</td><td>Code, name, gender, mess, capacity summary.</td><td><span class="chip c-built">built</span></td></tr>
+        <tr><td>Hostels</td><td>Code, name, gender, rasoi, capacity summary.</td><td><span class="chip c-built">built</span></td></tr>
         <tr><td>Room builder</td><td>Generates floors, rooms and beds for a whole hostel from a pattern, with a preview of counts.</td><td><span class="chip c-new">new</span></td></tr>
-        <tr><td>Room types and fees</td><td>Beds per room, AC, hostel fee, mess fee, instalment split, per year.</td><td><span class="chip c-built">built</span></td></tr>
+        <tr><td>Room types and fees</td><td>Beds per room, AC, hostel fee, rasoi fee, instalment split, per year.</td><td><span class="chip c-built">built</span></td></tr>
         <tr><td>Students</td><td>Upload from the university ERP. Aadhaar, PAN and bank details are dropped in the browser.</td><td><span class="chip c-built">built</span></td></tr>
         <tr><td>Staff and mapping</td><td>Staff records; Chief Managers to hostels, Floor Managers to floors by shift, cleaners to blocks.</td><td><span class="chip c-built">built</span></td></tr>
         <tr><td>Logins</td><td>The Chief Manager and Room Allotment logins, each with the hostels it may see. Disable and reset.</td><td><span class="chip c-rework">rework</span></td></tr>
@@ -257,7 +257,7 @@ flowchart LR
         <tr><td class="id">AD-01</td><td>Open an academic year</td><td>Set the year, the registration window, the hold period and the instalment due dates.</td><td>Students can register only inside the window.</td></tr>
         <tr><td class="id">AD-02</td><td>Add a hostel</td><td>Code, name, gender (boys or girls), default mess.</td><td>Hostel appears to students of that gender only.</td></tr>
         <tr><td class="id">AD-03</td><td>Build a hostel's rooms</td><td>Choose floors (G–12), rooms per floor (for example 40), room-type ranges (for example 01–10 single AC, 11–40 triple). Preview, then generate.</td><td>About 1,500 rooms and 4,000 beds created in one step, codes unique.</td></tr>
-        <tr><td class="id">AD-04</td><td>Set fees for the year</td><td>Per room type: hostel fee, mess fee, two-instalment split.</td><td>Every room type in use has a fee; otherwise the set-up board flags it.</td></tr>
+        <tr><td class="id">AD-04</td><td>Set fees for the year</td><td>Per room type: hostel fee, rasoi fee, two-instalment split.</td><td>Every room type in use has a fee; otherwise the set-up board flags it.</td></tr>
         <tr><td class="id">AD-05</td><td>Load students</td><td>Upload the ERP file; check; load. Rejected rows are listed with the reason.</td><td>Students can sign in and register.</td></tr>
         <tr><td class="id">AD-06</td><td>Map staff</td><td>Load staff; assign Chief Managers to hostels and Floor Managers to floors.</td><td>Every floor with beds has a Floor Manager.</td></tr>
         <tr><td class="id">AD-07</td><td>Give logins</td><td>Create a Chief Manager or Room Allotment login and pick its hostels.</td><td>That login sees only its hostels.</td></tr>
@@ -277,7 +277,7 @@ flowchart LR
         <tr><td>Exceptions</td><td>Requests from Room Allotment: a bed outside the rules, a transfer, a waitlist jump.</td><td><span class="chip c-new">new</span></td></tr>
         <tr><td>Room blocking</td><td>Block rooms or whole floors with a reason (maintenance, first years, staff, guests).</td><td><span class="chip c-built">built</span></td></tr>
         <tr><td>Outing approvals</td><td>One decision after the parent's recommendation; a day or more goes on to the Dean.</td><td><span class="chip c-rework">rework</span></td></tr>
-        <tr><td>Sick leave</td><td>Record the visit, approve, reject or extend; the mess list follows.</td><td><span class="chip c-rework">rework</span></td></tr>
+        <tr><td>Sick leave</td><td>Record the visit, approve, reject or extend; the rasoi list follows.</td><td><span class="chip c-rework">rework</span></td></tr>
         <tr><td>Alerts, status board, look-up</td><td>No-pass exits, late returns, students not seen; where a student is, with a logged purpose.</td><td><span class="chip c-built">built</span></td></tr>
         <tr><td>Staff attendance and room mapping</td><td>Who is on duty today; covers for absent Floor Managers and cleaners.</td><td><span class="chip c-built">built</span></td></tr>
         <tr><td>Reports</td><td>Occupancy, fees and dues by hostel and floor; export.</td><td><span class="chip c-built">built</span></td></tr>
@@ -335,7 +335,7 @@ flowchart LR
         <tr><td>Home tracker</td><td>The six steps, what to do next, and by when.</td><td><span class="chip c-rework">rework</span></td></tr>
         <tr><td>Registration</td><td>Hostel (filtered by gender), room type with fee and vacancy, rules, tracking consent.</td><td><span class="chip c-rework">rework</span></td></tr>
         <tr><td>Room offer</td><td>Hostel, floor, room and bed; time left to decide; accept or decline with a reason.</td><td><span class="chip c-built">built</span></td></tr>
-        <tr><td>Fee plan and mess</td><td>Single or two instalments; cuisine; pay.</td><td><span class="chip c-built">built</span></td></tr>
+        <tr><td>Fee plan and rasoi</td><td>Single or two instalments; cuisine; pay.</td><td><span class="chip c-built">built</span></td></tr>
         <tr><td>Fees and receipts</td><td>Every demand, payment and receipt.</td><td><span class="chip c-built">built</span></td></tr>
         <tr><td>Check-in confirmation</td><td>The handover list as recorded; confirm or flag an item.</td><td><span class="chip c-new">new</span></td></tr>
         <tr><td>My electricity</td><td>Units used against units included; warning near the limit; recharge.</td><td><span class="chip c-built">built</span></td></tr>
@@ -350,7 +350,7 @@ flowchart LR
         <tr><td class="id">ST-01</td><td>Register</td><td>Choose hostel and room type; accept the rules and the tracking consent.</td><td>Registration number issued; registration fee demand raised.</td></tr>
         <tr><td class="id">ST-02</td><td>Pay the registration fee</td><td>Pay online; receipt shown and sent.</td><td>Student enters the allotment queue.</td></tr>
         <tr><td class="id">ST-03</td><td>Decide on a room</td><td>See the bed and the time left; accept, or decline with a reason.</td><td>Accepted: fee plan opens. Declined: back in the queue.</td></tr>
-        <tr><td class="id">ST-04</td><td>Pay hostel and mess fees</td><td>Choose single or two instalments and cuisine; pay.</td><td>Fees go to verification.</td></tr>
+        <tr><td class="id">ST-04</td><td>Pay hostel and rasoi fees</td><td>Choose single or two instalments and cuisine; pay.</td><td>Fees go to verification.</td></tr>
         <tr><td class="id">ST-05</td><td>Answer a query</td><td>Read the remark; pay the gap or upload the proof.</td><td>Back in verification.</td></tr>
         <tr><td class="id">ST-06</td><td>Check in</td><td>At the desk, confirm the handover list on the phone.</td><td>Status Checked in; room, key and roommates shown.</td></tr>
         <tr><td class="id">ST-07</td><td>Recharge electricity</td><td>See usage; pay for extra units.</td><td>Units credited to the room meter.</td></tr>
@@ -372,7 +372,7 @@ flowchart LR
       <tr><td class="id">A</td><td>A bed has only one pending offer or one active stay; a student has only one pending offer.</td></tr>
       <tr><td class="id">A</td><td>The student's gender must match the hostel's.</td></tr>
       <tr><td class="id">A</td><td>A blocked bed, or a bed in a room under maintenance, is never offered.</td></tr>
-      <tr><td class="id">A</td><td>A fee plan exists only for an accepted room. Two instalments means exactly two hostel demands; mess is always one.</td></tr>
+      <tr><td class="id">A</td><td>A fee plan exists only for an accepted room. Two instalments means exactly two hostel demands; rasoi is always one.</td></tr>
       <tr><td class="id">A</td><td>Check-in needs level 1 fee verification and level 2 Chief Manager approval.</td></tr>
       <tr><td class="id">A</td><td>Aadhaar, PAN and bank details are never stored in the hostel database.</td></tr>
       <tr><td class="id">B</td><td>One active QR label per space. Every floor with occupied beds needs a Floor Manager; floors without one are reported.</td></tr>
@@ -407,7 +407,7 @@ flowchart LR
       <li>Home tracker; registration with consent; check-in confirmation (new).</li>
       <li>Accepted when a student can go from registration to checked in on a phone, with every step visible to the right office login.</li></ul></div>
     <div class="sprint"><h4>Stage 5 · Workflows C to F end to end</h4><p>Use cases ST-07 to ST-09, CW-05 to CW-08.</p><ul>
-      <li>Electricity recharge, outings with the parent and Dean links, sick leave with the mess list, alerts.</li></ul></div>
+      <li>Electricity recharge, outings with the parent and Dean links, sick leave with the rasoi list, alerts.</li></ul></div>
     <div class="sprint"><h4>Stage 6 · Full-size trial</h4><p>Run the whole flow on the generated estate; check the speed targets; fix; hand over for testing by the hostel office.</p></div>
   </div>
 </section>
@@ -421,9 +421,9 @@ flowchart LR
     <div><b><span class="chip c-built">built</span> D3 · Outings of a day or more need the Dean</b><p><strong>Recommended:</strong> the Dean gets a one-time approval link by SMS or email, like the parent, with no login.</p></div>
     <div><b><span class="chip c-built">built</span> D4 · Sick leave needs an in-person visit</b><p><strong>Recommended:</strong> the Floor Manager still visits; the Chief Manager records who visited, when, and what they found, then approves.</p></div>
     <div><b><span class="chip c-built">built</span> D5 · Gate in and out without a Security login</b><p><strong>Recommended:</strong> gate readers and cameras record movements on their own. A manual entry desk sits inside the Chief Manager portal for when a device is down.</p></div>
-    <div><b><span class="chip c-built">built</span> D6 · Mess sick list without a Mess login</b><p><strong>Recommended:</strong> the list is sent to the mess in-charge by SMS before each meal and is visible in the Chief Manager portal.</p></div>
+    <div><b><span class="chip c-built">built</span> D6 · Rasoi sick list without a Rasoi login</b><p><strong>Recommended:</strong> the list is sent to the rasoi in-charge by SMS before each meal and is visible in the Chief Manager portal.</p></div>
     <div><b><span class="chip c-built">built</span> D7 · How many Chief Managers?</b><p><strong>Recommended:</strong> one login type; the Administrator gives each Chief Manager and each Room Allotment login a set of hostels (one, a group, or all).</p></div>
-    <div><b><span class="chip c-built">built</span> D8 · Room numbering</b><p><strong>Recommended:</strong> floor plus two-digit room (<code>G01</code>, <code>1207</code>), bed letter after it, hostel code in front: <code>BH3-1207-B</code>.</p></div>
+    <div><b><span class="chip c-built">built</span> D8 · Room numbering</b><p><strong>Recommended:</strong> floor plus two-digit room (<code>G01</code>, <code>1207</code>), bed letter after it, hostel code in front: <code>Boys Residency 3-1207-B</code>.</p></div>
   </div>
 </section>
 </main>

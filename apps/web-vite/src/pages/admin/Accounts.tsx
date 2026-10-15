@@ -147,7 +147,7 @@ function OnePanel({ roles, hostels, onClose, onSaved }: { roles: RoleInfo[]; hos
       <div className="klh-stack" style={{ gap: 16 }}>
         {problem && <Notice tone="critical" title="Not created">{problem}</Notice>}
         <div className="lg-roles" role="radiogroup" aria-label="Who is the login for">
-          <button type="button" role="radio" aria-checked={kind === 'staff'} onClick={() => setKind('staff')}><b>Staff member</b><small>Warden, office, accounts, mess, maintenance, management</small></button>
+          <button type="button" role="radio" aria-checked={kind === 'staff'} onClick={() => setKind('staff')}><b>Staff member</b><small>Warden, office, accounts, rasoi, maintenance, management</small></button>
           <button type="button" role="radio" aria-checked={kind === 'student'} onClick={() => setKind('student')}><b>Student</b><small>Signs in with the university ID, in the app or the portal</small></button>
         </div>
         <Field label={kind === 'student' ? 'University ID' : 'Employee ID'} required hint={kind === 'student' ? 'The student must be loaded already (upload 9)' : 'The staff member must be loaded already (upload 7)'}><Input value={id} onChange={(e) => setId(e.target.value)} placeholder={kind === 'student' ? '2600040030' : 'E1042'} autoFocus /></Field>

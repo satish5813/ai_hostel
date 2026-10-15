@@ -71,7 +71,7 @@ function MealForm({ onDone }: { onDone: () => void }) {
       <div className="mo-chips" role="group" aria-label="What was wrong">{[['Quality', 'Taste or quality'], ['Quantity', 'Not enough'], ['Both', 'Both']].map(([v, l]) => <button key={v} type="button" aria-pressed={aspect === v} onClick={() => setAspect(v)}>{l}</button>)}</div>
       <div className="mo-chips" role="group" aria-label="Rating">{[1, 2, 3, 4, 5].map((n) => <button key={n} type="button" aria-pressed={rating === n} onClick={() => setRating(rating === n ? 0 : n)}>{'★'.repeat(n)}</button>)}</div>
       <textarea className="rc-why" rows={3} value={text} onChange={(e) => setText(e.target.value)} placeholder="What was wrong? For example: the rice was undercooked and the curd ran out by 1:15." />
-      <div className="rc-acts"><Button variant="primary" loading={busy} blockedReason={text.trim().length < 10 ? 'Say what was wrong.' : undefined} onClick={send}>Send to the mess</Button></div>
+      <div className="rc-acts"><Button variant="primary" loading={busy} blockedReason={text.trim().length < 10 ? 'Say what was wrong.' : undefined} onClick={send}>Send to the rasoi</Button></div>
     </div>
   );
 }
@@ -89,7 +89,7 @@ function OtherForm({ onDone }: { onDone: () => void }) {
   };
   return (
     <div className="mo-form">
-      <div className="mo-chips" role="group" aria-label="About">{Object.entries(CAT).filter(([k]) => k !== 'Mess').map(([v, l]) => <button key={v} type="button" aria-pressed={cat === v} onClick={() => setCat(v)}>{l}</button>)}</div>
+      <div className="mo-chips" role="group" aria-label="About">{Object.entries(CAT).filter(([k]) => k !== 'Rasoi').map(([v, l]) => <button key={v} type="button" aria-pressed={cat === v} onClick={() => setCat(v)}>{l}</button>)}</div>
       <textarea className="rc-why" rows={4} value={text} onChange={(e) => setText(e.target.value)} placeholder="What happened, when and where." />
       <label className="mo-check"><input type="checkbox" checked={conf || alwaysConf} disabled={alwaysConf} onChange={(e) => setConf(e.target.checked)} /> <Lock size={14} /> Confidential: only the Chief Manager and the Dean see it{alwaysConf ? ' (always for ragging and safety)' : ''}</label>
       <div className="rc-acts"><Button variant="primary" loading={busy} blockedReason={text.trim().length < 10 ? 'Describe what happened.' : undefined} onClick={send}>Send</Button></div>

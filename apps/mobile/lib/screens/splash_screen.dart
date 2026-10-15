@@ -105,7 +105,7 @@ class _SplashScreenState extends State<_PhotoSplash> with SingleTickerProviderSt
               TextSpan(children: [TextSpan(text: 'KL '), TextSpan(text: 'Student', style: TextStyle(color: Color(0xFFFFD166)))]),
               style: TextStyle(fontSize: 46, height: 1.02, fontWeight: FontWeight.w800, letterSpacing: -1.6, color: Colors.white)))),
           const SizedBox(height: 10),
-          Transform.translate(offset: Offset(0, 16 * (1 - _tag.value)), child: Opacity(opacity: _tag.value, child: const Text('Your residency, in your pocket.\nRoom, fees, mess, outings and more.',
+          Transform.translate(offset: Offset(0, 16 * (1 - _tag.value)), child: Opacity(opacity: _tag.value, child: const Text('Your residency, in your pocket.\nRoom, fees, rasoi, outings and more.',
               style: TextStyle(fontSize: 16, height: 1.45, color: Color(0xD9FFFFFF))))),
           const SizedBox(height: 34),
           Semantics(label: 'Opening', child: ClipRRect(borderRadius: BorderRadius.circular(3), child: SizedBox(height: 4, child: Stack(children: [

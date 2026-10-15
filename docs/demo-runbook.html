@@ -27,9 +27,9 @@ ol.steps { margin: 0; padding-left: 22px; display: flex; flex-direction: column;
     <ol class="steps">
       <li>Start the API if it is not running (it answers at <code>http://localhost:4100/api/auth/demo-accounts</code>).</li>
       <li>Put the demo back to its starting point: <pre>/Users/aasrithatechnologies/Desktop/hostel_automation/scripts/reset-demo.sh</pre></li>
-      <li>Start the assistant that plays the wardens, the office, the mess and maintenance, and leave it running in its own Terminal window. Its lines are good to show on a second screen: <pre>/Users/aasrithatechnologies/Desktop/hostel_automation/scripts/run-demo-assistant.sh</pre></li>
+      <li>Start the assistant that plays the wardens, the office, the rasoi and maintenance, and leave it running in its own Terminal window. Its lines are good to show on a second screen: <pre>/Users/aasrithatechnologies/Desktop/hostel_automation/scripts/run-demo-assistant.sh</pre></li>
       <li>Start the phones: <pre>/Users/aasrithatechnologies/Desktop/hostel_automation/scripts/run-mobile-demo.sh</pre></li>
-      <li>Open the web portal at <code>http://localhost:5180</code> in a browser and sign in as <b>Floor Manager, BH1</b> (S-FW) on <i>My approvals</i>, in case the President wants to see the warden's side.</li>
+      <li>Open the web portal at <code>http://localhost:5180</code> in a browser and sign in as <b>Floor Manager, Boys Residency 1</b> (S-FW) on <i>My approvals</i>, in case the President wants to see the warden's side.</li>
       <li>Have the receipt image ready in the phone's gallery. On the simulator, drag <code>receipt5k.jpg</code> (a KL payment receipt for ₹5,000) onto the Simulator window to add it to Photos.</li>
     </ol>
   </section>
@@ -38,16 +38,16 @@ ol.steps { margin: 0; padding-left: 22px; display: flex; flex-direction: column;
     <table><tr><th>Who</th><th>ID</th><th>Use it for</th></tr>
       <tr><td><b>Meghana Reddy</b> (new student)</td><td><code>2600041011</code></td><td>The whole journey from "Apply for a room". Use her once; reset to use her again.</td></tr>
       <tr><td><b>Priya</b> (paid, waiting for the office)</td><td><code>2600040011</code></td><td>Spare new student: the assistant checks her in a few seconds after it starts.</td></tr>
-      <tr><td><b>Arjun Reddy</b> (resident, BH1)</td><td><code>2600040012</code></td><td>A resident's day: outing, fees, repairs, mess. Has data already.</td></tr>
-      <tr><td><b>Nabin Shrestha</b> (resident, BH2)</td><td><code>2600042205</code></td><td>Renewal for next year.</td></tr>
-      <tr><td>Floor Manager, BH1 (portal)</td><td><code>S-FW</code></td><td>Sees receipts, outings, sick leave and room changes at level 1.</td></tr>
-      <tr><td>Chief Manager, Girls Hostel 1 (portal)</td><td><code>S-GW</code></td><td>Level 2 for Meghana's hostel.</td></tr>
+      <tr><td><b>Arjun Reddy</b> (resident, Boys Residency 1)</td><td><code>2600040012</code></td><td>A resident's day: outing, fees, repairs, mess. Has data already.</td></tr>
+      <tr><td><b>Nabin Shrestha</b> (resident, Boys Residency 2)</td><td><code>2600042205</code></td><td>Renewal for next year.</td></tr>
+      <tr><td>Floor Manager, Boys Residency 1 (portal)</td><td><code>S-FW</code></td><td>Sees receipts, outings, sick leave and room changes at level 1.</td></tr>
+      <tr><td>Chief Manager, Girls Residency 1 (portal)</td><td><code>S-GW</code></td><td>Level 2 for Meghana's hostel.</td></tr>
     </table></section>
 
   <section class="card"><h2>Act 1 · A new student joins <span class="pill">Meghana</span> <span class="pill">6 min</span></h2>
     <ol class="steps">
       <li><span class="tap">Open the app.</span> <span class="say">The KL logo, then the hostel. Students sign in with their university ID.</span> Tap <b>New registration: Meghana Reddy</b>.</li>
-      <li>Home says she has not applied. Tap <span class="tap">Apply for a room</span>: choose <b>Girls Hostel 1</b>, a room type (fee and open beds shown), accept the rules, <span class="tap">Apply</span>.</li>
+      <li>Home says she has not applied. Tap <span class="tap">Apply for a room</span>: choose <b>Girls Residency 1</b>, a room type (fee and open beds shown), accept the rules, <span class="tap">Apply</span>.</li>
       <li><span class="say">The registration fee is paid on the university payment portal; the receipt is uploaded here.</span> Tap <span class="tap">Pay all ₹5,000 → I paid on the university portal → From gallery</span>, pick the receipt, type the reference <code>TXN20261011B1021</code>, <span class="tap">Send the receipt</span>.</li>
       <li>Pull down to refresh after a few seconds: <b>Receipt matches</b> (the system read the amount, date, reference and her ID), then <b>With the Chief Manager</b>, then <b>Approved</b>. <span class="say">Two levels of approval, same as every request in the hostel.</span> The portal shows the warden's view if asked.</li>
       <li>Registration moves to <span class="tap">Choose your room</span>: tap an open bed, <span class="tap">Take this bed</span>. Then <span class="tap">Two instalments</span>, <span class="tap">South Indian</span>, <span class="tap">Confirm plan</span>.</li>
@@ -59,7 +59,7 @@ ol.steps { margin: 0; padding-left: 22px; display: flex; flex-direction: column;
       <li><b>Outing.</b> Tap <span class="tap">Ask for outing</span>, fill reason, place, times, phone, <span class="tap">Submit</span>. Refresh: Floor Manager approved, Chief Manager approved, <span class="tap">Show pass</span>: the QR gate pass. <span class="say">Security scans this at the gate.</span></li>
       <li><b>Sick leave.</b> Menu → Sick leave: what is wrong, from, until, <span class="tap">Report</span>. Refresh: the Floor Manager visited and chose a light diet; approved; <span class="say">meals now go to her room, the mess has her on its sick list.</span></li>
       <li><b>Repairs.</b> Repairs → <span class="tap">My room → Fan</span>, describe, <span class="tap">Raise ticket</span>. Refresh: checked genuine, repair started, repaired. Tap <span class="tap">Yes, it is fixed</span>.</li>
-      <li><b>Mess.</b> Menu → Mess menu (this week's meals). Choose my meals → Next week → pick a dish. Rate my meals → stars. Complaints → A problem with a meal → send; refresh: the mess replied.</li>
+      <li><b>Mess.</b> Menu → Rasoi menu (this week's meals). Choose my meals → Next week → pick a dish. Rate my meals → stars. Complaints → A problem with a meal → send; refresh: the rasoi replied.</li>
       <li><b>Electricity.</b> Menu → Electricity: units left; <span class="tap">₹200 → Pay</span>: units credited at once.</li>
       <li><b>Wallet.</b> Fees page: the wallet card. <span class="say">Any amount paid beyond the dues sits here and pays the next fee in one tap.</span></li>
     </ol></section>

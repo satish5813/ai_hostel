@@ -77,7 +77,7 @@ void showRenewalSheet(BuildContext context, Map first, VoidCallback onChanged) {
             if (cur['next_year_intent'] == 'Leave') ...[const Note('You said you are leaving. Choose again below if your plans changed.', icon: LucideIcons.calendarClock), const SizedBox(height: 12)],
             if (!windowOpen) ...[Note('Renewal for ${y['academic_year']} ${y['renewal_opens'] != null ? 'opens on ${day(y['renewal_opens'])}' : 'is not open yet'}. You can choose then.', icon: LucideIcons.calendarClock), const SizedBox(height: 12)],
             _Choice(LucideIcons.keyRound, 'Keep ${cur['bed_label']}',
-                fee != null ? 'Same bed and key. ${inr(fee['hostel_fee'])} residency${fee['mess_fee'] != null ? ' + ${inr(fee['mess_fee'])} mess' : ''} + ${inr(fee['meter_charge'])} meter charge for the year. No registration fee or deposits on renewal.'
+                fee != null ? 'Same bed and key. ${inr(fee['hostel_fee'])} residency${fee['mess_fee'] != null ? ' + ${inr(fee['mess_fee'])} rasoi' : ''} + ${inr(fee['meter_charge'])} meter charge for the year. No registration fee or deposits on renewal.'
                     : 'Same bed. The ${y['academic_year']} fee for this room is not set yet.',
                 choice == 'Keep', () => set(() => choice = 'Keep')),
             _Choice(LucideIcons.bedDouble, 'Move to another room', 'Choose a hostel and room type. The office offers a bed from those free next year.', choice == 'Change', () => set(() => choice = 'Change')),
@@ -109,7 +109,7 @@ void showRenewalSheet(BuildContext context, Map first, VoidCallback onChanged) {
           action = Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             const KLabel('How will you pay the residency fee?'),
             _Presets(const [('Single', 'In one payment'), ('Two_Instalments', 'In two instalments')], plan, (v) => set(() => plan = v)),
-            const SizedBox(height: 14), const KLabel('Mess for next year'),
+            const SizedBox(height: 14), const KLabel('Rasoi for next year'),
             _Presets(const [('South_Indian', 'South Indian'), ('North_Indian', 'North Indian'), ('Special_Diet', 'Special diet')], cuisine, (v) => set(() => cuisine = v)),
           ]);
         } else if (step == 3) {

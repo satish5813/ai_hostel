@@ -65,7 +65,7 @@ class _MealChoiceScreenState extends State<MealChoiceScreen> {
             (LucideIcons.leaf, _dietLabel(me['diet'])),
           ]),
           if (w == null)
-            const MnPanel(children: [MnEmpty('The mess has not published a weekly menu yet. You will get a message when it does.')])
+            const MnPanel(children: [MnEmpty('The rasoi has not published a weekly menu yet. You will get a message when it does.')])
           else ...[
             if (weeks.length > 1) Row(children: [
               for (var i = 0; i < weeks.length; i++) ...[

@@ -425,7 +425,7 @@ class PageHead extends StatelessWidget {
     'OUT-01': ('My outings', 'Apply for an outing; show the QR pass', 'E Outing', 'violet', 'VC'),
     'SCK-01': ('My sick leave', 'Apply for sick leave or an extension', 'F Sick leave', 'rose', 'VC'),
     'MES-01': ('Routine menu', 'A week of meals per hostel (Boys, Girls), food style or country, Veg or Non-veg', 'G Mess', 'cyan', 'V'),
-    'MES-09': ('Choose my meals', "Pick next week's live breakfast, curry, fry, dal, chutney, rasam or sambar before Friday", 'G Mess', 'cyan', 'VC'),
+    'MES-09': ('Choose my meals', "Pick next week's live breakfast, curry, fry, dal, chutney, rasam or sambar before Friday", 'G Rasoi', 'cyan', 'VC'),
     'MES-02': ('Rate my meals', 'Stars and a comment for each dish eaten, up to three days after', 'G Mess', 'cyan', 'C'),
     'TKT-01': ('My tickets', 'Report a problem in the room, the mess or a common facility; confirm the repair', 'H Tickets', 'orange', 'VCE'),
     'TKT-07': ('Complaints', 'A student complains about a meal or raises a grievance that is not a repair', 'H Tickets', 'orange', 'VC'),

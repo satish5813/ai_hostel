@@ -39,8 +39,8 @@ code { font-family: "IBM Plex Mono", ui-monospace, Menlo, monospace; font-size: 
     <table>
       <tr><th>Person</th><th>Login</th><th>Where</th><th>Does</th></tr>
       <tr><td><b>Meghana Reddy</b>, B.Tech ECE, first year</td><td><code>2600041011</code></td><td>Phone app</td><td>Applies, pays, fills in her record, chooses her bed</td></tr>
-      <tr><td><b>Floor Manager</b>, Girls Hostel 1</td><td><code>S-FW</code></td><td>Web</td><td>Checks each receipt (level 1); hands over the key</td></tr>
-      <tr><td><b>Lakshmi Devi</b>, Chief Manager, Girls Hostel 1</td><td><code>S-GW</code></td><td>Web</td><td>Approves each receipt and the bed (level 2); only she can change Meghana's record later</td></tr>
+      <tr><td><b>Floor Manager</b>, Girls Residency 1</td><td><code>S-FW</code></td><td>Web</td><td>Checks each receipt (level 1); hands over the key</td></tr>
+      <tr><td><b>Lakshmi Devi</b>, Chief Manager, Girls Residency 1</td><td><code>S-GW</code></td><td>Web</td><td>Approves each receipt and the bed (level 2); only she can change Meghana's record later</td></tr>
       <tr><td><b>Hostel office</b></td><td><code>S-OF</code></td><td>Web</td><td>Can also do the check-in; prints receipts</td></tr>
     </table>
     <p>Password for every demo login: <code>Demo@2026</code>. The status bar on Meghana's Home page moves with every scene:</p>
@@ -54,7 +54,7 @@ code { font-family: "IBM Plex Mono", ui-monospace, Menlo, monospace; font-size: 
       <div class="pane phone"><h3>Phone</h3><ul>
         <li>Opens <b>KL Residencies</b>: the KL logo, then the hostel, then <b>Sign in</b> with her university ID.</li>
         <li>Home says <i>Good morning, Meghana · You have not applied for a hostel room yet</i> and one big button: <span class="tap">Apply for a room</span>.</li>
-        <li>Everything that needs a room (Outing, Electricity, Repairs, Mess) is shown in black and white with a lock: <i>After check-in</i>. She cannot press the wrong thing.</li>
+        <li>Everything that needs a room (Outing, Electricity, Repairs, Rasoi) is shown in black and white with a lock: <i>After check-in</i>. She cannot press the wrong thing.</li>
       </ul></div>
       <div class="pane staff"><h3>Staff side</h3><ul><li>Nothing yet. Her name and her 10th and Intermediate marks already came from the admission file (<i>Academic record → Before KL</i>).</li></ul></div>
     </div>
@@ -67,10 +67,10 @@ code { font-family: "IBM Plex Mono", ui-monospace, Menlo, monospace; font-size: 
     <div class="cols">
       <div class="pane phone"><h3>Phone</h3><ul>
         <li><span class="tap">Apply for a room</span> → only the girls' hostels are offered (her gender decides).</li>
-        <li>Taps <b>Girls Hostel 1</b> → each room type shows the fee for the year, what is included (AC, attached bath) and <b>how many beds are open right now</b>.</li>
+        <li>Taps <b>Girls Residency 1</b> → each room type shows the fee for the year, what is included (AC, attached bath) and <b>how many beds are open right now</b>.</li>
         <li>Picks <b>2-sharing AC</b>, ticks <i>I accept the hostel rules</i>, <span class="tap">Apply</span>.</li>
       </ul></div>
-      <div class="pane staff"><h3>Staff side</h3><ul><li>Registration <code>HR-2026-00062</code> appears in <i>Allotment approvals</i> under <b>Awaiting payment</b> for Girls Hostel 1.</li></ul></div>
+      <div class="pane staff"><h3>Staff side</h3><ul><li>Registration <code>HR-2026-00062</code> appears in <i>Allotment approvals</i> under <b>Awaiting payment</b> for Girls Residency 1.</li></ul></div>
     </div>
     <div class="result">→ Home now says: <b>Pay the registration fee ₹5,000</b>. The rooms open for her to choose as soon as it is paid.</div>
     <div class="bar"><span class="on">Applied</span><span>Registration fee paid</span><span>Room allotted</span><span>Room accepted</span><span>Fees paid</span><span>Checked in</span></div>
@@ -134,12 +134,12 @@ code { font-family: "IBM Plex Mono", ui-monospace, Menlo, monospace; font-size: 
 
   <!-- ---------------------------------------------------------------- 6 -->
   <section class="card"><div class="scene"><div class="num">6</div><div>
-    <h2>She chooses her bed, her fee plan and her mess</h2>
+    <h2>She chooses her bed, her fee plan and her rasoi</h2>
     <div class="cols">
       <div class="pane phone"><h3>Phone · Choose your room</h3><ul>
         <li>Floor by floor, room by room: every <b>open bed</b> of her room type. Taps one → <span class="tap">Take this bed</span>. The bed is held for her for 48 hours.</li>
-        <li><b>Fee plan</b>: pay the hostel fee in one go or in <b>two instalments</b> (the second date shown). <b>Mess food</b>, one drop-down: South Indian, North Indian or Continental, each Veg or Non-veg (non-veg is chicken and egg). <span class="tap">Confirm plan</span>.</li>
-        <li>Home: <i>Room GH1-103, bed A is kept for you. Pay the fees to check in.</i> The dues appear: hostel fee, mess, <b>caution deposit, electricity deposit, meter charge</b> — ₹1,80,500 in one line.</li>
+        <li><b>Fee plan</b>: pay the hostel fee in one go or in <b>two instalments</b> (the second date shown). <b>Rasoi food</b>, one drop-down: South Indian, North Indian or Continental, each Veg or Non-veg (non-veg is chicken and egg). <span class="tap">Confirm plan</span>.</li>
+        <li>Home: <i>Room Girls Residency 1-103, bed A is kept for you. Pay the fees to check in.</i> The dues appear: hostel fee, rasoi, <b>caution deposit, electricity deposit, meter charge</b> — ₹1,80,500 in one line.</li>
       </ul></div>
       <div class="pane staff"><h3>Staff side</h3><ul><li>The bed shows as <b>held</b> on the Occupancy board. Nobody else can take it.</li><li>The electricity meter of the room is fitted if it is not there yet (maintenance).</li></ul></div>
     </div>
@@ -171,11 +171,11 @@ code { font-family: "IBM Plex Mono", ui-monospace, Menlo, monospace; font-size: 
         <li><span class="tap">Confirm check-in</span>.</li>
       </ul></div>
       <div class="pane phone"><h3>Phone, within seconds</h3><ul>
-        <li><i>Checked in. Your room is on the Home page.</i> Home shows <b>GH1-103 · bed A · key K-…</b>.</li>
-        <li>Everything that was black and white turns to colour: Outing, Electricity, Repairs, Sick leave, Mess menu, Choose my meals, Rate my meals.</li>
+        <li><i>Checked in. Your room is on the Home page.</i> Home shows <b>Girls Residency 1-103 · bed A · key K-…</b>.</li>
+        <li>Everything that was black and white turns to colour: Outing, Electricity, Repairs, Sick leave, Rasoi menu, Choose my meals, Rate my meals.</li>
       </ul></div>
     </div>
-    <div class="result ok">✔ Registration complete. The Occupancy board shows the bed as occupied; Security's gate list has her photo; the mess has her on its South Indian, non-veg (chicken and egg) list.</div>
+    <div class="result ok">✔ Registration complete. The Occupancy board shows the bed as occupied; Security's gate list has her photo; the rasoi has her on its South Indian, non-veg (chicken and egg) list.</div>
     <div class="bar"><span class="on">Applied</span><span class="on">Registration fee paid</span><span class="on">Room allotted</span><span class="on">Room accepted</span><span class="on">Fees paid</span><span class="on">Checked in</span></div>
   </div></div></section>
 
@@ -186,7 +186,7 @@ code { font-family: "IBM Plex Mono", ui-monospace, Menlo, monospace; font-size: 
       <div class="pane phone"><h3>Phone</h3><ul>
         <li><b>Electricity</b>: units left this month; <span class="tap">Recharge ₹200</span> credits units at once.</li>
         <li><b>Outing</b>: reason, place, times → Floor Manager, Chief Manager → a <b>QR gate pass</b>.</li>
-        <li><b>Mess</b>: this week's menu, choose next week's dishes, rate meals, complain and get a reply.</li>
+        <li><b>Rasoi</b>: this week's menu, choose next week's dishes, rate meals, complain and get a reply.</li>
         <li><b>Repairs</b>: fan not working → ticket → repaired → she confirms.</li>
         <li><b>Fees</b>: every receipt, the wallet, the second instalment with its date.</li>
       </ul></div>
@@ -215,9 +215,9 @@ code { font-family: "IBM Plex Mono", ui-monospace, Menlo, monospace; font-size: 
       <tr><td>1–3 Sign in, apply, send the registration receipt</td><td>3 min</td><td>The PDF receipt is already in the phone's Files</td></tr>
       <tr><td>4 Two approvals</td><td>1 min by hand on the web · 15 s if the assistant plays the wardens</td><td><code>MANUAL=checkin,proof scripts/run-demo-assistant.sh</code> leaves these to people</td></tr>
       <tr><td>5 Her record and photo</td><td>2 min</td><td>Can be shown later, any time before the key</td></tr>
-      <tr><td>6–7 Bed, plan, mess, hostel fees, approvals</td><td>4 min</td><td>₹1,80,500 PDF receipt also in Files</td></tr>
+      <tr><td>6–7 Bed, plan, rasoi, hostel fees, approvals</td><td>4 min</td><td>₹1,80,500 PDF receipt also in Files</td></tr>
       <tr><td>8 Key handover</td><td>1 min</td><td>Floor Manager on <i>Check-in and handover</i>; watch the phone change</td></tr>
-      <tr><td>9 First day</td><td>as long as you like</td><td>Outing, electricity, mess, repairs</td></tr>
+      <tr><td>9 First day</td><td>as long as you like</td><td>Outing, electricity, rasoi, repairs</td></tr>
     </table>
     <p>To start again from scene 1: <code>scripts/reset-demo.sh</code>.</p>
   </section>

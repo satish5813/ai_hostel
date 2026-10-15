@@ -19,7 +19,7 @@ export default function MessSickList() {
   const delivered = list.data?.filter((r) => r.status === 'Delivered').length ?? 0;
   return (
     <div className="klh-stack klh-comfortable" style={{ gap: 24 }}>
-      <ScreenHeader code="SCK-03" subtitle={ticks ? 'Tick each room meal as delivered. A slot not ticked by its deadline becomes Missed and raises a Sick-Meal-Missed alert.' : 'Students on approved sick leave: room, the food to send (light, liquid or normal) and any note. The Mess Supervisor ticks deliveries.'} actions={<Field label="Day"><Input type="date" value={date} onChange={(e) => setDate(e.target.value)} /></Field>} />
+      <ScreenHeader code="SCK-03" subtitle={ticks ? 'Tick each room meal as delivered. A slot not ticked by its deadline becomes Missed and raises a Sick-Meal-Missed alert.' : 'Students on approved sick leave: room, the food to send (light, liquid or normal) and any note. The Rasoi Supervisor ticks deliveries.'} actions={<Field label="Day"><Input type="date" value={date} onChange={(e) => setDate(e.target.value)} /></Field>} />
       <div className="klh-grid-3">
         <StatCard color="rose" icon="heart" label="Hostel students on sick leave" value={String(new Set(list.data?.map((r) => r.student_id)).size)} />
         <StatCard color="cyan" icon="utensils" label="Meals to deliver" value={String((list.data?.length ?? 0) - delivered)} sub={`${delivered} delivered`} />

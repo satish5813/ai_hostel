@@ -155,7 +155,7 @@ export class MenuService {
   async setFood(user: AuthUser, dto: { region: 'South' | 'North' | 'International'; diet: 'Veg' | 'Non_Veg'; country?: string | null }) {
     const m = await this.mine(user);
     if (!m.me) throw new UnprocessableEntityException('Your food choice is set once you live in a hostel');
-    if (!m.me.subscription_id) throw new UnprocessableEntityException('You have no mess subscription yet; choose the mess with your fee plan first');
+    if (!m.me.subscription_id) throw new UnprocessableEntityException('You have no rasoi subscription yet; choose the rasoi with your fee plan first');
     if (dto.region === 'International' && !m.me.international_allowed) throw new ForbiddenException('Food by country is for foreign students');
     if (dto.region === 'International' && !dto.country) throw new BadRequestException('Choose the country');
     const country = dto.region === 'International' ? dto.country! : null;

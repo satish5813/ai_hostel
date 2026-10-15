@@ -28,7 +28,7 @@ export default function MyMenuPage() {
   const [day, setDay] = useState<number | null>(null);
   const d = m.data;
   if (!d) return <div className="st"><p className="st-empty">Loading…</p></div>;
-  if (!d.me) return <div className="st"><section className="st-panel"><h2>Mess menu</h2><p className="st-empty">Your menu appears here once you live in a residency and have a mess subscription.</p></section></div>;
+  if (!d.me) return <div className="st"><section className="st-panel"><h2>Rasoi menu</h2><p className="st-empty">Your menu appears here once you live in a residency and have a rasoi subscription.</p></section></div>;
   const me = d.me;
   const showNext = week === 'next' && !!me.pending_change_id;
   const items = showNext ? d.next_items : d.items;
@@ -40,7 +40,7 @@ export default function MyMenuPage() {
       <section className="st-panel mn-head">
         <div className="mn-title">
           <span className="st-ico mn-ico"><UtensilsCrossed size={20} /></span>
-          <span><h1>Mess menu</h1><small>{me.mess_name ?? me.hostel_code}</small></span>
+          <span><h1>Rasoi menu</h1><small>{me.mess_name ?? me.hostel_code}</small></span>
         </div>
         <div className="mn-chips" aria-label="Your group">
           <span><Users size={13} />{me.hostel_gender} hostel</span>

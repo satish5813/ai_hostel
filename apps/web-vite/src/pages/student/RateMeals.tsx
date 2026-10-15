@@ -33,7 +33,7 @@ export default function RateMeals() {
       <section className="st-panel mn-head">
         <div className="mn-title">
           <span className="st-ico mn-ico"><Star size={20} /></span>
-          <span><h1>Rate my meals</h1><small>Your stars tell the mess what to cook again. Nobody sees your name.</small></span>
+          <span><h1>Rate my meals</h1><small>Your stars tell the rasoi what to cook again. Nobody sees your name.</small></span>
         </div>
         {d && total > 0 && <div className="mn-chips"><span>{rated} of {total} dishes rated</span></div>}
       </section>

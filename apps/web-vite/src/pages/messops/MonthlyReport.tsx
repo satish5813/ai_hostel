@@ -47,7 +47,7 @@ export default function MonthlyReport() {
   const d = r.data;
   const t = d?.totals;
   const csv = () => d && downloadCsv(`MES-07-${d.mess.mess_name.replace(/\s+/g, '-')}-${month}.csv`, [
-    ['Mess monthly report', d.mess.mess_name, month], [],
+    ['Rasoi monthly report', d.mess.mess_name, month], [],
     ['Days recorded', t!.days_recorded], ['Plates planned', t!.planned], ['Plates served', t!.served], ['Counter scans', t!.scans],
     ['Kitchen waste kg', t!.prep_kg], ['Plate waste kg', t!.plate_kg], ['Plate waste g per plate', t!.plate_g_per_meal], ['Provisions used (Rs)', t!.provisions_cost], ['Cost per plate (Rs)', t!.cost_per_meal],
     ['Goods received (Rs)', d.received.value], ['Complaints', d.grievances.grievances], ['Significant meals', d.grievances.significant_meals], [],

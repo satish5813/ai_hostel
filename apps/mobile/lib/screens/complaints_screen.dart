@@ -52,7 +52,7 @@ class _ComplaintsScreenState extends State<ComplaintsScreen> with AutoRefresh {
       ])),
       const SizedBox(height: 18),
       Panel(child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        _Kind(LucideIcons.utensils, 'A problem with a meal', m != null ? 'Goes to the ${m['mess_name']} in-charge' : messLoaded ? 'You are not taking meals in a residency mess' : 'Loading…',
+        _Kind(LucideIcons.utensils, 'A problem with a meal', m != null ? 'Goes to the ${m['mess_name']} in-charge' : messLoaded ? 'You are not taking meals in a residency rasoi' : 'Loading…',
             kind == 'meal', m == null ? null : () => setState(() => kind = 'meal')),
         const SizedBox(height: 12),
         _Kind(LucideIcons.messageSquareWarning, 'Something else', 'Room-mate, staff, discipline, ragging, safety', kind == 'other', () => setState(() => kind = 'other')),
@@ -87,7 +87,7 @@ class _MealFormState extends State<_MealForm> {
     setState(() => busy = true);
     try {
       await api.post('/me/mess-grievances', {'meal_date': date, 'slot': slot, 'aspect': aspect, 'details': text.text, 'rating': rating == 0 ? null : rating});
-      if (mounted) toast(context, 'Sent to the mess in-charge');
+      if (mounted) toast(context, 'Sent to the rasoi in-charge');
       widget.onDone();
     } catch (e) { if (mounted) toast(context, '$e', error: true); }
     finally { if (mounted) setState(() => busy = false); }
@@ -100,7 +100,7 @@ class _MealFormState extends State<_MealForm> {
         _Chips([for (final (v, l) in const [('Quality', 'Taste or quality'), ('Quantity', 'Not enough'), ('Both', 'Both')]) (l, aspect == v, () => setState(() => aspect = v))]),
         _Chips([for (final n in [1, 2, 3, 4, 5]) ('★' * n, rating == n, () => setState(() => rating = rating == n ? 0 : n))]),
         _why(text, 3, 'What was wrong? For example: the rice was undercooked and the curd ran out by 1:15.', () => setState(() {})),
-        _Acts(KButton('Send to the mess', busy: busy, onPressed: text.text.trim().length < 10 ? null : send), text.text.trim().length < 10 ? 'Say what was wrong.' : null),
+        _Acts(KButton('Send to the rasoi', busy: busy, onPressed: text.text.trim().length < 10 ? null : send), text.text.trim().length < 10 ? 'Say what was wrong.' : null),
       ]);
 }
 
