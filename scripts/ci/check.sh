@@ -6,6 +6,8 @@ set -euo pipefail
 cd "$(dirname "$0")/../.."
 mkdir -p logs
 step() { echo; echo "== $1"; }
+# the API imports @klu/db, which exports its compiled dist/: build it first (a fresh checkout has no dist/)
+step "DB package: build"; (cd packages/db && npx tsc -p tsconfig.json) && echo "PASS DB package build"
 step "API: types";  (cd apps/api && npx tsc -p tsconfig.build.json --noEmit) && echo "PASS API types"
 step "API: lint";   (cd apps/api && npx oxlint src >/dev/null) && echo "PASS API lint"
 step "Web: types";  (cd apps/web-vite && npx tsc -p tsconfig.app.json --noEmit) && echo "PASS web types"
