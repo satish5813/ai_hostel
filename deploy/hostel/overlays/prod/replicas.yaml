@@ -1,0 +1,14 @@
+# 0 until go-live: the production database is loaded first, then API and web start.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+spec:
+  replicas: 0
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+spec:
+  replicas: 0

@@ -1,0 +1,153 @@
+# Nightly encrypted backup of the production database and a monthly restore test.
+# Files go to the master's data disk over NFS (172.16.0.1:/home/test/kl-backups/hostel-prod), not the db node, and the
+# PC pulls them nightly (aihr_pilot ops/pull-server-backup.ps1). Format: "KLB1" AES-256-GCM around a pg_dump -Fc file:
+#   node backup-encrypt.js decrypt hostel-prod_<date>.dump.enc db.dump   (key: Secret hostel-backup-key)
+#   pg_restore -d klu_hostel --no-owner db.dump
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: hostel-backup
+spec:
+  schedule: "45 2 * * *"
+  timeZone: Asia/Kolkata
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 1
+      activeDeadlineSeconds: 3600
+      template:
+        metadata:
+          labels: {app: hostel-backup}
+        spec:
+          restartPolicy: Never
+          securityContext:
+            fsGroup: 1000
+            seccompProfile: {type: RuntimeDefault}
+          initContainers:
+            - name: dump
+              image: postgres:18-alpine
+              command: [sh, /scripts/backup.sh, dump]
+              env:
+                - name: PGPASSWORD
+                  valueFrom: {secretKeyRef: {name: hostel-db, key: superuser-password}}
+              securityContext: {runAsUser: 70, runAsNonRoot: true, allowPrivilegeEscalation: false, capabilities: {drop: [ALL]}}
+              volumeMounts:
+                - {name: scripts, mountPath: /scripts}
+                - {name: work, mountPath: /work}
+          containers:
+            - name: encrypt
+              image: node:22-alpine
+              command: [sh, /scripts/backup.sh, encrypt]
+              env:
+                - {name: KL_BACKUP_KEY_FILE, value: /key/backup.key}
+                - {name: KEEP_DAYS, value: "14"}
+              securityContext: {runAsUser: 1000, runAsNonRoot: true, allowPrivilegeEscalation: false, capabilities: {drop: [ALL]}}
+              resources:
+                requests: {cpu: 100m, memory: 128Mi}
+                limits: {cpu: "2", memory: 1Gi}
+              volumeMounts:
+                - {name: scripts, mountPath: /scripts}
+                - {name: work, mountPath: /work}
+                - {name: key, mountPath: /key, readOnly: true}
+                - {name: backups, mountPath: /backups}
+          volumes:
+            - name: scripts
+              configMap: {name: hostel-backup-scripts}
+            - name: work
+              emptyDir: {}
+            - name: key
+              secret: {secretName: hostel-backup-key}
+            - name: backups
+              nfs: {server: 172.16.0.1, path: /home/test/kl-backups/hostel-prod}
+---
+# First Sunday of the month: decrypt the newest backup into a throw-away PostgreSQL and check it loads.
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: hostel-restore-test
+spec:
+  schedule: "30 4 1-7 * 0"
+  timeZone: Asia/Kolkata
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 2
+  failedJobsHistoryLimit: 2
+  jobTemplate:
+    spec:
+      backoffLimit: 0
+      activeDeadlineSeconds: 3600
+      template:
+        metadata:
+          labels: {app: hostel-restore-test}
+        spec:
+          restartPolicy: Never
+          securityContext:
+            fsGroup: 1000
+            seccompProfile: {type: RuntimeDefault}
+          initContainers:
+            - name: decrypt
+              image: node:22-alpine
+              command: [sh, /scripts/restore-test.sh, decrypt]
+              env:
+                - {name: KL_BACKUP_KEY_FILE, value: /key/backup.key}
+              securityContext: {runAsUser: 1000, runAsNonRoot: true, allowPrivilegeEscalation: false, capabilities: {drop: [ALL]}}
+              volumeMounts:
+                - {name: scripts, mountPath: /scripts}
+                - {name: work, mountPath: /work}
+                - {name: key, mountPath: /key, readOnly: true}
+                - {name: backups, mountPath: /backups, readOnly: true}
+            - name: load
+              image: postgres:18-alpine
+              command: [sh, /scripts/restore-test.sh, load]
+              securityContext: {runAsUser: 70, runAsNonRoot: true, allowPrivilegeEscalation: false, capabilities: {drop: [ALL]}}
+              resources:
+                requests: {cpu: 200m, memory: 512Mi}
+                limits: {cpu: "2", memory: 4Gi}
+              volumeMounts:
+                - {name: scripts, mountPath: /scripts}
+                - {name: work, mountPath: /work}
+          containers:
+            - name: report
+              image: node:22-alpine
+              command: [sh, /scripts/restore-test.sh, report]
+              securityContext: {runAsUser: 1000, runAsNonRoot: true, allowPrivilegeEscalation: false, capabilities: {drop: [ALL]}}
+              volumeMounts:
+                - {name: scripts, mountPath: /scripts}
+                - {name: work, mountPath: /work}
+                - {name: results, mountPath: /results}
+          volumes:
+            - name: scripts
+              configMap: {name: hostel-backup-scripts}
+            - name: work
+              emptyDir: {}
+            - name: key
+              secret: {secretName: hostel-backup-key}
+            - name: backups
+              nfs: {server: 172.16.0.1, path: /home/test/kl-backups/hostel-prod, readOnly: true}
+            - name: results
+              nfs: {server: 172.16.0.1, path: /home/test/kl-backups/restore-tests}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: hostel-backup
+spec:
+  podSelector: {matchLabels: {app: hostel-backup}}
+  policyTypes: [Ingress, Egress]
+  ingress: []
+  egress:
+    - to: [{podSelector: {matchLabels: {app: postgres}}}]
+      ports: [{port: 5432}]
+    - to: [{namespaceSelector: {matchLabels: {kubernetes.io/metadata.name: kube-system}}}]
+      ports: [{port: 53, protocol: UDP}, {port: 53, protocol: TCP}]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: hostel-restore-test
+spec:
+  podSelector: {matchLabels: {app: hostel-restore-test}}
+  policyTypes: [Ingress, Egress]
+  ingress: []
+  egress: []

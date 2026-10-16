@@ -1,0 +1,14 @@
+# Flux: keep hostel-prod equal to deploy/hostel/overlays/prod (changes only via release tags).
+# prune stays false for production: removing something from git never deletes it from the cluster automatically.
+apiVersion: kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
+  name: hostel-prod
+  namespace: flux-system
+spec:
+  sourceRef: {kind: GitRepository, name: ai-hostel}
+  path: ./deploy/hostel/overlays/prod
+  interval: 5m
+  prune: false
+  wait: false
+  timeout: 10m
