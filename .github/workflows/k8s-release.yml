@@ -39,11 +39,11 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
       - uses: docker/setup-buildx-action@v3
       - name: Re-tag the tested images (no rebuild)
-        # the newest ancestor whose images exist, provided nothing outside deploy/ changed since it
+        # the newest ancestor whose images exist, provided nothing outside deploy/ and .github/ changed since it
         run: |
           SRC=""
           for c in $(git rev-list --first-parent -n 30 "$SHA"); do
-            git diff --quiet "$c" "$SHA" -- . ':(exclude)deploy' || break
+            git diff --quiet "$c" "$SHA" -- . ':(exclude)deploy' ':(exclude).github' || break
             if docker buildx imagetools inspect "ghcr.io/$OWNER/kl-hostel-api:${c::12}" >/dev/null 2>&1; then SRC="${c::12}"; break; fi
           done
           [ -n "$SRC" ] || { echo "::error::No tested CI images for $GITHUB_REF_NAME - push the commit and wait for the green CI run first"; exit 1; }
