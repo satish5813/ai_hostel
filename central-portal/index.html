@@ -116,6 +116,14 @@ button { font: inherit; color: inherit; }
 .welcome small { font-size: clamp(16px, 2.6vw, 24px); font-weight: 700; letter-spacing: .4em; text-transform: uppercase; color: #fff; }
 .welcome b { font: 700 clamp(60px, 13vw, 140px)/1 var(--display); letter-spacing: -.03em; }
 .flash { position: absolute; inset: 0; z-index: 8; pointer-events: none; opacity: 0; background: radial-gradient(circle at 50% 66%, #fff, rgba(255, 236, 180, .6) 20%, transparent 60%); }
+.garland { position: absolute; left: 0; right: 0; top: 34px; z-index: 4; pointer-events: none; transition: transform 1.2s cubic-bezier(.7, 0, .2, 1), opacity 1s; }
+.garland svg { display: block; width: 100%; overflow: visible; }
+.garland .strand { transform-box: fill-box; transform-origin: 50% 0; animation: sway 3.4s ease-in-out infinite alternate; }
+.garland .strand:nth-of-type(2n) { animation-duration: 4.1s; animation-delay: -1.2s; }
+@keyframes sway { from { transform: rotate(-2.5deg); } to { transform: rotate(2.5deg); } }
+.pot { position: absolute; bottom: 0; z-index: 6; width: clamp(110px, 14vw, 190px); pointer-events: none; filter: drop-shadow(0 18px 24px rgba(0, 0, 0, .55)); transition: transform 1.2s cubic-bezier(.6, 0, .2, 1), opacity 1s; animation: rise 1s 1s both; }
+.pot.l { left: max(2vw, calc(26vw - 9vw)); } .pot.r { right: max(2vw, calc(26vw - 9vw)); }
+.pot svg { display: block; width: 100%; }
 /* the cut */
 .intro.cut { cursor: default; }
 .intro.cut .hint { opacity: 0; animation: none; }
@@ -130,10 +138,12 @@ button { font: inherit; color: inherit; }
 @keyframes flash { 0% { opacity: 0; } 15% { opacity: 1; } 100% { opacity: 0; } }
 .intro.cut .curtain.l { transition-delay: .9s; transform: translateX(-105%); } .intro.cut .curtain.r { transition-delay: .9s; transform: translateX(105%); }
 .intro.cut .valance { transition-delay: 1.3s; transform: translateY(-160%); }
+.intro.cut .garland { transition-delay: 1.5s; transform: translateY(-110%); opacity: 0; }
+.intro.cut .pot.l { transition-delay: 1s; transform: translateX(-40vw); opacity: 0; } .intro.cut .pot.r { transition-delay: 1s; transform: translateX(40vw); opacity: 0; }
 .intro.cut .stage { transition-delay: .8s; transform: translateY(-14vh) scale(.9); opacity: 0; }
 .intro.cut .welcome { transition-delay: 1.05s; opacity: 1; transform: scale(1); }
-@media (max-width: 720px) { .curtain { width: 14vw; min-width: 44px; } .bow { width: 130px; margin-left: -65px; } .rb { height: 40px; top: 34px; } .hint { font-size: 13px; } }
-@media (prefers-reduced-motion: reduce) { .medal, .medal::before, .rb::after, .hint, .spot { animation: none !important; } }
+@media (max-width: 720px) { .stage { top: 17%; } .stage .sub { font-size: 11px; letter-spacing: .1em; } .eyebrow { letter-spacing: .22em; } .pot { width: 92px; } .pot.l { left: 1vw; } .pot.r { right: 1vw; } .curtain { width: 14vw; min-width: 44px; } .bow { width: 130px; margin-left: -65px; } .rb { height: 40px; top: 34px; } .hint { font-size: 13px; } }
+@media (prefers-reduced-motion: reduce) { .garland .strand, .medal, .medal::before, .rb::after, .hint, .spot { animation: none !important; } }
 .grad { background: linear-gradient(100deg, var(--v) 0%, var(--t) 50%, var(--o) 100%); background-size: 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: sheen 7s ease-in-out infinite alternate; }
 @keyframes sheen { to { background-position: 100% 0; } }
 
@@ -220,6 +230,8 @@ footer { margin-top: 40px; display: flex; flex-wrap: wrap; justify-content: spac
   <div class="spot" aria-hidden="true"></div>
   <div class="curtain l" aria-hidden="true"></div><div class="curtain r" aria-hidden="true"></div>
   <div class="valance" aria-hidden="true"></div>
+  <div class="garland" id="garland" aria-hidden="true"></div>
+  <div class="pot l" aria-hidden="true"></div><div class="pot r" aria-hidden="true"></div>
   <div class="stage">
     <div class="medal"><img src="assets/kl-emblem.png" alt="KL University"></div>
     <p class="eyebrow">KL University presents</p>
@@ -288,11 +300,50 @@ footer { margin-top: 40px; display: flex; flex-wrap: wrap; justify-content: spac
   let started = false;
   const enter = () => {
     if (started) return; started = true;
-    if (still) { intro.classList.add('gone'); return; }
+    if (still) { intro.classList.add('gone'); ambient = false; return; }
     intro.classList.add('cut');
     setTimeout(() => celebrate(innerWidth / 2, innerHeight * .66, 4200), 700);
-    setTimeout(() => intro.classList.add('gone'), 3300);
+    setTimeout(() => { intro.classList.add('gone'); ambient = false; }, 3300);
   };
+  /* marigold garlands (thoranam) across the top and a brass pot of flowers at each end of the ribbon */
+  const flower = (cx, cy, r, c, n = 6) => { let o = ''; for (let q = 0; q < n; q++) o += `<ellipse cx="${cx}" cy="${cy - r * .55}" rx="${r * .42}" ry="${r * .6}" fill="${c}" transform="rotate(${q * 360 / n} ${cx} ${cy})"/>`;
+    return o + `<circle cx="${cx}" cy="${cy}" r="${r * .3}" fill="#FFD54F" stroke="#B26A00" stroke-width="1"/>`; };
+  function garland() {
+    const W = innerWidth, n = Math.max(3, Math.round(W / 250)), w = W / n, sag = Math.min(70, w * .28), R = W < 720 ? 6 : 8, beads = [], strands = [];
+    const bead = (x, y, q) => `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${R}" fill="url(#${q % 7 === 3 ? 'rose' : q % 2 ? 'mg2' : 'mg'})" stroke="${q % 7 === 3 ? '#7a0010' : '#c25e00'}" stroke-width="1.2"/>`;
+    for (let i = 0; i < n; i++) {
+      const x0 = i * w, x1 = x0 + w, steps = Math.round(w / (R * 1.7));
+      for (let q = 0; q <= steps; q++) { const t = q / steps, x = x0 + (x1 - x0) * t, y = 4 + 4 * sag * t * (1 - t); beads.push(bead(x, y, q)); }
+    }
+    for (let i = 0; i <= n; i++) {
+      const x = Math.min(Math.max(i * w, R + 2), W - R - 2), len = W < 720 ? 3 + (i % 2) : 8 + (i % 2) * 3; let g = '';
+      for (let q = 0; q < len; q++) g += bead(x, 10 + q * R * 1.75, q + i);
+      const y = 10 + len * R * 1.75;
+      g += `<path d="M${x - R * 1.4} ${y - R * .4} Q${x} ${y + R * 3.2} ${x + R * 1.4} ${y - R * .4}Z" fill="#2E7D32"/>` + flower(x, y + R * .6, R * 2.2, '#E0243A', 7);
+      strands.push(`<g class="strand">${g}</g>`);
+      if (i < n) strands.push(`<path d="M${x + 6} 2 q12 26 2 44 q-14 -14 -2 -44Z" fill="#43A047" opacity=".9"/>`);   // mango leaf
+    }
+    $('garland').innerHTML = `<svg viewBox="0 0 ${W} 260" height="260" preserveAspectRatio="none"><defs>
+      <radialGradient id="mg" cx=".35" cy=".35"><stop offset="0" stop-color="#FFE082"/><stop offset=".55" stop-color="#FF9800"/><stop offset="1" stop-color="#E65100"/></radialGradient>
+      <radialGradient id="mg2" cx=".35" cy=".35"><stop offset="0" stop-color="#FFF59D"/><stop offset=".55" stop-color="#FFC107"/><stop offset="1" stop-color="#F57F17"/></radialGradient>
+      <radialGradient id="rose" cx=".35" cy=".35"><stop offset="0" stop-color="#FF8A9B"/><stop offset=".55" stop-color="#D50032"/><stop offset="1" stop-color="#7A0010"/></radialGradient></defs>${beads.join('')}${strands.join('')}</svg>`;
+  }
+  const POT = (() => {
+    let f = '';
+    const blooms = [[100, 70, 20, '#E0243A'], [62, 92, 17, '#FF4D6D'], [138, 92, 17, '#FFB300'], [80, 50, 15, '#FF8F00'], [122, 48, 15, '#FFFFFF'], [44, 124, 14, '#FFC233'], [156, 124, 14, '#E0243A'],
+      [100, 30, 14, '#FF4D6D'], [100, 108, 15, '#FFFFFF'], [72, 120, 13, '#E0243A'], [128, 122, 13, '#FF8FA3']];
+    const leaves = [[40, 150, -50], [160, 150, 50], [55, 108, -30], [145, 108, 30], [100, 140, 0], [30, 120, -70], [170, 120, 70]]
+      .map(([x, y, a]) => `<ellipse cx="${x}" cy="${y}" rx="11" ry="26" fill="#2E7D32" stroke="#1B5E20" transform="rotate(${a} ${x} ${y})"/>`).join('');
+    for (const [x, y, r, c] of blooms) f += flower(x, y, r, c, c === '#FFFFFF' ? 8 : 6);
+    return `<svg viewBox="0 0 200 300"><defs><linearGradient id="brass" x1="0" x2="1"><stop offset="0" stop-color="#7a4b06"/><stop offset=".3" stop-color="#f7d77c"/><stop offset=".5" stop-color="#fff3c4"/><stop offset=".75" stop-color="#d79b26"/><stop offset="1" stop-color="#6b3f04"/></linearGradient></defs>
+      ${leaves}${f}
+      <path d="M48 168 h104 l-8 14 c26 18 30 52 16 78 c-10 18 -26 26 -60 26 s-50 -8 -60 -26 c-14 -26 -10 -60 16 -78z" fill="url(#brass)" stroke="#6b3f04" stroke-width="2"/>
+      <rect x="42" y="160" width="116" height="14" rx="7" fill="url(#brass)" stroke="#6b3f04" stroke-width="2"/>
+      <path d="M62 222 h76" stroke="#8a5a0c" stroke-width="3" opacity=".6"/><path d="M58 236 h84" stroke="#fff3c4" stroke-width="2" opacity=".5"/>
+      <rect x="72" y="284" width="56" height="12" rx="4" fill="url(#brass)" stroke="#6b3f04" stroke-width="2"/></svg>`;
+  })();
+  document.querySelectorAll('.pot').forEach((el) => { el.innerHTML = POT; });
+  garland(); addEventListener('resize', garland);
   $('start').focus();
   intro.addEventListener('click', enter);
   intro.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); enter(); } });
@@ -332,37 +383,47 @@ footer { margin-top: 40px; display: flex; flex-wrap: wrap; justify-content: spac
 
   let toastT; const toast = (t) => { const el = $('toast'); el.textContent = t; el.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('on'), 2600); };
   const closed = (e, el) => { const m = E.apps.find((x) => x.id === el.dataset.id); if (m.url) return; e.preventDefault(); toast(`${m.name}: its address is not set on this page yet.`); el.classList.remove('nope'); void el.offsetWidth; el.classList.add('nope'); };
-  /* the celebration: a golden fountain from the cut, confetti cannons from both lower corners, bursts high up and gold sparkles */
+  /* the celebration: a golden fountain from the cut, confetti cannons, bursts and gold sparkles, and a shower of rose and marigold petals.
+     Before the cut a few petals drift down on the stage. */
   const fx = $('fx'), fc = fx.getContext('2d');
+  const COLS = ['#FFD45E', '#F5B82E', '#FFF1B8', '#E0243A', '#FF6B7D', '#5B4BE8', '#0E9F8E', '#12B5A2', '#F08A24', '#FFFFFF'];
+  const PETALS = ['#E0243A', '#C2002F', '#FF4D6D', '#FF8FA3', '#FF9800', '#FFB300', '#FFC233', '#FFFFFF'];
+  let parts = [], FW = 0, FH = 0, k = 1, running = false, until = 0, ambient = !still;
+  const fit = () => { const d = Math.min(devicePixelRatio || 1, 2); FW = innerWidth; FH = innerHeight; k = Math.min(1.6, Math.max(1, FH / 760)); fx.width = FW * d; fx.height = FH * d; fc.setTransform(d, 0, 0, d, 0, 0); };
+  const add = (n, ox, oy, ang, spread, sp, kind) => { for (let q = 0; q < n; q++) { const a = ang + (Math.random() - .5) * spread, v = sp * (.55 + Math.random() * .7) * k, spark = kind === 'spark';
+    parts.push({ x: ox, y: oy, vx: Math.cos(a) * v, vy: Math.sin(a) * v, s: spark ? 1.5 + Math.random() * 2.5 : 6 + Math.random() * 8, c: spark ? COLS[q % 3] : COLS[q % COLS.length],
+      rot: Math.random() * 6, vr: (Math.random() - .5) * .35, kind: spark ? 'spark' : ['rect', 'circle', 'strip'][q % 3], life: 1, fade: spark ? .012 : .0045, tw: Math.random() * 6 }); } };
+  const petal = (x, y) => parts.push({ x, y, vx: (Math.random() - .5) * 1.2, vy: .6 + Math.random() * 1.4, s: 8 + Math.random() * 8, c: PETALS[Math.floor(Math.random() * PETALS.length)],
+    rot: Math.random() * 6.3, vr: (Math.random() - .5) * .08, kind: 'petal', life: 1, fade: .0018, tw: Math.random() * 6.3, sw: .6 + Math.random() * 1.2 });
+  const loop = () => {
+    if (ambient && parts.length < 70 && Math.random() < .22) petal(Math.random() * FW, -20);
+    fc.clearRect(0, 0, FW, FH);
+    parts = parts.filter((p) => p.life > 0 && p.y < FH + 40);
+    for (const p of parts) {
+      if (p.kind === 'petal') { p.tw += .04; p.vy = Math.min(p.vy + .03, 2.4 * k); p.x += p.vx + Math.sin(p.tw) * p.sw; p.y += p.vy; p.rot += p.vr + Math.cos(p.tw) * .02; p.life -= p.fade; }
+      else { p.vy += p.kind === 'spark' ? .12 : .28; p.vx *= .985; p.vy *= p.kind === 'spark' ? .97 : .992; p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.life -= p.fade; p.tw += .3; }
+      fc.save(); fc.globalAlpha = Math.min(1, p.life * 1.4); fc.fillStyle = p.c; fc.translate(p.x, p.y); fc.rotate(p.rot);
+      if (p.kind === 'petal') { fc.scale(1, .55 + .45 * Math.abs(Math.sin(p.tw * 1.3)));
+        fc.beginPath(); fc.moveTo(0, -p.s * .6); fc.bezierCurveTo(p.s * .55, -p.s * .45, p.s * .45, p.s * .45, 0, p.s * .6); fc.bezierCurveTo(-p.s * .45, p.s * .45, -p.s * .55, -p.s * .45, 0, -p.s * .6); fc.fill();
+        fc.globalAlpha *= .35; fc.fillStyle = '#fff'; fc.beginPath(); fc.ellipse(-p.s * .12, -p.s * .15, p.s * .12, p.s * .3, .3, 0, 6.283); fc.fill(); }
+      else if (p.kind === 'spark') { fc.globalAlpha *= .6 + .4 * Math.sin(p.tw); fc.shadowColor = '#FFD45E'; fc.shadowBlur = 12; fc.beginPath(); fc.arc(0, 0, p.s, 0, 6.283); fc.fill(); }
+      else if (p.kind === 'rect') { fc.scale(1, Math.cos(p.tw * .5)); fc.fillRect(-p.s / 2, -p.s / 3, p.s, p.s * .66); }
+      else if (p.kind === 'strip') { fc.fillRect(-p.s, -1.5, p.s * 2, 3); }
+      else { fc.beginPath(); fc.arc(0, 0, p.s / 2.4, 0, 6.283); fc.fill(); }
+      fc.restore();
+    }
+    if (ambient || parts.length || performance.now() < until) requestAnimationFrame(loop); else { running = false; fc.clearRect(0, 0, FW, FH); }
+  };
+  const run = () => { if (!running) { running = true; requestAnimationFrame(loop); } };
+  fit(); addEventListener('resize', fit);
+  if (ambient) run();
   function celebrate(x, y, ms) {
-    const d = Math.min(devicePixelRatio || 1, 2), W = innerWidth, H = innerHeight; fx.width = W * d; fx.height = H * d; fc.setTransform(d, 0, 0, d, 0, 0);
-    const cols = ['#FFD45E', '#F5B82E', '#FFF1B8', '#E0243A', '#FF6B7D', '#5B4BE8', '#0E9F8E', '#12B5A2', '#F08A24', '#FFFFFF'];
-    const k = Math.min(1.6, Math.max(1, H / 760)), parts = [];
-    const add = (n, ox, oy, ang, spread, sp, kind) => { for (let q = 0; q < n; q++) { const a = ang + (Math.random() - .5) * spread, v = sp * (.55 + Math.random() * .7) * k, spark = kind === 'spark';
-      parts.push({ x: ox, y: oy, vx: Math.cos(a) * v, vy: Math.sin(a) * v, s: spark ? 1.5 + Math.random() * 2.5 : 6 + Math.random() * 8, c: spark ? cols[q % 3] : cols[q % cols.length],
-        rot: Math.random() * 6, vr: (Math.random() - .5) * .35, kind: spark ? 'spark' : ['rect', 'circle', 'strip'][q % 3], life: 1, fade: spark ? .012 : .0045, tw: Math.random() * 6 }); } };
-    const UP = -Math.PI / 2, t0 = performance.now(), plan = [];
-    for (let n = 0; n < 14; n++) plan.push({ t: n * 60, f: () => { add(22, x, y, UP, .7, 20, 'confetti'); add(10, x, y, UP, 1.2, 16, 'spark'); } });   // the fountain
-    for (const t of [0, 380, 760]) plan.push({ t, f: () => { add(70, 0, H, -Math.PI / 3.1, .5, 24, 'confetti'); add(70, W, H, -Math.PI + Math.PI / 3.1, .5, 24, 'confetti'); } });   // cannons
-    for (const [bx, by, t] of [[.22, .28, 650], [.78, .24, 900], [.5, .16, 1150], [.35, .4, 1400], [.65, .38, 1600]]) plan.push({ t, f: () => { add(60, W * bx, H * by, 0, 6.283, 9, 'confetti'); add(40, W * bx, H * by, 0, 6.283, 7, 'spark'); } });
-    plan.sort((a, b) => a.t - b.t);
-    const step = (t) => {
-      const e = t - t0;
-      while (plan.length && plan[0].t <= e) plan.shift().f();
-      fc.clearRect(0, 0, W, H);
-      for (const p of parts) {
-        p.vy += p.kind === 'spark' ? .12 : .28; p.vx *= .985; p.vy *= p.kind === 'spark' ? .97 : .992; p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.life -= p.fade; p.tw += .3;
-        if (p.life <= 0) continue;
-        fc.save(); fc.globalAlpha = Math.min(1, p.life * 1.4); fc.fillStyle = p.c; fc.translate(p.x, p.y); fc.rotate(p.rot);
-        if (p.kind === 'spark') { fc.globalAlpha *= .6 + .4 * Math.sin(p.tw); fc.shadowColor = '#FFD45E'; fc.shadowBlur = 12; fc.beginPath(); fc.arc(0, 0, p.s, 0, 6.283); fc.fill(); }
-        else if (p.kind === 'rect') { fc.scale(1, Math.cos(p.tw * .5)); fc.fillRect(-p.s / 2, -p.s / 3, p.s, p.s * .66); }
-        else if (p.kind === 'strip') { fc.fillRect(-p.s, -1.5, p.s * 2, 3); }
-        else { fc.beginPath(); fc.arc(0, 0, p.s / 2.4, 0, 6.283); fc.fill(); }
-        fc.restore();
-      }
-      if (e < ms) requestAnimationFrame(step); else fc.clearRect(0, 0, W, H);
-    };
-    requestAnimationFrame(step);
+    until = performance.now() + ms; run();
+    const UP = -Math.PI / 2, at = (t, f) => setTimeout(f, t);
+    for (let n = 0; n < 14; n++) at(n * 60, () => { add(22, x, y, UP, .7, 20, 'confetti'); add(10, x, y, UP, 1.2, 16, 'spark'); });   // the fountain
+    for (const t of [0, 380, 760]) at(t, () => { add(70, 0, FH, -Math.PI / 3.1, .5, 24, 'confetti'); add(70, FW, FH, -Math.PI + Math.PI / 3.1, .5, 24, 'confetti'); });   // cannons
+    for (const [bx, by, t] of [[.22, .28, 650], [.78, .24, 900], [.5, .16, 1150], [.35, .4, 1400], [.65, .38, 1600]]) at(t, () => { add(60, FW * bx, FH * by, 0, 6.283, 9, 'confetti'); add(40, FW * bx, FH * by, 0, 6.283, 7, 'spark'); });
+    for (let t = 200; t < 3200; t += 120) at(t, () => { for (let q = 0; q < 9; q++) petal(Math.random() * FW, -20 - Math.random() * 80); });   // the flower shower
   }
   /* a card opens its website */
   function open(e, el) { const m = E.apps.find((x) => x.id === el.dataset.id); if (!m.url) return closed(e, el); if (e.metaKey || e.ctrlKey || e.shiftKey) return; e.preventDefault(); location.href = m.url; }
