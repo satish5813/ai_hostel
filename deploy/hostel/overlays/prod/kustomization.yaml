@@ -10,11 +10,11 @@ resources:
   - backup.yaml
 images:
   - name: ghcr.io/satish5813/kl-hostel-api
-    newTag: "none-yet"
+    newTag: "v1.0.0"
   - name: ghcr.io/satish5813/kl-hostel-web
-    newTag: "none-yet"
+    newTag: "v1.0.0"
   - name: ghcr.io/satish5813/kl-hostel-migrate
-    newTag: "none-yet"
+    newTag: "v1.0.0"
 configMapGenerator:
   - name: hostel-backup-scripts
     files:
