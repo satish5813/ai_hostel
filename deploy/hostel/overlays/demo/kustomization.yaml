@@ -22,15 +22,6 @@ patches:
       - op: replace
         path: /spec/rules/0/host
         value: demo-residency.klfacultyhiring.com
-      # INAUGURATION (from 2026-10-16): the public address also shows the demo. Remove this op to give it back to production.
-      - op: add
-        path: /spec/rules/-
-        value:
-          host: residency.klfacultyhiring.com
-          http:
-            paths:
-              - {path: /api, pathType: Prefix, backend: {service: {name: api, port: {name: http}}}}
-              - {path: /, pathType: Prefix, backend: {service: {name: web, port: {name: http}}}}
   - target: {kind: StatefulSet, name: postgres}
     patch: |
       - op: add
