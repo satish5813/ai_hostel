@@ -7,7 +7,7 @@
 <meta name="description" content="The KL University ERP: Residencies, Purchase and Inventory, Examinations and HR on one page.">
 <link rel="icon" href="assets/kl-emblem.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;500;600;700;800&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;500;600;700;800&family=Space+Grotesk:wght@300;500;700&family=Cinzel:wght@600;700;800&display=swap" rel="stylesheet">
 <script>
 /* ======================================================================================================
    EDIT HERE. The four applications of the ERP.
@@ -93,11 +93,19 @@ button { font: inherit; color: inherit; }
   box-shadow: 0 0 0 2px rgba(255, 230, 160, .4), 0 0 60px rgba(255, 200, 90, .55), 0 0 140px rgba(255, 190, 80, .25); }
 .medal::before { content: ""; position: absolute; inset: -70%; z-index: -1; border-radius: 50%; background: repeating-conic-gradient(from var(--spin), rgba(255, 220, 130, .32) 0 5deg, transparent 5deg 15deg);
   -webkit-mask: radial-gradient(closest-side, #000 30%, transparent 100%); mask: radial-gradient(closest-side, #000 30%, transparent 100%); animation: spin 18s linear infinite; }
+.stage::before { content: ""; position: absolute; left: 50%; top: 42%; width: 120%; height: 90%; translate: -50% 0; z-index: -1; pointer-events: none; background: radial-gradient(closest-side, rgba(8, 4, 20, .72), transparent); }
 .medal img { width: 100%; height: 100%; border-radius: 50%; background: #fff; padding: 8px; display: block; }
-.eyebrow { margin: 0; font-size: 12px; font-weight: 800; letter-spacing: .4em; text-transform: uppercase; color: #e9c977; animation: rise .8s .4s both; }
+.intro .eyebrow { margin: 0; display: flex; align-items: center; gap: 14px; font: 700 clamp(12px, 1.3vw, 15px)/1 Cinzel, Georgia, serif; letter-spacing: .32em; text-transform: uppercase; color: #ffe3a0; text-shadow: 0 1px 2px rgba(0, 0, 0, .9), 0 0 14px rgba(0, 0, 0, .8); animation: rise .8s .4s both; }
+.eyebrow::before, .eyebrow::after { content: ""; width: clamp(28px, 6vw, 70px); height: 1px; background: linear-gradient(90deg, transparent, #f2c35a); }
+.eyebrow::after { transform: scaleX(-1); }
 .gold { background: linear-gradient(180deg, #fffbe6 0%, #ffe08a 35%, #e0a52a 60%, #fff0b8 80%, #b77c14 100%); -webkit-background-clip: text; background-clip: text; color: transparent; filter: drop-shadow(0 4px 18px rgba(255, 190, 70, .35)); }
-.stage h2 { margin: 0; font: 700 clamp(46px, 9vw, 92px)/1 var(--display); letter-spacing: -.03em; animation: rise .9s .55s both; }
-.stage .sub { margin: 4px 0 0; font-size: 14px; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; color: rgba(255, 255, 255, .72); animation: rise .9s .75s both; }
+.stage h2 { margin: 6px 0 2px; font: 800 clamp(52px, 9vw, 104px)/1.05 Cinzel, Georgia, serif; letter-spacing: .06em; padding-left: .06em; animation: rise .9s .55s both;
+  filter: drop-shadow(0 2px 0 #6b4306) drop-shadow(0 6px 14px rgba(0, 0, 0, .7)) drop-shadow(0 0 26px rgba(255, 190, 70, .35)); }
+.stage .sub { margin: 10px 0 0; display: inline-flex; align-items: center; gap: 14px; padding: 10px 24px; border-radius: 999px; border: 1px solid rgba(242, 195, 90, .55);
+  background: linear-gradient(180deg, rgba(20, 10, 40, .82), rgba(10, 5, 22, .82)); -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); box-shadow: 0 10px 30px rgba(0, 0, 0, .5), inset 0 1px 0 rgba(255, 255, 255, .08);
+  font: 600 clamp(12px, 1.25vw, 15px)/1 var(--font); letter-spacing: .2em; text-transform: uppercase; color: #fff; animation: rise .9s .75s both; }
+.stage .sub b { font-weight: 800; background: linear-gradient(90deg, #ffe39a, #fff, #ffe39a); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.stage .sub i { width: 6px; height: 6px; border-radius: 50%; background: #f2c35a; box-shadow: 0 0 10px #f2c35a; }
 .ribbon { position: absolute; left: 0; right: 0; top: 66%; height: 130px; margin-top: -65px; z-index: 5; padding: 0; border: 0; background: none; cursor: pointer; animation: rise 1s .9s both; }
 .ribbon:focus-visible { outline: none; } .ribbon:focus-visible .bow, .ribbon:hover .bow { scale: 1.06; }
 .rb { position: absolute; top: 40px; height: 50px; width: 50%; transition: transform 1.5s cubic-bezier(.5, 0, .3, 1), opacity 1.5s;
@@ -113,8 +121,8 @@ button { font: inherit; color: inherit; }
   background: linear-gradient(180deg, #ffe7a3, #e2a93a); color: #4a2a00; font: 700 15px var(--display); letter-spacing: .05em; box-shadow: 0 10px 30px -8px rgba(255, 190, 70, .7); animation: rise 1s 1.2s both, nudge 1.8s 2.2s ease-in-out infinite; transition: opacity .3s; }
 @keyframes nudge { 50% { transform: translateY(-6px); } }
 .welcome { position: absolute; left: 50%; top: 42%; translate: -50% -50%; z-index: 7; display: grid; justify-items: center; text-align: center; opacity: 0; transform: scale(.6); pointer-events: none; transition: opacity .7s, transform 1s cubic-bezier(.2, .9, .2, 1.2); }
-.welcome small { font-size: clamp(16px, 2.6vw, 24px); font-weight: 700; letter-spacing: .4em; text-transform: uppercase; color: #fff; }
-.welcome b { font: 700 clamp(60px, 13vw, 140px)/1 var(--display); letter-spacing: -.03em; }
+.welcome small { font: 700 clamp(15px, 2.2vw, 22px)/1 Cinzel, Georgia, serif; letter-spacing: .4em; text-transform: uppercase; color: #fff; text-shadow: 0 2px 10px rgba(0, 0, 0, .8); margin-bottom: 8px; }
+.welcome b { font: 800 clamp(58px, 12vw, 136px)/1.05 Cinzel, Georgia, serif; letter-spacing: .06em; filter: drop-shadow(0 2px 0 #6b4306) drop-shadow(0 8px 20px rgba(0, 0, 0, .7)); }
 .flash { position: absolute; inset: 0; z-index: 8; pointer-events: none; opacity: 0; background: radial-gradient(circle at 50% 66%, #fff, rgba(255, 236, 180, .6) 20%, transparent 60%); }
 /* the curtains open when the page loads, then the stage appears */
 .curtain { animation: draw 2.2s .25s cubic-bezier(.65, 0, .25, 1) both; }
@@ -172,7 +180,7 @@ body.opened .sheen { animation: pass 1.2s cubic-bezier(.4, 0, .2, 1) both; anima
 .intro.cut .valance { transition-delay: 1.3s; transform: translateY(-160%); }
 .intro.cut .stage { transition-delay: .8s; transform: translateY(-14vh) scale(.9); opacity: 0; }
 .intro.cut .welcome { transition-delay: 1.05s; opacity: 1; transform: scale(1); }
-@media (max-width: 720px) { .curtain { width: 14vw; min-width: 44px; } .bow { width: 130px; margin-left: -65px; } .rb { height: 40px; top: 34px; } .hint { font-size: 13px; } }
+@media (max-width: 720px) { .stage .sub { letter-spacing: .1em; padding: 9px 14px; gap: 8px; } .curtain { width: 14vw; min-width: 44px; } .bow { width: 130px; margin-left: -65px; } .rb { height: 40px; top: 34px; } .hint { font-size: 13px; } }
 @media (prefers-reduced-motion: reduce) { .curtain, .curtain::before, .curtain::after, .bulbs, .beam, .medal, .medal::before, .rb::after, .hint, .spot { animation: none !important; } }
 .grad { background: linear-gradient(100deg, var(--v) 0%, var(--t) 50%, var(--o) 100%); background-size: 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: sheen 7s ease-in-out infinite alternate; }
 @keyframes sheen { to { background-position: 100% 0; } }
@@ -264,9 +272,9 @@ footer { margin-top: 40px; display: flex; flex-wrap: wrap; justify-content: spac
   <div class="bulbs a" aria-hidden="true"></div><div class="bulbs b" aria-hidden="true"></div>
   <div class="stage">
     <div class="medal"><img src="assets/kl-emblem.png" alt="KL University"></div>
-    <p class="eyebrow">KL University presents</p>
+    <p class="eyebrow"><span>KL University presents</span></p>
     <h2 class="gold">KL ERP</h2>
-    <p class="sub">AI-powered campus &middot; Grand opening</p>
+    <p class="sub"><b>Agentic AI Campus</b><i></i>Grand Opening</p>
   </div>
   <button class="ribbon" id="start" type="button" aria-label="Cut the ribbon to open the KL ERP">
     <span class="rb l"></span><span class="rb r"></span>
