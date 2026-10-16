@@ -7,7 +7,7 @@
 <meta name="description" content="KL AI Automation, KL University: Residencies, Purchase and Inventory, Examinations and HR on one page.">
 <link rel="icon" href="assets/kl-emblem.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;500;600;700;800&family=Space+Grotesk:wght@300;500;700&family=Cinzel:wght@600;700;800&family=Orbitron:wght@600;800&family=Great+Vibes&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;500;600;700;800&family=Space+Grotesk:wght@300;500;700&family=Cinzel:wght@600;700;800&family=Great+Vibes&display=swap" rel="stylesheet">
 <script>
 /* ======================================================================================================
    EDIT HERE. The four applications of the ERP.
@@ -102,10 +102,9 @@ button { font: inherit; color: inherit; }
 .stage h2 { margin: 6px 0 2px; font: 800 clamp(34px, 6.2vw, 78px)/1.08 Cinzel, Georgia, serif; letter-spacing: .04em; padding-left: .06em; animation: rise .9s .55s both;
   filter: drop-shadow(0 2px 0 #6b4306) drop-shadow(0 6px 14px rgba(0, 0, 0, .7)) drop-shadow(0 0 26px rgba(255, 190, 70, .35)); }
 .intro .stage .sub { margin: 14px 0 0; display: grid; justify-items: center; gap: 2px; animation: rise .9s .75s both; }
-/* AGENTIC AI CAMPUS: futuristic letters in moving gold, white and cyan light, with a soft glow and a scan line passing through */
-.stage .sub .ai { position: relative; display: inline-block; padding: 4px .1em 6px .45em; font: 800 clamp(17px, 2.7vw, 32px)/1.1 Orbitron, var(--display); letter-spacing: .35em; text-transform: uppercase;
-  background: linear-gradient(100deg, #f2c35a 0%, #fff6d5 18%, #7ee8ff 34%, #f2c35a 50%, #fff6d5 68%, #7ee8ff 84%, #f2c35a 100%) 0 0 / 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent;
-  filter: drop-shadow(0 0 10px rgba(126, 232, 255, .45)) drop-shadow(0 2px 6px rgba(0, 0, 0, .9)); animation: aiFlow 5s linear infinite; }
+/* AGENTIC AI CAMPUS: clean, clear capitals in white with a gold line under them */
+.stage .sub .ai { position: relative; display: inline-block; padding: 4px 0 8px .3em; font: 700 clamp(18px, 2.6vw, 30px)/1.2 var(--font); letter-spacing: .3em; text-transform: uppercase;
+  color: #fff; text-shadow: 0 2px 6px rgba(0, 0, 0, .9), 0 0 2px rgba(0, 0, 0, .6); }
 .stage .sub .ai::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 2px; border-radius: 2px; background: linear-gradient(90deg, transparent, #7ee8ff, #f2c35a, #7ee8ff, transparent); background-size: 200% 100%; animation: aiFlow 3s linear infinite; }
 @keyframes aiFlow { to { background-position: -200% 0; } }
 /* Grand Opening: an elegant gold script */
@@ -184,8 +183,8 @@ body.opened .sheen { animation: pass 1.2s cubic-bezier(.4, 0, .2, 1) both; anima
 .intro.cut .valance { transition-delay: 1.3s; transform: translateY(-160%); }
 .intro.cut .stage { transition-delay: .8s; transform: translateY(-14vh) scale(.9); opacity: 0; }
 .intro.cut .welcome { transition-delay: 1.05s; opacity: 1; transform: scale(1); }
-@media (max-width: 720px) { .stage .sub .ai { letter-spacing: .2em; padding-left: .2em; } .brand b { font-size: 17px; } .pill { padding: 0 10px; font-size: 12px; } .curtain { width: 14vw; min-width: 44px; } .bow { width: 130px; margin-left: -65px; } .rb { height: 40px; top: 34px; } .hint { font-size: 13px; } }
-@media (prefers-reduced-motion: reduce) { .curtain, .curtain::before, .curtain::after, .bulbs, .beam, .stage .sub .ai, .stage .sub .ai::after, .medal, .medal::before, .rb::after, .hint, .spot { animation: none !important; } }
+@media (max-width: 720px) { .stage .sub .ai { letter-spacing: .16em; padding-left: .16em; } .brand b { font-size: 17px; } .pill { padding: 0 10px; font-size: 12px; } .curtain { width: 14vw; min-width: 44px; } .bow { width: 130px; margin-left: -65px; } .rb { height: 40px; top: 34px; } .hint { font-size: 13px; } }
+@media (prefers-reduced-motion: reduce) { .curtain, .curtain::before, .curtain::after, .bulbs, .beam, .stage .sub .ai::after, .medal, .medal::before, .rb::after, .hint, .spot { animation: none !important; } }
 .grad { background: linear-gradient(100deg, var(--v) 0%, var(--t) 50%, var(--o) 100%); background-size: 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: sheen 7s ease-in-out infinite alternate; }
 @keyframes sheen { to { background-position: 100% 0; } }
 
