@@ -1,0 +1,26 @@
+# Staging: every green build lands here automatically (the CI job rewrites the three newTag lines).
+# PRIVATE: holds a copy of real student data - the hostname is NOT routed through the Cloudflare tunnel.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: hostel-staging
+resources:
+  - namespace.yaml
+  - ../../base
+images:
+  - name: ghcr.io/satish5813/kl-hostel-api
+    newTag: "latest"
+  - name: ghcr.io/satish5813/kl-hostel-web
+    newTag: "latest"
+  - name: ghcr.io/satish5813/kl-hostel-migrate
+    newTag: "latest"
+patches:
+  - target: {kind: Ingress, name: hostel}
+    patch: |
+      - op: replace
+        path: /spec/rules/0/host
+        value: staging-residency.klfacultyhiring.com
+  - target: {kind: StatefulSet, name: postgres}
+    patch: |
+      - op: add
+        path: /metadata/annotations
+        value: {kustomize.toolkit.fluxcd.io/prune: disabled}

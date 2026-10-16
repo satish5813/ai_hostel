@@ -1,0 +1,74 @@
+# Private PostgreSQL 18 for KL Residencies: db node only (klu/role=db), data on that node's disk.
+# The API connects as the non-superuser "klu_app", which owns the klu_hostel database (created on first start).
+# Reachable only from the API pod and the backup job (networkpolicy.yaml).
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+spec:
+  clusterIP: None
+  selector: {app: postgres}
+  ports: [{name: postgres, port: 5432}]
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-init
+data:
+  10-app-role.sh: |
+    #!/bin/sh
+    set -e
+    psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname postgres <<SQL
+    create role klu_app login password '${APP_DB_PASSWORD}';
+    create database klu_hostel owner klu_app;
+    SQL
+    psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname klu_hostel -c "create extension if not exists pgcrypto; create extension if not exists btree_gist;"
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+spec:
+  serviceName: postgres
+  replicas: 1
+  selector: {matchLabels: {app: postgres}}
+  template:
+    metadata:
+      labels: {app: postgres}
+    spec:
+      nodeSelector: {klu/role: db}
+      securityContext: {fsGroup: 70}
+      containers:
+        - name: postgres
+          image: postgres:18-alpine
+          args: ["-c", "max_connections=200", "-c", "shared_buffers=1GB", "-c", "timezone=Asia/Kolkata"]
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom: {secretKeyRef: {name: hostel-db, key: superuser-password}}
+            - name: APP_DB_PASSWORD
+              valueFrom: {secretKeyRef: {name: hostel-db, key: app-password}}
+            - {name: PGDATA, value: /var/lib/postgresql/data/pgdata}
+          ports: [{name: postgres, containerPort: 5432}]
+          readinessProbe:
+            exec: {command: ["pg_isready", "-U", "postgres"]}
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            exec: {command: ["pg_isready", "-U", "postgres"]}
+            initialDelaySeconds: 60
+            periodSeconds: 20
+          resources:
+            requests: {cpu: 500m, memory: 1Gi}
+            limits: {cpu: "4", memory: 8Gi}
+          volumeMounts:
+            - {name: data, mountPath: /var/lib/postgresql/data}
+            - {name: init, mountPath: /docker-entrypoint-initdb.d, readOnly: true}
+      volumes:
+        - name: init
+          configMap: {name: postgres-init}
+  volumeClaimTemplates:
+    - metadata: {name: data}
+      spec:
+        accessModes: [ReadWriteOnce]
+        storageClassName: local-path
+        resources: {requests: {storage: 30Gi}}

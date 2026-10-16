@@ -1,0 +1,122 @@
+# API (NestJS) + web (static SPA). One API replica: its scheduled jobs run inside the process.
+# Settings/secrets come from the Secret "hostel-env" (created on the cluster, never committed).
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+spec:
+  replicas: 1
+  strategy: {type: Recreate}
+  selector: {matchLabels: {app: api}}
+  template:
+    metadata:
+      labels: {app: api}
+    spec:
+      nodeSelector: {klu/role: apps}
+      imagePullSecrets: [{name: ghcr-pull}]
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile: {type: RuntimeDefault}
+      initContainers:
+        # apply new db/migrations before the API starts (every release)
+        - name: migrate
+          image: ghcr.io/satish5813/kl-hostel-migrate:latest
+          env:
+            - name: DATABASE_URL
+              valueFrom: {secretKeyRef: {name: hostel-env, key: DATABASE_URL}}
+            - name: KLU_BACKUP_LAST_MIGRATION
+              valueFrom: {secretKeyRef: {name: hostel-env, key: KLU_BACKUP_LAST_MIGRATION, optional: true}}
+          securityContext: {runAsUser: 70, allowPrivilegeEscalation: false, capabilities: {drop: [ALL]}}
+      containers:
+        - name: api
+          image: ghcr.io/satish5813/kl-hostel-api:latest
+          envFrom: [{secretRef: {name: hostel-env}}]
+          env:
+            - {name: API_PORT, value: "4000"}
+            - {name: TESSDATA_DIR, value: /tmp/tessdata}
+          ports: [{name: http, containerPort: 4000}]
+          readinessProbe:
+            httpGet: {path: /api/healthz, port: http}
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet: {path: /api/healthz, port: http}
+            initialDelaySeconds: 60
+            periodSeconds: 20
+            failureThreshold: 5
+          resources:
+            requests: {cpu: 250m, memory: 512Mi}
+            limits: {cpu: "4", memory: 4Gi}
+          securityContext:
+            runAsUser: 1000
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities: {drop: [ALL]}
+          volumeMounts: [{name: tmp, mountPath: /tmp}]
+      volumes:
+        - name: tmp
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api
+spec:
+  selector: {app: api}
+  ports: [{name: http, port: 80, targetPort: http}]
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web
+spec:
+  replicas: 2
+  selector: {matchLabels: {app: web}}
+  template:
+    metadata:
+      labels: {app: web}
+    spec:
+      nodeSelector: {klu/role: apps}
+      imagePullSecrets: [{name: ghcr-pull}]
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 101
+        seccompProfile: {type: RuntimeDefault}
+      containers:
+        - name: web
+          image: ghcr.io/satish5813/kl-hostel-web:latest
+          ports: [{name: http, containerPort: 8080}]
+          readinessProbe:
+            httpGet: {path: /, port: http}
+            periodSeconds: 10
+          resources:
+            requests: {cpu: 20m, memory: 32Mi}
+            limits: {cpu: 500m, memory: 128Mi}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities: {drop: [ALL]}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: web
+spec:
+  selector: {app: web}
+  ports: [{name: http, port: 80, targetPort: http}]
+---
+# / -> web, /api -> API on one address (the web app calls /api on its own origin)
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: hostel
+spec:
+  rules:
+    - host: HOSTNAME_SET_BY_OVERLAY
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend: {service: {name: api, port: {name: http}}}
+          - path: /
+            pathType: Prefix
+            backend: {service: {name: web, port: {name: http}}}
