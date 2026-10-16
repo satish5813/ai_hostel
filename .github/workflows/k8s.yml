@@ -52,6 +52,7 @@ jobs:
       contents: read
       packages: write
     strategy:
+      fail-fast: false   # one image failing must not cancel the others (their logs show their own problems)
       matrix:
         part: [api, web, migrate]
     steps:
