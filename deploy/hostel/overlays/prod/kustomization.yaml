@@ -27,7 +27,9 @@ patches:
     patch: |
       - op: replace
         path: /spec/rules/0/host
-        value: residency.klfacultyhiring.com
+        # INAUGURATION (from 2026-10-16): production is private meanwhile (no tunnel route for this name);
+        # set back to residency.klfacultyhiring.com to end the demo.
+        value: residency-live.klfacultyhiring.com
   - target: {kind: StatefulSet, name: postgres}
     patch: |
       - op: add
