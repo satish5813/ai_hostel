@@ -101,7 +101,7 @@ button { font: inherit; color: inherit; }
 .ribbon { position: absolute; left: 0; right: 0; top: 66%; height: 130px; margin-top: -65px; z-index: 5; padding: 0; border: 0; background: none; cursor: pointer; animation: rise 1s .9s both; }
 .ribbon:focus-visible { outline: none; } .ribbon:focus-visible .bow, .ribbon:hover .bow { scale: 1.06; }
 .rb { position: absolute; top: 40px; height: 50px; width: 50%; transition: transform 1.5s cubic-bezier(.5, 0, .3, 1), opacity 1.5s;
-  background: linear-gradient(180deg, #f2c35a 0 4px, #ff6676 4px, #e01d34 30%, #a90c20 62%, #6e0512 calc(100% - 4px), #f2c35a calc(100% - 4px));
+  background: linear-gradient(180deg, #fff4c8 0 3px, #ffe39a 3px, #f2c35a 22%, #d9a233 48%, #b07a14 72%, #7d5207 calc(100% - 3px), #fff4c8 calc(100% - 3px));
   box-shadow: 0 14px 30px rgba(0, 0, 0, .55), inset 0 10px 14px -6px rgba(255, 255, 255, .35); }
 .rb::after { content: ""; position: absolute; inset: 4px 0; background: linear-gradient(100deg, transparent 0 40%, rgba(255, 255, 255, .45) 48%, transparent 56%) 0 0 / 300% 100%; animation: shine 3.2s 1.4s ease-in-out infinite; }
 @keyframes shine { from { background-position: 150% 0; } to { background-position: -150% 0; } }
@@ -116,14 +116,46 @@ button { font: inherit; color: inherit; }
 .welcome small { font-size: clamp(16px, 2.6vw, 24px); font-weight: 700; letter-spacing: .4em; text-transform: uppercase; color: #fff; }
 .welcome b { font: 700 clamp(60px, 13vw, 140px)/1 var(--display); letter-spacing: -.03em; }
 .flash { position: absolute; inset: 0; z-index: 8; pointer-events: none; opacity: 0; background: radial-gradient(circle at 50% 66%, #fff, rgba(255, 236, 180, .6) 20%, transparent 60%); }
-.garland { position: absolute; left: 0; right: 0; top: 34px; z-index: 4; pointer-events: none; transition: transform 1.2s cubic-bezier(.7, 0, .2, 1), opacity 1s; }
-.garland svg { display: block; width: 100%; overflow: visible; }
-.garland .strand { transform-box: fill-box; transform-origin: 50% 0; animation: sway 3.4s ease-in-out infinite alternate; }
-.garland .strand:nth-of-type(2n) { animation-duration: 4.1s; animation-delay: -1.2s; }
-@keyframes sway { from { transform: rotate(-2.5deg); } to { transform: rotate(2.5deg); } }
-.pot { position: absolute; bottom: 0; z-index: 6; width: clamp(110px, 14vw, 190px); pointer-events: none; filter: drop-shadow(0 18px 24px rgba(0, 0, 0, .55)); transition: transform 1.2s cubic-bezier(.6, 0, .2, 1), opacity 1s; animation: rise 1s 1s both; }
-.pot.l { left: max(2vw, calc(26vw - 9vw)); } .pot.r { right: max(2vw, calc(26vw - 9vw)); }
-.pot svg { display: block; width: 100%; }
+/* the curtains open when the page loads, then the stage appears */
+.curtain { animation: draw 2.2s .25s cubic-bezier(.65, 0, .25, 1) both; }
+@keyframes draw { from { width: 50.5vw; } }
+.medal { animation-delay: 0s, 1.6s; }
+.eyebrow { animation-delay: 1.9s; } .stage h2 { animation-delay: 2.05s; } .stage .sub { animation-delay: 2.2s; }
+.ribbon { animation-delay: 2.3s; } .hint { animation-delay: 2.6s, 3.6s; }
+/* stage lights: two beams sweep the stage, marquee bulbs chase along the top and down the curtains */
+.beam { position: absolute; top: -10vh; width: 46vmax; height: 130vh; z-index: 1; pointer-events: none; mix-blend-mode: screen; opacity: 0;
+  background: linear-gradient(180deg, rgba(255, 244, 210, .55), rgba(255, 230, 170, .12) 60%, transparent); clip-path: polygon(46% 0, 54% 0, 100% 100%, 0 100%); filter: blur(6px);
+  animation: beamIn .8s 1.4s forwards, sweep 6s 1.4s ease-in-out infinite alternate; }
+.beam.l { left: -6vmax; transform-origin: 50% 0; } .beam.r { right: -6vmax; transform-origin: 50% 0; animation-direction: normal, alternate-reverse; }
+@keyframes beamIn { to { opacity: 1; } }
+@keyframes sweep { from { transform: rotate(-28deg); } to { transform: rotate(22deg); } }
+.beam.r { animation-name: beamIn, sweepR; } @keyframes sweepR { from { transform: rotate(28deg); } to { transform: rotate(-22deg); } }
+.bulbs { position: absolute; left: 0; right: 0; top: 42px; height: 22px; z-index: 4; pointer-events: none;
+  background: radial-gradient(circle, #fffbe6 0 3px, #ffd257 4.5px, rgba(255, 196, 60, .5) 6px, transparent 11px) 0 0 / 36px 22px repeat-x; }
+.bulbs.b { background-position: 18px 0; }
+.bulbs.a { animation: blink 1.1s steps(1) infinite; } .bulbs.b { animation: blink 1.1s .55s steps(1) infinite; }
+@keyframes blink { 0% { opacity: 1; filter: drop-shadow(0 0 6px #ffc94a); } 50% { opacity: .18; filter: none; } }
+.curtain::before, .curtain::after { content: ""; position: absolute; top: 64px; bottom: 6%; width: 22px; pointer-events: none;
+  background: radial-gradient(circle, #fffbe6 0 3px, #ffd257 4.5px, rgba(255, 196, 60, .5) 6px, transparent 11px) 0 0 / 22px 36px repeat-y; }
+.curtain.l::before, .curtain.l::after { right: 4px; } .curtain.r::before, .curtain.r::after { left: 4px; }
+.curtain::after { background-position: 0 18px; }
+.curtain::before { animation: blink 1.1s steps(1) infinite; } .curtain::after { animation: blink 1.1s .55s steps(1) infinite; }
+.intro.cut .bulbs.a, .intro.cut .bulbs.b, .intro.cut .curtain::before, .intro.cut .curtain::after { animation-duration: .24s; }
+.intro.cut .bulbs.b, .intro.cut .curtain::after { animation-delay: .12s; }
+.intro.cut .bulbs { transition: transform 1.2s 1.3s cubic-bezier(.7, 0, .2, 1); transform: translateY(-200%); }
+.intro.cut .beam { animation-duration: .8s, 1.2s; }
+/* after the cut: the header comes down, the title rises, the cards come up one by one and a light passes over each */
+body.staged .top, body.staged .hero, body.staged .mod, body.staged footer { opacity: 0; animation: none; }
+body.opened .top { animation: dropIn .8s cubic-bezier(.2, .9, .2, 1) both; }
+body.opened .hero { animation: rise .9s .2s cubic-bezier(.2, .9, .2, 1) both; }
+body.opened .mod { animation: cardIn 1s cubic-bezier(.2, .85, .25, 1) both; animation-delay: calc(var(--i, 0) * 140ms + .45s); }
+body.opened footer { animation: rise .8s 1.3s both; }
+@keyframes dropIn { from { opacity: 0; transform: translateY(-30px); } }
+@keyframes cardIn { 0% { opacity: 0; transform: perspective(900px) translateY(70px) rotateX(-28deg) scale(.92); filter: blur(10px); } 55% { filter: blur(0); } 100% { opacity: 1; } }
+.sheen { position: absolute; inset: 0; z-index: 2; border-radius: inherit; pointer-events: none; opacity: 0;
+  background: linear-gradient(105deg, transparent 35%, rgba(255, 255, 255, .9) 50%, transparent 65%) -150% 0 / 250% 100% no-repeat; }
+body.opened .sheen { animation: pass 1.2s cubic-bezier(.4, 0, .2, 1) both; animation-delay: calc(var(--i, 0) * 140ms + 1.05s); }
+@keyframes pass { 0% { opacity: 1; background-position: -150% 0; } 100% { opacity: 1; background-position: 250% 0; } }
 /* the cut */
 .intro.cut { cursor: default; }
 .intro.cut .hint { opacity: 0; animation: none; }
@@ -138,12 +170,10 @@ button { font: inherit; color: inherit; }
 @keyframes flash { 0% { opacity: 0; } 15% { opacity: 1; } 100% { opacity: 0; } }
 .intro.cut .curtain.l { transition-delay: .9s; transform: translateX(-105%); } .intro.cut .curtain.r { transition-delay: .9s; transform: translateX(105%); }
 .intro.cut .valance { transition-delay: 1.3s; transform: translateY(-160%); }
-.intro.cut .garland { transition-delay: 1.5s; transform: translateY(-110%); opacity: 0; }
-.intro.cut .pot.l { transition-delay: 1s; transform: translateX(-40vw); opacity: 0; } .intro.cut .pot.r { transition-delay: 1s; transform: translateX(40vw); opacity: 0; }
 .intro.cut .stage { transition-delay: .8s; transform: translateY(-14vh) scale(.9); opacity: 0; }
 .intro.cut .welcome { transition-delay: 1.05s; opacity: 1; transform: scale(1); }
-@media (max-width: 720px) { .stage { top: 17%; } .stage .sub { font-size: 11px; letter-spacing: .1em; } .eyebrow { letter-spacing: .22em; } .pot { width: 92px; } .pot.l { left: 1vw; } .pot.r { right: 1vw; } .curtain { width: 14vw; min-width: 44px; } .bow { width: 130px; margin-left: -65px; } .rb { height: 40px; top: 34px; } .hint { font-size: 13px; } }
-@media (prefers-reduced-motion: reduce) { .garland .strand, .medal, .medal::before, .rb::after, .hint, .spot { animation: none !important; } }
+@media (max-width: 720px) { .curtain { width: 14vw; min-width: 44px; } .bow { width: 130px; margin-left: -65px; } .rb { height: 40px; top: 34px; } .hint { font-size: 13px; } }
+@media (prefers-reduced-motion: reduce) { .curtain, .curtain::before, .curtain::after, .bulbs, .beam, .medal, .medal::before, .rb::after, .hint, .spot { animation: none !important; } }
 .grad { background: linear-gradient(100deg, var(--v) 0%, var(--t) 50%, var(--o) 100%); background-size: 200% 100%; -webkit-background-clip: text; background-clip: text; color: transparent; animation: sheen 7s ease-in-out infinite alternate; }
 @keyframes sheen { to { background-position: 100% 0; } }
 
@@ -220,7 +250,7 @@ footer { margin-top: 40px; display: flex; flex-wrap: wrap; justify-content: spac
 }
 </style>
 </head>
-<body>
+<body class="staged">
 <div class="sky" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
 <canvas id="net" aria-hidden="true"></canvas>
 <div class="glow" id="glow" aria-hidden="true"></div>
@@ -228,10 +258,10 @@ footer { margin-top: 40px; display: flex; flex-wrap: wrap; justify-content: spac
 
 <div class="intro" id="intro">
   <div class="spot" aria-hidden="true"></div>
+  <div class="beam l" aria-hidden="true"></div><div class="beam r" aria-hidden="true"></div>
   <div class="curtain l" aria-hidden="true"></div><div class="curtain r" aria-hidden="true"></div>
   <div class="valance" aria-hidden="true"></div>
-  <div class="garland" id="garland" aria-hidden="true"></div>
-  <div class="pot l" aria-hidden="true"></div><div class="pot r" aria-hidden="true"></div>
+  <div class="bulbs a" aria-hidden="true"></div><div class="bulbs b" aria-hidden="true"></div>
   <div class="stage">
     <div class="medal"><img src="assets/kl-emblem.png" alt="KL University"></div>
     <p class="eyebrow">KL University presents</p>
@@ -300,50 +330,36 @@ footer { margin-top: 40px; display: flex; flex-wrap: wrap; justify-content: spac
   let started = false;
   const enter = () => {
     if (started) return; started = true;
-    if (still) { intro.classList.add('gone'); ambient = false; return; }
+    if (still) { intro.classList.add('gone'); document.body.classList.replace('staged', 'opened'); return; }
     intro.classList.add('cut');
+    fanfare();
     setTimeout(() => celebrate(innerWidth / 2, innerHeight * .66, 4200), 700);
-    setTimeout(() => { intro.classList.add('gone'); ambient = false; }, 3300);
+    setTimeout(() => { intro.classList.add('gone'); document.body.classList.replace('staged', 'opened'); }, 3100);
   };
-  /* marigold garlands (thoranam) across the top and a brass pot of flowers at each end of the ribbon */
-  const flower = (cx, cy, r, c, n = 6) => { let o = ''; for (let q = 0; q < n; q++) o += `<ellipse cx="${cx}" cy="${cy - r * .55}" rx="${r * .42}" ry="${r * .6}" fill="${c}" transform="rotate(${q * 360 / n} ${cx} ${cy})"/>`;
-    return o + `<circle cx="${cx}" cy="${cy}" r="${r * .3}" fill="#FFD54F" stroke="#B26A00" stroke-width="1"/>`; };
-  function garland() {
-    const W = innerWidth, n = Math.max(3, Math.round(W / 250)), w = W / n, sag = Math.min(70, w * .28), R = W < 720 ? 6 : 8, beads = [], strands = [];
-    const bead = (x, y, q) => `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${R}" fill="url(#${q % 7 === 3 ? 'rose' : q % 2 ? 'mg2' : 'mg'})" stroke="${q % 7 === 3 ? '#7a0010' : '#c25e00'}" stroke-width="1.2"/>`;
-    for (let i = 0; i < n; i++) {
-      const x0 = i * w, x1 = x0 + w, steps = Math.round(w / (R * 1.7));
-      for (let q = 0; q <= steps; q++) { const t = q / steps, x = x0 + (x1 - x0) * t, y = 4 + 4 * sag * t * (1 - t); beads.push(bead(x, y, q)); }
-    }
-    for (let i = 0; i <= n; i++) {
-      const x = Math.min(Math.max(i * w, R + 2), W - R - 2), len = W < 720 ? 3 + (i % 2) : 8 + (i % 2) * 3; let g = '';
-      for (let q = 0; q < len; q++) g += bead(x, 10 + q * R * 1.75, q + i);
-      const y = 10 + len * R * 1.75;
-      g += `<path d="M${x - R * 1.4} ${y - R * .4} Q${x} ${y + R * 3.2} ${x + R * 1.4} ${y - R * .4}Z" fill="#2E7D32"/>` + flower(x, y + R * .6, R * 2.2, '#E0243A', 7);
-      strands.push(`<g class="strand">${g}</g>`);
-      if (i < n) strands.push(`<path d="M${x + 6} 2 q12 26 2 44 q-14 -14 -2 -44Z" fill="#43A047" opacity=".9"/>`);   // mango leaf
-    }
-    $('garland').innerHTML = `<svg viewBox="0 0 ${W} 260" height="260" preserveAspectRatio="none"><defs>
-      <radialGradient id="mg" cx=".35" cy=".35"><stop offset="0" stop-color="#FFE082"/><stop offset=".55" stop-color="#FF9800"/><stop offset="1" stop-color="#E65100"/></radialGradient>
-      <radialGradient id="mg2" cx=".35" cy=".35"><stop offset="0" stop-color="#FFF59D"/><stop offset=".55" stop-color="#FFC107"/><stop offset="1" stop-color="#F57F17"/></radialGradient>
-      <radialGradient id="rose" cx=".35" cy=".35"><stop offset="0" stop-color="#FF8A9B"/><stop offset=".55" stop-color="#D50032"/><stop offset="1" stop-color="#7A0010"/></radialGradient></defs>${beads.join('')}${strands.join('')}</svg>`;
+  function fanfare() {
+    try {
+      const A = new (window.AudioContext || window.webkitAudioContext)(), now = A.currentTime, out = A.createGain(); out.gain.value = .5; out.connect(A.destination);
+      const verb = A.createDelay(); verb.delayTime.value = .11; const fb = A.createGain(); fb.gain.value = .3; verb.connect(fb).connect(verb); verb.connect(out);
+      const tone = (f, t, d, type = 'sawtooth', vol = .16) => {
+        const o = A.createOscillator(), g = A.createGain(), lp = A.createBiquadFilter(); o.type = type; o.frequency.value = f; lp.type = 'lowpass'; lp.frequency.value = type === 'sawtooth' ? 2400 : 8000;
+        g.gain.setValueAtTime(0, now + t); g.gain.linearRampToValueAtTime(vol, now + t + .03); g.gain.setValueAtTime(vol, now + t + d * .7); g.gain.exponentialRampToValueAtTime(.0001, now + t + d);
+        o.connect(lp).connect(g); g.connect(out); g.connect(verb); o.start(now + t); o.stop(now + t + d + .05); };
+      // the snip of the scissors
+      const n = A.createBufferSource(), b = A.createBuffer(1, A.sampleRate * .08, A.sampleRate), ch = b.getChannelData(0);
+      for (let q = 0; q < ch.length; q++) ch[q] = (Math.random() * 2 - 1) * (1 - q / ch.length) ** 3;
+      const hp = A.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 3000; const ng = A.createGain(); ng.gain.value = .9;
+      n.buffer = b; n.connect(hp).connect(ng).connect(out); n.start(now + .62);
+      // the fanfare: G C E G ... then a held C major chord
+      const T = .75, C = [392, 523.25, 659.25, 783.99];
+      C.forEach((f, q) => tone(f, T + q * .14, .2));
+      tone(659.25, T + .62, .16); tone(783.99, T + .78, .16);
+      for (const f of [523.25, 659.25, 783.99, 1046.5]) tone(f, T + .98, 1.9, 'sawtooth', .11);
+      for (const f of [261.63, 130.81]) tone(f, T + .98, 1.9, 'triangle', .16);
+      // bells shimmering over the top
+      [2093, 2637, 3136, 2637, 3520, 4186].forEach((f, q) => tone(f, T + 1.05 + q * .11, .9, 'sine', .05));
+      setTimeout(() => A.close(), 5000);
+    } catch { /* no sound on this browser: the ceremony goes on silently */ }
   }
-  const POT = (() => {
-    let f = '';
-    const blooms = [[100, 70, 20, '#E0243A'], [62, 92, 17, '#FF4D6D'], [138, 92, 17, '#FFB300'], [80, 50, 15, '#FF8F00'], [122, 48, 15, '#FFFFFF'], [44, 124, 14, '#FFC233'], [156, 124, 14, '#E0243A'],
-      [100, 30, 14, '#FF4D6D'], [100, 108, 15, '#FFFFFF'], [72, 120, 13, '#E0243A'], [128, 122, 13, '#FF8FA3']];
-    const leaves = [[40, 150, -50], [160, 150, 50], [55, 108, -30], [145, 108, 30], [100, 140, 0], [30, 120, -70], [170, 120, 70]]
-      .map(([x, y, a]) => `<ellipse cx="${x}" cy="${y}" rx="11" ry="26" fill="#2E7D32" stroke="#1B5E20" transform="rotate(${a} ${x} ${y})"/>`).join('');
-    for (const [x, y, r, c] of blooms) f += flower(x, y, r, c, c === '#FFFFFF' ? 8 : 6);
-    return `<svg viewBox="0 0 200 300"><defs><linearGradient id="brass" x1="0" x2="1"><stop offset="0" stop-color="#7a4b06"/><stop offset=".3" stop-color="#f7d77c"/><stop offset=".5" stop-color="#fff3c4"/><stop offset=".75" stop-color="#d79b26"/><stop offset="1" stop-color="#6b3f04"/></linearGradient></defs>
-      ${leaves}${f}
-      <path d="M48 168 h104 l-8 14 c26 18 30 52 16 78 c-10 18 -26 26 -60 26 s-50 -8 -60 -26 c-14 -26 -10 -60 16 -78z" fill="url(#brass)" stroke="#6b3f04" stroke-width="2"/>
-      <rect x="42" y="160" width="116" height="14" rx="7" fill="url(#brass)" stroke="#6b3f04" stroke-width="2"/>
-      <path d="M62 222 h76" stroke="#8a5a0c" stroke-width="3" opacity=".6"/><path d="M58 236 h84" stroke="#fff3c4" stroke-width="2" opacity=".5"/>
-      <rect x="72" y="284" width="56" height="12" rx="4" fill="url(#brass)" stroke="#6b3f04" stroke-width="2"/></svg>`;
-  })();
-  document.querySelectorAll('.pot').forEach((el) => { el.innerHTML = POT; });
-  garland(); addEventListener('resize', garland);
   $('start').focus();
   intro.addEventListener('click', enter);
   intro.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); enter(); } });
@@ -355,7 +371,7 @@ footer { margin-top: 40px; display: flex; flex-wrap: wrap; justify-content: spac
   /* the four cards */
   const grid = $('grid'), state = {};
   grid.innerHTML = E.apps.map((m, i) => `<a class="mod" data-id="${m.id}" style="--a:${m.a};--a2:${m.a2};--i:${i}" ${m.url ? `href="${esc(m.url)}"` : 'role="button" tabindex="0"'} title="${esc(m.does.join(' · '))}">
-      <i aria-hidden="true"></i><span class="num" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span>
+      <i aria-hidden="true"></i><b class="sheen" aria-hidden="true"></b><span class="num" aria-hidden="true">${String(i + 1).padStart(2, '0')}</span>
       <span class="tile"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICON[m.icon] ?? ICON.box}</svg></span>
       <span class="name"><h3>${esc(m.name)}</h3><span class="tag">${esc(m.tag)}</span></span>
       <p>${esc(m.line)}</p>
@@ -383,47 +399,37 @@ footer { margin-top: 40px; display: flex; flex-wrap: wrap; justify-content: spac
 
   let toastT; const toast = (t) => { const el = $('toast'); el.textContent = t; el.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('on'), 2600); };
   const closed = (e, el) => { const m = E.apps.find((x) => x.id === el.dataset.id); if (m.url) return; e.preventDefault(); toast(`${m.name}: its address is not set on this page yet.`); el.classList.remove('nope'); void el.offsetWidth; el.classList.add('nope'); };
-  /* the celebration: a golden fountain from the cut, confetti cannons, bursts and gold sparkles, and a shower of rose and marigold petals.
-     Before the cut a few petals drift down on the stage. */
+  /* the celebration: a golden fountain from the cut, confetti cannons from both lower corners, bursts high up and gold sparkles */
   const fx = $('fx'), fc = fx.getContext('2d');
-  const COLS = ['#FFD45E', '#F5B82E', '#FFF1B8', '#E0243A', '#FF6B7D', '#5B4BE8', '#0E9F8E', '#12B5A2', '#F08A24', '#FFFFFF'];
-  const PETALS = ['#E0243A', '#C2002F', '#FF4D6D', '#FF8FA3', '#FF9800', '#FFB300', '#FFC233', '#FFFFFF'];
-  let parts = [], FW = 0, FH = 0, k = 1, running = false, until = 0, ambient = !still;
-  const fit = () => { const d = Math.min(devicePixelRatio || 1, 2); FW = innerWidth; FH = innerHeight; k = Math.min(1.6, Math.max(1, FH / 760)); fx.width = FW * d; fx.height = FH * d; fc.setTransform(d, 0, 0, d, 0, 0); };
-  const add = (n, ox, oy, ang, spread, sp, kind) => { for (let q = 0; q < n; q++) { const a = ang + (Math.random() - .5) * spread, v = sp * (.55 + Math.random() * .7) * k, spark = kind === 'spark';
-    parts.push({ x: ox, y: oy, vx: Math.cos(a) * v, vy: Math.sin(a) * v, s: spark ? 1.5 + Math.random() * 2.5 : 6 + Math.random() * 8, c: spark ? COLS[q % 3] : COLS[q % COLS.length],
-      rot: Math.random() * 6, vr: (Math.random() - .5) * .35, kind: spark ? 'spark' : ['rect', 'circle', 'strip'][q % 3], life: 1, fade: spark ? .012 : .0045, tw: Math.random() * 6 }); } };
-  const petal = (x, y) => parts.push({ x, y, vx: (Math.random() - .5) * 1.2, vy: .6 + Math.random() * 1.4, s: 8 + Math.random() * 8, c: PETALS[Math.floor(Math.random() * PETALS.length)],
-    rot: Math.random() * 6.3, vr: (Math.random() - .5) * .08, kind: 'petal', life: 1, fade: .0018, tw: Math.random() * 6.3, sw: .6 + Math.random() * 1.2 });
-  const loop = () => {
-    if (ambient && parts.length < 70 && Math.random() < .22) petal(Math.random() * FW, -20);
-    fc.clearRect(0, 0, FW, FH);
-    parts = parts.filter((p) => p.life > 0 && p.y < FH + 40);
-    for (const p of parts) {
-      if (p.kind === 'petal') { p.tw += .04; p.vy = Math.min(p.vy + .03, 2.4 * k); p.x += p.vx + Math.sin(p.tw) * p.sw; p.y += p.vy; p.rot += p.vr + Math.cos(p.tw) * .02; p.life -= p.fade; }
-      else { p.vy += p.kind === 'spark' ? .12 : .28; p.vx *= .985; p.vy *= p.kind === 'spark' ? .97 : .992; p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.life -= p.fade; p.tw += .3; }
-      fc.save(); fc.globalAlpha = Math.min(1, p.life * 1.4); fc.fillStyle = p.c; fc.translate(p.x, p.y); fc.rotate(p.rot);
-      if (p.kind === 'petal') { fc.scale(1, .55 + .45 * Math.abs(Math.sin(p.tw * 1.3)));
-        fc.beginPath(); fc.moveTo(0, -p.s * .6); fc.bezierCurveTo(p.s * .55, -p.s * .45, p.s * .45, p.s * .45, 0, p.s * .6); fc.bezierCurveTo(-p.s * .45, p.s * .45, -p.s * .55, -p.s * .45, 0, -p.s * .6); fc.fill();
-        fc.globalAlpha *= .35; fc.fillStyle = '#fff'; fc.beginPath(); fc.ellipse(-p.s * .12, -p.s * .15, p.s * .12, p.s * .3, .3, 0, 6.283); fc.fill(); }
-      else if (p.kind === 'spark') { fc.globalAlpha *= .6 + .4 * Math.sin(p.tw); fc.shadowColor = '#FFD45E'; fc.shadowBlur = 12; fc.beginPath(); fc.arc(0, 0, p.s, 0, 6.283); fc.fill(); }
-      else if (p.kind === 'rect') { fc.scale(1, Math.cos(p.tw * .5)); fc.fillRect(-p.s / 2, -p.s / 3, p.s, p.s * .66); }
-      else if (p.kind === 'strip') { fc.fillRect(-p.s, -1.5, p.s * 2, 3); }
-      else { fc.beginPath(); fc.arc(0, 0, p.s / 2.4, 0, 6.283); fc.fill(); }
-      fc.restore();
-    }
-    if (ambient || parts.length || performance.now() < until) requestAnimationFrame(loop); else { running = false; fc.clearRect(0, 0, FW, FH); }
-  };
-  const run = () => { if (!running) { running = true; requestAnimationFrame(loop); } };
-  fit(); addEventListener('resize', fit);
-  if (ambient) run();
   function celebrate(x, y, ms) {
-    until = performance.now() + ms; run();
-    const UP = -Math.PI / 2, at = (t, f) => setTimeout(f, t);
-    for (let n = 0; n < 14; n++) at(n * 60, () => { add(22, x, y, UP, .7, 20, 'confetti'); add(10, x, y, UP, 1.2, 16, 'spark'); });   // the fountain
-    for (const t of [0, 380, 760]) at(t, () => { add(70, 0, FH, -Math.PI / 3.1, .5, 24, 'confetti'); add(70, FW, FH, -Math.PI + Math.PI / 3.1, .5, 24, 'confetti'); });   // cannons
-    for (const [bx, by, t] of [[.22, .28, 650], [.78, .24, 900], [.5, .16, 1150], [.35, .4, 1400], [.65, .38, 1600]]) at(t, () => { add(60, FW * bx, FH * by, 0, 6.283, 9, 'confetti'); add(40, FW * bx, FH * by, 0, 6.283, 7, 'spark'); });
-    for (let t = 200; t < 3200; t += 120) at(t, () => { for (let q = 0; q < 9; q++) petal(Math.random() * FW, -20 - Math.random() * 80); });   // the flower shower
+    const d = Math.min(devicePixelRatio || 1, 2), W = innerWidth, H = innerHeight; fx.width = W * d; fx.height = H * d; fc.setTransform(d, 0, 0, d, 0, 0);
+    const cols = ['#FFD45E', '#F5B82E', '#FFF1B8', '#E0243A', '#FF6B7D', '#5B4BE8', '#0E9F8E', '#12B5A2', '#F08A24', '#FFFFFF'];
+    const k = Math.min(1.6, Math.max(1, H / 760)), parts = [];
+    const add = (n, ox, oy, ang, spread, sp, kind) => { for (let q = 0; q < n; q++) { const a = ang + (Math.random() - .5) * spread, v = sp * (.55 + Math.random() * .7) * k, spark = kind === 'spark';
+      parts.push({ x: ox, y: oy, vx: Math.cos(a) * v, vy: Math.sin(a) * v, s: spark ? 1.5 + Math.random() * 2.5 : 6 + Math.random() * 8, c: spark ? cols[q % 3] : cols[q % cols.length],
+        rot: Math.random() * 6, vr: (Math.random() - .5) * .35, kind: spark ? 'spark' : ['rect', 'circle', 'strip'][q % 3], life: 1, fade: spark ? .012 : .0045, tw: Math.random() * 6 }); } };
+    const UP = -Math.PI / 2, t0 = performance.now(), plan = [];
+    for (let n = 0; n < 14; n++) plan.push({ t: n * 60, f: () => { add(22, x, y, UP, .7, 20, 'confetti'); add(10, x, y, UP, 1.2, 16, 'spark'); } });   // the fountain
+    for (const t of [0, 380, 760]) plan.push({ t, f: () => { add(70, 0, H, -Math.PI / 3.1, .5, 24, 'confetti'); add(70, W, H, -Math.PI + Math.PI / 3.1, .5, 24, 'confetti'); } });   // cannons
+    for (const [bx, by, t] of [[.22, .28, 650], [.78, .24, 900], [.5, .16, 1150], [.35, .4, 1400], [.65, .38, 1600]]) plan.push({ t, f: () => { add(60, W * bx, H * by, 0, 6.283, 9, 'confetti'); add(40, W * bx, H * by, 0, 6.283, 7, 'spark'); } });
+    plan.sort((a, b) => a.t - b.t);
+    const step = (t) => {
+      const e = t - t0;
+      while (plan.length && plan[0].t <= e) plan.shift().f();
+      fc.clearRect(0, 0, W, H);
+      for (const p of parts) {
+        p.vy += p.kind === 'spark' ? .12 : .28; p.vx *= .985; p.vy *= p.kind === 'spark' ? .97 : .992; p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.life -= intro.classList.contains('gone') ? .03 : p.fade; p.tw += .3;
+        if (p.life <= 0) continue;
+        fc.save(); fc.globalAlpha = Math.min(1, p.life * 1.4); fc.fillStyle = p.c; fc.translate(p.x, p.y); fc.rotate(p.rot);
+        if (p.kind === 'spark') { fc.globalAlpha *= .6 + .4 * Math.sin(p.tw); fc.shadowColor = '#FFD45E'; fc.shadowBlur = 12; fc.beginPath(); fc.arc(0, 0, p.s, 0, 6.283); fc.fill(); }
+        else if (p.kind === 'rect') { fc.scale(1, Math.cos(p.tw * .5)); fc.fillRect(-p.s / 2, -p.s / 3, p.s, p.s * .66); }
+        else if (p.kind === 'strip') { fc.fillRect(-p.s, -1.5, p.s * 2, 3); }
+        else { fc.beginPath(); fc.arc(0, 0, p.s / 2.4, 0, 6.283); fc.fill(); }
+        fc.restore();
+      }
+      if (e < ms) requestAnimationFrame(step); else fc.clearRect(0, 0, W, H);
+    };
+    requestAnimationFrame(step);
   }
   /* a card opens its website */
   function open(e, el) { const m = E.apps.find((x) => x.id === el.dataset.id); if (!m.url) return closed(e, el); if (e.metaKey || e.ctrlKey || e.shiftKey) return; e.preventDefault(); location.href = m.url; }
