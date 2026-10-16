@@ -12,6 +12,9 @@ RUN pnpm install --frozen-lockfile --filter "@klu/api..."
 COPY packages/db packages/db
 COPY apps/api apps/api
 RUN pnpm --filter @klu/db build && pnpm --filter @klu/api build
+# keep production dependencies only: build tools (esbuild, vite, tsc, drizzle-kit ...) never ship
+RUN rm -rf node_modules packages/db/node_modules apps/api/node_modules apps/web-vite/node_modules \
+ && pnpm install --frozen-lockfile --prod --offline --filter "@klu/api..."
 
 FROM node:22-alpine
 RUN apk add --no-cache tini
