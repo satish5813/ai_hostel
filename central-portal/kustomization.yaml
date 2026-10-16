@@ -1,0 +1,13 @@
+# The central page (portal.klfacultyhiring.com) on the KLU K3s cluster, applied by Flux (Kustomization "portal").
+# The page and its emblem are packed into ConfigMaps; a change to index.html gives them a new name and the pods roll.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: portal
+resources: [k8s.yaml]
+configMapGenerator:
+  - name: portal-html
+    files: [index.html]
+  - name: portal-assets
+    files: [assets/kl-emblem.png]
+  - name: portal-nginx
+    files: [default.conf=nginx.conf]

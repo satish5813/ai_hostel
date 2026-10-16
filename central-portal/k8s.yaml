@@ -1,0 +1,70 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: portal
+  annotations:
+    kustomize.toolkit.fluxcd.io/prune: disabled
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata: {name: web}
+spec:
+  replicas: 2
+  selector: {matchLabels: {app: web}}
+  template:
+    metadata: {labels: {app: web}}
+    spec:
+      nodeSelector: {klu/role: apps}
+      automountServiceAccountToken: false
+      securityContext: {runAsNonRoot: true, runAsUser: 101, seccompProfile: {type: RuntimeDefault}}
+      containers:
+        - name: nginx
+          image: nginxinc/nginx-unprivileged:1.28-alpine
+          ports: [{name: http, containerPort: 8080}]
+          readinessProbe: {httpGet: {path: /healthz, port: http}, periodSeconds: 10}
+          livenessProbe: {httpGet: {path: /healthz, port: http}, periodSeconds: 20}
+          resources:
+            requests: {cpu: 10m, memory: 16Mi}
+            limits: {cpu: 200m, memory: 64Mi}
+          securityContext: {allowPrivilegeEscalation: false, readOnlyRootFilesystem: true, capabilities: {drop: [ALL]}}
+          volumeMounts:
+            - {name: html, mountPath: /usr/share/nginx/html/index.html, subPath: index.html, readOnly: true}
+            - {name: assets, mountPath: /usr/share/nginx/html/assets, readOnly: true}
+            - {name: conf, mountPath: /etc/nginx/conf.d, readOnly: true}
+            - {name: tmp, mountPath: /tmp}
+      volumes:
+        - {name: html, configMap: {name: portal-html}}
+        - {name: assets, configMap: {name: portal-assets}}
+        - {name: conf, configMap: {name: portal-nginx}}
+        - {name: tmp, emptyDir: {}}
+---
+apiVersion: v1
+kind: Service
+metadata: {name: web}
+spec:
+  selector: {app: web}
+  ports: [{name: http, port: 80, targetPort: http}]
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata: {name: portal}
+spec:
+  rules:
+    - host: portal.klfacultyhiring.com
+      http:
+        paths:
+          - {path: /, pathType: Prefix, backend: {service: {name: web, port: {name: http}}}}
+---
+# Only Traefik may reach the page; the page itself talks to nothing.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata: {name: web}
+spec:
+  podSelector: {}
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from:
+        - namespaceSelector: {matchLabels: {kubernetes.io/metadata.name: kube-system}}
+          podSelector: {matchLabels: {app.kubernetes.io/name: traefik}}
+      ports: [{port: 8080}]
+  egress: []
