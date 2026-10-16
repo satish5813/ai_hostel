@@ -1,6 +1,6 @@
 # Production (residency.klfacultyhiring.com). Only a release tag changes the image tags: the hostel-release
 # workflow re-tags the images staging already ran (same bits, no rebuild) and commits them here; Flux applies them.
-# API and web stay at 0 replicas until go-live (replicas.yaml).
+# API and web: replicas.yaml (live since 2026-10-16).
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 namespace: hostel-prod

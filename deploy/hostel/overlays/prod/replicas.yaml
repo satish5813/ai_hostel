@@ -1,14 +1,15 @@
-# 0 until go-live: the production database is loaded first, then API and web start.
+# Live since 2026-10-16 (KL Residencies on residency.klfacultyhiring.com).
+# One API replica: its scheduled jobs run inside the process.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: api
 spec:
-  replicas: 0
+  replicas: 1
 ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: web
 spec:
-  replicas: 0
+  replicas: 2
