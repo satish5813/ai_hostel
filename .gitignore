@@ -21,3 +21,9 @@ apps/web-vite/dist/
 demo/
 # raw screenshots behind the storyboards and guides: retaken by the integration tests
 docs/mobile-screens/
+
+# database dumps live in the separate private data repository (hostel_automation-data)
+*.dump
+db/*.dump
+docs/KL_Hostel_Student_Profiles.xlsx
+docs/KL_Hostels_Data_Audit.xlsx
