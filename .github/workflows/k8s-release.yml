@@ -51,12 +51,12 @@ jobs:
             docker buildx imagetools create -t "ghcr.io/$OWNER/kl-hostel-$p:$GITHUB_REF_NAME" "ghcr.io/$OWNER/kl-hostel-$p:$SRC"
           done
           echo "SRC=$SRC" >> "$GITHUB_ENV"
-      - name: Point production at the release (Flux applies it)
+      - name: Point production and the public demo at the release (Flux applies it)
         run: |
-          f=deploy/hostel/overlays/prod/kustomization.yaml
-          sed -i "s|^    newTag: .*|    newTag: \"$GITHUB_REF_NAME\"|" "$f"
+          for f in deploy/hostel/overlays/prod/kustomization.yaml deploy/hostel/overlays/demo/kustomization.yaml; do
+            [ -f "$f" ] && sed -i "s|^    newTag: .*|    newTag: \"$GITHUB_REF_NAME\"|" "$f" && git add "$f"
+          done
           git config user.name "hostel-release"
           git config user.email "hostel-release@users.noreply.github.com"
-          git add "$f"
           git commit -m "release(hostel-prod): $GITHUB_REF_NAME = $SRC [skip ci]" || exit 0
           git push origin "HEAD:$DEPLOY_BRANCH"
