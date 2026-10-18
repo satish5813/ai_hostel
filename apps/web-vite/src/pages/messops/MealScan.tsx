@@ -10,7 +10,7 @@ type Result = { result: 'ok' | 'already' | 'not_subscribed' | 'other_mess' | 'si
 type Summary = { scanned: number; strength: number; sick: number; recent: { student_id: string; name: string; scanned_at: string }[] };
 const LOOK: Record<Result['result'], { cls: string; icon: typeof CheckCircle2; title: string }> = {
   ok: { cls: 'mo-ok', icon: CheckCircle2, title: 'Allowed' }, already: { cls: 'mo-warn', icon: CircleAlert, title: 'Already eaten' },
-  not_subscribed: { cls: 'mo-bad', icon: Ban, title: 'No mess plan' }, other_mess: { cls: 'mo-bad', icon: Ban, title: 'Other mess' },
+  not_subscribed: { cls: 'mo-bad', icon: Ban, title: 'No rasoi plan' }, other_mess: { cls: 'mo-bad', icon: Ban, title: 'Other rasoi' },
   sick: { cls: 'mo-warn', icon: HeartPulse, title: 'On sick leave' }, unknown: { cls: 'mo-bad', icon: Ban, title: 'Not found' },
 };
 

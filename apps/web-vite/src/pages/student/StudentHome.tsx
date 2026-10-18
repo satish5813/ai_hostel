@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import { ApprovalTrail, Button, Field, Input, Select, StatusChip, Stepper, Textarea, formatDate, formatDateTime, formatINR } from '@/lib/klh';
 import { api } from '@/lib/api';
-import { greeting, titleCase, toast, today, useAction, useApi, useSession, words } from '@/lib/ui';
+import { greeting, headName, titleCase, toast, today, useAction, useApi, useSession, words } from '@/lib/ui';
 import { MODC, type Mod } from '@/app/apps';
 import { bedLetter } from '@/lib/beds';
 import { Done, Sheet } from './Sheet';
@@ -40,7 +40,7 @@ type Renewal = {
 
 const OPEN = ['Pending', 'Part_Paid', 'Overdue'];
 const balance = (d: Demand) => Number(d.amount_due) - Number(d.amount_paid);
-const headOf = (d: { fee_head: string; instalment_no: number }) => `${words(d.fee_head)}${d.fee_head === 'Residency' ? `, instalment ${d.instalment_no}` : ''}`;
+const headOf = (d: { fee_head: string; instalment_no: number }) => `${headName(d.fee_head)}${d.fee_head === 'Hostel' ? `, instalment ${d.instalment_no}` : ''}`;
 const STAGE = (r?: Reg) => (!r ? 0 : r.status === 'Applied' ? 1 : ['Fee_Paid', 'Waitlisted'].includes(r.status) ? 2 : r.status === 'Allotted' ? 3 : r.status === 'Accepted' ? 4 : r.status === 'Confirmed' ? 5 : 6);
 const trail = (st: Step) => ({ level: st.level === 0 ? 'P' : st.level, role: words(st.role), person: st.by, decision: st.decision, at: st.on, remarks: st.remarks });
 const ROLE: Record<string, string> = { Floor_Warden: 'Floor Manager', Chief_Warden: 'Chief Manager', Sweeper: 'Sweeper', Scavenger: 'Scavenger' };
@@ -103,7 +103,7 @@ export default function StudentHome() {
     { label: 'My room', sub: room.data ? room.data.bed_label : 'Not yet', icon: BedDouble, mod: 'teal', go: () => (room.data ? setSheet('room') : navigate('/registration')) },
     { label: 'Rasoi menu', sub: todayLunch ? `Lunch: ${todayLunch}` : menu.data?.me ? 'This week' : 'After check-in', icon: UtensilsCrossed, mod: 'em', go: () => navigate('/mess-menu') },
     { label: 'Choose my meals', sub: openWeek ? (mealsLeft ? `${mealsLeft} to choose by ${dueLabel(openWeek.choices_close_at)}` : 'Next week chosen') : 'When the rasoi publishes next week', icon: ChefHat, mod: 'orange', go: () => navigate('/my-meals') },
-    { label: 'Repairs', sub: 'Room, mess or common facility', icon: Wrench, mod: 'orange', go: () => navigate('/my-tickets') },
+    { label: 'Repairs', sub: 'Room, rasoi or common facility', icon: Wrench, mod: 'orange', go: () => navigate('/my-tickets') },
     { label: 'Rate my meals', sub: 'Tell the rasoi what you liked', icon: Star, mod: 'amber', go: () => navigate('/rate-meals') },
     { label: 'Receipts', sub: `${dues.data?.receipts.length ?? 0} on record`, icon: Receipt, mod: 'orange', go: () => setSheet('receipts') },
     { label: 'Residency journey', sub: reg ? reg.registration_no : 'Apply for a room', icon: Sparkles, mod: 'indigo', go: () => navigate('/registration') },

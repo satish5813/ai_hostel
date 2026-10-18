@@ -527,7 +527,7 @@ function BuildingView({ id }: { id: string }) {
       sub: `secured · best ${lpa(d.career.final_year.summary.highest_ctc)}`, t: d.career.final_year.summary.students ? tone(pct(d.career.final_year.summary.secured, d.career.final_year.summary.students), 75, 50) : 'none' },
     { k: 'activities', icon: Trophy, label: 'Activities', value: `${pct(b.active_students, b.residents)}%`, sub: `${b.active_students} of ${b.residents} take part · ${b.achievements} achievements`, t: tone(pct(b.active_students, b.residents), 60, 40) },
     { k: 'roll', icon: Moon, label: 'Night roll call', value: b.roll_pct != null ? `${b.roll_pct}%` : '—', sub: lastRoll ? `${fmtDay(lastRoll.date)}: ${lastRoll.absent} absent` : 'No roll call yet', t: tone(b.roll_pct, 95, 90) },
-    { k: 'mess', icon: Utensils, label: 'Mess', value: moodText(b.mood), sub: d.mess.choice ? `${d.mess.choice.choosers} of ${d.mess.choice.residents} chose next week` : `${b.ratings ?? 0} ratings in 30 days`, t: tone(b.mood, 20, 0) },
+    { k: 'mess', icon: Utensils, label: 'Rasoi', value: moodText(b.mood), sub: d.mess.choice ? `${d.mess.choice.choosers} of ${d.mess.choice.residents} chose next week` : `${b.ratings ?? 0} ratings in 30 days`, t: tone(b.mood, 20, 0) },
     { k: 'fees', icon: IndianRupee, label: 'Fees and dues', value: inr(b.demanded - b.collected), sub: `${pct(b.collected, b.demanded)}% collected · ${inr(b.overdue)} overdue`, t: tone(b.overdue, 0, 100000, true) },
     { k: 'power', icon: Zap, label: 'Electricity', value: inr(b.electricity?.collected ?? 0), sub: `paid · ${inr(b.electricity?.outstanding ?? 0)} outstanding`,
       t: b.electricity ? tone(pct(b.electricity.collected, b.electricity.billed), 85, 70) : 'none' },
@@ -820,7 +820,7 @@ function Repairs({ b }: { b: Building }) {
   return (
     <div className="xd-grid">
       <Block title="Open now" sub="Raised by students and floor rounds, not yet closed">
-        <Bars rows={[{ label: 'Rooms', n: t.open_room }, { label: 'Mess', n: t.open_mess }, { label: 'Common facilities', n: t.open_common }]} />
+        <Bars rows={[{ label: 'Rooms', n: t.open_room }, { label: 'Rasoi', n: t.open_mess }, { label: 'Common facilities', n: t.open_common }]} />
         <SplitBar parts={[['On time', Math.max(0, t.open - t.late - t.awaiting_student), 'good'], ['Awaiting student', t.awaiting_student, 'warn'], ['Late', t.late, 'bad']]} />
       </Block>
       <Block title="Last 30 days">

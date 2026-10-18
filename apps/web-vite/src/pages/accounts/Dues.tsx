@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Avatar, Button, Card, DataTable, Drawer, EmptyState, Field, Input, Money, Notice, Select, StatCard, StatusChip, Tabs, formatDate, formatDateTime, formatINR } from '@/lib/klh';
 import { api } from '@/lib/api';
-import { ScreenHeader, titleCase, useAction, useApi, useSession, words } from '@/lib/ui';
+import { ScreenHeader, headName, titleCase, useAction, useApi, useSession, words } from '@/lib/ui';
 import { can } from '@/app/screens';
 
 type Demand = { demand_id: number; fee_head: string; instalment_no: number; amount_due: string; amount_paid: string; due_date: string; status: string };
@@ -77,7 +77,7 @@ export default function Dues() {
               </Card>
             </>)}
         </>)}
-      <Drawer open={!!sel} onClose={() => setSel(null)} title={sel ? `${words(sel.fee_head)}${sel.fee_head === 'Residency' ? `, instalment ${sel.instalment_no}` : ''}` : ''} subtitle={student.data ? `${titleCase(student.data.full_name)} · ${q}` : undefined}>
+      <Drawer open={!!sel} onClose={() => setSel(null)} title={sel ? `${headName(sel.fee_head)}${sel.fee_head === 'Hostel' ? `, instalment ${sel.instalment_no}` : ''}` : ''} subtitle={student.data ? `${titleCase(student.data.full_name)} · ${q}` : undefined}>
         {sel && (
           <div className="klh-stack" style={{ gap: 20 }}>
             <Money amount={Number(sel.amount_due) - Number(sel.amount_paid)} dueDate={sel.due_date} status={sel.status} paise />

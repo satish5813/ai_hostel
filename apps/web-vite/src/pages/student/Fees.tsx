@@ -1,15 +1,15 @@
 import { useState } from 'react';
 import { Button, Card, Countdown, DataTable, EmptyState, Money, Notice, StatCard, StatusChip, formatDateTime, formatINR } from '@/lib/klh';
 import { api } from '@/lib/api';
-import { ScreenHeader, titleCase, useAction, useApi, useProfile, useSession, words } from '@/lib/ui';
+import { ScreenHeader, headName, titleCase, useAction, useApi, useProfile, useSession, words } from '@/lib/ui';
 import { Brand } from '@/app/shell';
 
 type Demand = { demand_id: number; fee_head: string; instalment_no: number; reference_type?: string | null; amount_due: string; amount_paid: string; due_date: string; status: string };
 type Receipt = { receipt_id: number; receipt_no: string; demand_id: number; fee_head: string; instalment_no: number; reference_type?: string | null; amount: string; paid_on: string; payment_mode: string; gateway_ref: string | null; gateway_status: string; collected_by: string | null };
 /** What a demand is for; the hostel-fee difference and the electricity share settled on a room change are named as such. */
 const forWhat = (d: { fee_head: string; instalment_no: number; reference_type?: string | null }) =>
-  d.reference_type === 'room_change' ? (d.fee_head === 'Hostel' ? 'Hostel fee difference (room change)' : `${words(d.fee_head)} up to the room change`)
-    : `${words(d.fee_head)}${d.fee_head === 'Residency' ? `, instalment ${d.instalment_no}` : ''}`;
+  d.reference_type === 'room_change' ? (d.fee_head === 'Hostel' ? 'Residency fee difference (room change)' : `${headName(d.fee_head)} up to the room change`)
+    : `${headName(d.fee_head)}${d.fee_head === 'Hostel' ? `, instalment ${d.instalment_no}` : ''}`;
 type Dues = { demands: Demand[]; totals: { fee_head: string; balance: string }[]; receipts: Receipt[] };
 
 /** REG-02 Fees and receipts. Student: pay online, download receipts. Parent and Hostel Accounts: view. */

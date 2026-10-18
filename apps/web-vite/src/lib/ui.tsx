@@ -85,6 +85,9 @@ export const bedLabel = (subspaceId?: string | null) => (subspaceId ?? '').repla
 export const greeting = () => { const h = new Date().getHours(); return h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening'; };
 export const today = () => new Date().toLocaleDateString('en-IN', { weekday: 'long', day: '2-digit', month: 'short', year: 'numeric' });
 const ROLE_WORDS: Record<string, string> = { Chief_Warden: 'Chief Manager', Floor_Warden: 'Floor Manager' };
+const HEAD_NAME: Record<string, string> = { Hostel: 'Residency fee', Mess: 'Rasoi fee', Registration: 'Registration fee', Electricity: 'Electricity', Caution_Deposit: 'Caution deposit', Electricity_Deposit: 'Electricity deposit', Meter_Charge: 'Meter charge', Fine: 'Fine' };
+/** A fee head as people read it (Hostel -> Residency fee, Mess -> Rasoi fee). */
+export const headName = (h?: string | null) => (h ? HEAD_NAME[h] ?? h.replace(/_/g, ' ') : '');
 export const words = (s?: string | null) => (ROLE_WORDS[s ?? ''] ?? (s ?? '')).replace(/_/g, ' ');
 export const mobile = (m?: string | null) => (m ?? '').replace(/(\d{5})(\d{5})/, '$1 $2');
 export const moduleColor = (w: keyof typeof MODULE): T.TileColor => MODULE[w].color;

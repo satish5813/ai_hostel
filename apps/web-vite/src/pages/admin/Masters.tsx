@@ -17,7 +17,7 @@ type Student = { student_id: string; full_name: string; gender: string; programm
 const TABS = [
   { id: 'upload', label: 'Upload files', icon: 'upload' as const },
   { id: 'years', label: 'Academic years', icon: 'calendar' as const }, { id: 'hostels', label: 'Hostels', icon: 'building' as const }, { id: 'types', label: 'Room types', icon: 'key' as const },
-  { id: 'fees', label: 'Fees', icon: 'wallet' as const }, { id: 'mess', label: 'Mess', icon: 'utensils' as const }, { id: 'staff', label: 'Staff', icon: 'users' as const }, { id: 'students', label: 'Students', icon: 'user' as const },
+  { id: 'fees', label: 'Fees', icon: 'wallet' as const }, { id: 'mess', label: 'Rasoi', icon: 'utensils' as const }, { id: 'staff', label: 'Staff', icon: 'users' as const }, { id: 'students', label: 'Students', icon: 'user' as const },
 ];
 
 /** Masters: the inputs every workflow reads. Entered by the Data Administrator, in the order of the tabs. */
@@ -200,7 +200,7 @@ function Messes() {
   return <Split formTitle="Add a rasoi" formSub="The rasoi fee is demanded with the residency fee when the student picks a cuisine"
     table={<DataTable caption="Messes" rowKey="mess_id" rows={list.data ?? []} loading={!list.data} empty={<EmptyState icon="utensils" title="No mess yet" />}
       columns={[
-        { key: 'mess_name', label: 'Mess', render: (v: string) => <b style={{ fontWeight: 600 }}>{v}</b> },
+        { key: 'mess_name', label: 'Rasoi', render: (v: string) => <b style={{ fontWeight: 600 }}>{v}</b> },
         { key: 'facility_name', label: 'Hostel', render: (v: string | null) => v ?? '—' },
         { key: 'incharge_name', label: 'In-charge', render: (v: string | null, r: Mess) => (v ? `${titleCase(v)} (${r.incharge_id})` : '—') },
         { key: 'capacity', label: 'Seats', align: 'right' },

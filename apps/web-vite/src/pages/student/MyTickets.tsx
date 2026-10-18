@@ -13,7 +13,7 @@ type Mine = { stay: { bed_label: string; hostel_code: string; mess_name: string 
 
 const AREAS: { k: Item['area']; label: string; icon: LucideIcon; sub: string }[] = [
   { k: 'Room', label: 'My room', icon: BedDouble, sub: 'Furniture, fan, lights, tap, toilet' },
-  { k: 'Mess', label: 'Mess', icon: Utensils, sub: 'Food, hygiene, water, dining hall' },
+  { k: 'Mess', label: 'Rasoi', icon: Utensils, sub: 'Food, hygiene, water, dining hall' },
   { k: 'Common', label: 'Common facility', icon: Building2, sub: 'Lift, corridor lights, reading room, activity room' },
 ];
 export const ACTION: Record<string, string> = { Raised: 'Reported', Verified: 'Checked: genuine', Rejected: 'Checked: not genuine', Escalated: 'Sent for repair', Started: 'Repair started',

@@ -9,7 +9,7 @@ type Card = { registration_id: number; registration_no: string; student_id: stri
   subspace_id: string | null; room_code: string | null; floor_no: number | null; hold_until: string | null; status: string; fee_check_status: string; fee_check_remarks: string | null; fee_checked_on: string | null; fee_checked_by: string | null;
   cw_status: string; cw_on: string | null; cw_by: string | null; applied_on: string; stage: 'fee' | 'verify' | 'approve' | 'allotted'; last_paid: string | null; fees: Fee[] };
 const COLS: { k: Card['stage']; title: string; sub: string; icon: LucideIcon; grad: string; glow: string }[] = [
-  { k: 'fee', title: 'Awaiting payment', sub: 'Student pays hostel and mess fees', icon: Wallet, grad: 'linear-gradient(135deg,#C2410C,#9A3412)', glow: 'rgba(194,65,12,.7)' },
+  { k: 'fee', title: 'Awaiting payment', sub: 'Student pays hostel and rasoi fees', icon: Wallet, grad: 'linear-gradient(135deg,#C2410C,#9A3412)', glow: 'rgba(194,65,12,.7)' },
   { k: 'verify', title: 'Room Allotment verifies fees', sub: 'L1 · Room Allotment', icon: ClipboardCheck, grad: 'linear-gradient(135deg,#7048E8,#5932D1)', glow: 'rgba(112,72,232,.7)' },
   { k: 'approve', title: 'Chief Manager approves', sub: 'L2 · Chief Manager', icon: ShieldCheck, grad: 'linear-gradient(135deg,#0B7A71,#0A5F6E)', glow: 'rgba(11,122,113,.7)' },
   { k: 'allotted', title: 'Allotted', sub: 'Ready for the key', icon: KeyRound, grad: 'linear-gradient(135deg,#4263EB,#364FC7)', glow: 'rgba(66,99,235,.7)' },

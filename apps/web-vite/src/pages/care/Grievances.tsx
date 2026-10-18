@@ -6,7 +6,7 @@ import { ScreenHeader, toast, useApi, useSession } from '@/lib/ui';
 
 export type Grievance = { grievance_id: number; student_id?: string; student_name?: string; bed_label?: string | null; hostel_name?: string | null; category: string; description: string;
   is_confidential: boolean; status: string; raised_at: string; action_taken: string | null; closed_at: string | null; assigned_name: string | null };
-export const CAT: Record<string, string> = { Room_Mate: 'Room-mate', Discipline: 'Discipline', Mess: 'Mess', Staff_Conduct: 'Staff conduct', Ragging: 'Ragging', Safety: 'Safety', Other: 'Other' };
+export const CAT: Record<string, string> = { Room_Mate: 'Room-mate', Discipline: 'Discipline', Mess: 'Rasoi', Staff_Conduct: 'Staff conduct', Ragging: 'Ragging', Safety: 'Safety', Other: 'Other' };
 export const GSTATUS: Record<string, { label: string; tone: string }> = { Open: { label: 'Open', tone: 'warn' }, In_Review: { label: 'Being looked into', tone: 'warn' },
   Escalated: { label: 'With the Chief Manager', tone: 'bad' }, Closed: { label: 'Closed', tone: 'good' } };
 const when = (s: string) => new Date(s).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
