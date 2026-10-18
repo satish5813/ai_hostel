@@ -1,0 +1,829 @@
+{
+ "base": "http://localhost:5181",
+ "password": "Demo@2026",
+ "roles": [
+  {
+   "user": null,
+   "shots": [
+    {
+     "code": "LOGIN",
+     "path": "/",
+     "section": "Sign in and access",
+     "title": "Sign in",
+     "caption": "One login for students, parents, staff and management: employee or university ID, invitation e-mails, password set by the user."
+    }
+   ]
+  },
+  {
+   "user": "S-PR",
+   "shots": [
+    {
+     "code": "EXE-01",
+     "path": "/exec",
+     "full": true,
+     "section": "Executive view (President)",
+     "title": "Residencies at a glance",
+     "caption": "Every KPI is a button: beds, CGPA, backlogs, attendance, activities, roll call, rasoi mood, dues, managers, discipline \u2014 each opens the residencies behind it.",
+     "tags": [
+      "ai"
+     ],
+     "intro": "What the President sees: one page for every residency, with drill-down from every number to the students behind it."
+    },
+    {
+     "code": "EXE-01b",
+     "path": "/exec/H-BH1",
+     "full": true,
+     "section": "Executive view (President)",
+     "title": "One residency, every tab",
+     "caption": "Academic standing, career choices, second-year careers, final-year outcomes, activities, roll call, rasoi, fees, electricity, repairs, managers, discipline."
+    },
+    {
+     "code": "EXE-01c",
+     "path": "/exec/H-BH1?tab=choices",
+     "full": true,
+     "section": "Executive view (President)",
+     "title": "Career choices \u00d7 fees and results",
+     "caption": "What residents plan to do, and how each path stands on fees, CGPA and backlogs. Every number lists the students.",
+     "tags": [
+      "ai"
+     ]
+    },
+    {
+     "code": "RPT-12",
+     "path": "/reports/mess-sentiment",
+     "full": true,
+     "section": "Rasoi: menus, choices, feedback and sentiment",
+     "title": "Rasoi sentiment",
+     "caption": "How students feel about each meal and dish \u2014 boys and girls, by day, week and month \u2014 from their ratings and comments; downloadable.",
+     "tags": [
+      "ai"
+     ],
+     "intro": "Routine and weekly menus, each student's own meal choices, ratings after every meal, and sentiment analysis for the kitchen and management."
+    },
+    {
+     "code": "RPT-11",
+     "path": "/reports/meal-choices",
+     "full": true,
+     "section": "Rasoi: menus, choices, feedback and sentiment",
+     "title": "Weekly meal choices",
+     "caption": "Who chose what for next week, per rasoi and dish \u2014 the kitchen cooks to real numbers.",
+     "tags": [
+      "auto"
+     ],
+     "click": "Boys Residency 1"
+    },
+    {
+     "code": "RPT-07",
+     "path": "/reports/occupancy-fees-dues",
+     "full": true,
+     "section": "Reports",
+     "title": "Occupancy, fees and dues",
+     "caption": "Beds, registrations, demanded, collected and overdue per residency.",
+     "intro": "Management reports with downloads."
+    },
+    {
+     "code": "RPT-09",
+     "path": "/absence-report",
+     "full": true,
+     "section": "Reports",
+     "title": "Absence report",
+     "caption": "Who was not seen at roll call and for how long."
+    },
+    {
+     "code": "RPT-10",
+     "path": "/weekly-reports",
+     "full": true,
+     "section": "Reports",
+     "title": "Weekly floor report",
+     "caption": "Auto-built every Monday from the week's roll calls, tickets and incidents.",
+     "tags": [
+      "auto"
+     ]
+    }
+   ]
+  },
+  {
+   "user": "admin",
+   "shots": [
+    {
+     "code": "ADM-04",
+     "path": "/admin/masters",
+     "full": true,
+     "section": "Administration and masters",
+     "title": "Masters",
+     "caption": "Residencies, room types, fees per year, rasois, academic years and renewal windows.",
+     "intro": "Set-up screens: masters, users and roles, approval rules, audit trail, room builder and mapping."
+    },
+    {
+     "code": "ADM-01",
+     "path": "/admin/users",
+     "full": true,
+     "section": "Administration and masters",
+     "title": "Users and roles",
+     "caption": "Individual or bulk login creation, roles and responsibilities, invitation e-mails."
+    },
+    {
+     "code": "ADM-02",
+     "path": "/admin/settings",
+     "full": true,
+     "section": "Administration and masters",
+     "title": "Approval rules and settings",
+     "caption": "Who approves what at each level; thresholds for CGPA watch and attendance.",
+     "tags": [
+      "auto"
+     ]
+    },
+    {
+     "code": "ADM-03",
+     "path": "/admin/audit-log",
+     "full": true,
+     "section": "Administration and masters",
+     "title": "Audit log",
+     "caption": "Every change to every record, by whom and when \u2014 written by database triggers, not by the app.",
+     "tags": [
+      "auto"
+     ]
+    },
+    {
+     "code": "MAP-07",
+     "path": "/mapping",
+     "full": true,
+     "section": "Room management and mapping",
+     "title": "Mapping centre",
+     "caption": "One board: students \u2194 beds, managers, sweepers and guards \u2194 floors, washrooms and shifts, with how complete each mapping is.",
+     "intro": "Rooms are built floor by floor; beds, keys and meters follow automatically; students, staff and QR labels map onto them."
+    },
+    {
+     "code": "MAP-01",
+     "path": "/rooms",
+     "full": true,
+     "section": "Room management and mapping",
+     "title": "Rooms and beds",
+     "caption": "Room builder: floors, rooms, room types, beds; blocks and reservations."
+    },
+    {
+     "code": "MAP-08",
+     "path": "/room-mapping",
+     "full": true,
+     "section": "Room management and mapping",
+     "title": "Room mapping",
+     "caption": "Load students into beds from a file; the system validates gender, capacity and duplicates.",
+     "tags": [
+      "auto"
+     ]
+    },
+    {
+     "code": "MAP-02",
+     "path": "/staff-mapping",
+     "full": true,
+     "section": "Room management and mapping",
+     "title": "Staff mapping",
+     "caption": "Chief Managers to residencies, Floor Managers to floors, cleaners and in-charges to areas."
+    },
+    {
+     "code": "MAP-03",
+     "path": "/qr-labels",
+     "full": true,
+     "section": "Room management and mapping",
+     "title": "QR labels",
+     "caption": "A QR label per room: scanning opens the room page \u2014 residents, meter, tickets."
+    },
+    {
+     "code": "TRK-05",
+     "path": "/capture-points",
+     "full": true,
+     "section": "Tracking, gate and attendance",
+     "title": "Capture points",
+     "caption": "Gates, floors and the gym as scan points for the movement log."
+    },
+    {
+     "code": "ELE-03",
+     "path": "/tariff",
+     "full": true,
+     "section": "Electricity",
+     "title": "Electricity tariff",
+     "caption": "Slab tariff per room type; bills are computed from meter readings automatically.",
+     "tags": [
+      "auto"
+     ]
+    }
+   ]
+  },
+  {
+   "user": "S-CW",
+   "shots": [
+    {
+     "code": "CWP-01",
+     "path": "/overview",
+     "full": true,
+     "section": "Chief Manager",
+     "title": "Chief Manager overview",
+     "caption": "Beds, waiting students, fees to verify, approvals, exceptions and alerts for the residencies in charge \u2014 tap a number to open that list.",
+     "intro": "The Chief Manager runs the residency: approvals, exceptions, discipline, reports."
+    },
+    {
+     "code": "GEN-03",
+     "path": "/approvals",
+     "full": true,
+     "section": "Chief Manager",
+     "title": "My approvals",
+     "caption": "One inbox for every workflow: allotments, receipts, outings, sick leave, room changes, tickets \u2014 approve or return with remarks.",
+     "tags": [
+      "auto"
+     ]
+    },
+    {
+     "code": "REG-11",
+     "path": "/allotment-approvals",
+     "full": true,
+     "section": "Registration and allotment (automated)",
+     "title": "Allotment approvals",
+     "caption": "Awaiting payment \u2192 Floor Manager verifies fees \u2192 Chief Manager approves the bed \u2192 key and meter handover. Receipts are read by OCR and checked against the demand.",
+     "tags": [
+      "ai",
+      "auto"
+     ],
+     "intro": "From application to key handover: fee plans, instalments, receipts with OCR checks, bed offers, two-level approval, check-in with meter reset."
+    },
+    {
+     "code": "REG-12",
+     "path": "/allotment-view",
+     "full": true,
+     "section": "Registration and allotment (automated)",
+     "title": "Residency allotment",
+     "caption": "Who sits in which bed, per floor and room."
+    },
+    {
+     "code": "REG-10",
+     "path": "/room-blocking",
+     "full": true,
+     "section": "Registration and allotment (automated)",
+     "title": "Room blocking",
+     "caption": "Block rooms for repairs, guests or staff; students choose from the rest."
+    },
+    {
+     "code": "REG-13",
+     "path": "/exceptions",
+     "full": true,
+     "section": "Registration and allotment (automated)",
+     "title": "Exceptions",
+     "caption": "A bed outside the rules needs the Chief Manager; decided at the desk with a reason on record."
+    },
+    {
+     "code": "REG-14",
+     "path": "/renewals",
+     "full": true,
+     "section": "Registration and allotment (automated)",
+     "title": "Yearly renewals",
+     "caption": "Residents keep their bed, ask for another room or leave; the stay continues into the new year automatically.",
+     "tags": [
+      "auto"
+     ]
+    },
+    {
+     "code": "RCH-01",
+     "path": "/room-changes",
+     "full": true,
+     "section": "Registration and allotment (automated)",
+     "title": "Room changes",
+     "caption": "Requests approved by Floor Manager then Chief Manager; the move is carried out on the day."
+    },
+    {
+     "code": "TRK-01",
+     "path": "/status-board",
+     "full": true,
+     "section": "Tracking, gate and attendance",
+     "title": "Student status board",
+     "caption": "Every resident's state right now: in, on a pass, sick, not seen \u2014 from gate scans and roll calls.",
+     "tags": [
+      "auto"
+     ],
+     "intro": "Where every student is: gate scans, roll calls three times a day, alerts when someone is late or missing."
+    },
+    {
+     "code": "TRK-08",
+     "path": "/roll-call",
+     "full": true,
+     "section": "Tracking, gate and attendance",
+     "title": "Roll call",
+     "caption": "Morning, study hours and night, marked per floor; absentees raise alerts."
+    },
+    {
+     "code": "TRK-07",
+     "path": "/attendance",
+     "full": true,
+     "section": "Tracking, gate and attendance",
+     "title": "Attendance register",
+     "caption": "Each resident against each day with planned absences filled in automatically (outings, sick leave).",
+     "tags": [
+      "auto"
+     ]
+    },
+    {
+     "code": "TRK-03",
+     "path": "/alerts",
+     "full": true,
+     "section": "Tracking, gate and attendance",
+     "title": "Alerts",
+     "caption": "Late returns, not-seen at roll call, meal missed while sick \u2014 raised by the system, closed by the manager.",
+     "tags": [
+      "auto"
+     ]
+    },
+    {
+     "code": "TRK-02",
+     "path": "/look-up",
+     "full": true,
+     "section": "Tracking, gate and attendance",
+     "title": "Student look-up",
+     "caption": "Find any resident; every look-up is logged."
+    },
+    {
+     "code": "OUT-03",
+     "path": "/outing-approvals",
+     "full": true,
+     "section": "Outings and sick leave",
+     "title": "Outing approvals",
+     "caption": "Apply \u2192 parent recommends \u2192 Floor Manager \u2192 Chief Manager \u2192 Dean for longer stays \u2192 QR pass at the gate.",
+     "tags": [
+      "auto"
+     ],
+     "intro": "Outings with parent recommendation and a QR gate pass; sick leave with an in-person visit and food to the room."
+    },
+    {
+     "code": "SCK-02",
+     "path": "/sick-leave-approvals",
+     "full": true,
+     "section": "Outings and sick leave",
+     "title": "Sick leave approvals",
+     "caption": "Floor Manager verifies in person, Chief Manager approves; the rasoi sick list and room delivery follow automatically.",
+     "tags": [
+      "auto"
+     ]
+    },
+    {
+     "code": "DIS-07",
+     "path": "/discipline",
+     "full": true,
+     "section": "Discipline and health",
+     "title": "Discipline register",
+     "caption": "Cases, inquiry, punishment and ratification; fines raise fee demands automatically.",
+     "tags": [
+      "auto"
+     ],
+     "intro": "Discipline cases with an inquiry trail; health records and reports."
+    },
+    {
+     "code": "HLT-01",
+     "path": "/health",
+     "full": true,
+     "section": "Discipline and health",
+     "title": "Health records",
+     "caption": "Blood group, conditions, sick visits and reports for the residents in charge."
+    },
+    {
+     "code": "ACA-01",
+     "path": "/academics",
+     "full": true,
+     "section": "Academics and careers (AI guidance)",
+     "title": "Student performance board",
+     "caption": "Results, CRT, skills and achievements of the residents; opens any student's 360 page."
+    },
+    {
+     "code": "TKT-02",
+     "path": "/maintenance",
+     "full": true,
+     "section": "Repairs, housekeeping and checklists",
+     "title": "Floor rounds and ticket verification",
+     "caption": "Floor Manager checks each ticket is genuine; work not done in 24 hours is auto-closed and reported.",
+     "tags": [
+      "auto"
+     ],
+     "intro": "Tickets from students, floor rounds, the repair desk, checklists and grievances."
+    },
+    {
+     "code": "TKT-05",
+     "path": "/checklists",
+     "full": true,
+     "section": "Repairs, housekeeping and checklists",
+     "title": "Checklists",
+     "caption": "Daily and weekly checklists per role, reviewed by the Chief Manager."
+    },
+    {
+     "code": "TKT-06",
+     "path": "/grievances",
+     "full": true,
+     "section": "Repairs, housekeeping and checklists",
+     "title": "Grievances",
+     "caption": "Taken up, escalated or closed with what was done; the student is told at each step."
+    }
+   ]
+  },
+  {
+   "user": "S-FW",
+   "shots": [
+    {
+     "code": "FLR-01",
+     "path": "/home",
+     "full": true,
+     "section": "Floor Manager",
+     "title": "Floor Manager's day",
+     "caption": "Floors in charge, every resident with tonight's state, sick visits due, tickets to verify, alerts \u2014 in one call.",
+     "tags": [
+      "auto"
+     ],
+     "intro": "The Floor Manager's home: everything about the floors in charge, today."
+    }
+   ]
+  },
+  {
+   "user": "S-OF",
+   "shots": [
+    {
+     "code": "REG-05",
+     "path": "/allotment",
+     "full": true,
+     "section": "Residency office",
+     "title": "Allotment desk",
+     "caption": "Fee checks, offers, check-in and renewals at the desk.",
+     "intro": "The office: allotment desk, check-in with key and meter, dues, fee checks, occupancy, deposits, staff rooms, duty roster."
+    },
+    {
+     "code": "REG-06",
+     "path": "/check-in",
+     "full": true,
+     "section": "Residency office",
+     "title": "Check-in and room handover",
+     "caption": "Key handed over, meter set to zero, room item list signed \u2014 the student's app updates at once.",
+     "tags": [
+      "auto"
+     ]
+    },
+    {
+     "code": "REG-07",
+     "path": "/dues",
+     "full": true,
+     "section": "Residency office",
+     "title": "Dues and collections",
+     "caption": "Who owes what, by residency and head; reminders and receipts."
+    },
+    {
+     "code": "REG-09",
+     "path": "/fee-checks",
+     "full": true,
+     "section": "Residency office",
+     "title": "Fee check",
+     "caption": "Uploaded receipts verified against the demand \u2014 OCR reads amount, date and reference.",
+     "tags": [
+      "ai"
+     ]
+    },
+    {
+     "code": "REG-08",
+     "path": "/occupancy",
+     "full": true,
+     "section": "Residency office",
+     "title": "Occupancy board",
+     "caption": "Beds filled, vacant, held and blocked per floor."
+    },
+    {
+     "code": "CDP-01",
+     "path": "/caution-deposits",
+     "full": true,
+     "section": "Residency office",
+     "title": "Caution deposits",
+     "caption": "Held, deducted for dues and damages, refunded on leaving."
+    },
+    {
+     "code": "MAP-05",
+     "path": "/staff-rooms",
+     "full": true,
+     "section": "Residency office",
+     "title": "Staff room allotment",
+     "caption": "Rooms for resident faculty and staff, on the Chief Manager's approval."
+    },
+    {
+     "code": "MAP-06",
+     "path": "/duty-roster",
+     "full": true,
+     "section": "Residency office",
+     "title": "Staff attendance and duty roster",
+     "caption": "Who reported today; floors and shifts re-assigned to those present.",
+     "tags": [
+      "auto"
+     ]
+    },
+    {
+     "code": "ELE-02",
+     "path": "/meters",
+     "full": true,
+     "section": "Electricity",
+     "title": "Meters and readings",
+     "caption": "Monthly readings per room; bills shared among roommates automatically.",
+     "tags": [
+      "auto"
+     ],
+     "intro": "Prepaid meters, readings, slab tariff and room bills split among roommates."
+    },
+    {
+     "code": "ELE-04",
+     "path": "/electricity-bills",
+     "full": true,
+     "section": "Electricity",
+     "title": "Room electricity bills",
+     "caption": "Bills, shares, recharges and what is outstanding."
+    }
+   ]
+  },
+  {
+   "user": "S-MS",
+   "shots": [
+    {
+     "code": "MES-01",
+     "path": "/mess-menu",
+     "full": true,
+     "section": "Rasoi: menus, choices, feedback and sentiment",
+     "title": "Routine menu",
+     "caption": "The approved menu cycle per rasoi: south or north Indian, veg or non-veg (chicken and egg).",
+     "click": "Boys Residency 1"
+    },
+    {
+     "code": "MES-08",
+     "path": "/weekly-menu",
+     "full": true,
+     "section": "Rasoi: menus, choices, feedback and sentiment",
+     "title": "Weekly menu",
+     "caption": "Next week's menu with the dishes students may choose; published, then choices close automatically on Friday.",
+     "tags": [
+      "auto"
+     ],
+     "click": "Boys Residency 1"
+    },
+    {
+     "code": "MES-10",
+     "path": "/meal-entry",
+     "full": true,
+     "section": "Rasoi: menus, choices, feedback and sentiment",
+     "title": "Enter choices for students",
+     "caption": "The rasoi office enters choices for students who did not; choices apply on Monday.",
+     "click": "Boys Residency 1"
+    },
+    {
+     "code": "MES-03",
+     "path": "/mess-grievances",
+     "full": true,
+     "section": "Rasoi: menus, choices, feedback and sentiment",
+     "title": "Rasoi grievance desk",
+     "caption": "Meal complaints from students, routed to the in-charge; significant ones escalate to management.",
+     "tags": [
+      "auto"
+     ],
+     "click": "Boys Residency 1"
+    },
+    {
+     "code": "MES-06",
+     "path": "/mess-daily",
+     "full": true,
+     "section": "Rasoi: menus, choices, feedback and sentiment",
+     "title": "Rasoi daily record",
+     "caption": "Head count, sick list deliveries, wastage \u2014 the monthly report fills in from it.",
+     "click": "Boys Residency 1"
+    },
+    {
+     "code": "MES-07",
+     "path": "/mess-monthly",
+     "full": true,
+     "section": "Rasoi: menus, choices, feedback and sentiment",
+     "title": "Rasoi monthly report",
+     "caption": "Meals served, cost per head, feedback and wastage for the month.",
+     "click": "Boys Residency 1"
+    },
+    {
+     "code": "SCK-03",
+     "path": "/mess-sick-list",
+     "full": true,
+     "section": "Outings and sick leave",
+     "title": "Rasoi sick list",
+     "caption": "Who gets food in the room today \u2014 queued before each meal from approved sick leave.",
+     "tags": [
+      "auto"
+     ]
+    },
+    {
+     "code": "MES-04",
+     "path": "/meal-scan",
+     "full": true,
+     "section": "Rasoi: menus, choices, feedback and sentiment",
+     "title": "Meal scan",
+     "caption": "Scan at the counter: the head count and missed meals come from it."
+    }
+   ]
+  },
+  {
+   "user": "S-MK",
+   "shots": [
+    {
+     "code": "MES-05",
+     "path": "/mess-store",
+     "full": true,
+     "section": "Rasoi: menus, choices, feedback and sentiment",
+     "title": "Rasoi store",
+     "caption": "Goods received, issues to the kitchen, stock on hand."
+    }
+   ]
+  },
+  {
+   "user": "S-MT",
+   "shots": [
+    {
+     "code": "HK-00",
+     "path": "/home",
+     "full": true,
+     "section": "Repairs, housekeeping and checklists",
+     "title": "Housekeeping home",
+     "caption": "Today's verified tickets by residency and area, floor rounds and checklists for the housekeeping team."
+    },
+    {
+     "code": "TKT-03",
+     "path": "/repair-desk",
+     "full": true,
+     "section": "Repairs, housekeeping and checklists",
+     "title": "Repair desk (Housekeeping)",
+     "caption": "Verified tickets by area and priority; assign, do, close with a photo."
+    }
+   ]
+  },
+  {
+   "user": "S-DN",
+   "shots": [
+    {
+     "code": "DSA-01",
+     "path": "/dean",
+     "full": true,
+     "section": "Dean, Students Affairs",
+     "title": "Student affairs",
+     "caption": "Outings beyond a day, discipline ratification, the careers board across residencies.",
+     "intro": "The Dean's view across all residencies."
+    },
+    {
+     "code": "CAR-01",
+     "path": "/career-tracker",
+     "full": true,
+     "section": "Academics and careers (AI guidance)",
+     "title": "Career tracker",
+     "caption": "Second-year readiness and final-year outcomes \u2014 placements, higher studies, exams, ventures \u2014 per path and per residency.",
+     "tags": [
+      "ai"
+     ]
+    },
+    {
+     "code": "ACA-03",
+     "path": "/career-guidance",
+     "full": true,
+     "section": "Academics and careers (AI guidance)",
+     "title": "Career guidance",
+     "caption": "Rules read each student's record \u2014 CGPA, backlogs, CRT scores, certifications, activities \u2014 against the career they chose, and say what to do next. Shown for all residencies (Dean).",
+     "tags": [
+      "ai"
+     ],
+     "intro": "Academic standing, backlog courses, CRT and skills, and rule-based career guidance for every resident."
+    }
+   ]
+  },
+  {
+   "user": "2600040012",
+   "shots": [
+    {
+     "code": "STU-00",
+     "path": "/",
+     "full": true,
+     "section": "Student (web and mobile)",
+     "title": "Student home",
+     "caption": "The stage tracker, today's status, dues, electricity, outings and tickets in one place \u2014 the same on the phone.",
+     "intro": "What a student sees: registration journey, fees and receipts, meals, outings, sick leave, tickets, electricity, deposit, academics and health."
+    },
+    {
+     "code": "REG-01",
+     "path": "/registration",
+     "full": true,
+     "section": "Student (web and mobile)",
+     "title": "Residency registration",
+     "caption": "Apply, pay the registration fee, choose a bed from the open rooms, accept the offer, pick a fee plan and rasoi."
+    },
+    {
+     "code": "REG-02",
+     "path": "/fees",
+     "full": true,
+     "section": "Student (web and mobile)",
+     "title": "Fees and receipts",
+     "caption": "Demands, instalments, pay all, upload a receipt (PDF) for OCR verification, download receipts.",
+     "tags": [
+      "ai"
+     ]
+    },
+    {
+     "code": "MES-09",
+     "path": "/my-meals",
+     "full": true,
+     "section": "Rasoi: menus, choices, feedback and sentiment",
+     "title": "Choose my meals",
+     "caption": "Each student picks next week's dishes; reminders go out on Friday.",
+     "tags": [
+      "auto"
+     ]
+    },
+    {
+     "code": "MES-02",
+     "path": "/rate-meals",
+     "full": true,
+     "section": "Rasoi: menus, choices, feedback and sentiment",
+     "title": "Rate my meals",
+     "caption": "A rating and a comment after each meal \u2014 the input to the sentiment analysis.",
+     "tags": [
+      "ai"
+     ]
+    },
+    {
+     "code": "OUT-01",
+     "path": "/outings",
+     "full": true,
+     "section": "Outings and sick leave",
+     "title": "My outings",
+     "caption": "Apply with destination and return time; the parent recommends by link; the QR pass appears when approved."
+    },
+    {
+     "code": "SCK-01",
+     "path": "/sick-leave",
+     "full": true,
+     "section": "Outings and sick leave",
+     "title": "My sick leave",
+     "caption": "Report sickness and diet; the Floor Manager visits; meals come to the room."
+    },
+    {
+     "code": "TKT-01",
+     "path": "/my-tickets",
+     "full": true,
+     "section": "Repairs, housekeeping and checklists",
+     "title": "My tickets",
+     "caption": "Raise a repair with a photo; see verification, work and closure."
+    },
+    {
+     "code": "ELE-01",
+     "path": "/electricity",
+     "full": true,
+     "section": "Electricity",
+     "title": "My electricity",
+     "caption": "Prepaid balance, recharge, this month's room bill and the share per roommate."
+    },
+    {
+     "code": "CDP-02",
+     "path": "/my-deposit",
+     "full": true,
+     "section": "Student (web and mobile)",
+     "title": "My caution deposit",
+     "caption": "What is held, what was deducted and why, what comes back."
+    },
+    {
+     "code": "RCH-02",
+     "path": "/change-room",
+     "full": true,
+     "section": "Student (web and mobile)",
+     "title": "Change room",
+     "caption": "Ask for another room or roommate; see the fee difference before applying."
+    },
+    {
+     "code": "HLT-03",
+     "path": "/my-health",
+     "full": true,
+     "section": "Discipline and health",
+     "title": "My health",
+     "caption": "Health record, sick leaves and reports."
+    },
+    {
+     "code": "ACA-01s",
+     "path": "/academics",
+     "full": true,
+     "section": "Academics and careers (AI guidance)",
+     "title": "My academics (student 360)",
+     "caption": "Semester results, backlog courses, CRT, skills, certifications, activities and the career choice."
+    },
+    {
+     "code": "GEN-01",
+     "path": "/profile",
+     "full": true,
+     "section": "Student (web and mobile)",
+     "title": "My profile and contacts",
+     "caption": "Photo, prior education, parent contacts, residency record."
+    },
+    {
+     "code": "GEN-02",
+     "path": "/notifications",
+     "full": true,
+     "section": "Student (web and mobile)",
+     "title": "Notifications",
+     "caption": "Every step of every workflow, as it happens."
+    }
+   ]
+  }
+ ]
+}
