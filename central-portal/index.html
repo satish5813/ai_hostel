@@ -26,6 +26,8 @@ window.ERP = {
       line: 'Papers, tests, evaluation and results in one place.', does: ['Question papers', 'Online tests', 'Evaluation', 'Results'] },
     { id: 'hr', name: 'HR', tag: 'Human resources', icon: 'people', a: '#EC5B8F', a2: '#C22B63', url: 'https://klfacultyhiring.com/',
       line: 'Staff, recruitment, leave and appraisals, with an AI assistant.', does: ['Recruitment', 'Staff records', 'Leave', 'Appraisals'] },
+    { id: 'support', name: 'KL Support', tag: 'Report a problem', icon: 'help', a: '#C99A2E', a2: '#9A7212', url: 'https://support.klfacultyhiring.com/#/new?site=portal', health: 'https://support.klfacultyhiring.com/api/health',
+      line: 'Something not working? Report it and follow it live until it is fixed.', does: ['Report a problem', 'Follow it live', 'Me too on known issues', 'Staff approval'] },
   ],
 };
 </script>
@@ -331,6 +333,7 @@ footer { margin-top: 40px; display: flex; flex-wrap: wrap; justify-content: spac
     cart: '<circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2 2h2l2.700 12.400a2 2 0 0 0 2 1.600h9.700a2 2 0 0 0 2-1.600L22 7H5.100"/>',
     cap: '<path d="M21.400 10.900a1 1 0 0 0 0-1.800L12.800 5.200a2 2 0 0 0-1.600 0L2.600 9.100a1 1 0 0 0 0 1.800l8.600 3.900a2 2 0 0 0 1.600 0z"/><path d="M22 10v6"/><path d="M6 12.500V16a6 3 0 0 0 12 0v-3.500"/>',
     box: '<path d="M21 8a2 2 0 0 0-1-1.700l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.700l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.300 7 8.700 5 8.700-5"/><path d="M12 22V12"/>',
+    help: '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/><path d="m4.9 4.9 4.3 4.3M14.8 14.8l4.3 4.3M14.8 9.2l4.3-4.3M4.9 19.1l4.3-4.3"/>',
     people: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.900"/><path d="M16 3.100a4 4 0 0 1 0 7.800"/>',
   };
   const ARROW = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.400" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>';
