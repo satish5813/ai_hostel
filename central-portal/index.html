@@ -263,46 +263,11 @@ footer { margin-top: 40px; display: flex; flex-wrap: wrap; justify-content: spac
 }
 </style>
 </head>
-<body class="staged">
+<body class="opened">
 <div class="sky" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
 <canvas id="net" aria-hidden="true"></canvas>
 <div class="glow" id="glow" aria-hidden="true"></div>
 <div class="grain" aria-hidden="true"></div>
-
-<div class="intro" id="intro">
-  <div class="spot" aria-hidden="true"></div>
-  <div class="beam l" aria-hidden="true"></div><div class="beam r" aria-hidden="true"></div>
-  <div class="curtain l" aria-hidden="true"></div><div class="curtain r" aria-hidden="true"></div>
-  <div class="valance" aria-hidden="true"></div>
-  <div class="bulbs a" aria-hidden="true"></div><div class="bulbs b" aria-hidden="true"></div>
-  <div class="stage">
-    <div class="medal"><img src="assets/kl-emblem.png" alt="KL University"></div>
-    <p class="eyebrow"><span>KL University presents</span></p>
-    <h2 class="gold">KL AI Automation</h2>
-    <p class="sub"><span class="ai" data-text="Agentic AI Campus">Agentic AI Campus</span><span class="open">Grand Opening</span></p>
-  </div>
-  <button class="ribbon" id="start" type="button" aria-label="Cut the ribbon to open KL AI Automation">
-    <span class="rb l"></span><span class="rb r"></span>
-    <svg class="bow" viewBox="0 0 200 150" aria-hidden="true">
-      <defs><linearGradient id="sat" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff5a6a"/><stop offset=".45" stop-color="#d0142b"/><stop offset="1" stop-color="#7d0614"/></linearGradient></defs>
-      <path d="M100 62 C70 10 10 8 18 46 C24 78 70 78 100 66Z" fill="url(#sat)" stroke="#f4c75a" stroke-width="3"/>
-      <path d="M100 62 C130 10 190 8 182 46 C176 78 130 78 100 66Z" fill="url(#sat)" stroke="#f4c75a" stroke-width="3"/>
-      <path d="M94 70 L60 140 L76 132 L86 146 L102 74Z" fill="url(#sat)" stroke="#f4c75a" stroke-width="3"/>
-      <path d="M106 70 L140 140 L124 132 L114 146 L98 74Z" fill="url(#sat)" stroke="#f4c75a" stroke-width="3"/>
-      <rect x="86" y="50" width="28" height="28" rx="9" fill="url(#sat)" stroke="#f4c75a" stroke-width="3"/>
-      <path d="M40 34 C55 26 70 30 80 44" stroke="#fff" stroke-opacity=".45" stroke-width="4" fill="none" stroke-linecap="round"/>
-      <path d="M160 34 C145 26 130 30 120 44" stroke="#fff" stroke-opacity=".45" stroke-width="4" fill="none" stroke-linecap="round"/>
-    </svg>
-  </button>
-  <svg class="scissors" viewBox="0 0 120 80" aria-hidden="true">
-    <g class="blade a"><path d="M60 40 L118 30 L118 36 Z" fill="#e9edf5" stroke="#8a93a8" stroke-width="1.5"/><circle cx="26" cy="22" r="15" fill="none" stroke="#f4c75a" stroke-width="7"/><path d="M38 30 L60 40" stroke="#f4c75a" stroke-width="7" stroke-linecap="round"/></g>
-    <g class="blade b"><path d="M60 40 L118 50 L118 44 Z" fill="#dfe4ee" stroke="#8a93a8" stroke-width="1.5"/><circle cx="26" cy="58" r="15" fill="none" stroke="#f4c75a" stroke-width="7"/><path d="M38 50 L60 40" stroke="#f4c75a" stroke-width="7" stroke-linecap="round"/></g>
-    <circle cx="60" cy="40" r="4" fill="#5b4b1a"/>
-  </svg>
-  <span class="hint">&#9986;&nbsp; Click the ribbon to inaugurate</span>
-  <div class="welcome" aria-hidden="true"><small>Welcome to</small><b class="gold">KL AI Automation</b></div>
-  <div class="flash" aria-hidden="true"></div>
-</div>
 
 <div class="wrap">
   <header class="top">
@@ -321,7 +286,6 @@ footer { margin-top: 40px; display: flex; flex-wrap: wrap; justify-content: spac
   <footer><span id="copy"></span><span>Click a card, or press its number, to open it</span></footer>
 </div>
 <div class="toast" id="toast" role="status"></div>
-<canvas id="fx" aria-hidden="true"></canvas>
 
 <script>
 (() => {
@@ -337,28 +301,6 @@ footer { margin-top: 40px; display: flex; flex-wrap: wrap; justify-content: spac
     people: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.900"/><path d="M16 3.100a4 4 0 0 1 0 7.800"/>',
   };
   const ARROW = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.400" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>';
-
-  /* the opening: the emblem, then the four cards land */
-  const intro = $('intro');
-  /* the ribbon: scissors come in and snip, the halves fall, the curtains open, then the celebration and the cards */
-  let started = false;
-  const enter = () => {
-    if (started) return; started = true;
-    if (still) { intro.classList.add('gone'); document.body.classList.replace('staged', 'opened'); return; }
-    intro.classList.add('cut');
-    theme();
-    setTimeout(() => celebrate(innerWidth / 2, innerHeight * .66, 8000), 700);
-    setTimeout(() => { intro.classList.add('gone'); document.body.classList.replace('staged', 'opened'); }, 3100);
-  };
-  /* the ceremony's music: plays assets/theme.mp3 when the ribbon is cut, if that file is present (a licensed recording only).
-     It fades out a few seconds after the cards are shown. No file: the ceremony stays silent. */
-  function theme() {
-    const a = new Audio('assets/theme.mp3'); a.volume = .8;
-    a.play().then(() => setTimeout(() => { const f = setInterval(() => { a.volume = Math.max(0, a.volume - .05); if (a.volume === 0) { clearInterval(f); a.pause(); } }, 150); }, 9000)).catch(() => {});
-  }
-  $('start').focus();
-  intro.addEventListener('click', enter);
-  intro.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); enter(); } });
 
   const h = new Date().getHours();
   $('greet').textContent = (h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening') + '.';
@@ -395,48 +337,6 @@ footer { margin-top: 40px; display: flex; flex-wrap: wrap; justify-content: spac
 
   let toastT; const toast = (t) => { const el = $('toast'); el.textContent = t; el.classList.add('on'); clearTimeout(toastT); toastT = setTimeout(() => el.classList.remove('on'), 2600); };
   const closed = (e, el) => { const m = E.apps.find((x) => x.id === el.dataset.id); if (m.url) return; e.preventDefault(); toast(`${m.name}: its address is not set on this page yet.`); el.classList.remove('nope'); void el.offsetWidth; el.classList.add('nope'); };
-  /* the celebration: a golden fountain from the cut, confetti cannons, bursts and gold sparkles, and a shower of rose and marigold petals
-     that keeps falling over the cards after the curtains have gone. */
-  const fx = $('fx'), fc = fx.getContext('2d');
-  const COLS = ['#FFD45E', '#F5B82E', '#FFF1B8', '#E0243A', '#FF6B7D', '#5B4BE8', '#0E9F8E', '#12B5A2', '#F08A24', '#FFFFFF'];
-  const PETALS = ['#E0243A', '#C2002F', '#FF4D6D', '#FF8FA3', '#FF9800', '#FFB300', '#FFC233', '#FFFFFF'];
-  let parts = [], FW = 0, FH = 0, k = 1, running = false, until = 0, ambient = false;
-  const fit = () => { const d = Math.min(devicePixelRatio || 1, 2); FW = innerWidth; FH = innerHeight; k = Math.min(1.6, Math.max(1, FH / 760)); fx.width = FW * d; fx.height = FH * d; fc.setTransform(d, 0, 0, d, 0, 0); };
-  const add = (n, ox, oy, ang, spread, sp, kind) => { for (let q = 0; q < n; q++) { const a = ang + (Math.random() - .5) * spread, v = sp * (.55 + Math.random() * .7) * k, spark = kind === 'spark';
-    parts.push({ x: ox, y: oy, vx: Math.cos(a) * v, vy: Math.sin(a) * v, s: spark ? 1.5 + Math.random() * 2.5 : 6 + Math.random() * 8, c: spark ? COLS[q % 3] : COLS[q % COLS.length],
-      rot: Math.random() * 6, vr: (Math.random() - .5) * .35, kind: spark ? 'spark' : ['rect', 'circle', 'strip'][q % 3], life: 1, fade: spark ? .012 : .0045, tw: Math.random() * 6 }); } };
-  const petal = (x, y) => parts.push({ x, y, vx: (Math.random() - .5) * 1.2, vy: .6 + Math.random() * 1.4, s: 8 + Math.random() * 8, c: PETALS[Math.floor(Math.random() * PETALS.length)],
-    rot: Math.random() * 6.3, vr: (Math.random() - .5) * .08, kind: 'petal', life: 1, fade: .0018, tw: Math.random() * 6.3, sw: .6 + Math.random() * 1.2 });
-  const loop = () => {
-    if (ambient && parts.length < 70 && Math.random() < .22) petal(Math.random() * FW, -20);
-    fc.clearRect(0, 0, FW, FH);
-    parts = parts.filter((p) => p.life > 0 && p.y < FH + 40);
-    for (const p of parts) {
-      if (p.kind === 'petal') { p.tw += .04; p.vy = Math.min(p.vy + .03, 2.4 * k); p.x += p.vx + Math.sin(p.tw) * p.sw; p.y += p.vy; p.rot += p.vr + Math.cos(p.tw) * .02; p.life -= p.fade; }
-      else { p.vy += p.kind === 'spark' ? .12 : .28; p.vx *= .985; p.vy *= p.kind === 'spark' ? .97 : .992; p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.life -= p.fade; p.tw += .3; }
-      fc.save(); fc.globalAlpha = Math.min(1, p.life * 1.4); fc.fillStyle = p.c; fc.translate(p.x, p.y); fc.rotate(p.rot);
-      if (p.kind === 'petal') { fc.scale(1, .55 + .45 * Math.abs(Math.sin(p.tw * 1.3)));
-        fc.beginPath(); fc.moveTo(0, -p.s * .6); fc.bezierCurveTo(p.s * .55, -p.s * .45, p.s * .45, p.s * .45, 0, p.s * .6); fc.bezierCurveTo(-p.s * .45, p.s * .45, -p.s * .55, -p.s * .45, 0, -p.s * .6); fc.fill();
-        fc.globalAlpha *= .35; fc.fillStyle = '#fff'; fc.beginPath(); fc.ellipse(-p.s * .12, -p.s * .15, p.s * .12, p.s * .3, .3, 0, 6.283); fc.fill(); }
-      else if (p.kind === 'spark') { fc.globalAlpha *= .6 + .4 * Math.sin(p.tw); fc.shadowColor = '#FFD45E'; fc.shadowBlur = 12; fc.beginPath(); fc.arc(0, 0, p.s, 0, 6.283); fc.fill(); }
-      else if (p.kind === 'rect') { fc.scale(1, Math.cos(p.tw * .5)); fc.fillRect(-p.s / 2, -p.s / 3, p.s, p.s * .66); }
-      else if (p.kind === 'strip') { fc.fillRect(-p.s, -1.5, p.s * 2, 3); }
-      else { fc.beginPath(); fc.arc(0, 0, p.s / 2.4, 0, 6.283); fc.fill(); }
-      fc.restore();
-    }
-    if (ambient || parts.length || performance.now() < until) requestAnimationFrame(loop); else { running = false; fc.clearRect(0, 0, FW, FH); }
-  };
-  const run = () => { if (!running) { running = true; requestAnimationFrame(loop); } };
-  fit(); addEventListener('resize', fit);
-  if (ambient) run();
-  function celebrate(x, y, ms) {
-    until = performance.now() + ms; run();
-    const UP = -Math.PI / 2, at = (t, f) => setTimeout(f, t);
-    for (let n = 0; n < 14; n++) at(n * 60, () => { add(22, x, y, UP, .7, 20, 'confetti'); add(10, x, y, UP, 1.2, 16, 'spark'); });   // the fountain
-    for (const t of [0, 380, 760]) at(t, () => { add(70, 0, FH, -Math.PI / 3.1, .5, 24, 'confetti'); add(70, FW, FH, -Math.PI + Math.PI / 3.1, .5, 24, 'confetti'); });   // cannons
-    for (const [bx, by, t] of [[.22, .28, 650], [.78, .24, 900], [.5, .16, 1150], [.35, .4, 1400], [.65, .38, 1600]]) at(t, () => { add(60, FW * bx, FH * by, 0, 6.283, 9, 'confetti'); add(40, FW * bx, FH * by, 0, 6.283, 7, 'spark'); });
-    for (let t = 200; t < 6500; t += 120) at(t, () => { for (let q = 0; q < 9; q++) petal(Math.random() * FW, -20 - Math.random() * 80); });   // the flower shower
-  }
   /* a card opens its website */
   function open(e, el) { const m = E.apps.find((x) => x.id === el.dataset.id); if (!m.url) return closed(e, el); if (e.metaKey || e.ctrlKey || e.shiftKey) return; e.preventDefault(); location.href = m.url; }
   grid.addEventListener('click', (e) => { const el = e.target.closest('.mod'); if (el) open(e, el); });
@@ -444,7 +344,6 @@ footer { margin-top: 40px; display: flex; flex-wrap: wrap; justify-content: spac
     if (e.metaKey || e.ctrlKey || e.altKey) return;
     if (!/^[1-9]$/.test(e.key)) return;
     const el = grid.children[Number(e.key) - 1]; if (!el) return;
-    if (!intro.classList.contains('gone')) return;
     open(e, el);
   });
 
