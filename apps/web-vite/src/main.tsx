@@ -14,6 +14,7 @@ import './styles/menu.css';
 import './styles/dean.css';
 import './styles/meals.css';
 import './styles/exec.css';
+import './styles/exec-report.css';
 import './styles/student-nav.css';
 import './styles/profile.css';
 import './styles/health.css';

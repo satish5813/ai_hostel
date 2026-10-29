@@ -65,6 +65,7 @@ import MessSentiment from './pages/reports/MessSentiment';
 import EnterChoices from './pages/mess/EnterChoices';
 import RateMeals from './pages/student/RateMeals';
 import ExecDashboard from './pages/exec/ExecDashboard';
+import ExecReport from './pages/exec/ExecReport';
 import CareerTracker from './pages/career/CareerTracker';
 import HealthDesk from './pages/health/HealthDesk';
 import HealthReportPage from './pages/health/HealthReport';
@@ -183,6 +184,7 @@ export function App() {
         <Route path="/complaints" element={<Complaints />} />             {/* TKT-07 student */}              {/* CDP-02 student's own caution deposit */}            {/* RCH-02 student asks for another room */}               {/* HLT-03 student's own health */}
         <Route path="/career-tracker" element={<CareerTracker />} />      {/* CAR-01 second-year progress, final-year outcomes */}
         <Route path="/exec" element={<ExecDashboard />} />                {/* EXE-01 executive dashboard (no menu) */}
+        <Route path="/exec/report" element={<ExecReport />} />          {/* EXE-01 printable report (A4, save as PDF) */}
         <Route path="/exec/:facilityId" element={<ExecDashboard />} />    {/* EXE-01 one building */}            {/* MES-02 student rates the dishes eaten */}
         <Route path="/renewals" element={<Renewals />} />             {/* REG-14 yearly renewals: continue the stay into the new year */}
         <Route path="/allotment-view" element={<AllotmentView />} />        {/* REG-12 whole hostel: floors, rooms, beds, staff */}

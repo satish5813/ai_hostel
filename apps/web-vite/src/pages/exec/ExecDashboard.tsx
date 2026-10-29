@@ -1,32 +1,32 @@
 import { useState, type ReactNode } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router';
-import { Activity, AlertTriangle, ArrowLeft, BedDouble, BookOpen, Briefcase, Building2, Wrench, Zap, CheckCircle2, ChevronRight, Compass, GraduationCap, IndianRupee, LayoutGrid, LogOut, Moon, Rocket,
+import { Activity, AlertTriangle, ArrowLeft, BedDouble, BookOpen, Briefcase, Building2, Wrench, Zap, CheckCircle2, ChevronRight, Compass, GraduationCap, IndianRupee, LayoutGrid, LogOut, Moon, Printer, Rocket,
   ShieldAlert, Trophy, UserCheck, Utensils, type LucideIcon } from 'lucide-react';
 import { setSession } from '@/lib/api';
 import { useApi, useProfile, useSession } from '@/lib/ui';
 import { Logo } from '@/ui/kit';
 import { mealLabel } from '@/pages/mess/weekly';
 
-type Building = { facility_id: string; hostel_code: string; facility_name: string; gender: string; accommodation_type: string; floors: number | null; beds: number; occupied: number; vacant: number;
+export type Building = { facility_id: string; hostel_code: string; facility_name: string; gender: string; accommodation_type: string; floors: number | null; beds: number; occupied: number; vacant: number;
   demanded: number; collected: number; overdue: number; students_overdue: number; residents: number; with_results: number; avg_cgpa: number | null; backlog_students: number; backlogs: number;
   short_students: number; low_cgpa: number; active_students: number; achievements: number; avg_attendance: number | null; roll_pct: number | null; mood: number | null; ratings: number | null;
   warden_pct: number | null; wardens: number | null; open_cases: number; cases_year: number;
   career2: (Sum2 & { paths: { path: string; name: string; n: number }[] }) | null; career4: Sum4 | null;
   electricity: { billed: number; collected: number; outstanding: number; overdue: number; students_due: number; recharges: number; units: number } | null;
   tickets: { open: number; awaiting_student: number; late: number; raised_30d: number; closed_30d: number; avg_hours: number | null; open_room: number; open_mess: number; open_common: number } | null };
-type ElecMonth = { month: string; units: number; billed: number; collected: number };
-type Sum2 = { students: number; goal_stated: number; on_track: number; watch: number; needs_guidance: number; avg_progress: number | null };
-type Sum4 = { students: number; secured: number; in_progress: number; nothing_yet: number; placed: number; offers: number; seekers: number; seekers_placed: number; avg_ctc: number | null;
+export type ElecMonth = { month: string; units: number; billed: number; collected: number };
+export type Sum2 = { students: number; goal_stated: number; on_track: number; watch: number; needs_guidance: number; avg_progress: number | null };
+export type Sum4 = { students: number; secured: number; in_progress: number; nothing_yet: number; placed: number; offers: number; seekers: number; seekers_placed: number; avg_ctc: number | null;
   median_ctc: number | null; highest_ctc: number | null; higher_applied: number; higher_admitted: number; abroad: number; exam_appeared: number; exam_cleared: number; exam_selected: number;
   ventures: number; ventures_registered: number; funding_inr: number };
-type Career = {
+export type Career = {
   second_year: { summary: Sum2; paths: (Sum2 & { path: string; name: string })[]; gaps: { label: string; n: number }[] };
   final_year: { summary: Sum4; by_goal: { goal: string; students: number; secured: number }[]; recruiters: { organisation: string; offers: number; top_ctc: number | null }[]; package_bands: { label: string; n: number }[] };
 };
-type ChoiceHostel = { facility_id: string; hostel_code: string; residents: number; stated: number; product: number; services: number; higher: number; govt: number; startup: number; other: number };
-type CareerChoice = { stated: number; residents: number; by_goal: { goal: string; name: string; n: number }[]; by_hostel: ChoiceHostel[] };
-type Overview = { settings: { att_min: number; cgpa_watch: number }; buildings: Building[]; mess: { mood: number | null; ratings: number; boys: number | null; girls: number | null }; year: { academic_year: string }; careers: Career; career_choice?: CareerChoice; electricity_months: ElecMonth[] };
-type FeeHostel = { facility_id: string; hostel_code: string; facility_name: string; gender: string; students: number; single_plan: number; two_plan: number; paid: number; part_paid: number; unpaid: number; overdue_students: number; no_demand: number; demanded: number; collected: number; outstanding: number; overdue: number };
+export type ChoiceHostel = { facility_id: string; hostel_code: string; residents: number; stated: number; product: number; services: number; higher: number; govt: number; startup: number; other: number };
+export type CareerChoice = { stated: number; residents: number; by_goal: { goal: string; name: string; n: number }[]; by_hostel: ChoiceHostel[] };
+export type Overview = { settings: { att_min: number; cgpa_watch: number }; buildings: Building[]; mess: { mood: number | null; ratings: number; boys: number | null; girls: number | null }; year: { academic_year: string }; careers: Career; career_choice?: CareerChoice; electricity_months: ElecMonth[] };
+export type FeeHostel = { facility_id: string; hostel_code: string; facility_name: string; gender: string; students: number; single_plan: number; two_plan: number; paid: number; part_paid: number; unpaid: number; overdue_students: number; no_demand: number; demanded: number; collected: number; outstanding: number; overdue: number };
 type FeeStudent = { student_id: string; name: string; programme: string | null; year_semester: string | null; plan_type: string | null; due: number; paid: number; outstanding: number; state: string; last_paid_on: string | null; receipts: number;
   career_goal: string | null; career_choice: string | null; cgpa: number | null; backlogs: number };
 type ChoiceStudent = { student_id: string; name: string; programme: string | null; year_semester: string | null; hostel_code: string; goal: string; career_choice: string | null; cgpa: number | null; backlogs: number;
@@ -85,6 +85,7 @@ function TopBar() {
       <button type="button" className="xd-brand" onClick={() => navigate('/exec')}><Logo cut="mark" height={30} /><span><b>KL Residencies</b><small>Executive view</small></span></button>
       <nav className="xd-links" aria-label="More">
         <button type="button" onClick={() => navigate('/reports/mess-sentiment')}><Utensils size={15} />Rasoi sentiment</button>
+        <button type="button" onClick={() => navigate('/exec/report')}><Printer size={15} />Print report</button>
         <button type="button" onClick={() => navigate('/home')}><LayoutGrid size={15} />All apps</button>
       </nav>
       <span className="xd-user"><span><b>{p.data?.full_name ?? s.id}</b><small>{words(s.role)}</small></span>
