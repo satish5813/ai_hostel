@@ -341,3 +341,19 @@
 
 @media (max-width: 820px) { .xd-hero-grad { flex-direction: column; align-items: stretch; padding: 20px; } .xd-pulse { grid-template-columns: repeat(2, minmax(0, 1fr)); } .xd-hero-grad h1 { font-size: 24px; } }
 @media (max-width: 640px) { .xd-spark { display: none; } .xd-drill button { grid-template-columns: 40px minmax(0, 1fr) 90px 18px; } .xd-drill > li > button > i { display: none; } }
+
+/* EXE-01 print: the whole dashboard as it looks, on A4 landscape (Print dashboard button, or Ctrl+P) */
+@page xd-landscape { size: A4 landscape; margin: 7mm 8mm; }
+@media print {
+  .xd { page: xd-landscape; background: #fff; }
+  .xd, .xd * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .xd-top { position: static; box-shadow: none; border-bottom: 2px solid var(--line); }
+  .xd-links, .xd-user button, .xd-kpi-go, .xd-modal { display: none !important; }
+  .xd-main { width: 1360px; max-width: none; zoom: .78; padding: 10px 0 0; gap: 12px; }
+  .xd-kpis { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .xd-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .xd-kpi, .xd-card, .xd-sub, .xd-hero, .xd-table tr, .xd-block { break-inside: avoid; }
+  .xd-h2 { break-after: avoid; }
+  .xd-kpi, .xd-card, .xd-sub, .xd-table-wrap { box-shadow: none !important; }
+  .xd-table-wrap { overflow: visible !important; }
+}

@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router';
-import { Activity, AlertTriangle, ArrowLeft, BedDouble, BookOpen, Briefcase, Building2, Wrench, Zap, CheckCircle2, ChevronRight, Compass, GraduationCap, IndianRupee, LayoutGrid, LogOut, Moon, Printer, Rocket,
+import { Activity, AlertTriangle, ArrowLeft, BedDouble, BookOpen, Briefcase, Building2, Wrench, Zap, CheckCircle2, ChevronRight, Compass, FileText, GraduationCap, IndianRupee, LayoutGrid, LogOut, Moon, Printer, Rocket,
   ShieldAlert, Trophy, UserCheck, Utensils, type LucideIcon } from 'lucide-react';
 import { setSession } from '@/lib/api';
 import { useApi, useProfile, useSession } from '@/lib/ui';
@@ -85,7 +85,8 @@ function TopBar() {
       <button type="button" className="xd-brand" onClick={() => navigate('/exec')}><Logo cut="mark" height={30} /><span><b>KL Residencies</b><small>Executive view</small></span></button>
       <nav className="xd-links" aria-label="More">
         <button type="button" onClick={() => navigate('/reports/mess-sentiment')}><Utensils size={15} />Rasoi sentiment</button>
-        <button type="button" onClick={() => navigate('/exec/report')}><Printer size={15} />Print report</button>
+        <button type="button" onClick={() => window.print()}><Printer size={15} />Print dashboard</button>
+        <button type="button" onClick={() => navigate('/exec/report')}><FileText size={15} />A4 report</button>
         <button type="button" onClick={() => navigate('/home')}><LayoutGrid size={15} />All apps</button>
       </nav>
       <span className="xd-user"><span><b>{p.data?.full_name ?? s.id}</b><small>{words(s.role)}</small></span>
