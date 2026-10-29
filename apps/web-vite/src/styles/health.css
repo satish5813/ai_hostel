@@ -75,13 +75,12 @@
   .hr-table td, .hr-table th { padding: 7px 6px; }
 }
 @media print {
-  body * { visibility: hidden; }
+  body:has(.hr) * { visibility: hidden; }
   .hr, .hr * { visibility: visible; }
   .hr { position: absolute; left: 0; top: 0; width: 100%; border: 0; box-shadow: none; padding: 0; font-size: 11.5px; gap: 12px; }
   .hr-panel, .hr-box, .hr-patient { break-inside: avoid; }
   .hr-table tr { break-inside: avoid; }
   .hr * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  @page { size: A4; margin: 14mm 12mm; }
 }
 
 /* records desk */
@@ -136,3 +135,6 @@
 .mh-tabs button { height: auto; padding: 8px 16px; display: flex; flex-direction: column; align-items: flex-start; line-height: 1.2; }
 .mh-tabs small { font-weight: 500; font-size: 11.5px; opacity: .8; }
 .mh-report .hr { border-radius: 20px; }
+
+@page hr-a4 { size: A4; margin: 14mm 12mm; }
+@media print { .hr-page { page: hr-a4; } }

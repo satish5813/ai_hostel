@@ -53,7 +53,7 @@ body { margin: 0; background: var(--ui-ground); color: var(--ink); font-family: 
 /* QR label print sheet (MAP-03) */
 .klh-print-sheet { display: none; }
 @media print {
-  body * { visibility: hidden; }
+  body:has(.klh-print-sheet, .klh-label-print) * { visibility: hidden; }
   .klh-print-sheet, .klh-print-sheet *, .klh-label-print, .klh-label-print * { visibility: visible; }
   .klh-print-sheet { display: grid; position: absolute; left: 0; top: 0; width: 100%; grid-template-columns: repeat(3, 1fr); gap: 12mm; padding: 10mm; }
   .klh-print-label { text-align: center; border: 1px solid #000; border-radius: 8px; padding: 8mm 4mm; page-break-inside: avoid; }

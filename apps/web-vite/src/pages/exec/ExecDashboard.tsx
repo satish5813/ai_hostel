@@ -76,6 +76,15 @@ export default function ExecDashboard() {
   );
 }
 
+/** Prints the whole dashboard on A4 landscape: the page size is set just for this print, then removed. */
+function printLandscape() {
+  const st = document.createElement('style');
+  st.textContent = '@page { size: A4 landscape; margin: 7mm 8mm; }';
+  document.head.appendChild(st);
+  window.addEventListener('afterprint', () => st.remove(), { once: true });
+  window.print();
+}
+
 function TopBar() {
   const s = useSession()!;
   const p = useProfile();
@@ -85,7 +94,7 @@ function TopBar() {
       <button type="button" className="xd-brand" onClick={() => navigate('/exec')}><Logo cut="mark" height={30} /><span><b>KL Residencies</b><small>Executive view</small></span></button>
       <nav className="xd-links" aria-label="More">
         <button type="button" onClick={() => navigate('/reports/mess-sentiment')}><Utensils size={15} />Rasoi sentiment</button>
-        <button type="button" onClick={() => window.print()}><Printer size={15} />Print dashboard</button>
+        <button type="button" onClick={printLandscape}><Printer size={15} />Print dashboard</button>
         <button type="button" onClick={() => navigate('/exec/report')}><FileText size={15} />A4 report</button>
         <button type="button" onClick={() => navigate('/home')}><LayoutGrid size={15} />All apps</button>
       </nav>

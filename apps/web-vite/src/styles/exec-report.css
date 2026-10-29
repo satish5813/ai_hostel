@@ -70,7 +70,9 @@
   .xr-table tr, .xr-cols, .xr-head { break-inside: avoid; }
   .xr-table thead { display: table-header-group; }
   .xr-sec h2 { break-after: avoid; }
-  @page { size: A4; margin: 12mm 11mm 14mm;
-    @bottom-left { content: "KL Residencies · Executive report · Confidential"; font: 8pt sans-serif; color: #7A8899; }
-    @bottom-right { content: "Page " counter(page) " of " counter(pages); font: 8pt sans-serif; color: #7A8899; } }
+  .xr-page { page: xr-portrait; }
 }
+
+@page xr-portrait { size: A4 portrait; margin: 12mm 11mm 14mm;
+  @bottom-left { content: "KL Residencies · Executive report · Confidential"; font: 8pt sans-serif; color: #7A8899; }
+  @bottom-right { content: "Page " counter(page) " of " counter(pages); font: 8pt sans-serif; color: #7A8899; } }
