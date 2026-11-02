@@ -267,7 +267,7 @@ const KINDS: Kind[] = [
       { key: 'dept_code', label: 'Department', required: true, hint: 'Department code; added if it is new', sample: 'HOSTELS', aliases: ['department', 'dept'] },
       { key: 'designation', label: 'Designation', required: true, sample: 'Floor Manager' },
       { key: 'staff_type', label: 'Staff type', hint: 'Warden, Admin, Security, Mess, Maintenance, Housekeeping, Faculty…; worked out from the designation if empty', sample: 'Warden' },
-      { key: 'mobile_no', label: 'Mobile', required: true, hint: '10 digits', sample: '9000012345', aliases: ['mobile number', 'mobile'] },
+      { key: 'mobile_no', label: 'Mobile', hint: '10 digits; may be left empty', sample: '9000012345', aliases: ['mobile number', 'mobile'] },
       { key: 'official_email', label: 'Official e-mail', sample: 'ramesh.b@kluniversity.in', aliases: ['official email', 'email'] },
       { key: 'personal_email', label: 'Personal e-mail', sample: '', aliases: ['personalemail'] },
       { key: 'joining_date', label: 'Joined on', hint: 'DD-MM-YYYY', sample: '01-07-2022', aliases: ['joiningdate'] },
@@ -275,7 +275,7 @@ const KINDS: Kind[] = [
     key: (c) => String(c.staff_id),
     validate: (r) => {
       const id = need(r.staff_id, 'Employee ID'); if (id.length > 20) throw new Error('Employee ID must be 20 characters or fewer');
-      const m = mobile(r.mobile_no); if (!m) throw new Error('Mobile must be a 10-digit Indian number');
+      const m = r.mobile_no ? mobile(r.mobile_no) : null; if (r.mobile_no && !m) throw new Error('Mobile must be a 10-digit Indian number');
       const designation = need(r.designation, 'Designation').slice(0, 80);
       return { staff_id: id, salutation: cut(r.salutation, 10), first_name: need(r.first_name, 'First name').slice(0, 80), middle_name: cut(r.middle_name, 80), last_name: cut(r.last_name, 80),
         gender: oneOf(r.gender, 'Gender', ['Male', 'Female', 'Other'], GENDER), dept_code: need(deptCode(r.dept_code) ?? undefined, 'Department'), dept_name: (r.dept_code ?? '').slice(0, 120), designation,

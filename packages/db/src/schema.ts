@@ -320,7 +320,7 @@ export const staff_masterInRef = ref.table("staff_master", {
 	campus_code: varchar({ length: 20 }),
 	personal_email: varchar({ length: 120 }),
 	official_email: varchar({ length: 120 }),
-	mobile_no: varchar({ length: 15 }).notNull(),
+	mobile_no: varchar({ length: 15 }),
 	communication_no: varchar({ length: 15 }),
 	photo_object_key: varchar({ length: 200 }),
 	resume_link: varchar({ length: 300 }),
