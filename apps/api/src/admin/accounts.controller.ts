@@ -10,6 +10,8 @@ import type { AuthUser } from '../auth/auth.types.js';
 const Password = z.string().min(8, 'At least 8 characters').max(100).refine((p) => /[A-Za-z]/.test(p) && /[0-9]/.test(p), 'Use at least one letter and one digit');
 const LoginDto = z.object({ username: z.string().trim().min(1).max(40), password: z.string().min(1).max(100) });
 const SetDto = z.object({ token: z.string().regex(/^[0-9a-f]{64}$/, 'This link is not complete'), password: Password });
+const RegStartDto = z.object({ id: z.string().trim().regex(/^[A-Za-z0-9]{6,20}$/, 'Type your university ID') });
+const RegFinishDto = z.object({ id: z.string().trim().regex(/^[A-Za-z0-9]{6,20}$/), code: z.string().trim().regex(/^\d{6}$/, 'The code has 6 digits'), password: Password });
 const ChangeDto = z.object({ current: z.string().min(1).max(100), next: Password });
 const CreateDto = z.object({ kind: z.enum(['student', 'staff']), user_ref: z.string().trim().min(1).max(20), email: z.string().trim().email().max(160).nullable().optional(),
   role: z.string().max(40).optional(), facility_ids: z.array(z.string().max(20)).max(60).optional(), approval_ref: z.string().trim().max(60).optional(), send: z.boolean().optional() });
@@ -23,6 +25,9 @@ export class AuthController {
   @Public() @Post('login') login(@Body(zod(LoginDto)) b: z.infer<typeof LoginDto>) { return this.svc.login(b.username, b.password); }
   @Public() @Get('invite/:token') invite(@Param('token') token: string) { return this.svc.invite(token); }
   @Public() @Post('set-password') set(@Body(zod(SetDto)) b: z.infer<typeof SetDto>) { return this.svc.setPassword(b.token, b.password); }
+  // a student creates (or resets) their own login with a code e-mailed to <id>@kluniversity.in (migration 131)
+  @Public() @Post('register/start') regStart(@Body(zod(RegStartDto)) b: z.infer<typeof RegStartDto>) { return this.svc.registerStart(b.id); }
+  @Public() @Post('register/finish') regFinish(@Body(zod(RegFinishDto)) b: z.infer<typeof RegFinishDto>) { return this.svc.registerFinish(b.id, b.code, b.password); }
   @ApiBearerAuth() @Post('change-password') change(@Body(zod(ChangeDto)) b: z.infer<typeof ChangeDto>, @CurrentUser() u: AuthUser) { return this.svc.changePassword(u, b.current, b.next); }
 }
 

@@ -1,5 +1,5 @@
-import { BadRequestException, ForbiddenException, Injectable, Logger, NotFoundException, UnauthorizedException, UnprocessableEntityException } from '@nestjs/common';
-import { createHash, randomBytes } from 'node:crypto';
+import { BadRequestException, ForbiddenException, HttpException, Injectable, Logger, NotFoundException, ServiceUnavailableException, UnauthorizedException, UnprocessableEntityException } from '@nestjs/common';
+import { createHash, randomBytes, randomInt } from 'node:crypto';
 import { sql } from 'drizzle-orm';
 import nodemailer, { type Transporter } from 'nodemailer';
 import { DbService } from '../db/db.service.js';
@@ -37,6 +37,7 @@ export const ROLE_INFO: { code: string; label: string; group: string; hostel: bo
 ];
 const STAFF_ROLES = ROLE_INFO.map((r) => r.code);
 const INVITE_DAYS = 7, MAX_FAILS = 5, LOCK_MINUTES = 15;
+const REG_CODE_MINUTES = 10, REG_MAX_TRIES = 5, REG_MAX_SENDS = 6;   // a student's own login (migration 131)
 const sha = (s: string) => createHash('sha256').update(s).digest('hex');
 const webUrl = () => (process.env.PUBLIC_WEB_URL ?? 'http://localhost:5180').replace(/\/$/, '');
 
@@ -119,6 +120,73 @@ export class AccountsService {
     if (next.toLowerCase().includes(a.username.toLowerCase())) throw new BadRequestException('The password must not contain your username');
     await this.dbs.rows(sql`update portal.login_account set password_hash = crypt(${next}, gen_salt('bf', 10)), token_version = token_version + 1, password_set_on = now(), updated_at = now(), updated_by = ${user.id} where account_id = ${a.account_id}`);
     return { ok: true, sign_in_again: true };
+  }
+
+  /* ---------------------------------------------------------------- a student creates their own login (migration 131) */
+
+  /**
+   * Step 1: e-mail a 6-digit code to <id>@kluniversity.in, if the ID is a current resident. The answer is the same
+   * either way (it names the address the code would go to), so the page cannot be used to find out who lives here.
+   */
+  async registerStart(rawId: string) {
+    const id = rawId.trim().toUpperCase();
+    const to = `${id.toLowerCase()}@${process.env.STUDENT_MAIL_DOMAIN ?? 'kluniversity.in'}`;
+    const answer = { sent_to: to, minutes: REG_CODE_MINUTES };
+    if (!this.smtp && process.env.NODE_ENV === 'production') throw new ServiceUnavailableException('Creating a login by e-mail is not switched on yet. Ask the residency office.');
+    const [s] = await this.dbs.rows<{ disabled: boolean }>(sql`
+      select exists (select 1 from portal.login_account a where a.kind = 'student' and a.user_ref = sm.student_id and a.status = 'Disabled') as disabled
+      from ref.student_master sm where upper(sm.student_id) = ${id} and sm.status::text = 'Active'
+        and exists (select 1 from hostel.hostel_allocation ha where ha.student_id = sm.student_id and ha.status = 'Active' and ha.occupant_type::text = 'Student')`);
+    if (!s || s.disabled) return answer;
+    const [prev] = await this.dbs.rows<{ wait: number; sends: number }>(sql`
+      select greatest(0, ceil(extract(epoch from last_sent_at + interval '60 seconds' - now())))::int as wait,
+             case when sent_on = current_date then sends_today else 0 end::int as sends
+      from portal.register_code where student_id = ${id}`);
+    if (prev?.wait) throw new HttpException({ statusCode: 429, message: `Please wait ${prev.wait} seconds before asking for a new code.` }, 429);
+    if (prev && prev.sends >= REG_MAX_SENDS) throw new HttpException({ statusCode: 429, message: 'Too many codes today. Try again tomorrow, or ask the residency office.' }, 429);
+    const code = String(randomInt(0, 1_000_000)).padStart(6, '0');
+    await this.dbs.rows(sql`
+      insert into portal.register_code as r (student_id, code_hash, sent_to, expires_at)
+      values (${id}, ${sha(`${id}:${code}`)}, ${to}, now() + make_interval(mins => ${REG_CODE_MINUTES}))
+      on conflict (student_id) do update set code_hash = excluded.code_hash, sent_to = excluded.sent_to, expires_at = excluded.expires_at, attempts = 0, used_at = null,
+        sends_today = case when r.sent_on = current_date then r.sends_today + 1 else 1 end, sent_on = current_date, last_sent_at = now()`);
+    if (!this.smtp) { this.log.warn(`no SMTP (development): registration code for ${id} is ${code}`); return answer; }
+    try {
+      await this.smtp.sendMail({ from: process.env.MAIL_FROM ?? 'KL Residencies <hostels@kluniversity.in>', to,
+        subject: `${code} is your KL Residencies code`,
+        text: `Your KL Residencies code is ${code}\n\nType it on the "Create my login" page within ${REG_CODE_MINUTES} minutes to choose your password.\nYour username is ${id}.\n\nIf you did not ask for this, ignore this e-mail. Nobody from the residency office will ask for this code or your password.`,
+        html: `<div style="font-family:Segoe UI,Arial,sans-serif;font-size:15px;color:#1a2433"><p>Your KL Residencies code is</p><p style="font-size:30px;font-weight:700;letter-spacing:6px;margin:6px 0 14px">${code}</p><p>Type it on the <b>Create my login</b> page within ${REG_CODE_MINUTES} minutes to choose your password. Your username is <b>${id}</b>.</p><p style="color:#667085;font-size:13px">If you did not ask for this, ignore this e-mail. Nobody from the residency office will ask for this code or your password.</p></div>` });
+    } catch (e) {
+      this.log.error(`registration mail to ${to} failed: ${e instanceof Error ? e.message : e}`);
+      await this.dbs.rows(sql`update portal.register_code set last_sent_at = now() - interval '60 seconds' where student_id = ${id}`);
+      throw new ServiceUnavailableException('The e-mail could not be sent just now. Try again in a few minutes.');
+    }
+    return answer;
+  }
+
+  /** Step 2: the code and a new password make (or reset) the student's login and sign them in. */
+  async registerFinish(rawId: string, code: string, password: string) {
+    const id = rawId.trim().toUpperCase();
+    const wrong = new BadRequestException('The code is not right or has expired. Ask for a new code.');
+    const [r] = await this.dbs.rows<{ ok: boolean; live: boolean; attempts: number }>(sql`
+      select code_hash = ${sha(`${id}:${code.trim()}`)} as ok, (expires_at > now() and used_at is null) as live, attempts::int as attempts
+      from portal.register_code where student_id = ${id}`);
+    if (!r || !r.live || r.attempts >= REG_MAX_TRIES) throw wrong;
+    if (!r.ok) { await this.dbs.rows(sql`update portal.register_code set attempts = attempts + 1 where student_id = ${id}`); throw wrong; }
+    if (password.toLowerCase().includes(id.toLowerCase())) throw new BadRequestException('The password must not contain your university ID');
+    const [sm] = await this.dbs.rows<{ student_id: string }>(sql`select student_id from ref.student_master where upper(student_id) = ${id}`);
+    if (!sm) throw wrong;
+    const [acc] = await this.dbs.rows<{ status: string }>(sql`select status from portal.login_account where kind = 'student' and user_ref = ${sm.student_id}`);
+    if (acc?.status === 'Disabled') throw new ForbiddenException('This login is switched off. Ask the residency office.');
+    await this.dbs.rows(sql`update portal.register_code set used_at = now() where student_id = ${id}`);
+    const [{ email }] = await this.dbs.rows<{ email: string }>(sql`select sent_to as email from portal.register_code where student_id = ${id}`);
+    await this.dbs.rows(sql`
+      insert into portal.login_account (username, kind, user_ref, email, password_hash, status, mail_status, password_set_on, created_by)
+      values (${sm.student_id}, 'student', ${sm.student_id}, ${email}, crypt(${password}, gen_salt('bf', 10)), 'Active', 'No_Email', now(), ${sm.student_id})
+      on conflict (kind, user_ref) do update set password_hash = excluded.password_hash, status = 'Active', email = coalesce(portal.login_account.email, excluded.email),
+        invite_hash = null, invite_expires = null, token_version = portal.login_account.token_version + 1, failed_count = 0, locked_until = null,
+        password_set_on = now(), updated_at = now(), updated_by = ${sm.student_id}`);
+    return this.login(sm.student_id, password);
   }
 
   /* ---------------------------------------------------------------- the administrator's list */

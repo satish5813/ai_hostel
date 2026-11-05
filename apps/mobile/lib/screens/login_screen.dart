@@ -134,7 +134,12 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 20),
               _Submit(label: typed ? 'Signing in…' : 'Sign in', busy: typed, onTap: _busy != null ? null : () => _signIn(_user.text.trim(), _pass.text)),
               const SizedBox(height: 12),
-              const Text('First time, or forgot your password? Use the link in the e-mail from the hostel office.', textAlign: TextAlign.center, style: TextStyle(fontSize: 12.5, color: _mute)),
+              const Text('First time, or forgot your password?', textAlign: TextAlign.center, style: TextStyle(fontSize: 12.5, color: _mute)),
+              TextButton(
+                onPressed: _busy != null ? null : () => showModalBottomSheet<void>(context: context, isScrollControlled: true, backgroundColor: Colors.white,
+                    shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(26))), builder: (_) => _RegisterSheet(id: _user.text.trim())),
+                child: const Text('Create my login with a code on my university mail', textAlign: TextAlign.center, style: TextStyle(fontSize: 13.5, fontWeight: FontWeight.w700, color: K.brand)),
+              ),
               if (_demo?['enabled'] == true && students.isNotEmpty) ...[
                 const SizedBox(height: 22),
                 Row(children: [
@@ -248,4 +253,127 @@ class _Account extends StatelessWidget {
             const SizedBox(width: 8),
             const Icon(LucideIcons.chevronRight, size: 18, color: _mute),
           ])))));
+}
+
+/// A resident makes their own login (or resets a forgotten password): university ID, then a 6-digit code mailed to
+/// <id>@kluniversity.in and a new password (API /auth/register/start and /auth/register/finish); then signed in.
+class _RegisterSheet extends StatefulWidget {
+  final String id;
+  const _RegisterSheet({required this.id});
+  @override
+  State<_RegisterSheet> createState() => _RegisterSheetState();
+}
+
+class _RegisterSheetState extends State<_RegisterSheet> {
+  late final _id = TextEditingController(text: widget.id);
+  final _code = TextEditingController();
+  final _pw = TextEditingController();
+  final _again = TextEditingController();
+  String? _sentTo;
+  String? _error;
+  bool _busy = false;
+  bool _show = false;
+  int _wait = 0;
+  Timer? _tick;
+
+  @override
+  void dispose() { _tick?.cancel(); _id.dispose(); _code.dispose(); _pw.dispose(); _again.dispose(); super.dispose(); }
+
+  void _countdown() {
+    _tick?.cancel();
+    setState(() => _wait = 60);
+    _tick = Timer.periodic(const Duration(seconds: 1), (t) {
+      if (!mounted) { t.cancel(); return; }
+      setState(() => _wait--);
+      if (_wait <= 0) t.cancel();
+    });
+  }
+
+  Future<void> _send() async {
+    final id = _id.text.trim();
+    if (id.isEmpty) { setState(() => _error = 'Type your university ID.'); return; }
+    setState(() { _busy = true; _error = null; });
+    try {
+      final r = await Api.instance.post('/auth/register/start', {'id': id});
+      if (mounted) setState(() => _sentTo = '${r['sent_to']}');
+      if (mounted) _countdown();
+    } catch (e) {
+      if (mounted) setState(() => _error = e.toString());
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Future<void> _finish() async {
+    final pw = _pw.text;
+    String? bad;
+    if (!RegExp(r'^\d{6}$').hasMatch(_code.text.trim())) {
+      bad = 'Type the 6-digit code from the e-mail.';
+    } else if (pw.length < 8 || !RegExp(r'[A-Za-z]').hasMatch(pw) || !RegExp(r'[0-9]').hasMatch(pw)) {
+      bad = 'The password needs 8 characters or more, with a letter and a digit.';
+    } else if (pw != _again.text) {
+      bad = 'The two passwords are not the same.';
+    }
+    if (bad != null) { setState(() => _error = bad); return; }
+    FocusManager.instance.primaryFocus?.unfocus();
+    setState(() { _busy = true; _error = null; });
+    try {
+      final r = await Api.instance.post('/auth/register/finish', {'id': _id.text.trim(), 'code': _code.text.trim(), 'password': pw});
+      if (r['role'] != 'Student') throw ApiError(403, 'This app is for students. Staff use the web portal.');
+      if (mounted) Navigator.of(context).pop();
+      await SessionStore.instance.signIn(Session(id: r['id'], role: r['role'], name: r['name'] ?? '', token: r['token']));
+    } catch (e) {
+      if (mounted) setState(() => _error = e.toString());
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  Widget _label(String t) => Padding(padding: const EdgeInsets.only(left: 2, bottom: 6, top: 12), child: Text(t, style: const TextStyle(fontSize: 12.5, fontWeight: FontWeight.w700, color: K.ink2)));
+
+  Widget _box(TextEditingController c, String hint, {bool obscure = false, TextInputType? keyboard, bool enabled = true}) => TextField(
+        controller: c, obscureText: obscure, keyboardType: keyboard, autocorrect: false, enableSuggestions: false, enabled: enabled,
+        onChanged: (_) { if (_error != null) setState(() => _error = null); },
+        style: const TextStyle(fontSize: 15.5, fontWeight: FontWeight.w600, color: K.ink),
+        decoration: const InputDecoration(hintStyle: TextStyle(fontSize: 15, fontWeight: FontWeight.w400, color: Color(0xFF9AA8AA)),
+            filled: false, isDense: true, border: InputBorder.none, enabledBorder: InputBorder.none, focusedBorder: InputBorder.none, disabledBorder: InputBorder.none,
+            contentPadding: EdgeInsets.symmetric(vertical: 15)).copyWith(hintText: hint),
+      );
+
+  @override
+  Widget build(BuildContext context) {
+    final mq = MediaQuery.of(context);
+    final sent = _sentTo != null;
+    return Padding(padding: EdgeInsets.fromLTRB(24, 22, 24, 24 + mq.viewInsets.bottom + mq.padding.bottom), child: SingleChildScrollView(child: Column(
+      mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        Text(sent ? 'Enter the code' : 'Create my login', style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, letterSpacing: -.4, color: K.ink)),
+        const SizedBox(height: 6),
+        Text(sent
+            ? 'If ${_id.text.trim()} lives in a KL residency, a code has been sent to $_sentTo. It works for 10 minutes. Not there? Look in Junk or Spam.'
+            : 'Type your university ID. We e-mail a 6-digit code to your university mail (ID@kluniversity.in). Forgot your password? Do the same.',
+            style: const TextStyle(fontSize: 13.5, height: 1.4, color: _mute)),
+        _label('University ID'),
+        _Field(icon: LucideIcons.idCard, child: _box(_id, 'For example 2600040012', keyboard: TextInputType.number, enabled: !sent)),
+        if (sent) ...[
+          _label('6-digit code'),
+          _Field(icon: LucideIcons.mail, child: _box(_code, '000000', keyboard: TextInputType.number)),
+          _label('New password'),
+          _Field(icon: LucideIcons.lockKeyhole, trailing: IconButton(onPressed: () => setState(() => _show = !_show), icon: Icon(_show ? LucideIcons.eyeOff : LucideIcons.eye, size: 18, color: _mute)),
+              child: _box(_pw, '8 or more, a letter and a digit', obscure: !_show)),
+          _label('Type it again'),
+          _Field(icon: LucideIcons.lockKeyhole, child: _box(_again, 'The same password', obscure: !_show)),
+        ],
+        if (_error != null) Container(margin: const EdgeInsets.only(top: 12), padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(color: const Color(0xFFFDECEA), borderRadius: BorderRadius.circular(12), border: Border.all(color: const Color(0xFFF5C2BD))),
+            child: Text(_error!, style: const TextStyle(fontSize: 13, height: 1.35, color: Color(0xFF8A1C12)))),
+        const SizedBox(height: 18),
+        _Submit(label: _busy ? (sent ? 'Saving…' : 'Sending…') : (sent ? 'Save password and sign in' : 'Send me a code'), busy: _busy, onTap: _busy ? null : (sent ? _finish : _send)),
+        if (sent) Row(mainAxisAlignment: MainAxisAlignment.center, children: [
+          TextButton(onPressed: _busy || _wait > 0 ? null : _send, child: Text(_wait > 0 ? 'New code in $_wait s' : 'Send a new code')),
+          TextButton(onPressed: _busy ? null : () => setState(() { _sentTo = null; _code.clear(); _error = null; }), child: const Text('Change ID')),
+        ]),
+        const SizedBox(height: 6),
+        const Text('Nobody from the residency office will ask for your code or password.', textAlign: TextAlign.center, style: TextStyle(fontSize: 11.5, color: _mute)),
+      ])));
+  }
 }
