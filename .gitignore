@@ -19,6 +19,8 @@ apps/web-vite/dist/
 .DS_Store
 # built demo apps (APKs, single-file web app): rebuilt from source
 demo/
+# ...but not the Kubernetes overlay of the public demo site
+!deploy/hostel/overlays/demo/
 # raw screenshots behind the storyboards and guides: retaken by the integration tests
 docs/mobile-screens/
 

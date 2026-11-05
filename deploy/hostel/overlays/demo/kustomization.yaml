@@ -1,0 +1,30 @@
+# Public DEMO / training site (demo-residency.klfacultyhiring.com): made-up students only, never real students.
+# Database: copy of the local test data used for the Telugu warden guides and video (real staff names and phones
+# replaced, staff e-mails removed). Only three logins work: demo.student, demo.floorwarden, demo.chiefwarden
+# (normal password sign-in; DEMO_LOGIN and DEV_HEADERS stay off). Follows the production release tag.
+# Remove after the training: delete this overlay, deploy/clusters/klu/hostel-demo.yaml and the tunnel route.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: hostel-demo
+resources:
+  - namespace.yaml
+  - ../../base
+images:
+  - name: ghcr.io/satish5813/kl-hostel-api
+    newTag: "v1.3.1"
+  - name: ghcr.io/satish5813/kl-hostel-web
+    newTag: "v1.3.1"
+  - name: ghcr.io/satish5813/kl-hostel-migrate
+    newTag: "v1.3.1"
+patches:
+  - path: replicas.yaml
+  - target: {kind: Ingress, name: hostel}
+    patch: |
+      - op: replace
+        path: /spec/rules/0/host
+        value: demo-residency.klfacultyhiring.com
+  - target: {kind: StatefulSet, name: postgres}
+    patch: |
+      - op: add
+        path: /metadata/annotations
+        value: {kustomize.toolkit.fluxcd.io/prune: disabled}
