@@ -1,0 +1,50 @@
+name: Student app - Android APK
+
+# Builds the KL Residencies student app (apps/mobile) for Android:
+#   KL-Residencies-live.apk  -> https://residency.klfacultyhiring.com (real data, students sign in with their own password)
+#   KL-Residencies-demo.apk  -> https://demo-residency.klfacultyhiring.com (training data, demo.student)
+# Download: Actions -> this workflow -> latest run -> Artifacts. Install: allow "install unknown apps" on the phone.
+on:
+  workflow_dispatch:
+  push:
+    branches: [k8s-platform]
+    paths: ['apps/mobile/**', '.github/workflows/mobile-apk.yml']
+
+permissions:
+  contents: read
+
+jobs:
+  apk:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {name: live, api: 'https://residency.klfacultyhiring.com'}
+          - {name: demo, api: 'https://demo-residency.klfacultyhiring.com'}
+    defaults:
+      run:
+        working-directory: apps/mobile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: '17'}
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.38.5
+          cache: true
+      - run: flutter pub get
+      - name: Build APK (${{ matrix.name }})
+        run: |
+          flutter build apk --release \
+            --dart-define=API_BASE=${{ matrix.api }} \
+            --dart-define=DEMO_LOGIN=false \
+            --build-name=1.0.${{ github.run_number }} --build-number=${{ github.run_number }}
+          cp build/app/outputs/flutter-apk/app-release.apk "KL-Residencies-${{ matrix.name }}.apk"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: KL-Residencies-${{ matrix.name }}-apk
+          path: apps/mobile/KL-Residencies-${{ matrix.name }}.apk
+          retention-days: 30

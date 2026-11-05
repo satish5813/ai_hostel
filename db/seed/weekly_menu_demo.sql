@@ -14,12 +14,12 @@ BEGIN
   INSERT INTO dish SELECT 'LIVE', 'North', 'Veg', x, row_number() OVER () FROM unnest(ARRAY['Puri bhaji','Aloo paratha','Chole bhature','Paneer paratha','Methi thepla']) x;
   INSERT INTO dish SELECT 'LIVE', 'Both', 'Non_Veg', x, row_number() OVER () FROM unnest(ARRAY['Masala omelette','Egg dosa','Egg bhurji']) x;
   INSERT INTO dish SELECT 'GRAVY', 'South', 'Veg', x, row_number() OVER () FROM unnest(ARRAY['Gutti vankaya curry','Mixed veg kurma','Bendakaya pulusu','Sorakaya curry','Mushroom chettinad','Aloo tomato curry','Chikkudu curry']) x;
-  INSERT INTO dish SELECT 'GRAVY', 'South', 'Non_Veg', x, row_number() OVER () FROM unnest(ARRAY['Andhra chicken curry','Egg masala','Fish pulusu','Chicken chettinad','Gongura mutton']) x;
+  INSERT INTO dish SELECT 'GRAVY', 'South', 'Non_Veg', x, row_number() OVER () FROM unnest(ARRAY['Andhra chicken curry','Egg masala','Chicken pulusu','Chicken chettinad','Gongura chicken']) x;
   INSERT INTO dish SELECT 'GRAVY', 'North', 'Veg', x, row_number() OVER () FROM unnest(ARRAY['Paneer butter masala','Chole masala','Rajma','Kadai veg','Malai kofta','Aloo matar','Dum aloo']) x;
-  INSERT INTO dish SELECT 'GRAVY', 'North', 'Non_Veg', x, row_number() OVER () FROM unnest(ARRAY['Butter chicken','Chicken tikka masala','Egg curry','Keema matar','Kadai chicken']) x;
+  INSERT INTO dish SELECT 'GRAVY', 'North', 'Non_Veg', x, row_number() OVER () FROM unnest(ARRAY['Butter chicken','Chicken tikka masala','Egg curry','Chicken keema matar','Kadai chicken']) x;
   INSERT INTO dish SELECT 'FRY', 'South', 'Veg', x, row_number() OVER () FROM unnest(ARRAY['Bendakaya fry','Aloo fry','Cabbage poriyal','Beans poriyal','Dondakaya fry','Arbi fry','Raw banana fry']) x;
   INSERT INTO dish SELECT 'FRY', 'North', 'Veg', x, row_number() OVER () FROM unnest(ARRAY['Aloo gobi','Bhindi masala','Jeera aloo','Veg pakora','Gobi manchurian dry','Baingan bharta','Mix veg sabzi']) x;
-  INSERT INTO dish SELECT 'FRY', 'Both', 'Non_Veg', x, row_number() OVER () FROM unnest(ARRAY['Chicken 65','Fish fry','Egg fry','Chicken pakora','Pepper chicken']) x;
+  INSERT INTO dish SELECT 'FRY', 'Both', 'Non_Veg', x, row_number() OVER () FROM unnest(ARRAY['Chicken 65','Chicken fry','Egg fry','Chicken pakora','Pepper chicken']) x;
   INSERT INTO dish SELECT 'DAL', 'South', 'Veg', x, row_number() OVER () FROM unnest(ARRAY['Tomato pappu','Palakura pappu','Dosakaya pappu','Mamidikaya pappu','Mudda pappu']) x;
   INSERT INTO dish SELECT 'DAL', 'North', 'Veg', x, row_number() OVER () FROM unnest(ARRAY['Dal tadka','Dal makhani','Dal fry','Moong dal','Chana dal']) x;
   INSERT INTO dish SELECT 'CHUTNEY', 'Both', 'Veg', x, row_number() OVER () FROM unnest(ARRAY['Tomato pachadi','Gongura pachadi','Coconut chutney','Peanut chutney','Mint chutney','Dosakaya pachadi','Ridge gourd chutney']) x;
