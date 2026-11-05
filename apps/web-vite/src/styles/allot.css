@@ -275,6 +275,8 @@
 .rc-bar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 16px calc(10px + env(safe-area-inset-bottom));
   background: var(--surface-1); border-top: 1px solid var(--ui-line); box-shadow: 0 -6px 18px rgba(16, 24, 40, .08); font-size: 13.5px; }
 @media (min-width: 1024px) { .rc-bar { left: var(--ss-side, 248px); } }
+/* below 1024px the staff tab bar (pro.css, z-index 40, 63px) sits at the bottom: keep the Save bar above it, and the last room above both */
+@media (max-width: 1023px) { .rc-bar { bottom: calc(63px + env(safe-area-inset-bottom, 0px)); padding-bottom: 10px; } .pg.rc { padding-bottom: 72px; } }
 .stg-static > div { flex: 1 0 auto; min-width: 112px; display: flex; flex-direction: column; gap: 1px; padding: 8px 12px; border-radius: 12px; background: var(--surface-1); border: 1px solid var(--ui-line); }
 .stg-static b { font-size: 19px; line-height: 24px; font-weight: 600; font-variant-numeric: tabular-nums; }
 .stg-static span { font-size: 12px; color: var(--ink-muted); white-space: nowrap; }
