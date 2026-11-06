@@ -4,6 +4,7 @@ import { api, ApiError, setSession } from '@/lib/api';
 import { Logo } from '@/ui/kit';
 import '@/styles/login.css';
 
+const LINK: React.CSSProperties = { background: 'none', border: 0, padding: 0, font: 'inherit', color: 'var(--brand, #0B7A71)', fontWeight: 600, textDecoration: 'underline', cursor: 'pointer' };
 const msg = (e: unknown) => (e instanceof ApiError ? (e.body as { issues?: { message: string }[] }).issues?.[0]?.message ?? e.message : String(e));
 
 /**
@@ -81,9 +82,9 @@ export default function Register() {
                 {rules.map(([t, v]) => <li key={t} style={{ display: 'flex', alignItems: 'center', gap: 7, fontSize: 13, color: v ? '#067647' : 'var(--ink-3)' }}><Icon name={v ? 'check' : 'clock'} size={14} />{t}</li>)}
               </ul>
               <button type="submit" className="login-submit" disabled={!ok || busy}>{busy ? 'Saving…' : 'Save password and sign in'}<Icon name="arrow-right" size={17} /></button>
-              <p className="login-hint" style={{ marginTop: 12 }}>
-                {wait > 0 ? `No code? You can ask again in ${wait} s.` : <button type="button" className="login-eye" style={{ position: 'static', width: 'auto', padding: 0, textDecoration: 'underline' }} onClick={send} disabled={busy}>Send a new code</button>}
-                {' · '}<button type="button" className="login-eye" style={{ position: 'static', width: 'auto', padding: 0, textDecoration: 'underline' }} onClick={() => { setSentTo(''); setCode(''); setErr(''); }}>Change ID</button>
+              <p className="login-hint" style={{ marginTop: 12, display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '4px 10px' }}>
+                {wait > 0 ? `No code? You can ask again in ${wait} s.` : <button type="button" style={LINK} onClick={send} disabled={busy}>Send a new code</button>}
+                <button type="button" style={LINK} onClick={() => { setSentTo(''); setCode(''); setErr(''); }}>Change ID</button>
               </p>
             </form>
           )}
