@@ -3,12 +3,12 @@ name: Student app - Android APK
 # Builds the KL Residencies student app (apps/mobile) for Android:
 #   KL-Residencies-live.apk  -> https://residency.klfacultyhiring.com (real data, students sign in with their own password)
 #   KL-Residencies-demo.apk  -> https://demo-residency.klfacultyhiring.com (training data, demo.student)
-# Download: Actions -> this workflow -> latest run -> Artifacts. Install: allow "install unknown apps" on the phone.
+# Download: https://residency.klfacultyhiring.com/app (or Actions -> Artifacts). Install: allow "install unknown apps".
 on:
   workflow_dispatch:
   push:
     branches: [k8s-platform]
-    paths: ['apps/mobile/**', '.github/workflows/mobile-apk.yml']
+    paths: ['apps/mobile/**', '.github/workflows/mobile-apk.yml', 'deploy/docker/apk*']
 
 permissions:
   contents: read
@@ -48,3 +48,30 @@ jobs:
           name: KL-Residencies-${{ matrix.name }}-apk
           path: apps/mobile/KL-Residencies-${{ matrix.name }}.apk
           retention-days: 30
+
+  # both APKs in one small web server image, served at /download/ on the residency addresses (deploy/hostel/base/apk.yaml)
+  publish:
+    needs: apk
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with: {path: apk, merge-multiple: true}
+      - run: ls -la apk
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: deploy/docker/apk.Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/kl-hostel-apk:${{ github.sha }}
+            ghcr.io/${{ github.repository_owner }}/kl-hostel-apk:latest

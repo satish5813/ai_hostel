@@ -81,7 +81,7 @@ function SignInCard({ data }: { data: Demo }) {
         </div>
         <button type="submit" className="login-submit" disabled={!!busy}>{busy && busy === u.trim() ? 'Signing in…' : 'Sign in'}<Icon name="arrow-right" size={17} /></button>
         {demo ? <button type="button" className="login-link" onClick={() => setTab('demo')}>Trying the system? Pick a demo account<Icon name="arrow-right" size={14} /></button>
-          : <p className="login-hint" style={{ marginTop: 14 }}>Student, first time or forgot your password? <a href="/register"><b>Create my login</b></a> with a code sent to your university mail. Staff: use the link in the e-mail from the hostel office.</p>}
+          : <p className="login-hint" style={{ marginTop: 14 }}>Student, first time or forgot your password? <a href="/register"><b>Create my login</b></a> with a code sent to your university mail, or <a href="/app"><b>get the Android app</b></a>. Staff: use the link in the e-mail from the hostel office.</p>}
       </form>) : (
       <div className="login-demo">
         <div className="login-control"><Icon name="search" size={16} />

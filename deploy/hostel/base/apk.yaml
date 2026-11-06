@@ -1,0 +1,56 @@
+# The student app's Android download (/download/* on the residency address); image from .github/workflows/mobile-apk.yml.
+# Always the newest APK: imagePullPolicy Always + :latest; a new APK goes out with
+#   kubectl -n <namespace> rollout restart deploy/apk
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: apk
+spec:
+  replicas: 1
+  selector: {matchLabels: {app: apk}}
+  template:
+    metadata:
+      labels: {app: apk}
+    spec:
+      nodeSelector: {klu/role: apps}
+      imagePullSecrets: [{name: ghcr-pull}]
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 101
+        seccompProfile: {type: RuntimeDefault}
+      containers:
+        - name: apk
+          image: ghcr.io/satish5813/kl-hostel-apk:latest
+          imagePullPolicy: Always
+          ports: [{name: http, containerPort: 8080}]
+          readinessProbe:
+            httpGet: {path: /healthz, port: http}
+            periodSeconds: 15
+          resources:
+            requests: {cpu: 10m, memory: 16Mi}
+            limits: {cpu: 500m, memory: 64Mi}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities: {drop: [ALL]}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: apk
+spec:
+  selector: {app: apk}
+  ports: [{name: http, port: 80, targetPort: http}]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: apk
+spec:
+  podSelector: {matchLabels: {app: apk}}
+  policyTypes: [Ingress, Egress]
+  ingress:
+    - from:
+        - namespaceSelector: {matchLabels: {kubernetes.io/metadata.name: kube-system}}
+          podSelector: {matchLabels: {app.kubernetes.io/name: traefik}}
+      ports: [{port: 8080}]
+  egress: []

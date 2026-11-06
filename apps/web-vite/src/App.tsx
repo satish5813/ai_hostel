@@ -96,6 +96,7 @@ import Logins from './pages/admin/Logins';
 import Accounts from './pages/admin/Accounts';
 import SetPassword from './pages/SetPassword';
 import Register from './pages/Register';
+import AppDownload from './pages/AppDownload';
 
 /** Routes carry the screen codes of the Roles document (see src/app/screens.ts). */
 export function App() {
@@ -104,6 +105,7 @@ export function App() {
       <Routes>
         <Route path="/" element={<SignIn />} />
         <Route path="/set-password" element={<SetPassword />} />           {/* the one-time link in the invitation e-mail */}
+        <Route path="/app" element={<AppDownload />} />                    {/* download the student app (Android) and how to sign up */}
         <Route path="/register" element={<Register />} />                  {/* a resident creates their own login with a mailed code */}
         <Route path="/home" element={<Home />} />
         <Route path="/profile" element={<Profile />} />                      {/* GEN-01 */}
