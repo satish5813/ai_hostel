@@ -25,7 +25,7 @@ export type Career = {
 };
 export type ChoiceHostel = { facility_id: string; hostel_code: string; residents: number; stated: number; product: number; services: number; higher: number; govt: number; startup: number; other: number };
 export type CareerChoice = { stated: number; residents: number; by_goal: { goal: string; name: string; n: number }[]; by_hostel: ChoiceHostel[] };
-export type Overview = { settings: { att_min: number; cgpa_watch: number }; buildings: Building[]; mess: { mood: number | null; ratings: number; boys: number | null; girls: number | null }; year: { academic_year: string }; careers: Career; career_choice?: CareerChoice; electricity_months: ElecMonth[] };
+export type Overview = { settings: { att_min: number; cgpa_watch: number }; buildings: Building[]; mess: { mood: number | null; ratings: number; boys: number | null; girls: number | null }; year: { academic_year: string }; careers: Career; career_choice?: CareerChoice; electricity_months: ElecMonth[]; scope?: string[] | null };
 export type FeeHostel = { facility_id: string; hostel_code: string; facility_name: string; gender: string; students: number; single_plan: number; two_plan: number; paid: number; part_paid: number; unpaid: number; overdue_students: number; no_demand: number; demanded: number; collected: number; outstanding: number; overdue: number };
 type FeeStudent = { student_id: string; name: string; programme: string | null; year_semester: string | null; plan_type: string | null; due: number; paid: number; outstanding: number; state: string; last_paid_on: string | null; receipts: number;
   career_goal: string | null; career_choice: string | null; cgpa: number | null; backlogs: number };
@@ -126,7 +126,7 @@ function Overview() {
     <>
       <section className="xd-hero xd-hero-grad">
         <div className="xd-hero-text"><p className="xd-eyebrow">{date} · academic year {d.year?.academic_year}</p><h1>Residencies at a glance</h1>
-          <p className="xd-lead">{b.length} residencies · {num(res)} students. Every number opens the residencies behind it.</p></div>
+          <p className="xd-lead">{d.scope ? `Your residencies: ${b.map((x) => x.facility_name).join(', ')}` : `${b.length} residencies`} · {num(res)} students. Every number opens the residencies behind it.</p></div>
         <div className="xd-pulse" aria-label="Quick view">
           <button type="button" onClick={() => setDrill('students')}><b>{num(res)}</b><small>students · {pct(sum(b, 'occupied'), sum(b, 'beds'))}% of beds</small></button>
           <button type="button" onClick={() => go('xd-fees')}><b>{pct(collected, demanded)}%</b><small>fees collected · {inr(collected)}</small></button>

@@ -3,6 +3,8 @@ import { sql } from 'drizzle-orm';
 import { DbService } from '../db/db.service.js';
 import { CareerService } from '../career/career.service.js';
 import { PATH_NAME, type Path } from '../dean/career-rules.js';
+import { facWhere, scopeOf } from '../auth/scope.js';
+import type { AuthUser } from '../auth/auth.types.js';
 
 /** CTE: each resident's hostel-fee standing across their demands (Paid, Part_Paid, Pending, Overdue). */
 const FEE_STATE = sql`per_student as (
@@ -32,7 +34,8 @@ export class ExecService {
   constructor(private dbs: DbService, private career: CareerService, private elec: ElectricityService, private repairs: RepairsService) {}
 
   /** One row per building with everything its card shows; the university strip is the sum of the rows. */
-  async overview() {
+  async overview(u?: AuthUser) {
+    const scoped = scopeOf(u) !== null;
     const [settings] = await this.dbs.rows<{ att_min: number; cgpa_watch: number }>(sql`select att_min::float, cgpa_watch::float from ${SETTINGS} s`);
     const buildings = await this.dbs.rows(sql`
       with s as ${SETTINGS},
@@ -60,14 +63,15 @@ export class ExecService {
         from hostel.staff_attendance sa where sa.facility_id = hp.facility_id and sa.att_date > current_date - 30 and ${WARDEN(sql`sa`)}) w on true
       left join lateral (select count(*) filter (where ${OPEN_CASE})::int as open_cases, count(*) filter (where c.incident_on >= (select start_date from hostel.academic_year where is_current))::int as cases_year
         from hostel.discipline_case c where c.facility_id = hp.facility_id) dc on true
-      where hp.status = 'Active' and hp.hostel_gender::text <> 'Staff'
+      where hp.status = 'Active' and hp.hostel_gender::text <> 'Staff' and ${facWhere('hp.facility_id', null, u)}
       order by hp.hostel_gender, hp.hostel_code`);
     const [mess] = await this.dbs.rows(sql`select round(100 * avg(score))::int as mood, count(*)::int as ratings,
         round(100 * avg(score) filter (where gender_group = 'Boys'))::int as boys, round(100 * avg(score) filter (where gender_group = 'Girls'))::int as girls
-      from hostel.meal_rating where meal_date > current_date - 30`);
+      from hostel.meal_rating r where meal_date > current_date - 30
+        and (${!scoped} or exists (select 1 from hostel.v_resident_snapshot x where x.student_id = r.student_id and ${facWhere('x.facility_id', null, u)}))`);
     const [year] = await this.dbs.rows(sql`select academic_year, to_char(start_date, 'YYYY-MM-DD') as start_date from hostel.academic_year where is_current`);
     // careers by building: second-year progress and final-year outcomes (numbers only)
-    const [y2, y4] = await Promise.all([this.career.secondYear(undefined, undefined, false), this.career.finalYear(undefined, undefined, false)]);
+    const [y2, y4] = await Promise.all([this.career.secondYear(u, undefined, false), this.career.finalYear(u, undefined, false)]);
     const careers = { second_year: { summary: y2.summary, paths: y2.paths, gaps: y2.gaps }, final_year: { summary: y4.summary, by_goal: y4.by_goal, recruiters: y4.recruiters, package_bands: y4.package_bands } };
     // electricity paid by students (room bill shares and recharges) and repair tickets, by building
     const [elec, tickets] = await Promise.all([this.elec.summary(), this.repairs.summary()]);
@@ -76,20 +80,21 @@ export class ExecService {
       tickets: (tickets as { facility_id: string }[]).find((x) => x.facility_id === b.facility_id) ?? null }));
     // what residents say they want to do after university (career_goal, loaded from the career-choice files)
     const choiceGoals = await this.dbs.rows<{ goal: Path; n: number }>(sql`select g.goal, count(*)::int as n from acad.career_goal g
-      join hostel.v_resident_snapshot v on v.student_id = g.student_id where g.goal <> 'Undecided' group by 1 order by 2 desc`);
+      join hostel.v_resident_snapshot v on v.student_id = g.student_id where g.goal <> 'Undecided' and ${facWhere('v.facility_id', null, u)} group by 1 order by 2 desc`);
     const choiceHostels = await this.dbs.rows(sql`select v.facility_id, v.hostel_code, count(*)::int as residents, count(g.goal)::int as stated,
         count(*) filter (where g.goal = 'Placement_Product')::int as product, count(*) filter (where g.goal = 'Placement_Services')::int as services,
         count(*) filter (where g.goal = 'Higher_Studies')::int as higher, count(*) filter (where g.goal = 'Govt_Exams')::int as govt,
         count(*) filter (where g.goal = 'Entrepreneurship')::int as startup, count(*) filter (where g.goal = 'Core_Other')::int as other
       from hostel.v_resident_snapshot v left join acad.career_goal g on g.student_id = v.student_id and g.goal <> 'Undecided'
+      where ${facWhere('v.facility_id', null, u)}
       group by 1, 2 order by residents desc`);
     const career_choice = { stated: choiceGoals.reduce((a, g) => a + g.n, 0), residents: buildings.reduce((a, b) => a + Number((b as { residents?: number }).residents ?? 0), 0),
       by_goal: choiceGoals.map((g) => ({ goal: g.goal, name: PATH_NAME[g.goal], n: g.n })), by_hostel: choiceHostels };
-    return { settings, buildings: withCareer, mess, year, careers, career_choice, electricity_months: elec.by_month, as_of: new Date().toISOString() };
+    return { settings, buildings: withCareer, mess, year, careers, career_choice, electricity_months: scoped ? [] : elec.by_month, scope: scopeOf(u), as_of: new Date().toISOString() };
   }
 
   /** Hostel fees for the executive view: who is on a single or two-instalment plan, who has paid, and the money (EXE-01). */
-  async fees() {
+  async fees(u?: AuthUser) {
     const hostels = await this.dbs.rows(sql`
       with per_student as (
         select v.student_id, v.facility_id, sum(d.amount_due) as due, sum(d.amount_paid) as paid,
@@ -113,7 +118,7 @@ export class ExecService {
       left join hostel.v_resident_snapshot v on v.facility_id = hp.facility_id
       left join per_student s on s.student_id = v.student_id
       left join plan p on p.student_id = v.student_id
-      where hp.status = 'Active' and hp.hostel_gender::text <> 'Staff'
+      where hp.status = 'Active' and hp.hostel_gender::text <> 'Staff' and ${facWhere('hp.facility_id', null, u)}
       group by 1, 2, 3, 4 order by demanded desc`);
     return { hostels, as_of: new Date().toISOString() };
   }
@@ -142,7 +147,7 @@ export class ExecService {
   }
 
   /** One row per career path: how many residents chose it, how they stand on fees and results. facilityId 'all' = whole campus. */
-  async careerMatrix(facilityId: string) {
+  async careerMatrix(facilityId: string, u?: AuthUser) {
     const rows = await this.dbs.rows<{ goal: Path; students: number; paid: number; part_paid: number; unpaid: number; overdue_students: number; outstanding: number; overdue: number; avg_cgpa: number | null; backlog_students: number }>(sql`
       with ${FEE_STATE}
       select g.goal, count(*)::int as students,
@@ -152,13 +157,13 @@ export class ExecService {
         round(avg(v.cgpa), 2)::float as avg_cgpa, count(*) filter (where v.backlogs > 0)::int as backlog_students
       from hostel.v_resident_snapshot v join acad.career_goal g on g.student_id = v.student_id and g.goal <> 'Undecided'
       left join per_student s on s.student_id = v.student_id
-      where ${facilityId === 'all' ? sql`true` : sql`v.facility_id = ${facilityId}`}
+      where ${facWhere('v.facility_id', facilityId === 'all' ? null : facilityId, u)}
       group by 1 order by students desc`);
     return rows.map((r) => ({ ...r, name: PATH_NAME[r.goal] }));
   }
 
   /** Residents who chose a career path, with their fee standing; facilityId 'all' = campus, bucket narrows by fee state. */
-  async careerStudents(facilityId: string, goal: string, bucket = 'all') {
+  async careerStudents(facilityId: string, goal: string, bucket = 'all', u?: AuthUser) {
     const fee = { paid: sql`s.state = 'Paid'`, part: sql`s.state = 'Part_Paid'`, unpaid: sql`s.state in ('Pending', 'Overdue')`, overdue: sql`s.state = 'Overdue'`,
       backlogs: sql`v.backlogs > 0`, all: sql`true` }[bucket] ?? sql`true`;
     return this.dbs.rows(sql`
@@ -168,12 +173,12 @@ export class ExecService {
              coalesce(s.due, 0)::float as due, coalesce(s.paid, 0)::float as paid, coalesce(s.due - s.paid, 0)::float as outstanding, coalesce(s.state, 'No demand') as state
       from hostel.v_resident_snapshot v join acad.career_goal g on g.student_id = v.student_id
       left join per_student s on s.student_id = v.student_id
-      where ${facilityId === 'all' ? sql`true` : sql`v.facility_id = ${facilityId}`} and ${goal === 'all' ? sql`g.goal <> 'Undecided'` : sql`g.goal = ${goal}`} and ${fee}
+      where ${facWhere('v.facility_id', facilityId === 'all' ? null : facilityId, u)} and ${goal === 'all' ? sql`g.goal <> 'Undecided'` : sql`g.goal = ${goal}`} and ${fee}
       order by outstanding desc, v.cgpa desc nulls last, v.name`);
   }
 
-  async building(facilityId: string) {
-    const [b] = (await this.overview()).buildings.filter((x) => (x as unknown as { facility_id: string }).facility_id === facilityId);
+  async building(facilityId: string, u?: AuthUser) {
+    const [b] = (await this.overview(u)).buildings.filter((x) => (x as unknown as { facility_id: string }).facility_id === facilityId);
     if (!b) throw new NotFoundException('Hostel not found');
     const [settings] = await this.dbs.rows<{ att_min: number; cgpa_watch: number }>(sql`select att_min::float, cgpa_watch::float from ${SETTINGS} s`);
     const at = settings.att_min;
