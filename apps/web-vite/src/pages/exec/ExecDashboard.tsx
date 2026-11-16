@@ -36,8 +36,8 @@ type MatrixRow = { goal: string; name: string; students: number; paid: number; p
 type Detail = {
   building: Building; settings: Overview['settings'];
   performance: { cgpa_bands: { band: string; n: number }[]; attendance_bands: { band: string; n: number }[];
-    watch: { student_id: string; name: string; programme: string | null; year_semester: string | null; term_label: string | null; cgpa: number | null; attendance_pct: number | null; backlogs: number; activities: number }[];
-    roster: { student_id: string; name: string; programme: string | null; year_semester: string | null; cgpa: number | null; attendance_pct: number | null; backlogs: number }[] };
+    watch: { student_id: string; name: string; programme: string | null; year_semester: string | null; term_label: string | null; cgpa: number | null; attendance_pct: number | null; backlogs: number; activities: number; placed_at?: string | null; placed_lpa?: number | null; offers?: number | null }[];
+    roster: { student_id: string; name: string; programme: string | null; year_semester: string | null; cgpa: number | null; attendance_pct: number | null; backlogs: number; placed_at?: string | null; placed_lpa?: number | null; offers?: number | null }[] };
   activities: { types: { type: string; students: number; entries: number; hours: number }[]; recent: { name: string; type: string; title: string; role: string | null; from_date: string }[]; achievements: { level: string; n: number }[] };
   roll: { date: string; present: number; on_pass: number; sick: number; absent: number }[];
   mess: { meals: { meal: string; mood: number; ratings: number; positive: number; negative: number }[]; dishes: { meal: string; dish: string; ratings: number; mood: number; stars: number }[];
@@ -644,6 +644,12 @@ function Bars({ rows, order, alert, alertLabel = 'watch', onPick, picked }: { ro
 const cgpaBandOf = (v: number | null) => v == null ? 'No result' : v < 5 ? 'Below 5' : v < 6 ? '5 – 6' : v < 7 ? '6 – 7' : v < 8 ? '7 – 8' : v < 9 ? '8 – 9' : '9 and above';
 const attBandOf = (v: number | null, at: number) => v == null ? 'No record' : v < 65 ? 'Below 65%' : v < at ? `65% – ${at}%` : v < 85 ? `${at}% – 85%` : '85% and above';
 
+/** Placement cell of a student row: best offer and package, or a dash. */
+function Placed({ s }: { s: { placed_at?: string | null; placed_lpa?: number | null; offers?: number | null } }) {
+  if (!s.placed_at) return <span className="xd-quiet">—</span>;
+  return <><span className="xd-pill xd-pill-good">{s.placed_at}</span><small>{s.placed_lpa != null ? `${s.placed_lpa} LPA` : 'Offer'}{(s.offers ?? 0) > 1 ? ` · ${s.offers} offers` : ''}</small></>;
+}
+
 function Academic({ d }: { d: Detail }) {
   const p = d.performance, at = d.settings.att_min;
   const [pick, setPick] = useState<{ kind: 'cgpa' | 'att'; band: string } | null>(null);
@@ -661,23 +667,23 @@ function Academic({ d }: { d: Detail }) {
       </Block>
       {pick && <Block wide title={`${pick.kind === 'cgpa' ? 'CGPA' : 'Attendance'}: ${pick.band}`} sub={`${picked.length} student${picked.length === 1 ? '' : 's'}`}>
         <div className="xd-table-wrap"><table className="xd-table">
-          <thead><tr><th>Student</th><th>Programme</th><th className="n">CGPA</th><th className="n">Attendance</th><th className="n">Backlogs</th></tr></thead>
+          <thead><tr><th>Student</th><th>Programme</th><th className="n">CGPA</th><th className="n">Attendance</th><th className="n">Backlogs</th><th>Placement</th></tr></thead>
           <tbody>{picked.map((s) => (
             <tr key={s.student_id}><td><StudentName id={s.student_id} name={s.name} /></td><td>{s.programme ?? '—'}{s.year_semester ? <small>{s.year_semester}</small> : null}</td>
               <td className={`n${s.cgpa != null && s.cgpa < d.settings.cgpa_watch ? ' xd-flag' : ''}`}>{s.cgpa?.toFixed(2) ?? '—'}</td>
               <td className={`n${s.attendance_pct != null && s.attendance_pct < at ? ' xd-flag' : ''}`}>{s.attendance_pct != null ? `${s.attendance_pct}%` : '—'}</td>
-              <td className={`n${s.backlogs ? ' xd-flag' : ''}`}>{s.backlogs || '—'}</td></tr>))}</tbody></table></div>
+              <td className={`n${s.backlogs ? ' xd-flag' : ''}`}>{s.backlogs || '—'}</td><td><Placed s={s} /></td></tr>))}</tbody></table></div>
       </Block>}
       <Block wide title="Students needing attention" sub={`Backlogs, attendance below ${at}%, or CGPA under ${d.settings.cgpa_watch}`}>
         {p.watch.length ? (
           <div className="xd-table-wrap"><table className="xd-table">
-            <thead><tr><th>Student</th><th>Programme</th><th className="n">Backlogs</th><th className="n">CGPA</th><th className="n">Attendance</th><th className="n">Activities</th></tr></thead>
+            <thead><tr><th>Student</th><th>Programme</th><th className="n">Backlogs</th><th className="n">CGPA</th><th className="n">Attendance</th><th className="n">Activities</th><th>Placement</th></tr></thead>
             <tbody>{p.watch.map((s) => (
               <tr key={s.student_id}><td><StudentName id={s.student_id} name={s.name} /></td><td>{s.programme ?? '—'}{s.year_semester ? <small>{s.year_semester}</small> : null}</td>
                 <td className={`n${s.backlogs ? ' xd-flag' : ''}`}>{s.backlogs || '—'}</td>
                 <td className={`n${s.cgpa != null && s.cgpa < d.settings.cgpa_watch ? ' xd-flag' : ''}`}>{s.cgpa?.toFixed(2) ?? '—'}</td>
                 <td className={`n${s.attendance_pct != null && s.attendance_pct < at ? ' xd-flag' : ''}`}>{s.attendance_pct != null ? `${s.attendance_pct}%` : '—'}</td>
-                <td className="n">{s.activities}</td></tr>))}</tbody></table></div>
+                <td className="n">{s.activities}</td><td><Placed s={s} /></td></tr>))}</tbody></table></div>
         ) : <p className="xd-none"><CheckCircle2 size={14} />No student has a backlog or an attendance shortfall.</p>}
       </Block>
     </div>

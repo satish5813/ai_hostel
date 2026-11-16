@@ -222,11 +222,17 @@ export class ExecService {
         when cgpa < 7 then '6 – 7' when cgpa < 8 then '7 – 8' when cgpa < 9 then '8 – 9' else '9 and above' end as band from hostel.v_resident_snapshot where facility_id = ${facilityId}) x group by 1`);
     const attBands = await this.dbs.rows(sql`select band, count(*)::int as n from (select case when attendance_pct is null then 'No record' when attendance_pct < 65 then 'Below 65%'
         when attendance_pct < ${at} then ${`65% – ${at}%`} when attendance_pct < 85 then ${`${at}% – 85%`} else '85% and above' end as band from hostel.v_resident_snapshot where facility_id = ${facilityId}) x group by 1`);
-    const watch = await this.dbs.rows(sql`select student_id, name, programme, year_semester, term_label, cgpa::float, attendance_pct::float, backlogs::int, activities
-      from hostel.v_resident_snapshot where facility_id = ${facilityId} and (backlogs > 0 or attendance_pct < ${at} or cgpa < ${settings.cgpa_watch})
+    const watch = await this.dbs.rows(sql`select v.student_id, v.name, v.programme, v.year_semester, v.term_label, v.cgpa::float, v.attendance_pct::float, v.backlogs::int, v.activities, pl.placed_at, pl.placed_lpa, pl.offers
+      from hostel.v_resident_snapshot v
+      left join lateral (select o.organisation as placed_at, o.ctc_lpa::float as placed_lpa, count(*) over ()::int as offers from acad.career_outcome o
+        where o.student_id = v.student_id and o.outcome_type = 'Placement' and o.stage in ('Offer', 'Joined') order by o.ctc_lpa desc nulls last limit 1) pl on true
+      where v.facility_id = ${facilityId} and (v.backlogs > 0 or v.attendance_pct < ${at} or v.cgpa < ${settings.cgpa_watch})
       order by backlogs desc, attendance_pct nulls first, cgpa`);
-    const roster = await this.dbs.rows(sql`select student_id, name, programme, year_semester, cgpa::float, attendance_pct::float, backlogs::int
-      from hostel.v_resident_snapshot where facility_id = ${facilityId} order by cgpa nulls last, name`);
+    const roster = await this.dbs.rows(sql`select v.student_id, v.name, v.programme, v.year_semester, v.cgpa::float, v.attendance_pct::float, v.backlogs::int, pl.placed_at, pl.placed_lpa, pl.offers
+      from hostel.v_resident_snapshot v
+      left join lateral (select o.organisation as placed_at, o.ctc_lpa::float as placed_lpa, count(*) over ()::int as offers from acad.career_outcome o
+        where o.student_id = v.student_id and o.outcome_type = 'Placement' and o.stage in ('Offer', 'Joined') order by o.ctc_lpa desc nulls last limit 1) pl on true
+      where v.facility_id = ${facilityId} order by v.cgpa nulls last, v.name`);
     const activityTypes = await this.dbs.rows(sql`select x.activity_type::text as type, count(distinct x.student_id)::int as students, count(*)::int as entries, coalesce(sum(x.hours), 0)::float as hours
       from acad.activity x join hostel.v_resident_snapshot v on v.student_id = x.student_id
       where v.facility_id = ${facilityId} and coalesce(x.to_date, current_date) >= (select start_date from hostel.academic_year where is_current) - 365 group by 1 order by 2 desc`);
