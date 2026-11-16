@@ -248,7 +248,7 @@ export const ROLES: RoleDef[] = [
   { code: 'SMV', name: 'Senior management (dashboard)', scope: 'University-wide', device: 'Web and mobile', section: 'Senior management', roles: ['Senior_Management'], sample: 'S-SM',
     access: { 'GEN-01': 'V', 'GEN-02': 'V', 'EXE-01': 'V' },
     cannot: ['Approve or edit anything; the dashboard is read-only.'] },
-  { code: 'LHH', name: 'Head, Ladies Hostels', scope: 'Hostels given to this login (the ladies residencies)', device: 'Web and mobile', section: 'Senior management', roles: ['Ladies_Hostels_Head'], sample: 'S-LH',
+  { code: 'LHH', name: 'Head, Ladies Hostels / Head, Boys Hostels', scope: 'Hostels given to this login (the ladies or the boys residencies)', device: 'Web and mobile', section: 'Senior management', roles: ['Ladies_Hostels_Head', 'Boys_Hostels_Head'], sample: 'S-LH',
     access: { 'GEN-01': 'V', 'GEN-02': 'V', 'EXE-01': 'V' },
     cannot: ['See any other hostel.', 'Approve or edit anything; the dashboard is read-only.'] },
   { code: 'ACD', name: 'Faculty Counsellor, HOD, Principal, Dean Academics', scope: 'Counsellor: own students. HOD: own department. Principal and Dean Academics: all.', device: 'Web', section: 'Academic and examination', roles: ['Faculty_Counsellor', 'HOD', 'Principal', 'Dean_Academics'], sample: 'S-HD',

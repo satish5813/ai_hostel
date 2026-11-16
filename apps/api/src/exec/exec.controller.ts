@@ -5,9 +5,9 @@ import { CurrentUser, Roles } from '../auth/decorators.js';
 import { assertScope } from '../auth/scope.js';
 import type { AuthUser } from '../auth/auth.types.js';
 
-/** Who sees the executive dashboard (EXE-01). Ladies_Hostels_Head sees only the hostels given to the login. */
+/** Who sees the executive dashboard (EXE-01). Ladies_Hostels_Head and Boys_Hostels_Head see only the hostels given to the login. */
 export const EXECUTIVES = ['President', 'Vice_President', 'Pro_VC', 'Pro_VC_Finance', 'Pro_VC_Academics', 'Vice_Chancellor', 'Dean_Students_Affairs',
-  'Senior_Management', 'Ladies_Hostels_Head', 'authority', 'admin'];
+  'Senior_Management', 'Ladies_Hostels_Head', 'Boys_Hostels_Head', 'authority', 'admin'];
 
 @ApiTags('EXE · executive dashboard')
 @ApiBearerAuth()

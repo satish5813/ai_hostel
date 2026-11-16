@@ -36,6 +36,7 @@ export const ROLE_INFO: { code: string; label: string; group: string; hostel: bo
   { code: 'President', label: 'President', group: 'Management', hostel: false, does: 'Executive dashboard' },
   { code: 'Senior_Management', label: 'Senior management', group: 'Management', hostel: false, does: 'Executive dashboard, read-only' },
   { code: 'Ladies_Hostels_Head', label: 'Head, Ladies Hostels', group: 'Management', hostel: true, does: 'Executive dashboard of the hostels given to the login' },
+  { code: 'Boys_Hostels_Head', label: 'Head, Boys Hostels', group: 'Management', hostel: true, does: 'Executive dashboard of the hostels given to the login' },
 ];
 const STAFF_ROLES = ROLE_INFO.map((r) => r.code);
 const INVITE_DAYS = 7, MAX_FAILS = 5, LOCK_MINUTES = 15;

@@ -9,7 +9,7 @@ import { Logo } from '@/ui/kit';
 import '@/styles/login.css';
 
 /** Where each login lands after signing in. */
-const EXEC = ['President', 'Vice_President', 'Pro_VC', 'Pro_VC_Finance', 'Pro_VC_Academics', 'Vice_Chancellor', 'Senior_Management', 'Ladies_Hostels_Head'];
+const EXEC = ['President', 'Vice_President', 'Pro_VC', 'Pro_VC_Finance', 'Pro_VC_Academics', 'Vice_Chancellor', 'Senior_Management', 'Ladies_Hostels_Head', 'Boys_Hostels_Head'];
 const landing = (role: string) => (role === 'Chief_Warden' ? '/overview' : role === 'Dean_Students_Affairs' ? '/dean' : EXEC.includes(role) ? '/exec' : '/home');
 /** Photographs of the KL University hostels, supplied by the university (landscape crops for the hero). */
 const PHOTOS: { src: string; title: string }[] = [

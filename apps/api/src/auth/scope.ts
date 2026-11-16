@@ -5,7 +5,7 @@ import { MANAGEMENT } from './decorators.js';
 import type { AuthUser } from './auth.types.js';
 
 /** Hostel roles whose login covers only the hostels of the person's active assignments (decision D7). */
-export const SCOPED = new Set(['Chief_Warden', 'Warden', 'Assistant_Warden', 'Hostel_Incharge', 'Floor_Warden', 'Office_Staff', 'Room_Allotment', 'Ladies_Hostels_Head']);
+export const SCOPED = new Set(['Chief_Warden', 'Warden', 'Assistant_Warden', 'Hostel_Incharge', 'Floor_Warden', 'Office_Staff', 'Room_Allotment', 'Ladies_Hostels_Head', 'Boys_Hostels_Head']);
 const UNRESTRICTED = new Set(['admin', 'system', 'Director_Hostels', ...MANAGEMENT]);
 
 /** null: every hostel; otherwise the facility ids the login may see (possibly none). */
