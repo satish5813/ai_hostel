@@ -61,7 +61,14 @@ export class AcadService {
     // the courses behind the backlog count (grade sheets, migration 129)
     const backlogCourses = await this.dbs.rows<{ course_code: string; grade: string }>(sql`select course_code, grade from acad.course_grade
       where student_id = ${studentId} and is_backlog order by course_code`);
-    return { student: st, hostel, terms, backlog_courses: backlogCourses, crt: { attendance: crtAtt, tests: crtTests }, certs, activities, achievements, prior, fresher: terms.length === 0 };
+    // class attendance course by course, for the latest semester loaded (migration 132)
+    const courses = await this.dbs.rows(sql`select c.academic_year, c.term, c.course_code, c.course_name, c.attendance_pct::float as pct, c.as_of,
+        c.l_held::float as l_held, c.l_attended::float as l_attended, c.t_held::float as t_held, c.t_attended::float as t_attended,
+        c.p_held::float as p_held, c.p_attended::float as p_attended, c.s_held::float as s_held, c.s_attended::float as s_attended
+      from acad.course_attendance c
+      where c.student_id = ${studentId} and (c.academic_year, c.term) = (select academic_year, term from acad.course_attendance where student_id = ${studentId} order by as_of desc limit 1)
+      order by c.attendance_pct, c.course_code`);
+    return { student: st, hostel, terms, backlog_courses: backlogCourses, courses, crt: { attendance: crtAtt, tests: crtTests }, certs, activities, achievements, prior, fresher: terms.length === 0 };
   }
 
   /** Every hosteller in one table for wardens and senior staff: academics, CRT and hostel conduct side by side. */

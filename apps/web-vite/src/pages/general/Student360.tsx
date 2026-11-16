@@ -9,16 +9,23 @@ import { can } from '@/app/screens';
 type P360 = {
   student: { student_id: string; full_name: string; gender: string; programme: string; level: string; dept_name: string | null; dept_code: string | null; is_hosteller: boolean; hostel_name: string | null; hostel_code: string | null; floor_name: string | null; room_code: string | null; bed_code: string | null; type_name: string | null; allocation_date: string | null; floor_warden: string | null; current_status: string | null; career_goal: string | null; career_notes: string | null };
   hostel: { session_pct: number | null; night_pct: number | null; nights_missed: number; outings: number; late_returns: number; alerts: number; sick_days: number; dues: number };
-  terms: { semester_no: number; term_label: string; sgpa: number; cgpa: number; credits: number; attendance_pct: number; backlogs: number }[];
+  terms: { semester_no: number; term_label: string; sgpa: number | null; cgpa: number | null; credits: number | null; attendance_pct: number | null; backlogs: number }[];
   backlog_courses?: { course_code: string; grade: string }[];
+  courses?: Course[];
   crt: { attendance: { month: string; held: number; attended: number }[]; tests: { id: number; test_name: string; test_date: string; category: string; score: number; max_score: number; percentile: number }[] };
   certs: { id: number; title: string; provider: string; category: string; issued_on: string; credential_ref: string | null; verified: boolean }[];
   activities: { id: number; type: string; title: string; role: string | null; from_date: string; to_date: string | null; hours: number | null }[];
   achievements: { id: number; title: string; level: string; category: string | null; achieved_on: string; award: string | null; verified: boolean }[];
 };
+type Course = { academic_year: string; term: string; course_code: string; course_name: string | null; pct: number | null; as_of: string;
+  l_held: number; l_attended: number; t_held: number; t_attended: number; p_held: number; p_attended: number; s_held: number; s_attended: number };
 const TABS = ['Overview', 'Academics', 'CRT', 'Skills', 'Activities', 'Hostel'] as const;
 const num = (n?: number | null) => (n === null || n === undefined ? '—' : String(Math.round(n)));
 const pct = (n?: number | null) => (n === null || n === undefined ? '—' : `${Math.round(n)}%`);
+const dec = (n?: number | null) => (n === null || n === undefined ? '—' : n.toFixed(2));
+const PARTS = [['l', 'Lecture'], ['t', 'Tutorial'], ['p', 'Practical'], ['s', 'Skill']] as const;
+/** "33 of 35" for one component of a course, or a dash when the course has none of it. */
+const part = (c: Course, k: (typeof PARTS)[number][0]) => (c[`${k}_held`] ? `${c[`${k}_attended`]} of ${c[`${k}_held`]}` : '—');
 const LEVEL_TONE: Record<string, string> = { International: 'tag-ok', National: 'tag-ok', State: 'tag-warn', University: '', Hostel: '' };
 const month = (m: string) => new Date(`${m}-01T00:00:00`).toLocaleDateString('en-IN', { month: 'short' });
 
@@ -39,6 +46,8 @@ export default function Student360({ id: own }: { id?: string }) {
   const verifier = can(s.role, 'ACA-01', 'V') && ['Floor_Warden', 'Warden', 'Assistant_Warden', 'Chief_Warden', 'Hostel_Incharge', 'Director_Hostels'].includes(s.role);
   if (!d.data) return <div className="q-empty">{d.error ? 'This profile is not open to you.' : 'Loading…'}</div>;
   const { student: st, hostel: h, terms, crt, certs, activities, achievements } = d.data;
+  const courses = d.data.courses ?? [];
+  const graded = terms.filter((t) => t.sgpa !== null);
   const last = terms[terms.length - 1];
   const crtHeld = crt.attendance.reduce((a, m) => a + m.held, 0), crtGot = crt.attendance.reduce((a, m) => a + m.attended, 0);
   const crtPct = crtHeld ? (100 * crtGot) / crtHeld : null;
@@ -61,7 +70,7 @@ export default function Student360({ id: own }: { id?: string }) {
           </div>
         </div>
         <div className="s360-rings">
-          <Ring v={last?.cgpa ?? 0} max={10} label={last ? last.cgpa.toFixed(2) : '—'} sub="CGPA" color="violet" />
+          <Ring v={last?.cgpa ?? 0} max={10} label={dec(last?.cgpa)} sub="CGPA" color="violet" />
           <Ring v={last?.attendance_pct ?? 0} max={100} label={num(last?.attendance_pct)} sub="Class %" color="sky" />
           <Ring v={crtPct ?? 0} max={100} label={num(crtPct)} sub="CRT %" color="coral" />
           <Ring v={h.night_pct ?? 0} max={100} label={num(h.night_pct)} sub="Residency %" color="green" />
@@ -72,7 +81,9 @@ export default function Student360({ id: own }: { id?: string }) {
 
       {tab === 'Overview' && (
         <div className="s360-grid">
-          <Tile title="Latest semester" go={() => setTab('Academics')}>{last ? <><b className="big">{last.sgpa.toFixed(2)}</b><span>SGPA, semester {last.semester_no} · {last.backlogs ? `${last.backlogs} backlog` : 'no backlogs'}</span><Sparkline data={terms.map((t) => t.sgpa)} color="violet" width={160} height={34} /></> : <span>No results yet</span>}</Tile>
+          <Tile title="Latest semester" go={() => setTab('Academics')}>{!last ? <span>No results yet</span> : last.sgpa !== null
+            ? <><b className="big">{last.sgpa.toFixed(2)}</b><span>SGPA, semester {last.semester_no} · {last.backlogs ? `${last.backlogs} backlog` : 'no backlogs'}</span><Sparkline data={terms.filter((t) => t.sgpa !== null).map((t) => t.sgpa!)} color="violet" width={160} height={34} /></>
+            : <><b className="big">{pct(last.attendance_pct)}</b><span>class attendance, semester {last.semester_no} · {last.term_label}{courses.length ? ` · ${courses.filter((c) => (c.pct ?? 100) < 75).length} of ${courses.length} courses below 75%` : ''}</span></>}</Tile>
           <Tile title="CRT" go={() => setTab('CRT')}>{crt.tests.length ? <><b className="big">{Math.round(crtAvg!)}<small>/100</small></b><span>average over {crt.tests.length} tests · {pct(crtPct)} sessions attended</span><Sparkline data={crt.tests.map((t) => (100 * t.score) / t.max_score)} color="coral" width={160} height={34} /></> : <span>No CRT records</span>}</Tile>
           <Tile title="Certifications" go={() => setTab('Skills')}><b className="big">{certs.length}</b>{certs.slice(0, 3).map((c) => <span key={c.id}>{c.title} · {c.provider}</span>)}</Tile>
           <Tile title="Achievements" go={() => setTab('Activities')}><b className="big">{achievements.length}</b>{achievements.slice(0, 3).map((a) => <span key={a.id}>{a.award ? `${a.award}, ` : ''}{a.title}</span>)}</Tile>
@@ -80,12 +91,22 @@ export default function Student360({ id: own }: { id?: string }) {
           <Tile title="Hostel" go={() => setTab('Hostel')}><b className="big">{pct(h.night_pct)}</b><span>night roll call, last 30 days · {h.outings} outings · {h.late_returns} late</span></Tile>
         </div>)}
 
+      {tab === 'Academics' && courses.length > 0 && (
+        <section className="box"><div className="box-head"><h2>{courses[0].academic_year} {courses[0].term} semester · attendance by course</h2><span className="grow" />
+          <span className="tag">as on {formatDate(courses[0].as_of)}</span></div>
+          <table className="s360-table"><thead><tr><th>Course</th>{PARTS.map(([, l]) => <th key={l}>{l}</th>)}<th>Attendance</th></tr></thead>
+            <tbody>{courses.map((c) => <tr key={c.course_code}><td data-label="Course"><b>{c.course_name ? titleCase(c.course_name) : c.course_code}</b><small style={{ display: 'block', color: 'var(--ink-muted)' }}>{c.course_code}</small></td>
+              {PARTS.map(([k, l]) => <td key={k} data-label={l}>{part(c, k)}</td>)}
+              <td data-label="Attendance"><span className={(c.pct ?? 100) < 75 ? 'tag tag-bad' : 'tag tag-ok'}>{pct(c.pct)}</span></td></tr>)}</tbody></table>
+          <p className="box-body klh-muted" style={{ margin: 0 }}>Overall for the semester: <b>{pct(last?.attendance_pct)}</b>. Below 75% in a course is shown in red. Figures are from the university ERP.</p>
+        </section>)}
+
       {tab === 'Academics' && (
         <section className="box"><div className="box-head"><h2>Semester results</h2></div>
-          <div className="box-body">{terms.length ? <BarChart data={terms.map((t) => ({ label: `S${t.semester_no}`, value: t.sgpa, highlight: t === last }))} unit="" showValues height={160} label="SGPA by semester" /> : <p className="klh-muted">No results loaded yet.</p>}</div>
+          <div className="box-body">{graded.length ? <BarChart data={graded.map((t) => ({ label: `S${t.semester_no}`, value: t.sgpa!, highlight: t === last }))} unit="" showValues height={160} label="SGPA by semester" /> : <p className="klh-muted">No semester results loaded yet.</p>}</div>
           <table className="s360-table"><thead><tr><th>Semester</th><th>SGPA</th><th>CGPA</th><th>Credits</th><th>Attendance</th><th>Backlogs</th></tr></thead>
-            <tbody>{terms.map((t) => <tr key={t.semester_no}><td data-label="Semester">{t.semester_no} · {t.term_label}</td><td data-label="SGPA"><b>{t.sgpa.toFixed(2)}</b></td><td data-label="CGPA">{t.cgpa.toFixed(2)}</td><td data-label="Credits">{t.credits}</td>
-              <td data-label="Attendance"><span className={t.attendance_pct < 75 ? 'tag tag-bad' : 'tag tag-ok'}>{pct(t.attendance_pct)}</span></td><td data-label="Backlogs">{t.backlogs || '—'}</td></tr>)}</tbody></table>
+            <tbody>{terms.map((t) => <tr key={t.semester_no}><td data-label="Semester">{t.semester_no} · {t.term_label}</td><td data-label="SGPA"><b>{dec(t.sgpa)}</b></td><td data-label="CGPA">{dec(t.cgpa)}</td><td data-label="Credits">{t.credits ?? '—'}</td>
+              <td data-label="Attendance">{t.attendance_pct === null ? '—' : <span className={t.attendance_pct < 75 ? 'tag tag-bad' : 'tag tag-ok'}>{pct(t.attendance_pct)}</span>}</td><td data-label="Backlogs">{t.backlogs || '—'}</td></tr>)}</tbody></table>
           {(d.data.backlog_courses?.length ?? 0) > 0 && <div className="box-body" style={{ display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'center' }}>
             <span className="klh-muted" style={{ marginRight: 4 }}>Backlog courses:</span>
             {d.data.backlog_courses!.map((c) => <span key={c.course_code} className="tag tag-bad" title={c.grade === 'DT' ? 'Detained' : `Grade ${c.grade}`}>{c.course_code} · {c.grade}</span>)}
