@@ -1,14 +1,15 @@
-name: Student app - Android APK
+name: Student and dashboard apps - Android APK
 
 # Builds the KL Residencies student app (apps/mobile) for Android:
 #   KL-Residencies-live.apk  -> https://residency.klfacultyhiring.com (real data, students sign in with their own password)
 #   KL-Residencies-demo.apk  -> https://demo-residency.klfacultyhiring.com (training data, demo.student)
+#   KL-Dashboard.apk         -> the leadership app (apps/leaders): the executive dashboard, signed in once per phone
 # Download: https://residency.klfacultyhiring.com/app (or Actions -> Artifacts). Install: allow "install unknown apps".
 on:
   workflow_dispatch:
   push:
     branches: [k8s-platform]
-    paths: ['apps/mobile/**', '.github/workflows/mobile-apk.yml', 'deploy/docker/apk*']
+    paths: ['apps/mobile/**', 'apps/leaders/**', '.github/workflows/mobile-apk.yml', 'deploy/docker/apk*']
 
 permissions:
   contents: read
@@ -49,9 +50,37 @@ jobs:
           path: apps/mobile/KL-Residencies-${{ matrix.name }}.apk
           retention-days: 30
 
-  # both APKs in one small web server image, served at /download/ on the residency addresses (deploy/hostel/base/apk.yaml)
+  # the leadership app: a thin shell around the executive dashboard (apps/leaders)
+  dashboard:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: apps/leaders
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with: {distribution: temurin, java-version: '17'}
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.38.5
+          cache: true
+      - run: flutter pub get
+      - run: flutter analyze --no-fatal-infos --no-fatal-warnings
+      - name: Build APK (dashboard)
+        run: |
+          flutter build apk --release             --dart-define=API_BASE=https://residency.klfacultyhiring.com             --build-name=1.0.${{ github.run_number }} --build-number=${{ github.run_number }}
+          cp build/app/outputs/flutter-apk/app-release.apk KL-Dashboard.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: KL-Dashboard-apk
+          path: apps/leaders/KL-Dashboard.apk
+          retention-days: 30
+
+  # all APKs in one small web server image, served at /download/ on the residency addresses (deploy/hostel/base/apk.yaml)
   publish:
-    needs: apk
+    needs: [apk, dashboard]
     runs-on: ubuntu-24.04
     permissions:
       contents: read

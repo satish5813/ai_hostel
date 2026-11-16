@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Shown while the app starts: the brand ground and the logo, the same as the app's own splash that follows. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@color/launch_ground" />
+    <item android:width="240dp" android:height="112dp" android:gravity="center">
+        <bitmap android:gravity="fill" android:src="@mipmap/launch_logo" />
+    </item>
+</layer-list>
