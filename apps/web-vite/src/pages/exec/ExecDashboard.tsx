@@ -6,6 +6,7 @@ import { setSession } from '@/lib/api';
 import { useApi, useProfile, useSession } from '@/lib/ui';
 import { Logo } from '@/ui/kit';
 import { mealLabel } from '@/pages/mess/weekly';
+import { FindStudent, StudentCardHost, StudentName } from './StudentCard';
 
 export type Building = { facility_id: string; hostel_code: string; facility_name: string; gender: string; accommodation_type: string; floors: number | null; beds: number; occupied: number; vacant: number;
   demanded: number; collected: number; overdue: number; students_overdue: number; residents: number; with_results: number; avg_cgpa: number | null; backlog_students: number; backlogs: number;
@@ -69,10 +70,12 @@ const ToneIcon = ({ t }: { t: Tone }) => (t === 'good' ? <CheckCircle2 size={13}
 export default function ExecDashboard() {
   const { facilityId } = useParams();
   return (
-    <div className="xd">
-      <TopBar />
-      <main className="xd-main">{facilityId ? <BuildingView id={facilityId} /> : <Overview />}</main>
-    </div>
+    <StudentCardHost>
+      <div className="xd">
+        <TopBar />
+        <main className="xd-main">{facilityId ? <BuildingView id={facilityId} /> : <Overview />}</main>
+      </div>
+    </StudentCardHost>
   );
 }
 
@@ -92,6 +95,7 @@ function TopBar() {
   return (
     <header className="xd-top">
       <button type="button" className="xd-brand" onClick={() => navigate('/exec')}><Logo cut="mark" height={30} /><span><b>KL Residencies</b><small>Executive view</small></span></button>
+      <FindStudent />
       <nav className="xd-links" aria-label="More">
         <button type="button" onClick={() => navigate('/reports/mess-sentiment')}><Utensils size={15} />Rasoi sentiment</button>
         <button type="button" onClick={printLandscape}><Printer size={15} />Print dashboard</button>
@@ -238,7 +242,7 @@ function FeeStudentsModal({ h, bucket, onClose }: { h: FeeHostel; bucket: string
       <table className="xd-table">
         <thead><tr><th>Student</th><th>Programme</th><th>Career choice</th><th>Plan</th><th className="n">Demanded</th><th className="n">Paid</th><th className="n">Outstanding</th><th>Status</th><th>Last paid</th><th className="n">CGPA</th></tr></thead>
         <tbody>{list.map((s) => (
-          <tr key={s.student_id}><td><b>{s.name}</b><small>{s.student_id}</small></td><td>{s.programme ?? '—'}{s.year_semester ? <small>{s.year_semester}</small> : null}</td>
+          <tr key={s.student_id}><td><StudentName id={s.student_id} name={s.name} /></td><td>{s.programme ?? '—'}{s.year_semester ? <small>{s.year_semester}</small> : null}</td>
             <td>{s.career_choice ? <span className="xd-choice">{s.career_choice}</span> : <span className="xd-quiet">Not stated</span>}</td>
             <td>{s.plan_type === 'Single' ? '1 instalment' : s.plan_type === 'Two_Instalments' ? '2 instalments' : '—'}</td>
             <td className="n">{inr(s.due)}</td><td className="n">{inr(s.paid)}</td><td className={`n${s.outstanding > 0 ? ' xd-flag' : ''}`}><b>{inr(s.outstanding)}</b></td>
@@ -346,7 +350,7 @@ function ChoiceStudentsModal({ p, onClose }: { p: Pick; onClose: () => void }) {
       <table className="xd-table">
         <thead><tr><th>Student</th><th>Residency</th><th>Programme</th><th>Career choice</th><th className="n">CGPA</th><th className="n">Backlogs</th><th className="n">Demanded</th><th className="n">Paid</th><th className="n">Outstanding</th><th>Fee status</th></tr></thead>
         <tbody>{list.map((s) => (
-          <tr key={s.student_id}><td><b>{s.name}</b><small>{s.student_id}</small></td><td>{s.hostel_code}</td><td>{s.programme ?? '—'}{s.year_semester ? <small>{s.year_semester}</small> : null}</td>
+          <tr key={s.student_id}><td><StudentName id={s.student_id} name={s.name} /></td><td>{s.hostel_code}</td><td>{s.programme ?? '—'}{s.year_semester ? <small>{s.year_semester}</small> : null}</td>
             <td><span className="xd-choice">{s.career_choice ?? s.goal}</span></td>
             <td className="n">{s.cgpa?.toFixed(2) ?? '—'}</td><td className={`n${s.backlogs ? ' xd-flag' : ''}`}>{s.backlogs || '—'}</td>
             <td className="n">{inr(s.due)}</td><td className="n">{inr(s.paid)}</td><td className={`n${s.outstanding > 0 ? ' xd-flag' : ''}`}><b>{inr(s.outstanding)}</b></td>
@@ -625,7 +629,7 @@ function Academic({ d }: { d: Detail }) {
         <div className="xd-table-wrap"><table className="xd-table">
           <thead><tr><th>Student</th><th>Programme</th><th className="n">CGPA</th><th className="n">Attendance</th><th className="n">Backlogs</th></tr></thead>
           <tbody>{picked.map((s) => (
-            <tr key={s.student_id}><td><b>{s.name}</b><small>{s.student_id}</small></td><td>{s.programme ?? '—'}{s.year_semester ? <small>{s.year_semester}</small> : null}</td>
+            <tr key={s.student_id}><td><StudentName id={s.student_id} name={s.name} /></td><td>{s.programme ?? '—'}{s.year_semester ? <small>{s.year_semester}</small> : null}</td>
               <td className={`n${s.cgpa != null && s.cgpa < d.settings.cgpa_watch ? ' xd-flag' : ''}`}>{s.cgpa?.toFixed(2) ?? '—'}</td>
               <td className={`n${s.attendance_pct != null && s.attendance_pct < at ? ' xd-flag' : ''}`}>{s.attendance_pct != null ? `${s.attendance_pct}%` : '—'}</td>
               <td className={`n${s.backlogs ? ' xd-flag' : ''}`}>{s.backlogs || '—'}</td></tr>))}</tbody></table></div>
@@ -635,7 +639,7 @@ function Academic({ d }: { d: Detail }) {
           <div className="xd-table-wrap"><table className="xd-table">
             <thead><tr><th>Student</th><th>Programme</th><th className="n">Backlogs</th><th className="n">CGPA</th><th className="n">Attendance</th><th className="n">Activities</th></tr></thead>
             <tbody>{p.watch.map((s) => (
-              <tr key={s.student_id}><td><b>{s.name}</b><small>{s.student_id}{s.term_label ? ` · ${s.term_label}` : ''}</small></td><td>{s.programme ?? '—'}{s.year_semester ? <small>{s.year_semester}</small> : null}</td>
+              <tr key={s.student_id}><td><StudentName id={s.student_id} name={s.name} /></td><td>{s.programme ?? '—'}{s.year_semester ? <small>{s.year_semester}</small> : null}</td>
                 <td className={`n${s.backlogs ? ' xd-flag' : ''}`}>{s.backlogs || '—'}</td>
                 <td className={`n${s.cgpa != null && s.cgpa < d.settings.cgpa_watch ? ' xd-flag' : ''}`}>{s.cgpa?.toFixed(2) ?? '—'}</td>
                 <td className={`n${s.attendance_pct != null && s.attendance_pct < at ? ' xd-flag' : ''}`}>{s.attendance_pct != null ? `${s.attendance_pct}%` : '—'}</td>
@@ -799,7 +803,7 @@ function Fees({ d }: { d: Detail }) {
       <Block wide title="Students with dues">
         {f.defaulters.length ? (
           <div className="xd-table-wrap"><table className="xd-table"><thead><tr><th>Student</th><th className="n">Outstanding</th><th>Oldest due date</th><th>Status</th></tr></thead>
-            <tbody>{f.defaulters.map((x) => <tr key={x.student_id}><td><b>{x.name}</b><small>{x.student_id}</small></td><td className="n">{inr(x.outstanding)}</td><td>{fmtDay(x.oldest_due)}</td>
+            <tbody>{f.defaulters.map((x) => <tr key={x.student_id}><td><StudentName id={x.student_id} name={x.name} /></td><td className="n">{inr(x.outstanding)}</td><td>{fmtDay(x.oldest_due)}</td>
               <td>{x.overdue ? <span className="xd-pill xd-t-bad"><AlertTriangle size={12} />Overdue</span> : <span className="xd-pill xd-t-warn">Not yet due</span>}</td></tr>)}</tbody></table></div>
         ) : <p className="xd-none"><CheckCircle2 size={14} />Every student has paid.</p>}
       </Block>

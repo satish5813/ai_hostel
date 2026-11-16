@@ -16,6 +16,7 @@ export class ExecController {
   constructor(private svc: ExecService) {}
   @Roles(...EXECUTIVES) @Get('overview') overview(@CurrentUser() u: AuthUser) { return this.svc.overview(u); }
   @Roles(...EXECUTIVES) @Get('buildings/:id') building(@CurrentUser() u: AuthUser, @Param('id') id: string) { assertScope(u, id); return this.svc.building(id, u); }
+  @Roles(...EXECUTIVES) @Get('students/:id') student(@CurrentUser() u: AuthUser, @Param('id') id: string) { return this.svc.student(id, u); }
   @Roles(...EXECUTIVES) @Get('fees') fees(@CurrentUser() u: AuthUser) { return this.svc.fees(u); }
   @Roles(...EXECUTIVES) @Get('fees/:id/students') feeStudents(@CurrentUser() u: AuthUser, @Param('id') id: string, @Query('bucket') bucket = 'all') { assertScope(u, id); return this.svc.feeStudents(id, bucket); }
   @Roles(...EXECUTIVES) @Get('careers/matrix') careerMatrix(@CurrentUser() u: AuthUser, @Query('facility') facility = 'all') { if (facility !== 'all') assertScope(u, facility); return this.svc.careerMatrix(facility, u); }

@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, NotFoundException } from '@nestjs/common';
 import { sql } from 'drizzle-orm';
 import { DbService } from '../db/db.service.js';
 import { CareerService } from '../career/career.service.js';
@@ -144,6 +144,38 @@ export class ExecService {
       left join acad.career_goal g on g.student_id = v.student_id and g.goal <> 'Undecided'
       where v.facility_id = ${facilityId} and ${where}
       order by outstanding desc, v.name`);
+  }
+
+  /**
+   * One student for the dashboard pop-up: who and where, attendance semester by semester and course by course for the
+   * running semester, results, and fees by kind. A login limited to some hostels sees only their residents.
+   */
+  async student(studentId: string, u?: AuthUser) {
+    const [st] = await this.dbs.rows<{ facility_id: string | null }>(sql`
+      select sm.student_id, initcap(sm.full_name) as name, sm.programme, sm.year_semester, d.dept_name, sm.gender::text as gender,
+        b.facility_id, b.hostel_code, b.hostel_name, b.floor_name, b.room_code, b.bed_code, a.allocation_date
+      from ref.student_master sm left join ref.department d on d.dept_code = sm.dept_code
+      left join hostel.hostel_allocation a on a.student_id = sm.student_id and a.status = 'Active' and a.occupant_type = 'Student'
+      left join hostel.v_bed b on b.subspace_id = a.subspace_id
+      where sm.student_id = ${studentId}`);
+    if (!st) throw new NotFoundException('Student not found');
+    const scope = scopeOf(u);
+    if (scope && !(st.facility_id && scope.includes(st.facility_id))) throw new ForbiddenException('This student is not in your hostels');
+    const terms = await this.dbs.rows(sql`select semester_no::int as semester_no, term_label, sgpa::float as sgpa, cgpa::float as cgpa, attendance_pct::float as attendance_pct, backlogs::int as backlogs
+      from acad.term_result where student_id = ${studentId} order by semester_no`);
+    const courses = await this.dbs.rows(sql`select c.course_code, c.course_name, c.attendance_pct::float as pct, c.as_of, c.academic_year, c.term,
+        (c.l_held + c.t_held + c.p_held + c.s_held)::float as held, (c.l_attended + c.t_attended + c.p_attended + c.s_attended)::float as attended
+      from acad.course_attendance c
+      where c.student_id = ${studentId} and (c.academic_year, c.term) = (select academic_year, term from acad.course_attendance where student_id = ${studentId} order by as_of desc limit 1)
+      order by c.attendance_pct, c.course_code`);
+    const fees = await this.dbs.rows(sql`select d.fee_head::text as head, sum(d.amount_due)::float as due, sum(d.amount_paid)::float as paid,
+        sum(greatest(d.amount_due - d.amount_paid, 0)) filter (where d.status::text not in ('Paid', 'Waived'))::float as outstanding,
+        min(d.due_date) filter (where d.status::text not in ('Paid', 'Waived') and d.amount_due > d.amount_paid)::text as next_due,
+        bool_or(d.status::text = 'Overdue') as overdue
+      from hostel.fee_demand d where d.student_id = ${studentId} group by 1 order by 2 desc`);
+    const [paid] = await this.dbs.rows(sql`select count(*)::int as receipts, max(r.paid_on)::date::text as last_paid_on
+      from hostel.fee_receipt r join hostel.fee_demand d on d.demand_id = r.demand_id where d.student_id = ${studentId} and r.gateway_status = 'Success'`);
+    return { student: st, terms, courses, fees, receipts: paid };
   }
 
   /** One row per career path: how many residents chose it, how they stand on fees and results. facilityId 'all' = whole campus. */
