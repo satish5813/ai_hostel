@@ -8,11 +8,11 @@ resources:
   - ../../base
 images:
   - name: ghcr.io/satish5813/kl-hostel-api
-    newTag: "810b6e5455e8"
+    newTag: "47217cf720d2"
   - name: ghcr.io/satish5813/kl-hostel-web
-    newTag: "810b6e5455e8"
+    newTag: "47217cf720d2"
   - name: ghcr.io/satish5813/kl-hostel-migrate
-    newTag: "810b6e5455e8"
+    newTag: "47217cf720d2"
 patches:
   - target: {kind: Ingress, name: hostel}
     patch: |
