@@ -539,3 +539,6 @@
   .xd-kpis:has(> .xd-kpi-wide):has(> :nth-child(4):last-child) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 .xs-placed { display: block; margin-top: 2px; color: #0F7A3A !important; font-weight: 700; }
+/* the top bar's links need room: between 1024 and 1200 px they stay hidden (All apps is on the phone layout's Home too) */
+@media (min-width: 1024px) and (max-width: 1199px) { .xd-links { display: none; } .xs-find { flex: 1; } }
+.xd-links button { white-space: nowrap; }

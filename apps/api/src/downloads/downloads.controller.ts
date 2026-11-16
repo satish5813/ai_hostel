@@ -34,6 +34,10 @@ export class DownloadsController {
     const byFile = await this.dbs.rows(sql`select file, count(*)::int as taps, count(distinct device_hash)::int as devices from shared.app_download group by 1 order by 2 desc`);
     const byDay = await this.dbs.rows(sql`select downloaded_at::date::text as day, count(*)::int as taps, count(distinct device_hash)::int as devices from shared.app_download group by 1 order by 1`);
     const byDevice = await this.dbs.rows(sql`select coalesce(device, 'Other') as device, count(distinct device_hash)::int as devices from shared.app_download group by 1 order by 2 desc`);
-    return { total, by_file: byFile, by_day: byDay, by_device: byDevice };
+    const [logins] = await this.dbs.rows(sql`select count(*)::int as students, count(*) filter (where last_login > now() - interval '7 days')::int as active_7_days,
+        (select count(*)::int from hostel.hostel_allocation where status = 'Active' and occupant_type = 'Student') as residents
+      from portal.login_account where kind = 'student' and status = 'Active'`);
+    const [today] = await this.dbs.rows(sql`select count(*)::int as taps, count(distinct device_hash)::int as devices from shared.app_download where downloaded_at::date = current_date`);
+    return { total, today, logins, by_file: byFile, by_day: byDay, by_device: byDevice };
   }
 }

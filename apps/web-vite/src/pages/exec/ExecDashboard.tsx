@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router';
 import { Activity, AlertTriangle, ArrowLeft, BedDouble, BookOpen, Briefcase, Building2, Wrench, Zap, CheckCircle2, ChevronRight, Compass, FileText, GraduationCap, IndianRupee, LayoutGrid, LogOut, Moon, Printer, Rocket,
-  ShieldAlert, Trophy, UserCheck, Utensils, type LucideIcon } from 'lucide-react';
+  ShieldAlert, Smartphone, Trophy, UserCheck, Utensils, type LucideIcon } from 'lucide-react';
 import { setSession } from '@/lib/api';
 import { useApi, useProfile, useSession } from '@/lib/ui';
 import { Logo } from '@/ui/kit';
@@ -167,6 +167,9 @@ function Overview() {
 
       <h2 className="xd-h2" data-c="ops"><span className="xd-ic"><Zap size={16} /></span>Electricity and repairs</h2>
       <PowerKpis b={b} months={d.electricity_months} />
+
+      <h2 className="xd-h2" data-c="life"><span className="xd-ic"><Smartphone size={16} /></span>Student app</h2>
+      <AppKpis />
 
       <h2 className="xd-h2" data-c="people"><span className="xd-ic"><Building2 size={16} /></span>Residencies</h2>
       <section className="xd-cards" aria-label="Buildings">
@@ -358,6 +361,37 @@ function ChoiceStudentsModal({ p, onClose }: { p: Pick; onClose: () => void }) {
           {r.data && !list.length && <tr><td colSpan={10} className="xd-none">No students here.</td></tr>}
         </tbody></table>
     </Modal>
+  );
+}
+
+type Downloads = { total: { taps: number; devices: number; since: string | null }; today: { taps: number; devices: number }; logins: { students: number; active_7_days: number; residents: number };
+  by_file: { file: string; taps: number; devices: number }[]; by_day: { day: string; taps: number; devices: number }[]; by_device: { device: string; devices: number }[] };
+const APP_NAME: Record<string, string> = { 'KL-Residencies.apk': 'Student app', 'KL-Residencies-demo.apk': 'Student app (training)', 'KL-Dashboard.apk': 'KL Dashboard (leadership)' };
+
+/** The student app: downloads counted from the /app page (from the day counting began) and students with their own login. */
+function AppKpis() {
+  const r = useApi<Downloads>('/downloads/summary');
+  const [open, setOpen] = useState(false);
+  const d = r.data;
+  if (!d) return <p className="xd-loading">{r.error ? 'Download figures are not available.' : 'Loading…'}</p>;
+  const since = d.total.since ? new Date(d.total.since).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : null;
+  return (
+    <>
+      <section className="xd-kpis" aria-label="Student app">
+        <Kpi c="life" icon={Smartphone} label="App downloads" value={num(d.total.devices)} sub={since ? `phones · ${num(d.total.taps)} taps on Download since ${since}` : 'Counting began with this release; no downloads yet'} hint="By day" onClick={() => setOpen(true)} />
+        <Kpi c="life" icon={Activity} label="Downloads today" value={num(d.today.devices)} sub={`${num(d.today.taps)} taps today`} />
+        <Kpi c="people" icon={UserCheck} label="Students with their own login" value={num(d.logins.students)} sub={`${pct(d.logins.students, d.logins.residents)}% of ${num(d.logins.residents)} residents · ${num(d.logins.active_7_days)} signed in this week`} t={tone(pct(d.logins.students, d.logins.residents), 60, 30)} />
+      </section>
+      {open && (
+        <Modal title="App downloads" sub={since ? `${num(d.total.devices)} phones since ${since}` : 'No downloads counted yet'} onClose={() => setOpen(false)}>
+          <table className="xd-table"><thead><tr><th>Day</th><th className="n">Phones</th><th className="n">Taps on Download</th></tr></thead>
+            <tbody>{[...d.by_day].reverse().map((x) => <tr key={x.day}><td><b>{new Date(`${x.day}T00:00:00`).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}</b></td><td className="n">{num(x.devices)}</td><td className="n">{num(x.taps)}</td></tr>)}
+              {!d.by_day.length && <tr><td colSpan={3} className="xd-none">No downloads counted yet.</td></tr>}</tbody></table>
+          {d.by_file.length > 0 && <table className="xd-table" style={{ marginTop: 14 }}><thead><tr><th>App</th><th className="n">Phones</th><th className="n">Taps</th></tr></thead>
+            <tbody>{d.by_file.map((x) => <tr key={x.file}><td><b>{APP_NAME[x.file] ?? x.file}</b><small>{x.file}</small></td><td className="n">{num(x.devices)}</td><td className="n">{num(x.taps)}</td></tr>)}</tbody></table>}
+          {d.by_device.length > 0 && <p className="xd-quiet" style={{ marginTop: 12 }}>Downloaded on: {d.by_device.map((x) => `${x.device} ${num(x.devices)}`).join(' · ')}. A phone is counted once however many times Download is tapped; no name or address is kept.</p>}
+        </Modal>)}
+    </>
   );
 }
 
