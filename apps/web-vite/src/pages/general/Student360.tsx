@@ -5,6 +5,7 @@ import { api } from '@/lib/api';
 import { titleCase, useAction, useApi, useSession, words } from '@/lib/ui';
 import { initials } from '@/ui/kit';
 import { can } from '@/app/screens';
+import { OutcomeList, bestOffer, type Outcome } from './Outcomes';
 
 type P360 = {
   student: { student_id: string; full_name: string; gender: string; programme: string; level: string; dept_name: string | null; dept_code: string | null; is_hosteller: boolean; hostel_name: string | null; hostel_code: string | null; floor_name: string | null; room_code: string | null; bed_code: string | null; type_name: string | null; allocation_date: string | null; floor_warden: string | null; current_status: string | null; career_goal: string | null; career_notes: string | null };
@@ -12,6 +13,7 @@ type P360 = {
   terms: { semester_no: number; term_label: string; sgpa: number | null; cgpa: number | null; credits: number | null; attendance_pct: number | null; backlogs: number }[];
   backlog_courses?: { course_code: string; grade: string }[];
   courses?: Course[];
+  outcomes?: Outcome[];
   crt: { attendance: { month: string; held: number; attended: number }[]; tests: { id: number; test_name: string; test_date: string; category: string; score: number; max_score: number; percentile: number }[] };
   certs: { id: number; title: string; provider: string; category: string; issued_on: string; credential_ref: string | null; verified: boolean }[];
   activities: { id: number; type: string; title: string; role: string | null; from_date: string; to_date: string | null; hours: number | null }[];
@@ -47,6 +49,8 @@ export default function Student360({ id: own }: { id?: string }) {
   if (!d.data) return <div className="q-empty">{d.error ? 'This profile is not open to you.' : 'Loading…'}</div>;
   const { student: st, hostel: h, terms, crt, certs, activities, achievements } = d.data;
   const courses = d.data.courses ?? [];
+  const outcomes = d.data.outcomes ?? [];
+  const best = bestOffer(outcomes);
   const graded = terms.filter((t) => t.sgpa !== null);
   const last = terms[terms.length - 1];
   const crtHeld = crt.attendance.reduce((a, m) => a + m.held, 0), crtGot = crt.attendance.reduce((a, m) => a + m.attended, 0);
@@ -84,12 +88,18 @@ export default function Student360({ id: own }: { id?: string }) {
           <Tile title="Latest semester" go={() => setTab('Academics')}>{!last ? <span>No results yet</span> : last.sgpa !== null
             ? <><b className="big">{last.sgpa.toFixed(2)}</b><span>SGPA, semester {last.semester_no} · {last.backlogs ? `${last.backlogs} backlog` : 'no backlogs'}</span><Sparkline data={terms.filter((t) => t.sgpa !== null).map((t) => t.sgpa!)} color="violet" width={160} height={34} /></>
             : <><b className="big">{pct(last.attendance_pct)}</b><span>class attendance, semester {last.semester_no} · {last.term_label}{courses.length ? ` · ${courses.filter((c) => (c.pct ?? 100) < 75).length} of ${courses.length} courses below 75%` : ''}</span></>}</Tile>
+          {outcomes.length > 0 && <Tile title="Placement" go={() => setTab('Academics')}>{best ? <><b className="big">{best.ctc_lpa != null ? `${best.ctc_lpa} LPA` : 'Placed'}</b><span>{best.organisation}{outcomes.filter((o) => o.outcome_type === 'Placement' && o.is_success).length > 1 ? ` · ${outcomes.filter((o) => o.outcome_type === 'Placement' && o.is_success).length} offers` : ''}</span></> : <span>{outcomes.length} in progress</span>}</Tile>}
           <Tile title="CRT" go={() => setTab('CRT')}>{crt.tests.length ? <><b className="big">{Math.round(crtAvg!)}<small>/100</small></b><span>average over {crt.tests.length} tests · {pct(crtPct)} sessions attended</span><Sparkline data={crt.tests.map((t) => (100 * t.score) / t.max_score)} color="coral" width={160} height={34} /></> : <span>No CRT records</span>}</Tile>
           <Tile title="Certifications" go={() => setTab('Skills')}><b className="big">{certs.length}</b>{certs.slice(0, 3).map((c) => <span key={c.id}>{c.title} · {c.provider}</span>)}</Tile>
           <Tile title="Achievements" go={() => setTab('Activities')}><b className="big">{achievements.length}</b>{achievements.slice(0, 3).map((a) => <span key={a.id}>{a.award ? `${a.award}, ` : ''}{a.title}</span>)}</Tile>
           <Tile title="Activities" go={() => setTab('Activities')}><b className="big">{activities.length}</b><span>{activities.reduce((a, x) => a + (x.hours ?? 0), 0)} hours in clubs, sports, service and internships</span></Tile>
           <Tile title="Hostel" go={() => setTab('Hostel')}><b className="big">{pct(h.night_pct)}</b><span>night roll call, last 30 days · {h.outings} outings · {h.late_returns} late</span></Tile>
         </div>)}
+
+      {tab === 'Academics' && outcomes.length > 0 && (
+        <section className="box"><div className="box-head"><h2>Placements and offers</h2><span className="grow" /><span className="tag tag-ok">{outcomes.filter((o) => o.is_success).length} achieved</span></div>
+          <div className="box-body"><OutcomeList list={outcomes} /></div>
+        </section>)}
 
       {tab === 'Academics' && courses.length > 0 && (
         <section className="box"><div className="box-head"><h2>{courses[0].academic_year} {courses[0].term} semester · attendance by course</h2><span className="grow" />

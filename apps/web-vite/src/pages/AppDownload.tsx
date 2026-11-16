@@ -1,4 +1,5 @@
 import { Icon } from '@/lib/klh';
+import { API } from '@/lib/api';
 import { Logo } from '@/ui/kit';
 import '@/styles/login.css';
 
@@ -6,6 +7,11 @@ import '@/styles/login.css';
  * Public page /app: download the student app for Android, install it, and create a login. The APK is served at
  * /download/ by the apk deployment (deploy/hostel/base/apk.yaml); the demo address gets the demo build.
  */
+/** Each tap on Download is counted (no name or address is kept: apps/api/src/downloads). Never blocks the download. */
+function countDownload(file: string) {
+  try { void fetch(`${API}/api/downloads`, { method: 'POST', keepalive: true, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ file }) }).catch(() => {}); } catch { /* ignore */ }
+}
+
 export default function AppDownload() {
   const demo = location.hostname.startsWith('demo-');
   const file = demo ? '/download/KL-Residencies-demo.apk' : '/download/KL-Residencies.apk';
@@ -22,7 +28,7 @@ export default function AppDownload() {
           <div style={{ marginBottom: 18 }}><Logo cut="full" height={44} /></div>
           <div className="login-head"><span className="login-hello">{demo ? 'Training app' : 'For residents'}</span><h2>KL Residencies student app</h2>
             <p>Outings, sick leave, weekly meal choice, fees, repairs and your room, on your Android phone.{demo ? ' This build uses the training data.' : ''}</p></div>
-          <a className="login-submit" href={file} download style={{ textDecoration: 'none' }}><Icon name="download" size={18} />Download for Android · 56 MB</a>
+          <a className="login-submit" href={file} download style={{ textDecoration: 'none' }} onClick={() => countDownload(file)}><Icon name="download" size={18} />Download for Android · 56 MB</a>
           <h3 style={{ margin: '22px 0 10px', fontSize: 16 }}>Install it</h3>
           <ol style={{ listStyle: 'none', margin: 0, padding: 0, display: 'grid', gap: 12 }}>
             {step(1, 'Download', 'Tap the button above. Use Wi-Fi if you can. If Chrome warns "this type of file can harm your device", tap Download anyway.')}

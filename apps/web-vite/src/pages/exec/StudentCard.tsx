@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { BedDouble, BookOpen, GraduationCap, IndianRupee, Search, X } from 'lucide-react';
 import { useApi } from '@/lib/ui';
+import { OutcomeList, bestOffer, type Outcome } from '@/pages/general/Outcomes';
 
 type Term = { semester_no: number; term_label: string; sgpa: number | null; cgpa: number | null; attendance_pct: number | null; backlogs: number };
 type Course = { course_code: string; course_name: string | null; pct: number | null; as_of: string; academic_year: string; term: string; held: number; attended: number };
@@ -8,7 +9,7 @@ type Fee = { head: string; due: number; paid: number; outstanding: number | null
 type Card = {
   student: { student_id: string; name: string; programme: string | null; year_semester: string | null; dept_name: string | null; gender: string | null;
     hostel_code: string | null; hostel_name: string | null; floor_name: string | null; room_code: string | null; bed_code: string | null; allocation_date: string | null };
-  terms: Term[]; courses: Course[]; fees: Fee[]; receipts: { receipts: number; last_paid_on: string | null };
+  terms: Term[]; courses: Course[]; fees: Fee[]; receipts: { receipts: number; last_paid_on: string | null }; outcomes?: Outcome[];
 };
 
 const MIN = 75;
@@ -70,6 +71,7 @@ export function StudentCard({ id, onClose }: { id: string; onClose: () => void }
   const owed = d?.fees.reduce((a, f) => a + (f.outstanding ?? 0), 0) ?? 0;
   const asked = d?.fees.reduce((a, f) => a + f.due, 0) ?? 0, paid = d?.fees.reduce((a, f) => a + f.paid, 0) ?? 0;
   const st = d?.student;
+  const best = bestOffer(d?.outcomes ?? []);
 
   return (
     <div className="xs-wrap" role="dialog" aria-modal="true" aria-label={st ? `${st.name}, student card` : 'Student card'} onClick={onClose}>
@@ -96,7 +98,8 @@ export function StudentCard({ id, onClose }: { id: string; onClose: () => void }
               <div className={`xs-tile ${backlogs ? 'xs-bad' : 'xs-good'}`}>
                 <span className="xs-ico"><GraduationCap size={20} /></span>
                 <span><small>Result</small><b>{graded?.cgpa != null ? `CGPA ${graded.cgpa.toFixed(2)}` : 'No result yet'}</b>
-                  <small>{graded?.sgpa != null ? `SGPA ${graded.sgpa.toFixed(2)} · ` : ''}{backlogs ? `${backlogs} backlog${backlogs === 1 ? '' : 's'}` : 'no backlogs'}</small></span>
+                  <small>{graded?.sgpa != null ? `SGPA ${graded.sgpa.toFixed(2)} · ` : ''}{backlogs ? `${backlogs} backlog${backlogs === 1 ? '' : 's'}` : 'no backlogs'}</small>
+                  {best && <small className="xs-placed">Placed: {best.organisation}{best.ctc_lpa != null ? ` · ${best.ctc_lpa} LPA` : ''}</small>}</span>
               </div>
               <div className={`xs-tile ${d.fees.some((f) => f.overdue) ? 'xs-bad' : owed ? 'xs-warn' : 'xs-good'}`}>
                 <span className="xs-ico"><IndianRupee size={20} /></span>
@@ -138,6 +141,7 @@ export function StudentCard({ id, onClose }: { id: string; onClose: () => void }
                 </section>
               </div>
             </div>
+            {(d.outcomes?.length ?? 0) > 0 && <section className="xs-sec"><h4>Placements and offers</h4><OutcomeList list={d.outcomes!} /></section>}
             <p className="xs-note">Minimum class attendance {MIN}%. Attendance and results from the university ERP; fees from the residency accounts.</p>
           </div>)}
       </div>

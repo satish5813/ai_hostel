@@ -175,7 +175,10 @@ export class ExecService {
       from hostel.fee_demand d where d.student_id = ${studentId} group by 1 order by 2 desc`);
     const [paid] = await this.dbs.rows(sql`select count(*)::int as receipts, max(r.paid_on)::date::text as last_paid_on
       from hostel.fee_receipt r join hostel.fee_demand d on d.demand_id = r.demand_id where d.student_id = ${studentId} and r.gateway_status = 'Success'`);
-    return { student: st, terms, courses, fees, receipts: paid };
+    const outcomes = await this.dbs.rows(sql`select o.outcome_type, o.stage, s.label as stage_label, s.is_success, o.organisation, o.detail, o.ctc_lpa::float as ctc_lpa, to_char(o.stage_on, 'YYYY-MM-DD') as stage_on
+      from acad.career_outcome o join acad.outcome_stage s using (outcome_type, stage) where o.student_id = ${studentId}
+      order by s.is_success desc, o.ctc_lpa desc nulls last, o.stage_on desc`);
+    return { student: st, terms, courses, fees, receipts: paid, outcomes };
   }
 
   /** One row per career path: how many residents chose it, how they stand on fees and results. facilityId 'all' = whole campus. */

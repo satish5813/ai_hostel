@@ -61,3 +61,16 @@ body { margin: 0; background: var(--ui-ground); color: var(--ink); font-family: 
   .klh-print-name { font-size: 20pt; font-weight: 800; margin-top: 4mm; }
   .klh-print-sub { font-size: 9pt; color: #333; }
 }
+
+/* ---------------------------------------------------------------- placements and other outcomes (pages/general/Outcomes.tsx) */
+.oc-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.oc-list li { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 10px 12px; border: 1px solid #E4E7EC; border-radius: 14px; background: #FFF; }
+.oc-list li.oc-best { border-color: #12805C; background: linear-gradient(90deg, #ECFDF3, #FFF 70%); }
+.oc-logo { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; font-weight: 800; font-size: 13px; color: #0E2A47; background: #EEF2F7; }
+.oc-best .oc-logo { color: #FFF; background: linear-gradient(135deg, #0E2A47, #0B7A71); }
+.oc-tx { display: flex; flex-direction: column; min-width: 0; }
+.oc-tx b { font-size: 14px; overflow-wrap: anywhere; }
+.oc-tx small { font-size: 12px; color: #667085; line-height: 1.35; }
+.oc-v { text-align: right; font-weight: 800; font-size: 15px; color: #0E2A47; white-space: nowrap; display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
+.oc-v em { font-style: normal; font-size: 10.5px; font-weight: 800; color: #0F7A3A; background: #DDF5E3; padding: 2px 7px; border-radius: 999px; }
+.oc-none { margin: 4px 0; color: #667085; font-size: 13px; }

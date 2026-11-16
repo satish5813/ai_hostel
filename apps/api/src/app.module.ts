@@ -29,6 +29,7 @@ import { LinksModule } from './links/links.module.js';
 import { CwModule } from './cw/cw.module.js';
 import { MessModule } from './mess/mess.module.js';
 import { ExecModule } from './exec/exec.module.js';
+import { DownloadsModule } from './downloads/downloads.module.js';
 import { CareerModule } from './career/career.module.js';
 import { RepairsModule } from './repairs/repairs.module.js';
 import { HealthModule } from './health/health.module.js';
@@ -59,6 +60,7 @@ import { WalletModule } from './wallet/wallet.module.js';
     CwModule,
     MessModule,
     ExecModule,
+    DownloadsModule,
     CareerModule,
     RepairsModule,
     HealthModule,

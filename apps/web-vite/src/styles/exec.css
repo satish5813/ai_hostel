@@ -538,3 +538,4 @@
 @media (min-width: 1024px) {
   .xd-kpis:has(> .xd-kpi-wide):has(> :nth-child(4):last-child) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
+.xs-placed { display: block; margin-top: 2px; color: #0F7A3A !important; font-weight: 700; }

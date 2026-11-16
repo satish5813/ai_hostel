@@ -68,7 +68,11 @@ export class AcadService {
       from acad.course_attendance c
       where c.student_id = ${studentId} and (c.academic_year, c.term) = (select academic_year, term from acad.course_attendance where student_id = ${studentId} order by as_of desc limit 1)
       order by c.attendance_pct, c.course_code`);
-    return { student: st, hostel, terms, backlog_courses: backlogCourses, courses, crt: { attendance: crtAtt, tests: crtTests }, certs, activities, achievements, prior, fresher: terms.length === 0 };
+    // placements, admissions, exams and ventures after the course (migration 109)
+    const outcomes = await this.dbs.rows(sql`select o.outcome_type, o.stage, s.label as stage_label, s.is_success, o.organisation, o.detail, o.ctc_lpa::float as ctc_lpa, to_char(o.stage_on, 'YYYY-MM-DD') as stage_on
+      from acad.career_outcome o join acad.outcome_stage s using (outcome_type, stage) where o.student_id = ${studentId}
+      order by s.is_success desc, o.ctc_lpa desc nulls last, o.stage_on desc`);
+    return { student: st, hostel, terms, backlog_courses: backlogCourses, courses, outcomes, crt: { attendance: crtAtt, tests: crtTests }, certs, activities, achievements, prior, fresher: terms.length === 0 };
   }
 
   /** Every hosteller in one table for wardens and senior staff: academics, CRT and hostel conduct side by side. */
