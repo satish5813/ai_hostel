@@ -46,19 +46,31 @@
 .tt-free { margin: 0; padding: 18px; text-align: center; border-radius: 14px; background: #F9FAFB; color: #667085; font-size: 14px; }
 .tt-note { margin: 0; font-size: 12px; color: #667085; }
 
-.tt-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -4px; padding: 0 4px 4px; }
-.tt-grid { border-collapse: separate; border-spacing: 3px; min-width: 100%; font-size: 12px; }
-.tt-grid th { font-weight: 700; color: #667085; padding: 4px 6px; text-align: center; white-space: nowrap; }
-.tt-grid tbody th { text-align: left; color: #101828; }
-.tt-grid tr.today th { color: #0B7A71; }
-.tt-grid td { min-width: 70px; height: 44px; padding: 4px 6px; border-radius: 8px; background: #EFF8FF; border-left: 3px solid #2E90FA; vertical-align: top; }
+.tt-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid #D0D5DD; border-radius: 12px; }
+.tt-grid { border-collapse: collapse; width: 100%; min-width: 860px; font-size: 12px; background: #FFF; }
+.tt-grid th, .tt-grid td { border: 1px solid #E4E7EC; text-align: center; }
+.tt-grid thead th { background: #0B7A71; color: #FFF; padding: 8px 4px; font-weight: 800; border-color: #0A6B63; }
+.tt-grid thead th b { display: block; font-size: 14px; }
+.tt-grid thead th small { display: block; font-size: 10.5px; font-weight: 600; opacity: .85; }
+.tt-grid .tt-dayh { position: sticky; left: 0; z-index: 1; width: 64px; min-width: 64px; text-align: left; padding: 8px 10px; }
+.tt-grid tbody .tt-dayh { background: #F2F8F7; color: #101828; font-size: 13.5px; font-weight: 800; }
+.tt-grid tbody .tt-dayh small { display: block; font-size: 10.5px; color: #0B7A71; }
+.tt-grid tbody tr.today .tt-dayh { background: #0B7A71; color: #FFF; }
+.tt-grid tbody tr.today .tt-dayh small { color: #FFF; }
+.tt-grid tbody tr.today td { box-shadow: inset 0 2px 0 #0B7A71, inset 0 -2px 0 #0B7A71; }
+.tt-grid td { --c: #2E90FA; height: 62px; min-width: 72px; padding: 5px 4px; background: #EFF8FF; vertical-align: middle; border-top: 3px solid var(--c); }
 .tt-grid td b { display: block; font-size: 11.5px; color: #101828; white-space: nowrap; }
-.tt-grid td small { display: block; font-size: 10.5px; color: #475467; white-space: nowrap; }
-.tt-grid td.tt-T { background: #F4F3FF; border-color: #7A5AF8; }
-.tt-grid td.tt-P { background: #FFFAEB; border-color: #F79009; }
-.tt-grid td.tt-S { background: #ECFDF3; border-color: #12B76A; }
-.tt-grid td.tt-empty { background: #F9FAFB; border: 0; }
-.tt-grid tr.today td.tt-empty { background: #F0F9F8; }
+.tt-grid td span { display: block; font-size: 10.5px; font-weight: 700; color: var(--c); white-space: nowrap; }
+.tt-grid td small { display: block; font-size: 11px; font-weight: 700; color: #344054; white-space: nowrap; }
+.tt-grid td.tt-T { --c: #7A5AF8; background: #F4F3FF; }
+.tt-grid td.tt-P { --c: #F79009; background: #FFFAEB; }
+.tt-grid td.tt-S { --c: #12B76A; background: #ECFDF3; }
+.tt-grid td.tt-empty { background: #FFF; border-top-color: #E4E7EC; border-top-width: 1px; color: #D0D5DD; }
+.tt-courses { margin: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 4px 18px; font-size: 12.5px; }
+.tt-courses div { display: flex; gap: 8px; min-width: 0; }
+.tt-courses dt { flex: 0 0 96px; font-weight: 800; color: #101828; }
+.tt-courses dd { margin: 0; color: #475467; min-width: 0; }
+@media (min-width: 760px) { .tt-courses { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 .tt-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 0; font-size: 12px; color: #475467; }
 .tt-legend span { display: inline-flex; align-items: center; gap: 5px; }
 .tt-legend i { width: 10px; height: 10px; border-radius: 3px; background: #2E90FA; }
