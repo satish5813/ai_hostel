@@ -1,0 +1,82 @@
+/* ACA-04 Class timetable (pages/general/Timetable.tsx) and the student home's "Today's classes" panel. Mobile first. */
+.tt { display: flex; flex-direction: column; gap: 14px; max-width: 1100px; }
+.tt-find { display: flex; flex-wrap: wrap; gap: 8px; }
+.tt-find label { flex: 1 1 220px; display: flex; align-items: center; gap: 8px; padding: 0 14px; min-height: 48px; border-radius: 14px; border: 1px solid #D0D5DD; background: #FFF; color: #667085; }
+.tt-find label:focus-within { border-color: #0B7A71; box-shadow: 0 0 0 3px rgba(11, 122, 113, .15); }
+.tt-find input { flex: 1; min-width: 0; border: 0; outline: 0; font-size: 16px; background: transparent; color: #101828; letter-spacing: .02em; }
+.tt-find button { flex: 0 0 auto; min-height: 48px; padding: 0 20px; border: 0; border-radius: 14px; background: #0B7A71; color: #FFF; font-weight: 700; font-size: 15px; cursor: pointer; }
+.tt-find button:disabled { opacity: .5; cursor: default; }
+.tt-hint { display: flex; align-items: center; gap: 10px; margin: 0; padding: 16px; border-radius: 14px; background: #F2F8F7; color: #344054; font-size: 14px; }
+.tt-hint svg { flex: 0 0 auto; width: 20px; height: 20px; color: #0B7A71; }
+.tt-err { background: #FEF3F2; color: #B42318; }
+
+.tt-who { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 12px; align-items: center; padding: 16px; border-radius: 18px; background: linear-gradient(135deg, #0B7A71, #0A5F6E); color: #FFF; }
+.tt-av { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; background: rgba(255, 255, 255, .16); font-weight: 800; font-size: 16px; }
+.tt-who-tx { min-width: 0; }
+.tt-who h2 { margin: 0; font-size: 18px; font-weight: 800; line-height: 1.25; }
+.tt-who p { margin: 2px 0 0; font-size: 13px; opacity: .9; overflow-wrap: anywhere; }
+.tt-bed { display: flex; align-items: center; gap: 5px; }
+.tt-term { grid-column: 1 / -1; display: flex; justify-content: space-between; align-items: baseline; gap: 8px; padding-top: 10px; border-top: 1px solid rgba(255, 255, 255, .2); }
+.tt-term b { font-size: 14px; }
+.tt-term small { font-size: 12.5px; opacity: .9; }
+
+.tt-card { padding: 14px; border-radius: 18px; background: #FFF; border: 1px solid #E4E7EC; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.tt-card h3 { margin: 0; display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 10px; font-size: 16px; font-weight: 800; color: #101828; }
+.tt-card h3 span { font-size: 12.5px; font-weight: 600; color: #667085; }
+.tt-days { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; }
+.tt-days button { display: flex; flex-direction: column; align-items: center; gap: 1px; padding: 8px 2px; min-height: 52px; border-radius: 12px; border: 1px solid #E4E7EC; background: #F9FAFB; color: #344054; cursor: pointer; }
+.tt-days button b { font-size: 14px; }
+.tt-days button small { font-size: 11px; color: #667085; }
+.tt-days button.today { border-color: #0B7A71; }
+.tt-days button.today small { color: #0B7A71; font-weight: 700; }
+.tt-days button.on { background: #0B7A71; border-color: #0B7A71; color: #FFF; }
+.tt-days button.on small { color: #FFF; }
+
+.tt-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.tt-row { --c: #2E90FA; --bg: #EFF8FF; display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: 'when kind' 'what what' 'room room'; gap: 4px 10px; padding: 11px 12px 11px 14px; border-radius: 14px; background: var(--bg); border-left: 4px solid var(--c); }
+.tt-row.tt-T { --c: #7A5AF8; --bg: #F4F3FF; }
+.tt-row.tt-P { --c: #F79009; --bg: #FFFAEB; }
+.tt-row.tt-S { --c: #12B76A; --bg: #ECFDF3; }
+.tt-when { grid-area: when; display: flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 800; color: #101828; }
+.tt-what { grid-area: what; display: flex; flex-direction: column; min-width: 0; }
+.tt-what b { font-size: 14.5px; color: #101828; line-height: 1.3; }
+.tt-what small { font-size: 12px; color: #667085; }
+.tt-kind { grid-area: kind; justify-self: end; display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; border-radius: 999px; background: #FFF; color: var(--c); font-size: 12px; font-weight: 700; }
+.tt-room { grid-area: room; display: inline-flex; align-items: center; gap: 5px; font-size: 13px; font-weight: 700; color: #344054; }
+.tt-free { margin: 0; padding: 18px; text-align: center; border-radius: 14px; background: #F9FAFB; color: #667085; font-size: 14px; }
+.tt-note { margin: 0; font-size: 12px; color: #667085; }
+
+.tt-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; margin: 0 -4px; padding: 0 4px 4px; }
+.tt-grid { border-collapse: separate; border-spacing: 3px; min-width: 100%; font-size: 12px; }
+.tt-grid th { font-weight: 700; color: #667085; padding: 4px 6px; text-align: center; white-space: nowrap; }
+.tt-grid tbody th { text-align: left; color: #101828; }
+.tt-grid tr.today th { color: #0B7A71; }
+.tt-grid td { min-width: 70px; height: 44px; padding: 4px 6px; border-radius: 8px; background: #EFF8FF; border-left: 3px solid #2E90FA; vertical-align: top; }
+.tt-grid td b { display: block; font-size: 11.5px; color: #101828; white-space: nowrap; }
+.tt-grid td small { display: block; font-size: 10.5px; color: #475467; white-space: nowrap; }
+.tt-grid td.tt-T { background: #F4F3FF; border-color: #7A5AF8; }
+.tt-grid td.tt-P { background: #FFFAEB; border-color: #F79009; }
+.tt-grid td.tt-S { background: #ECFDF3; border-color: #12B76A; }
+.tt-grid td.tt-empty { background: #F9FAFB; border: 0; }
+.tt-grid tr.today td.tt-empty { background: #F0F9F8; }
+.tt-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 0; font-size: 12px; color: #475467; }
+.tt-legend span { display: inline-flex; align-items: center; gap: 5px; }
+.tt-legend i { width: 10px; height: 10px; border-radius: 3px; background: #2E90FA; }
+.tt-legend .tt-T i { background: #7A5AF8; }
+.tt-legend .tt-P i { background: #F79009; }
+.tt-legend .tt-S i { background: #12B76A; }
+
+/* student home: today's classes */
+.st-classes .tt-list { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+.st-classes .st-empty { margin: 0; }
+
+@media (min-width: 640px) {
+  .tt-who { grid-template-columns: auto minmax(0, 1fr) auto; padding: 18px 20px; }
+  .tt-term { grid-column: auto; flex-direction: column; align-items: flex-end; padding: 0 0 0 16px; border-top: 0; border-left: 1px solid rgba(255, 255, 255, .2); }
+  .tt-card { padding: 18px; }
+  .tt-row { grid-template-columns: 120px minmax(0, 1fr) auto auto; grid-template-areas: 'when what kind room'; align-items: center; gap: 12px; }
+  .tt-room { min-width: 90px; justify-content: flex-end; }
+  .st-classes .tt-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .st-classes .tt-row { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: 'when kind' 'what what' 'room room'; }
+}
+@media (min-width: 1100px) { .st-classes .tt-list { grid-template-columns: repeat(3, minmax(0, 1fr)); } }

@@ -22,6 +22,7 @@ import FloorHome from './pages/warden/FloorHome';
 import AdminDashboard from './pages/admin/Dashboard';
 import Maintenance from './pages/warden/Maintenance';
 import Academics from './pages/general/Academics';
+import Timetable from './pages/general/Timetable';
 import Student360 from './pages/general/Student360';
 import AccessControl from './pages/tracking/AccessControl';
 import DutyRoster from './pages/office/DutyRoster';
@@ -197,6 +198,7 @@ export function App() {
         <Route path="/admin/board" element={<AdminDashboard />} />           {/* Data Administrator: set-up board */}
         <Route path="/maintenance" element={<Maintenance />} />              {/* TKT-01 02 04 */}
         <Route path="/academics" element={<Academics />} />                  {/* ACA-01 */}
+        <Route path="/timetable" element={<Timetable />} />                  {/* ACA-04 */}
         <Route path="/academics/:id" element={<Student360 />} />
         <Route path="/access" element={<AccessControl />} />                 {/* TRK-09 (addition) */}                   {/* TRK-08 (addition) */}                 {/* TRK-07 (addition) */}
         <Route path="/admin/users" element={<Users />} />                    {/* ADM-01 */}

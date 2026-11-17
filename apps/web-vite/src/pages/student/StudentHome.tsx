@@ -10,6 +10,7 @@ import { api } from '@/lib/api';
 import { greeting, titleCase, toast, today, useAction, useApi, useSession, words } from '@/lib/ui';
 import { MODC, type Mod } from '@/app/apps';
 import { bedLetter } from '@/lib/beds';
+import { ClassRow, type ClassBlock } from '@/pages/general/Timetable';
 import { Done, Sheet } from './Sheet';
 import { OutingSheet, type Pass, type Step } from './OutingSheet';
 import { MEAL_SLOTS, foodName, type MyMenu } from './MyMenu';
@@ -64,6 +65,7 @@ export default function StudentHome() {
   const menu = useApi<MyMenu>('/me/menu');
   const meals = useApi<MealChoices>('/me/meal-choices');
   const tickets = useApi<{ tickets: { status: string }[] }>('/me/tickets');
+  const classes = useApi<MyClasses>('/me/classes');
   const openWeek = meals.data?.weeks.find((w) => w.is_open);
   const mealsLeft = openWeek ? (({ done, total }) => total - done)(progressOf(openWeek)) : 0;
   const goal = useCareerGoal();
@@ -131,6 +133,7 @@ export default function StudentHome() {
             {reg && <span className="st-chip"><CheckCircle2 size={13} />{words(reg.status)}</span>}
             {livePass && <span className="st-chip"><DoorOpen size={13} />Pass {livePass.outpass_no}</span>}
             {curSick && <span className="st-chip"><HeartPulse size={13} />Sick leave {words(curSick.status).toLowerCase()}</span>}
+            {classes.data?.term && <span className="st-chip"><BookOpen size={13} />{classes.data.classes.length ? `${classes.data.classes.length} class${classes.data.classes.length > 1 ? 'es' : ''} today` : 'No classes today'}</span>}
           </div>
           <div className="st-hero-actions">
             {due > 0 ? <button type="button" className="st-cta" onClick={() => setSheet('fees')}><Wallet size={17} />Pay {formatINR(due)}</button>
@@ -154,6 +157,8 @@ export default function StudentHome() {
           <span className="st-roomcard-go">Details<ChevronRight size={14} /></span>
         </button>
       </section>
+
+      {classes.data?.term && <TodaysClasses c={classes.data} onWeek={() => navigate('/timetable')} />}
 
       {showRenewal && rn && <RenewalBanner rn={rn} onOpen={() => setSheet('renew')} />}
 
@@ -218,6 +223,22 @@ export default function StudentHome() {
 }
 
 /* ---------------------------------------------------------------- fees */
+
+type MyClasses = { academic_year: string | null; term: string | null; today_no: number; today_name: string; classes: ClassBlock[]; times_known: boolean; next_day: { day_name: string; classes: ClassBlock[] } | null };
+
+/** The daily class alert: today's classes with the classroom of each, or the next day's first class on a free day. */
+function TodaysClasses({ c, onWeek }: { c: MyClasses; onWeek: () => void }) {
+  const hours = c.classes.reduce((a, x) => a + x.to_hour - x.from_hour + 1, 0);
+  return (
+    <section className="st-panel st-classes" aria-label="Today's classes">
+      <div className="st-panel-head"><h2>Today's classes</h2>
+        <span className="st-muted">{c.today_name} · {c.classes.length ? `${c.classes.length} class${c.classes.length > 1 ? 'es' : ''}, ${hours} hours` : 'no classes'}</span>
+        <button type="button" className="st-link" onClick={onWeek}>Whole week<ArrowRight size={14} /></button></div>
+      {c.classes.length ? <ul className="tt-list">{c.classes.map((x) => <ClassRow key={`${x.from_hour}-${x.course_code}`} c={x} />)}</ul>
+        : <p className="st-empty">No classes today.{c.next_day?.classes[0] ? ` Next: ${c.next_day.day_name}, ${c.next_day.classes[0].course_code} in ${c.next_day.classes[0].class_room ?? 'class'}.` : ''}</p>}
+    </section>
+  );
+}
 
 function FeesSheet({ open, receipts, onClose, onPaid, onReceipts }: { open: Demand[]; receipts: Rcpt[]; onClose: () => void; onPaid: () => void; onReceipts: () => void }) {
   const [busy, setBusy] = useState(0);
