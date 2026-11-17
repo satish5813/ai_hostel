@@ -10,4 +10,8 @@ A thin Flutter shell around the residency executive dashboard (`/exec` on https:
 - Pages outside the residency site open in the phone's browser; the back button walks back through the dashboard.
 
 Built by `.github/workflows/mobile-apk.yml` (job `dashboard`) and served at `/download/KL-Dashboard.apk`.
-iOS needs an Apple Developer account and a macOS build (not set up yet).
+## iPhone (iOS)
+
+Built on a Mac with the university's Apple Developer account: `bash apps/leaders/build-ios.sh` (see the notes at the top
+of that script). The first run creates `ios/`; commit that folder. Bundle id `in.kluniversity.kludashboard`.
+Distribution is through TestFlight (leaders install the TestFlight app and accept an invitation), later the App Store.
