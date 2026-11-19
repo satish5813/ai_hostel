@@ -96,6 +96,33 @@ function WeekView({ w, own }: { w: Week; own: boolean }) {
   );
 }
 
+/**
+ * A student's classes for the leadership's student card (pages/exec/StudentCard.tsx): today's classes with
+ * their rooms, then the weekly table. Same data and access rules as ACA-04.
+ */
+export function StudentWeek({ id }: { id: string }) {
+  const r = useApi<Week>(`/timetable/students/${encodeURIComponent(id)}`);
+  if (r.error) return <p className="tt-free">{String((r.error as { message?: string }).message ?? 'The timetable is not available.')}</p>;
+  if (!r.data) return <p className="tt-free">Loading the timetable…</p>;
+  const w = r.data;
+  if (!w.academic_year) return <p className="tt-free">No class timetable is loaded for this student yet.</p>;
+  const days = w.days.filter((d) => d.day_no <= 6 || d.classes.length);
+  const today = days.find((d) => d.day_no === w.today_no);
+  const next = today?.classes.length ? null : days.find((d) => d.day_no > w.today_no && d.classes.length) ?? days.find((d) => d.classes.length);
+  return (
+    <div className="tt tt-in-card">
+      <section className="tt-card">
+        <h3>{today?.classes.length ? `Today, ${today.day_name}` : `No classes today${next ? ` · next on ${next.day_name}` : ''}`}<span>{today?.classes.length ? `${today.classes.length} class${today.classes.length > 1 ? 'es' : ''}` : ''}</span></h3>
+        {(today?.classes.length ? today.classes : next?.classes ?? []).length
+          ? <ul className="tt-list">{(today?.classes.length ? today.classes : next!.classes).map((c) => <ClassRow key={`${c.from_hour}-${c.course_code}`} c={c} />)}</ul>
+          : <p className="tt-free">No classes this week.</p>}
+        {!w.times_known && <p className="tt-note">Times show as the university's teaching hours (Hour 1, Hour 2 …) until the bell timings are entered.</p>}
+      </section>
+      <WeekGrid w={w} days={days} />
+    </div>
+  );
+}
+
 /** The timetable as the university prints it: days down, Hour 1 to Hour 11 (or later) across, one cell per hour. */
 function WeekGrid({ w, days }: { w: Week; days: Day[] }) {
   const at = (d: Day, h: number) => d.classes.find((c) => c.from_hour <= h && c.to_hour >= h);

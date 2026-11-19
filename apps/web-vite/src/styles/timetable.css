@@ -92,3 +92,9 @@
   .st-classes .tt-row { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: 'when kind' 'what what' 'room room'; }
 }
 @media (min-width: 1100px) { .st-classes .tt-list { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+
+/* inside the leadership's student card: no outer boxes, the card's own section frames it */
+.tt-in-card { max-width: none; gap: 12px; }
+.tt-in-card .tt-card { padding: 0; border: 0; border-radius: 0; }
+.tt-in-card .tt-card + .tt-card { padding-top: 12px; border-top: 1px solid #E4E7EC; }
+.tt-in-card .tt-card h3 { font-size: 14px; }

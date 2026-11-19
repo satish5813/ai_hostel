@@ -1,7 +1,8 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
-import { BedDouble, BookOpen, GraduationCap, IndianRupee, Search, X } from 'lucide-react';
+import { BedDouble, BookOpen, CalendarDays, GraduationCap, IndianRupee, Search, X } from 'lucide-react';
 import { useApi, useScrollLock } from '@/lib/ui';
 import { OutcomeList, bestOffer, type Outcome } from '@/pages/general/Outcomes';
+import { StudentWeek } from '@/pages/general/Timetable';
 
 type Term = { semester_no: number; term_label: string; sgpa: number | null; cgpa: number | null; attendance_pct: number | null; backlogs: number };
 type Course = { course_code: string; course_name: string | null; pct: number | null; as_of: string; academic_year: string; term: string; held: number; attended: number };
@@ -143,6 +144,7 @@ export function StudentCard({ id, onClose }: { id: string; onClose: () => void }
               </div>
             </div>
             {(d.outcomes?.length ?? 0) > 0 && <section className="xs-sec"><h4>Placements and offers</h4><OutcomeList list={d.outcomes!} /></section>}
+            <section className="xs-sec"><h4><CalendarDays size={15} />Class timetable</h4><StudentWeek id={st!.student_id} /></section>
             <p className="xs-note">Minimum class attendance {MIN}%. Attendance and results from the university ERP; fees from the residency accounts.</p>
           </div>)}
       </div>
