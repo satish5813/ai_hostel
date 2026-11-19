@@ -1,6 +1,6 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import { BedDouble, BookOpen, GraduationCap, IndianRupee, Search, X } from 'lucide-react';
-import { useApi } from '@/lib/ui';
+import { useApi, useScrollLock } from '@/lib/ui';
 import { OutcomeList, bestOffer, type Outcome } from '@/pages/general/Outcomes';
 
 type Term = { semester_no: number; term_label: string; sgpa: number | null; cgpa: number | null; attendance_pct: number | null; backlogs: number };
@@ -58,6 +58,7 @@ function Bar({ v }: { v: number | null }) {
  */
 export function StudentCard({ id, onClose }: { id: string; onClose: () => void }) {
   const r = useApi<Card>(`/exec/students/${id}`);
+  useScrollLock();
   useEffect(() => {
     const key = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
     window.addEventListener('keydown', key);

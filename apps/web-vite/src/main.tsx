@@ -21,6 +21,7 @@ import './styles/health.css';
 import './styles/roomchange.css';
 import './styles/deposit.css';
 import './styles/mops.css';
+import './styles/responsive.css'; // last: screen-size and pop-up fixes
 import { App } from './App';
 
 createRoot(document.getElementById('root')!).render(

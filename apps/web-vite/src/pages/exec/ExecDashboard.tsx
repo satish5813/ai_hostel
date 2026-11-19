@@ -3,7 +3,7 @@ import { useLocation, useNavigate, useParams } from 'react-router';
 import { Activity, AlertTriangle, ArrowLeft, BedDouble, BookOpen, Briefcase, Building2, Wrench, Zap, CheckCircle2, ChevronRight, Compass, FileText, GraduationCap, IndianRupee, LayoutGrid, LogOut, Moon, Printer, Rocket,
   ShieldAlert, Smartphone, Trophy, UserCheck, Utensils, type LucideIcon } from 'lucide-react';
 import { setSession } from '@/lib/api';
-import { useApi, useProfile, useSession } from '@/lib/ui';
+import { useApi, useProfile, useScrollLock, useSession } from '@/lib/ui';
 import { Logo } from '@/ui/kit';
 import { mealLabel } from '@/pages/mess/weekly';
 import { FindStudent, StudentCardHost, StudentName } from './StudentCard';
@@ -186,6 +186,7 @@ const num = (v: number) => v.toLocaleString('en-IN');
 
 /** A centred dialog over the dashboard; closes on the backdrop, the button or Escape. */
 function Modal({ title, sub, onClose, children }: { title: string; sub?: string; onClose: () => void; children: ReactNode }) {
+  useScrollLock();
   return (
     <div className="xd-modal" role="dialog" aria-modal="true" aria-label={title} onClick={onClose} onKeyDown={(e) => { if (e.key === 'Escape') onClose(); }}>
       <div className="xd-modal-card" onClick={(e) => e.stopPropagation()}>

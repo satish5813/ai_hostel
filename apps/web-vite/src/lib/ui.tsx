@@ -10,6 +10,16 @@ export function useApi<T>(path: string | null) { return useSWR<T>(path, fetcher 
 export type Kind = 'student' | 'parent' | 'staff';
 export const kindOf = (role: string): Kind => (role === 'Student' ? 'student' : role === 'Parent' ? 'parent' : 'staff');
 /** The signed-in person, read synchronously from local storage so every render has it. */
+/** While a pop-up is open, stop the page behind it from scrolling (nested pop-ups restore in order). */
+export function useScrollLock(on = true) {
+  useEffect(() => {
+    if (!on) return;
+    const b = document.body, prev = b.style.overflow;
+    b.style.overflow = 'hidden';
+    return () => { b.style.overflow = prev; };
+  }, [on]);
+}
+
 export function useSession() {
   const [s] = useState<(Session & { kind: Kind }) | null>(() => { const x = getSession(); return x ? { ...x, kind: kindOf(x.role) } : null; });
   return s;

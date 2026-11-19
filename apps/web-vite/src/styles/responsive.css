@@ -1,0 +1,53 @@
+/*
+ * Responsive and pop-up fixes for every screen. Loaded LAST (see main.tsx) so these
+ * rules win over the page stylesheets without !important.
+ */
+/* ===== Pop-ups everywhere: the page behind never scrolls, and every pop-up fits the screen ===== */
+html:has(.klh-scrim, .xd-modal, .xs-wrap, .st-sheet-wrap, .ax-modal, .ss-modal), body:has(.klh-scrim, .xd-modal, .xs-wrap, .st-sheet-wrap, .ax-modal, .ss-modal) { overflow: hidden; }
+.klh-scrim, .xd-modal, .xs-wrap, .st-sheet-wrap, .ax-modal, .ss-modal { overscroll-behavior: contain; }
+.klh-drawer { height: 100%; max-height: 100dvh; }
+.klh-drawer-body { min-height: 0; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
+.klh-dialog { max-height: calc(100vh - 32px); max-height: calc(100dvh - 32px); overflow-y: auto; overscroll-behavior: contain; }
+@media (max-width: 640px) {
+  .klh-drawer { border-radius: 0; }
+  .klh-drawer-head { padding: 14px 16px; }
+  .klh-drawer-body { padding: 16px; gap: 16px; }
+  .klh-drawer-foot { padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); flex-wrap: wrap; border-radius: 0; }
+  .klh-dl { grid-template-columns: minmax(0, 110px) minmax(0, 1fr); }
+  .klh-dl dd { overflow-wrap: anywhere; }
+  .ss-modal, .ax-modal { padding-top: 56px; }
+}
+
+/* ===== Narrow screens: nothing spills sideways ===== */
+/* tab switches (SegmentedControl) scroll sideways inside themselves instead of widening the page */
+.klh-seg { max-width: 100%; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.klh-seg::-webkit-scrollbar { display: none; }
+.klh-seg button { flex: none; white-space: nowrap; }
+@media (max-width: 480px) {
+  .klh-seg button { padding: 0 12px; }
+  /* Student 360 header: the rings share the row */
+  .s360-hero { padding: 14px; gap: 12px; }
+  .s360-rings { gap: 6px; justify-content: space-around; flex-wrap: wrap; }
+  /* hostel readiness board: the status chip drops under the name */
+  .rd .rd-row { grid-template-columns: 40px minmax(0, 1fr); }
+  .rd .rd-row > :nth-child(3) { grid-column: 2; justify-self: start; }
+}
+/* printable report: lighter margins on screens smaller than an A4 sheet */
+@media screen and (max-width: 900px) { .xr-page .xr { padding: 20px 12px; } }
+
+/* The readiness board (admin/Dashboard) and the repair desk (meals.css) both use .rd-list:
+   on the board it is one column of rows, on the repair desk a grid of cards. */
+.rd .rd-list { display: flex; flex-direction: column; gap: 0; }
+.rd-list { grid-template-columns: repeat(auto-fill, minmax(min(340px, 100%), 1fr)); }
+/* the board sits beside the 256px menu, so stack its rows before the fix chips get squeezed */
+@media (max-width: 1180px) {
+  .rd .rd-row { grid-template-columns: 48px minmax(0, 1fr) auto; }
+  .rd .rd-fixes { grid-column: 1 / -1; }
+}
+@media (max-width: 480px) {
+  .rd .rd-row { grid-template-columns: 40px minmax(0, 1fr); }
+  .rd .rd-row > :nth-child(3) { grid-column: 2; justify-self: start; }
+}
+/* student pop-up sheet: header and buttons stay, the middle scrolls */
+.st-sheet-head, .st-sheet-foot { flex: none; }
+.st-sheet-body { flex: 1 1 auto; min-height: 0; overscroll-behavior: contain; -webkit-overflow-scrolling: touch; }
