@@ -4,6 +4,7 @@ import 'dart:ui' show PointMode;
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import '../core/api.dart';
+import '../core/session.dart';
 import '../core/theme.dart';
 import '../core/widgets.dart';
 import '../shell.dart';
@@ -200,6 +201,8 @@ class _ProfileScreenState extends State<ProfileScreen> with AutoRefresh {
       const SizedBox(height: 18),
       _Card(icon: LucideIcons.users, title: 'Family contacts', sub: 'Verify each number. One parent or guardian recommends your outings.',
           children: [_Contacts(m: m, onChange: load)]),
+      const SizedBox(height: 16),
+      _Card(icon: LucideIcons.keyRound, title: 'Password', sub: 'Username ${m['student_id'] ?? ''}', children: const [_ChangePassword()]),
     ]));
   }
 
@@ -845,4 +848,81 @@ class _DashedBox extends CustomPainter {
   }
   @override
   bool shouldRepaint(_) => false;
+}
+
+
+/// Change my password (POST /auth/change-password), as on the web profile. Saving signs the student out on every device.
+class _ChangePassword extends StatefulWidget {
+  const _ChangePassword();
+  @override
+  State<_ChangePassword> createState() => _ChangePasswordState();
+}
+
+class _ChangePasswordState extends State<_ChangePassword> {
+  final cur = TextEditingController(), pw = TextEditingController(), again = TextEditingController();
+  bool open = false, show = false, busy = false;
+
+  @override
+  void dispose() { cur.dispose(); pw.dispose(); again.dispose(); super.dispose(); }
+
+  List<(String, bool)> get rules => [
+        ('8 characters or more', pw.text.length >= 8),
+        ('A letter and a digit', RegExp(r'[A-Za-z]').hasMatch(pw.text) && RegExp(r'[0-9]').hasMatch(pw.text)),
+        ('Different from the current one', pw.text.isNotEmpty && pw.text != cur.text),
+        ('Both new boxes the same', pw.text.isNotEmpty && pw.text == again.text),
+      ];
+
+  Future<void> save() async {
+    setState(() => busy = true);
+    try {
+      await Api.instance.post('/auth/change-password', {'current': cur.text, 'next': pw.text});
+      if (!mounted) return;
+      toast(context, 'Password changed. Sign in again with your new password.');
+      await Future.delayed(const Duration(milliseconds: 1500));
+      await SessionStore.instance.signOut();
+    } catch (e) {
+      if (mounted) toast(context, e.toString(), error: true);
+    } finally {
+      if (mounted) setState(() => busy = false);
+    }
+  }
+
+  Widget _box(String label, TextEditingController c, String hint) => Padding(padding: const EdgeInsets.only(bottom: 10), child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        Text(label, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: K.ink)), const SizedBox(height: 6),
+        TextField(controller: c, obscureText: !show, autocorrect: false, enableSuggestions: false, autofillHints: [hint], onChanged: (_) => setState(() {}),
+            style: const TextStyle(fontSize: 16), decoration: const InputDecoration(contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12))),
+      ]));
+
+  @override
+  Widget build(BuildContext context) {
+    if (!open) {
+      return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        const Text('Choose a new password for your sign-in. Keep it private.', style: TextStyle(fontSize: 13, color: _ink3)),
+        const SizedBox(height: 10),
+        KButton('Change password', icon: LucideIcons.lock, block: true, onPressed: () => setState(() => open = true)),
+      ]);
+    }
+    final ok = cur.text.isNotEmpty && rules.every((r) => r.$2);
+    return Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+      _box('Current password', cur, AutofillHints.password),
+      _box('New password', pw, AutofillHints.newPassword),
+      _box('Type the new password again', again, AutofillHints.newPassword),
+      InkWell(onTap: () => setState(() => show = !show), child: Row(children: [
+        Checkbox(value: show, onChanged: (v) => setState(() => show = v ?? false)),
+        const Text('Show passwords', style: TextStyle(fontSize: 14, color: K.ink)),
+      ])),
+      for (final r in rules) Padding(padding: const EdgeInsets.only(bottom: 4), child: Row(children: [
+        Icon(r.$2 ? LucideIcons.check : LucideIcons.circle, size: r.$2 ? 14 : 9, color: r.$2 ? _good : _ink3), const SizedBox(width: 6),
+        Text(r.$1, style: TextStyle(fontSize: 13, color: r.$2 ? _good : _ink3)),
+      ])),
+      const SizedBox(height: 10),
+      Row(children: [
+        KButton('Save new password', busy: busy, onPressed: ok ? save : null),
+        const SizedBox(width: 8),
+        KButton('Cancel', kind: BtnKind.ghost, onPressed: () => setState(() { open = false; show = false; cur.clear(); pw.clear(); again.clear(); })),
+      ]),
+      const SizedBox(height: 8),
+      const Text('After saving you are signed out on every device and sign in again with the new password.', style: TextStyle(fontSize: 12, color: _ink3)),
+    ]);
+  }
 }

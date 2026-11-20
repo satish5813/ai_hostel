@@ -2,6 +2,7 @@ import { Avatar, Card, HeroHeader, Notice, StatusChip, formatDate } from '@/lib/
 import { ScreenHeader, bedLabel, mobile, roomLabel, titleCase, useProfile, useSession, words } from '@/lib/ui';
 import { roleDef } from '@/app/screens';
 import StudentProfile from './StudentProfile';
+import { ChangePasswordForm } from './ChangePassword';
 
 /** GEN-01 My profile and contacts: own details; students add or change a parent contact, verified by OTP. */
 export default function Profile() {
@@ -54,6 +55,7 @@ function StaffProfile() {
           {d.roles?.length ? <table className="klh-table"><thead><tr><th>Role</th><th>Scope</th><th>Since</th><th>Approval</th></tr></thead><tbody>{d.roles.map((r) => <tr key={r.role_code + r.scope_dept}><td>{r.name}</td><td>{r.scope_dept}</td><td>{formatDate(r.granted_on)}</td><td className="klh-code">{r.approval_ref ?? '—'}</td></tr>)}</tbody></table> : <p className="klh-muted">No portal roles recorded; this session uses the development role header.</p>}
         </Card>
         {def && <Card icon="eye" color="brand" title="Scope and device" subtitle={def.name}><dl className="klh-dl"><dt>Sees</dt><dd>{def.scope}</dd><dt>Used on</dt><dd>{def.device}</dd></dl></Card>}
+        <Card icon="lock" color="brand" title="Password" subtitle={`Username ${s.id}`}><ChangePasswordForm /></Card>
       </div>
     </div>
   );

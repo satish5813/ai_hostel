@@ -119,7 +119,7 @@ export class AccountsService {
       select account_id::int as account_id, username, (password_hash is not null and password_hash = crypt(${current}, password_hash)) as ok
       from portal.login_account where kind = ${user.kind} and user_ref = ${user.id} and status = 'Active'`);
     if (!a) throw new NotFoundException('This sign-in has no password to change');
-    if (!a.ok) throw new UnauthorizedException('The current password is not right');
+    if (!a.ok) throw new BadRequestException('The current password is not right');   // 400, not 401: a 401 signs the app out
     if (next.toLowerCase().includes(a.username.toLowerCase())) throw new BadRequestException('The password must not contain your username');
     await this.dbs.rows(sql`update portal.login_account set password_hash = crypt(${next}, gen_salt('bf', 10)), token_version = token_version + 1, password_set_on = now(), updated_at = now(), updated_by = ${user.id} where account_id = ${a.account_id}`);
     return { ok: true, sign_in_again: true };

@@ -7,6 +7,7 @@ import {
 import { Button, Field, Input, Select, formatDate, formatINR } from '@/lib/klh';
 import { api } from '@/lib/api';
 import { squarePhoto } from '@/lib/photo';
+import { ChangePasswordForm } from './ChangePassword';
 import { mobile, titleCase, toast, useAction, useApi, useSession, words } from '@/lib/ui';
 
 type Me = {
@@ -184,6 +185,10 @@ export default function StudentProfile() {
 
           <Card icon={Users} title="Family contacts" sub="Verify each number. One parent or guardian recommends your outings.">
             <Contacts m={m} onChange={() => me.mutate()} />
+          </Card>
+
+          <Card icon={KeyRound} title="Password" sub={`Username ${m.student_id}`}>
+            <ChangePasswordForm />
           </Card>
         </div>
       </div>
