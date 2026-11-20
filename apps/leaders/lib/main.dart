@@ -52,7 +52,8 @@ class SignInError implements Exception {
   final bool wrongPassword, offline;
 }
 
-const _store = FlutterSecureStorage(aOptions: AndroidOptions(encryptedSharedPreferences: true));
+// flutter_secure_storage 10+ always encrypts on Android (the old encryptedSharedPreferences option is gone)
+const _store = FlutterSecureStorage();
 
 Future<Session> signIn(String username, String password) async {
   http.Response r;
